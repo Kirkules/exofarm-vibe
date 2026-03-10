@@ -27,6 +27,8 @@ const PIECE_COLORS: Array = [
 var grid_data: GridData
 
 var _held_shape: PieceShape = null
+var has_held_piece: bool:
+	get: return _held_shape != null
 var _cursor_pos: Vector2 = Vector2.ZERO
 var _hovered_cell: Vector2i = Vector2i(-1, -1)
 

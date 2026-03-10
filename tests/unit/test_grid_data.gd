@@ -30,6 +30,17 @@ func test_col_beyond_max_is_out_of_bounds() -> void:
 
 func test_get_cell_out_of_bounds_returns_sentinel() -> void:
 	assert_eq(grid.get_cell(0, 0), -2)
+	
+func test_row_negative_is_out_of_bounds() -> void:
+	assert_false(grid.is_in_bounds(-1, 0))
+	
+func test_col_negative_is_out_of_bounds() -> void:
+	assert_false(grid.is_in_bounds(0, -1))
+	
+func test_both_coordinates_negative_is_out_of_bounds() -> void:
+	assert_false(grid.is_in_bounds(-1, -4))
+
+
 
 # ---------------------------------------------------------------------------
 # Empty grid

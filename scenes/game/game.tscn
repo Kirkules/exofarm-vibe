@@ -1,11 +1,17 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://5atlegmowkmf"]
 
-[ext_resource type="Script" path="res://scenes/game/game.gd" id="1"]
-[ext_resource type="Script" path="res://scenes/game/grid/farm_grid.gd" id="2"]
+[ext_resource type="Script" uid="uid://dnepiugv6qpvg" path="res://scenes/game/game.gd" id="1"]
+[ext_resource type="Script" uid="uid://bo1bu16sbrnnt" path="res://scenes/game/grid/farm_grid.gd" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/game/ui/inventory_ui.tscn" id="3"]
 
-[node name="Game" type="Node2D"]
+[node name="Game" type="Node2D" unique_id=1330963850]
 script = ExtResource("1")
 
-[node name="FarmGrid" type="Node2D" parent="."]
+[node name="FarmGrid" type="Node2D" parent="." unique_id=1130286580]
 position = Vector2(7, 150)
 script = ExtResource("2")
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+layer = 1
+
+[node name="InventoryUI" parent="UILayer" instance=ExtResource("3")]

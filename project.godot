@@ -11,9 +11,9 @@ config_version=5
 [application]
 
 config/name="ExoFarm"
+run/main_scene="res://scenes/game/game.tscn"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
-run/main_scene="res://scenes/game/game.tscn"
 
 [autoload]
 
@@ -27,9 +27,12 @@ Settings="*res://scripts/autoloads/settings.gd"
 window/size/viewport_width=270
 window/size/viewport_height=600
 window/stretch/mode="canvas_items"
-window/stretch/aspect="keep"
 window/stretch/scale_mode="integer"
 window/handheld/orientation=1
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gut/plugin.cfg")
 
 [physics]
 
