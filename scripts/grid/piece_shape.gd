@@ -49,6 +49,35 @@ func get_all_rotations() -> Array:
 		result.append(current)
 	return result
 
+## Returns a new PieceShape with the origin repositioned to the cell nearest the
+## center of mass of all cells. Use this when authoring piece shapes so that
+## rotation feels natural rather than pivoting around a corner.
+func with_centered_origin() -> PieceShape:
+	if offsets.size() <= 1:
+		return self
+	var sum_row: float = 0.0
+	var sum_col: float = 0.0
+	for o in offsets:
+		sum_row += float(o.x)
+		sum_col += float(o.y)
+	var center_row := sum_row / float(offsets.size())
+	var center_col := sum_col / float(offsets.size())
+	var best := offsets[0]
+	var best_sq_dist := INF
+	for o in offsets:
+		var dr := float(o.x) - center_row
+		var dc := float(o.y) - center_col
+		var sq_dist := dr * dr + dc * dc
+		if sq_dist < best_sq_dist:
+			best_sq_dist = sq_dist
+			best = o
+	var new_offsets: Array[Vector2i] = []
+	for o in offsets:
+		new_offsets.append(o - best)
+	var shape := PieceShape.new()
+	shape.offsets = new_offsets
+	return shape
+
 ## Returns the bounding rect of this shape as Rect2i(min_row, min_col, height, width).
 func get_bounding_rect() -> Rect2i:
 	if offsets.is_empty():

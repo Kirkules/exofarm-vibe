@@ -111,6 +111,41 @@ func test_bounding_rect_l_shape() -> void:
 	var rect := shape.get_bounding_rect()
 	assert_eq(rect, Rect2i(0, 0, 3, 2))
 
+# ---------------------------------------------------------------------------
+# with_centered_origin
+# ---------------------------------------------------------------------------
+
+func test_centered_origin_single_cell_unchanged() -> void:
+	var shape := PieceShape.new()
+	var centered := shape.with_centered_origin()
+	assert_eq(centered.offsets[0], Vector2i(0, 0))
+
+func test_centered_origin_is_at_zero_zero() -> void:
+	var shape := PieceShape.new()
+	shape.offsets = [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(2, 1)]
+	var centered := shape.with_centered_origin()
+	assert_true(centered.offsets.has(Vector2i(0, 0)),
+		"Origin (0,0) must be present after centering")
+
+func test_centered_origin_l_shape_pivots_at_middle_cell() -> void:
+	# L-shape center of mass: row=1.25, col=0.25 — nearest cell is (1,0)
+	# So centered offsets should include (0,0) where (1,0) used to be,
+	# i.e. (-1,0), (0,0), (1,0), (1,1)
+	var shape := PieceShape.new()
+	shape.offsets = [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(2, 1)]
+	var centered := shape.with_centered_origin()
+	assert_eq(centered.get_cell_count(), 4)
+	assert_true(centered.offsets.has(Vector2i(-1, 0)))
+	assert_true(centered.offsets.has(Vector2i(0, 0)))
+	assert_true(centered.offsets.has(Vector2i(1, 0)))
+	assert_true(centered.offsets.has(Vector2i(1, 1)))
+
+func test_centered_origin_preserves_cell_count() -> void:
+	var shape := PieceShape.new()
+	shape.offsets = [Vector2i(0, 0), Vector2i(0, 1), Vector2i(1, 0), Vector2i(1, 1)]
+	var centered := shape.with_centered_origin()
+	assert_eq(centered.get_cell_count(), shape.get_cell_count())
+
 func test_bounding_rect_with_negative_offsets() -> void:
 	# After one CW rotation of L-shape: offsets include negative col values
 	var shape := PieceShape.new()
