@@ -991,3 +991,128 @@ tapping off. Tooltips: small, context-triggered, same dismiss behavior.
 
 **Claude:** *(updated PLAN.md — added full UI Layout — Planning Phase section under
 Development Standards, including screen sections, overlay/popup behavior)*
+
+---
+
+**User:** I'd like to use git for version control for this project, with a private repo
+on github (that I haven't made yet).
+
+**Claude:** I'll document that, and I can also help you get it set up if you'd like. The
+steps would be: initialize a local git repo, add a Godot-appropriate .gitignore, and
+create the private GitHub repo. Want me to go ahead with setup now, or just document the
+preference for later?
+
+*(updated PLAN.md — added Version Control entry under Development Standards)*
+
+---
+
+**User:** Please do steps 1 and 2 for me. I'll create the repo on github.
+
+**Claude:** *(initialized git repo; created .gitignore for Godot 4)*
+
+Done. Once you've created the private repo on GitHub, let me know and I'll help you make
+the initial commit and connect it.
+
+---
+
+**User:** The github repo is https://github.com/Kirkules/exofarm-vibe. Before the
+initial commit, can you help me decide on a license to use and add that?
+
+**Claude:** A few questions to help narrow it down:
+
+1. **Do you intend to sell this game commercially?**
+2. **Do you want others to eventually be able to view, use, or build on the code?**
+3. **Do you care about keeping the game assets under a separate or more restrictive
+   license than the code?**
+
+The answers point in different directions:
+- Commercial, code stays proprietary → no license (all rights reserved by default)
+- Commercial, but okay with others seeing how it's made → source-available but no
+  redistribution
+- Open source, permissive → MIT
+- Open source, copyleft → GPL v3
+
+---
+
+**User:** I like GPL v3 from the ones you listed for now. I'd like to eventually try to
+monetize this game if it feels good enough to do so, but won't worry about that for now.
+
+**Claude:** One brief note for later: GPL v3 allows you to sell the game, but anyone who
+receives it has the right to the source code and can redistribute it freely. That can
+complicate app store monetization down the road. Worth revisiting before any commercial
+release — but no action needed now.
+
+What name should I use for the copyright holder in the license file?
+
+---
+
+**User:** Kirk Anthony Boyer
+
+**Claude:** *(added LICENSE file with GPL v3 text and copyright notice for Kirk Anthony
+Boyer 2026; updated PLAN.md with license note)*
+
+Done. Ready to make the initial commit and connect to GitHub whenever you are.
+
+---
+
+**User:** Let's make the initial commit and connect to github.
+
+**Claude:** *(staged all files; made initial commit; connected remote via SSH;
+pushed to https://github.com/Kirkules/exofarm-vibe)*
+
+Done. The repo is live. Future pushes will use SSH automatically.
+
+---
+
+**User:** Let's return to working on the plan. What are the phases, and what do we need
+before proceeding to the first phase?
+
+**Claude:** [summarized phases 0–5; identified three things worth settling before Phase
+0: scene structure, grid coordinate system, workspace area in UI]
+
+---
+
+**User:** Let's discuss scene structure.
+
+**Claude:** [presented folder layout, autoload candidates, data definition options
+(Resources vs GDScript classes), script co-location recommendation]
+
+---
+
+**User:** Folder layout looks good to begin with. Let's keep the autoloads you
+mentioned, and add another autoload for Settings (this will be for volume settings and
+other preferences like whether to offset any dragged items from the clicked/tapped
+location so a finger touching a device screen doesn't cover up the dragged item).
+
+**Claude:** Good addition — the drag offset preference is a thoughtful touch UX detail.
+
+Four autoloads confirmed: GameState, Catalog, EventBus, Settings.
+
+Still to decide: data definitions (Resources vs GDScript classes) and save strategy.
+Recommended Resources for piece/building defs, planet types, recipes; asked for input.
+
+---
+
+**User:** Yes, let's use Godot Resources for piece/building definitions, planet types,
+and recipes. Also, I want to be able to save game state regularly so that if the game
+instance is closed or crashes or something, the player can resume where they left off in
+the planning stage for the current season of the current run. Should this be done with
+Resources too?
+
+**Claude:** Resources work but aren't the best fit for frequently-written mutable save
+data. Recommended split:
+
+- **Game save state:** custom `SaveData` Resource subclass saved as binary `.res` via
+  `ResourceSaver` — fast, strongly typed, consistent with project Resource usage
+- **Settings:** `ConfigFile` (.cfg) — purpose-built for key-value preferences
+
+Save triggers: after every meaningful planning action, and on app pause
+(`NOTIFICATION_APPLICATION_PAUSED`) — critical on Android.
+
+---
+
+**User:** Those data model choices sound good. The choices of when to save also sound
+good. Yes, write up these choices.
+
+**Claude:** *(updated PLAN.md — added Project Structure section covering folder layout,
+autoloads, data definitions, and save strategy)*
