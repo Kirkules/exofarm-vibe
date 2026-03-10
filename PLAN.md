@@ -153,7 +153,8 @@ Each game round = one **season** on the planet.
 - Player places, rotates, and rearranges elements on the grid
 - All moves are **fully reversible** until "Proceed to Next Season" is confirmed
 - **Moveable pieces** can be picked up (freeing their slots) and placed elsewhere or
-  held in an off-grid **workspace area** on screen
+  returned to the **inventory** (no separate workspace area — the inventory serves as
+  the off-grid holding area)
 - **Fixed pieces** (buildings) must be removed and re-placed; upgrades can make
   specific buildings moveable
 - Rich visual feedback: effect overlays, synergy indicators, coverage areas
@@ -287,8 +288,9 @@ Types of power sources:
 
 ## Inventory
 
-- All crafted items go to a **general inventory** — a single shared pool, not tied to
-  any specific building
+- All crafted items and pieces removed from the grid go to a **general inventory** —
+  a single shared pool, not tied to any specific building; the inventory also serves
+  as the off-grid holding area (workspace) during planning
 - **Inventory capacity** = sum of storage contributions from all buildings on the grid;
   each building contributes a flat number of slots
 - Items have a **slot size** (matching their footprint in merge spaces); this is how
@@ -529,6 +531,74 @@ Many tasks yield only a windfall; site reveals are less common.
   (https://github.com/Kirkules/exofarm-vibe)
 - **License:** GPL v3 — note: revisit before any commercial release
 
+### Project Structure
+
+#### Folder Layout
+```
+res://
+├── scenes/
+│   ├── game/       ← main run (grid, simulation, planning UI)
+│   ├── hub/        ← Earth hub
+│   └── menus/      ← main menu, settings
+├── scripts/        ← pure logic scripts with no associated scene
+├── resources/      ← Godot Resource files (piece definitions, planet types, recipes)
+├── assets/
+│   ├── sprites/
+│   ├── fonts/
+│   └── audio/
+└── tests/          ← GUT test files
+```
+
+Scene scripts are co-located with their scene files. Pure logic scripts (no scene)
+live in `scripts/`.
+
+#### Autoloads (Singletons)
+- **GameState** — current run data: season number, settler count, inventory, Morale,
+  Energy, Matter, grid layout, and all other mutable run state; responsible for
+  triggering saves
+- **Catalog** — known designs and recipes reflecting current meta-progression state
+- **EventBus** — global signal bus for decoupled communication between systems
+- **Settings** — user preferences: volume levels, drag offset toggle (offsets dragged
+  items from the touch point so a finger doesn't obscure them on mobile), and other
+  TBD preferences
+
+#### Data Definitions
+- **Piece/building definitions, planet types, recipes:** defined as typed Godot
+  Resource subclasses (`.tres`/`.res`); editable in the Godot editor without touching
+  code
+- **Pure logic** (grid calculations, rotation, outcome rolls, etc.): GDScript classes
+
+#### Save Strategy
+- **Game save state:** `SaveData` — a custom Resource subclass saved as a binary
+  `.res` file via `ResourceSaver` to `user://`; fast to write; strongly typed;
+  consistent with the project's Resource usage
+- **Settings:** `ConfigFile` (`.cfg`) saved to `user://` — purpose-built for
+  key-value preferences, simpler than a full Resource
+- **Save triggers:**
+  - After every meaningful planning action (piece placed/removed, building toggled,
+    meal assigned, explorer assigned, etc.)
+  - On app pause (`NOTIFICATION_APPLICATION_PAUSED`) — critical on Android, where
+    the OS can kill background apps without warning
+  - Saves are handled by `GameState` and must be fast enough to run synchronously
+    without perceptible lag
+
+### Grid Coordinate System
+- Cells addressed as **(row, column)**, 1-indexed, with **(1, 1) at the top-left**
+  corner of the grid
+- Row increases downward; column increases rightward
+- Example on an 8×6 grid: (1,1) = top-left, (1,8) = top-right, (6,8) = bottom-right
+
+### Polyomino Shape Definition
+- Each piece shape is defined as a **list of (row, col) offsets** from an **origin
+  cell**, e.g. `[(0,0), (1,0), (2,0), (2,1)]` for an L-shape
+- The **origin cell** is both the anchor for offset definitions and the **pivot point
+  for rotation** during drag/placement — it tracks the player's touch point on the
+  grid; the other cells rotate around it
+- Rotation is applied mathematically: 90° clockwise transforms each offset
+  `(r, c) → (c, -r)`, then offsets are renormalized so the minimum is back at `(0,0)`
+- All 4 rotation states are computed from the base definition at runtime (not stored
+  as separate variants)
+
 ### Language
 - All game code written in **GDScript** — no C#
 
@@ -579,8 +649,10 @@ Many tasks yield only a windfall; site reveals are less common.
   effect overlays, synergy indicators
 
 **Bottom (~258px) — HUD & Controls**
-- **Inventory:** persistently visible at top of this section; expandable upward
-  (overlaying the grid) to reveal more items at once; collapsible back to default
+- **Inventory:** persistently visible at top of this section; also serves as the
+  off-grid holding area (workspace) — pieces picked up from the grid appear here as
+  inventory items; expandable upward (overlaying the grid) to reveal more items at
+  once; collapsible back to default
 - **Next Season button:** wide (~50% screen width, ~135px), centered, at very bottom
   of screen; confirms planning and begins season simulation
 - **Game navigation button:** small, tucked in a bottom corner; expands to reveal:
@@ -612,11 +684,11 @@ Many tasks yield only a windfall; site reveals are less common.
 ## Development Phases
 
 ### Phase 0 — Foundation
-- [ ] Project structure and scene organization
-- [ ] Core grid data model (cells, polyomino piece shapes, rotation logic)
-- [ ] Grid rendering with placeholder visuals (colored rectangles)
-- [ ] Piece placement, rotation, and removal input handling
-- [ ] Workspace (off-grid holding area) UI
+- [x] Project structure and scene organization
+- [x] Core grid data model (cells, polyomino piece shapes, rotation logic)
+- [x] Grid rendering with placeholder visuals (colored rectangles)
+- [x] Piece placement, rotation, and removal input handling
+- [ ] Inventory UI (also serves as off-grid holding area during planning)
 - [ ] Basic field-of-effect overlay system
 
 ### Phase 1 — Core Planning Loop

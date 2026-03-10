@@ -10,9 +10,26 @@ config_version=5
 
 [application]
 
-config/name="Exofarm-vibe"
+config/name="ExoFarm"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
+run/main_scene="res://scenes/game/game.tscn"
+
+[autoload]
+
+GameState="*res://scripts/autoloads/game_state.gd"
+Catalog="*res://scripts/autoloads/catalog.gd"
+EventBus="*res://scripts/autoloads/event_bus.gd"
+Settings="*res://scripts/autoloads/settings.gd"
+
+[display]
+
+window/size/viewport_width=270
+window/size/viewport_height=600
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep"
+window/stretch/scale_mode="integer"
+window/handheld/orientation=1
 
 [physics]
 
