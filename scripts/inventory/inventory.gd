@@ -17,8 +17,8 @@ func _init(p_capacity: int = 10) -> void:
 
 ## Current slots used (sum of all item slot_sizes).
 func slots_used() -> int:
-	var total := 0
-	for item in _items:
+	var total: int = 0
+	for item: InventoryItem in _items:
 		total += item.slot_size
 	return total
 
@@ -39,7 +39,7 @@ func add(item: InventoryItem) -> bool:
 
 ## Remove item by reference. Returns true if found and removed.
 func remove(item: InventoryItem) -> bool:
-	var idx := _items.find(item)
+	var idx: int = _items.find(item)
 	if idx == -1:
 		return false
 	_items.remove_at(idx)
@@ -48,7 +48,7 @@ func remove(item: InventoryItem) -> bool:
 
 ## Move item to the top of the list (index 0 = highest priority).
 func send_to_top(item: InventoryItem) -> void:
-	var idx := _items.find(item)
+	var idx: int = _items.find(item)
 	if idx <= 0:
 		return
 	_items.remove_at(idx)
@@ -57,7 +57,7 @@ func send_to_top(item: InventoryItem) -> void:
 
 ## Move item to the bottom of the list.
 func send_to_bottom(item: InventoryItem) -> void:
-	var idx := _items.find(item)
+	var idx: int = _items.find(item)
 	if idx == -1 or idx == _items.size() - 1:
 		return
 	_items.remove_at(idx)

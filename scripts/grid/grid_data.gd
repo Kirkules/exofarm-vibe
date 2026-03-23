@@ -48,9 +48,9 @@ func set_impassable(row: int, col: int) -> void:
 
 ## Returns true if the given shape can be placed with its origin at (origin_row, origin_col).
 func can_place(shape: PieceShape, origin_row: int, origin_col: int) -> bool:
-	for offset in shape.offsets:
-		var r := origin_row + offset.x
-		var c := origin_col + offset.y
+	for offset: Vector2i in shape.offsets:
+		var r: int = origin_row + offset.x
+		var c: int = origin_col + offset.y
 		if not is_in_bounds(r, c):
 			return false
 		if _cells[_cell_index(r, c)] != 0:
@@ -61,11 +61,11 @@ func can_place(shape: PieceShape, origin_row: int, origin_col: int) -> bool:
 func place_piece(shape: PieceShape, origin_row: int, origin_col: int) -> int:
 	if not can_place(shape, origin_row, origin_col):
 		return -1
-	var piece_id := _next_id
+	var piece_id: int = _next_id
 	_next_id += 1
-	for offset in shape.offsets:
-		var r := origin_row + offset.x
-		var c := origin_col + offset.y
+	for offset: Vector2i in shape.offsets:
+		var r: int = origin_row + offset.x
+		var c: int = origin_col + offset.y
 		_cells[_cell_index(r, c)] = piece_id
 	_pieces[piece_id] = {"shape": shape, "row": origin_row, "col": origin_col}
 	return piece_id
@@ -76,7 +76,7 @@ func remove_piece(piece_id: int) -> bool:
 		return false
 	var info: Dictionary = _pieces[piece_id]
 	var shape: PieceShape = info["shape"]
-	for offset in shape.offsets:
+	for offset: Vector2i in shape.offsets:
 		var r: int = info["row"] + offset.x
 		var c: int = info["col"] + offset.y
 		_cells[_cell_index(r, c)] = 0
