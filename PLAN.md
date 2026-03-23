@@ -688,8 +688,12 @@ live in `scripts/`.
 - [x] Core grid data model (cells, polyomino piece shapes, rotation logic)
 - [x] Grid rendering with placeholder visuals (colored rectangles)
 - [x] Piece placement, rotation, and removal input handling
-- [ ] Inventory UI (also serves as off-grid holding area during planning)
-- [ ] Basic field-of-effect overlay system
+- [x] Inventory data model and UI (collapsed/partial/full panel; drag-to-pick-up from
+  inventory with 16px-drag or 0.5s-hold threshold; drop-to-inventory via sprite CoM
+  detection; snap-back to original grid position on invalid drop; 32×32 piece icons)
+- [x] Mouse/desktop input parity (left-click = tap, right-click-while-dragging = rotate)
+- [x] Basic field-of-effect overlay system (shown while dragging; Manhattan distance radius
+  per piece; toggleable per-piece via effect_range property)
 
 ### Phase 1 — Core Planning Loop
 - [ ] Initial set of placeable element types (shape, cost, effects)

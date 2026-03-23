@@ -1116,3 +1116,235 @@ good. Yes, write up these choices.
 
 **Claude:** *(updated PLAN.md — added Project Structure section covering folder layout,
 autoloads, data definitions, and save strategy)*
+
+---
+
+## Session 2 — Phase 0 Continued: Inventory & Rotation Polish
+
+### Rotation Pivot Fix
+
+**User:** The rotation felt off — the pivot was at offset (0,0) rather than near the
+center of mass.
+
+**Claude:** *(updated PieceShape — added `with_centered_origin()` which computes the
+center of mass of all cell offsets and shifts the offset list so the nearest cell to
+the center becomes the new (0,0); updated game.gd to apply `with_centered_origin()`
+to the test L-piece before adding it to inventory)*
+
+The rotation now pivots near the visual center of the piece rather than one corner.
+
+---
+
+### Inventory Data Model
+
+**User:** [requested Inventory data model and UI implementation]
+
+**Claude:** *(created `scripts/inventory/inventory.gd` — Inventory class with capacity,
+slot-based accounting, add/remove, send_to_top/send_to_bottom reordering, `changed`
+signal; created `scripts/inventory/inventory_item.gd` — InventoryItem with display_name,
+slot_size, and an optional `data` payload for typed content such as a PieceShape;
+created GUT unit tests in `tests/unit/test_inventory.gd` covering add/remove, slot
+accounting, capacity checks, reordering, and signal emission)*
+
+---
+
+### Inventory UI
+
+**Claude:** *(created `scenes/game/ui/inventory_ui.gd` and `inventory_ui.tscn` —
+InventoryUI Control anchored to the bottom of the screen with three states: COLLAPSED
+(header bar only), PARTIAL (items visible below grid), FULL (taller, may overlay grid);
+header has left/right buttons to cycle states; each item row shows reorder buttons,
+a piece icon via PieceSpriteGenerator, and a label with name and slot size; emits
+`item_requested` signal on item tap; connected to FarmGrid and Inventory in game.gd)*
+
+---
+
+### Android Export Preset
+
+**Claude:** *(added Android export preset to the project for one-click device testing
+on a connected Android device)*
+
+---
+
+## Session 3 — Input Refinements, Code Quality, Drop Logic
+
+### Inventory Drag-Pickup Fix
+
+**User:** [inventory item button_down should initiate a drag pickup just like grid pickup]
+
+**Claude:** *(updated InventoryUI to emit `item_requested` on `button_down` rather than
+`pressed`; updated game.gd to call `farm_grid.begin_pending_inventory_hold(item)` on
+`item_requested`; added `begin_pending_inventory_hold` to FarmGrid which registers a
+pending INVENTORY pickup that is confirmed once the drag/hold threshold is met; the
+method handles both input-ordering cases — _input before _gui_input and vice versa —
+by checking `_active_touches` and falling back to a branch in the touch-down handler)*
+
+---
+
+### Pickup Threshold
+
+**User:** Picking up a piece should only happen if the player drags more than 16 pixels
+away from the initial touch location, OR holds the tap in place for more than 0.5
+seconds. A brief tap with no drag should do nothing.
+
+**Claude:** *(added `PICKUP_DRAG_THRESHOLD_SQ` and `PICKUP_HOLD_TIME` constants;
+introduced `PendingSource` enum (NONE/GRID/INVENTORY) and a pending-pickup state
+machine with `_pending_finger`, `_pending_screen_pos`, `_pending_timer`,
+`_pending_grid_cell`, `_pending_inv_item`; `_process` increments the timer and calls
+`_confirm_pending()` when the hold threshold is met; ScreenDrag events check the
+distance threshold; `_confirm_pending()` executes the actual pickup; quick tap-release
+calls `_cancel_pending()` which does nothing)*
+
+---
+
+### Explicit Type Annotation Policy
+
+**User:** We are seeing "Cannot infer type" errors in Godot. Please add explicit types
+to all var declarations — `var x: int = 3` instead of `var x := 3`. Please apply this
+to all scripts in the project (not addons).
+
+**Claude:** *(swept all project scripts: farm_grid.gd, game.gd, inventory_ui.gd,
+grid_data.gd, piece_shape.gd, inventory.gd, inventory_item.gd, piece_sprite_generator.gd,
+settings.gd, and all test files — added explicit type annotations to every var
+declaration and for-loop variable; addons/gut/ was intentionally excluded; saved coding
+standard to memory)*
+
+This fixed at least one confirmed error and potentially several others.
+
+---
+
+### Tappable Sprite Icon in Inventory Rows
+
+**User:** The inventory entry sprite icon doesn't respond to taps; also the icon hangs
+off the background behind the label.
+
+**Claude:** *(wrapped the TextureRect icon in a flat Button with `button_down` connected
+to `_on_item_tapped`; fixed icon sizing by using `set_anchors_and_offsets_preset(
+PRESET_FULL_RECT)` on the TextureRect so it fills the button rather than hanging outside)*
+
+---
+
+### Dragged Sprite Above Inventory Panel — CanvasLayer
+
+**User:** The dragged piece sprite is covered by the inventory panel. Make it render
+above the inventory.
+
+**Claude:** *(created a CanvasLayer (layer=100) in FarmGrid._ready(), added the
+`_held_sprite` Sprite2D to it; positioned the sprite using raw viewport pixel coordinates
+(`event.position`) rather than scene-local coordinates since CanvasLayer uses its own
+coordinate space; tracked `_cursor_screen_pos` alongside `_cursor_pos` throughout all
+input handlers)*
+
+**User:** I no longer see the dragged sprite at all during dragging.
+
+**Claude:** *(diagnosed: the CanvasLayer was added via `get_parent().add_child()` during
+FarmGrid's `_ready()`, which runs before Game's `_ready()`, causing the node to be added
+during an unfinished initialization chain; fix: changed to `add_child(_held_sprite_layer)`
+so the CanvasLayer is a direct child of FarmGrid — in Godot 4 a CanvasLayer child of a
+Node2D still renders independently at its layer value)*
+
+Confirmed working on device after this fix.
+
+---
+
+### Inventory Item Icon Size
+
+**User:** The sprite icon in the inventory is too large — almost 3× the row height,
+overlapping adjacent entries. Please make a scaled-down 32×32 icon version.
+
+**Claude:** *(added `generate_icon(shape, color)` static method to PieceSpriteGenerator:
+generates the full sprite image, scales it to fit within 30×30 px using bilinear
+interpolation (`Image.resize`), centers it in a 32×32 image, and draws a 1-pixel dark
+border on all four edges; updated InventoryUI to call `generate_icon` instead of
+`generate` for item row icons)*
+
+---
+
+### Mouse / Desktop Input Support
+
+**User:** Make left-click and left-click-drag work like a single tap (with the same
+drag/hold threshold). Right-click while dragging should act as a secondary tap (rotate).
+
+**Claude:** *(introduced `MOUSE_FINGER = -2` synthetic finger index so mouse could share
+the existing touch code paths; mapped InputEventMouseButton LEFT to the pending-pickup
+state machine; InputEventMouseMotion with left button held acts as a ScreenDrag; right
+mouse button while holding a piece calls `rotate_held_cw()`)*
+
+---
+
+### Enum Policy — Replace Integer Sentinels
+
+**User:** Please move to using GDScript enums for discrete multi-valued variables
+instead of integer sentinels, especially when multiple things use -1. Make this a
+development policy going forward.
+
+**Claude:** *(replaced `_drag_finger: int` (conflating none/-1, mouse/-2, touch index)
+with `enum InputSource { NONE, MOUSE, TOUCH }` + `_drag_source: InputSource` +
+`_drag_touch_idx: int`; replaced `_pending_finger: int` with `_pending_input:
+InputSource` + `_pending_touch_idx: int`; replaced `_last_touch_finger: int` (mixed
+mouse and touch) with `_mouse_held: bool` + `_last_touch_idx: int`; removed `MOUSE_FINGER`
+constant and dead `_handle_pickup()` function; saved enum coding standard to memory)*
+
+---
+
+### Return to Grid on Invalid Drop
+
+**User:** When a piece is dropped in an invalid location, it should return to its
+previous location. If it came from inventory, return to inventory. If it came from the
+grid, return to where it was on the board.
+
+**Claude:** *(added `enum HeldOrigin { NONE, GRID, INVENTORY }` and variables
+`_held_origin`, `_held_origin_cell`, `_held_origin_shape` (shape at pickup time, before
+any rotation during drag); `_confirm_pending()` records origin when picking up from grid
+(using `get_piece_info` for the true origin cell, not the touched cell) or inventory;
+`_try_place_or_return()` branches on `_held_origin`: GRID → `_return_held_to_grid()`
+which re-places the original shape at the original cell, INVENTORY → `piece_hold_cancelled`
+as before; added `piece_returned_to_grid` signal for game.gd to clear `_held_item`)*
+
+**Claude (snap-back offset bug fix):** The snap-back was placing the piece one cell to
+the left of its original position. Root cause: `_held_origin_cell` was being set to
+`_pending_grid_cell` (the cell the player touched, which could be any cell of the shape),
+not to the piece's origin cell. Fixed by using `Vector2i(info["row"], info["col"])` from
+`get_piece_info` instead.
+
+---
+
+### Inventory Drop Detection — Sprite Center of Mass
+
+**User:** Dropping into the inventory requires the item to be further into the inventory
+than expected. It should go to inventory whenever the sprite overlaps the inventory
+display at all, unless a valid grid placement is highlighted.
+
+**Claude:** *(added `set_inventory_control(c: Control)` to FarmGrid, called from
+game.gd._ready(); added `_sprite_overlaps_inventory()` checking the sprite's full
+bounding rect against `inventory_ui.get_global_rect()`; added `_cursor_over_inventory()`
+checking the raw cursor position; `_try_place_or_return()` skips grid placement if
+cursor is over the inventory, and sends to inventory if sprite overlaps it)*
+
+**User:** When the inventory is expanded further (covering part of the grid), a valid
+grid placement highlighted under the inventory panel should not be placed — the piece
+should go to inventory instead. Also, use the sprite's center of mass as the deciding
+point rather than cursor or bounding-box overlap.
+
+**Claude:** *(replaced both `_cursor_over_inventory()` and `_sprite_overlaps_inventory()`
+with a single `_sprite_com_over_inventory()` helper; the CoM is computed as
+`effective_cursor_screen_pos + (avg_offset + 0.5) * CELL_SIZE` where avg_offset is
+the mean of all cell offsets; `_try_place_or_return()` now skips grid placement when
+CoM is over the inventory panel, and sends to inventory when CoM is over it)*
+
+---
+
+### Grid Cell Background Removed for Placed Pieces
+
+**User:** Placed pieces have a random-looking background color. Remove it.
+
+**Claude:** *(removed the `PIECE_COLORS` cycle from `_draw_cells()` — cells now always
+draw `COLOR_EMPTY` regardless of whether a piece occupies them; the Sprite2D overlays
+provide all piece visuals)*
+
+---
+
+**User:** Thank you for pointing out the assumption you made (returning the original
+rotation on snap-back) along the way, even though you thought it was sensible.
+
+**Claude:** Noted — will keep flagging assumptions like that even when they seem obvious.
