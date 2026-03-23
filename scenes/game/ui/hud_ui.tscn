@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/game/ui/hud_ui.gd" id="1"]
+
+[node name="HudUI" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_bottom = 48.0
+custom_minimum_size = Vector2(0, 48)
+script = ExtResource("1")

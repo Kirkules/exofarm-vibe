@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://dnepiugv6qpvg" path="res://scenes/game/game.gd" id="1"]
 [ext_resource type="Script" uid="uid://bo1bu16sbrnnt" path="res://scenes/game/grid/farm_grid.gd" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/game/ui/inventory_ui.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/game/ui/hud_ui.tscn" id="4"]
 
 [node name="Game" type="Node2D" unique_id=1330963850]
 script = ExtResource("1")
@@ -11,7 +12,11 @@ script = ExtResource("1")
 position = Vector2(7, 150)
 script = ExtResource("2")
 
-[node name="UILayer" type="CanvasLayer" parent="."]
-layer = 1
+[node name="UILayer" type="CanvasLayer" parent="." unique_id=707504458]
 
-[node name="InventoryUI" parent="UILayer" instance=ExtResource("3")]
+[node name="HudUI" parent="UILayer" instance=ExtResource("4")]
+layout_mode = 3
+
+[node name="InventoryUI" parent="UILayer" unique_id=109083337 instance=ExtResource("3")]
+layout_mode = 3
+anchors_preset = 12
