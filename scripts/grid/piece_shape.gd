@@ -13,6 +13,10 @@ extends Resource
 ## Offsets may be negative (e.g. a cell two columns left of origin = Vector2i(0, -2)).
 
 @export var offsets: Array[Vector2i] = [Vector2i(0, 0)]
+@export var color: Color = Color.WHITE
+## Manhattan-distance radius of this piece's field of effect.
+## 0 = no effect overlay. Used by FarmGrid to draw coverage highlights.
+@export var effect_range: int = 0
 
 ## Returns the number of cells this piece occupies.
 func get_cell_count() -> int:
@@ -23,20 +27,24 @@ func get_cell_count() -> int:
 ## The origin cell (0, 0) is preserved under this transformation.
 func rotated_cw() -> PieceShape:
 	var new_offsets: Array[Vector2i] = []
-	for o in offsets:
+	for o: Vector2i in offsets:
 		new_offsets.append(Vector2i(o.y, -o.x))
-	var shape := PieceShape.new()
+	var shape: PieceShape = PieceShape.new()
 	shape.offsets = new_offsets
+	shape.color = color
+	shape.effect_range = effect_range
 	return shape
 
 ## Returns a new PieceShape rotated 90 degrees counter-clockwise around the origin.
 ## Rotation formula: (row, col) -> (-col, row).
 func rotated_ccw() -> PieceShape:
 	var new_offsets: Array[Vector2i] = []
-	for o in offsets:
+	for o: Vector2i in offsets:
 		new_offsets.append(Vector2i(-o.y, o.x))
-	var shape := PieceShape.new()
+	var shape: PieceShape = PieceShape.new()
 	shape.offsets = new_offsets
+	shape.color = color
+	shape.effect_range = effect_range
 	return shape
 
 ## Returns all 4 clockwise rotation states starting from this shape.
@@ -57,25 +65,27 @@ func with_centered_origin() -> PieceShape:
 		return self
 	var sum_row: float = 0.0
 	var sum_col: float = 0.0
-	for o in offsets:
+	for o: Vector2i in offsets:
 		sum_row += float(o.x)
 		sum_col += float(o.y)
-	var center_row := sum_row / float(offsets.size())
-	var center_col := sum_col / float(offsets.size())
-	var best := offsets[0]
-	var best_sq_dist := INF
-	for o in offsets:
-		var dr := float(o.x) - center_row
-		var dc := float(o.y) - center_col
-		var sq_dist := dr * dr + dc * dc
+	var center_row: float = sum_row / float(offsets.size())
+	var center_col: float = sum_col / float(offsets.size())
+	var best: Vector2i = offsets[0]
+	var best_sq_dist: float = INF
+	for o: Vector2i in offsets:
+		var dr: float = float(o.x) - center_row
+		var dc: float = float(o.y) - center_col
+		var sq_dist: float = dr * dr + dc * dc
 		if sq_dist < best_sq_dist:
 			best_sq_dist = sq_dist
 			best = o
 	var new_offsets: Array[Vector2i] = []
-	for o in offsets:
+	for o: Vector2i in offsets:
 		new_offsets.append(o - best)
-	var shape := PieceShape.new()
+	var shape: PieceShape = PieceShape.new()
 	shape.offsets = new_offsets
+	shape.color = color
+	shape.effect_range = effect_range
 	return shape
 
 ## Returns the bounding rect of this shape as Rect2i(min_row, min_col, height, width).
@@ -86,7 +96,7 @@ func get_bounding_rect() -> Rect2i:
 	var max_row: int = offsets[0].x
 	var min_col: int = offsets[0].y
 	var max_col: int = offsets[0].y
-	for o in offsets:
+	for o: Vector2i in offsets:
 		min_row = mini(min_row, o.x)
 		max_row = maxi(max_row, o.x)
 		min_col = mini(min_col, o.y)
