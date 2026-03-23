@@ -21,3 +21,6 @@ android/
 
 # Windows
 Thumbs.db
+
+# Third-party addons
+addons/gut/
