@@ -97,6 +97,9 @@ func _on_item_requested(item: InventoryItem) -> void:
 func _on_inventory_item_pickup_confirmed(item: InventoryItem) -> void:
 	_held_item = item
 	_inventory.remove(item)
+	var def: PlaceableDefinition = item.data as PlaceableDefinition
+	var pr: int = (def as BuildingDefinition).power_range if def is BuildingDefinition else 0
+	farm_grid.set_held_power_range(pr)
 
 func _on_piece_picked_up_from_grid(piece_id: int, _shape: PieceShape) -> void:
 	_held_item = _placed_items.get(piece_id, null)
@@ -104,27 +107,35 @@ func _on_piece_picked_up_from_grid(piece_id: int, _shape: PieceShape) -> void:
 	_piece_active.erase(piece_id)
 	if _held_item:
 		farm_grid.set_held_hint(_held_item.display_name)
+		var def: PlaceableDefinition = _held_item.data as PlaceableDefinition
+		var pr: int = (def as BuildingDefinition).power_range if def is BuildingDefinition else 0
+		farm_grid.set_held_power_range(pr)
 	_recompute_power()
 
 func _on_piece_placed_on_grid(piece_id: int) -> void:
 	if _held_item:
 		_placed_items[piece_id] = _held_item
-		var def: PlaceableDefinition = _held_item.data as PlaceableDefinition
-		farm_grid.set_piece_moveable(piece_id, def.moveable if def else true)
 	_held_item = null
+	var def: PlaceableDefinition = (_placed_items[piece_id].data if _placed_items.has(piece_id) else null) as PlaceableDefinition
+	farm_grid.set_piece_moveable(piece_id, true)
+	farm_grid.set_piece_toggleable(piece_id, def is BuildingDefinition)
+	farm_grid.set_held_power_range(0)
 	_recompute_power()
 
 func _on_piece_hold_cancelled(_shape: PieceShape) -> void:
 	if _held_item:
 		_inventory.add(_held_item)
 		_held_item = null
+	farm_grid.set_held_power_range(0)
 
 func _on_piece_returned_to_grid(piece_id: int) -> void:
 	if _held_item:
 		_placed_items[piece_id] = _held_item
-		var def: PlaceableDefinition = _held_item.data as PlaceableDefinition
-		farm_grid.set_piece_moveable(piece_id, def.moveable if def else true)
 	_held_item = null
+	var def: PlaceableDefinition = (_placed_items[piece_id].data if _placed_items.has(piece_id) else null) as PlaceableDefinition
+	farm_grid.set_piece_moveable(piece_id, true)
+	farm_grid.set_piece_toggleable(piece_id, def is BuildingDefinition)
+	farm_grid.set_held_power_range(0)
 	_recompute_power()
 
 ## Toggle a placed building on or off and recompute power.
@@ -139,6 +150,29 @@ func _recompute_power() -> void:
 	_power_state    = PowerSystem.compute(placed)
 	_neighbor_state = NeighborSystem.compute(placed)
 	hud_ui.refresh_power(_power_state.total_pool(), _power_state.total_draw())
+	_refresh_overlays(placed)
+
+func _refresh_overlays(placed: Dictionary) -> void:
+	var sources: Array = []
+	for piece_id: int in placed:
+		var entry: Dictionary = placed[piece_id]
+		if not entry["active"]:
+			continue
+		if not entry["def"] is BuildingDefinition:
+			continue
+		var bdef: BuildingDefinition = entry["def"] as BuildingDefinition
+		if bdef.power_range <= 0:
+			continue
+		var net_idx: int = _power_state.piece_network_idx.get(piece_id, -1)
+		var sufficient: bool = net_idx != -1 \
+			and (_power_state.networks[net_idx] as PowerSystem.Network).is_sufficient()
+		sources.append({
+			"row":       entry["row"],
+			"col":       entry["col"],
+			"range":     bdef.power_range,
+			"sufficient": sufficient,
+		})
+	farm_grid.set_power_overlay(sources)
 
 func _build_placed_dict() -> Dictionary:
 	var placed: Dictionary = {}
@@ -155,6 +189,11 @@ func _build_placed_dict() -> Dictionary:
 	return placed
 
 func _on_next_season_pressed() -> void:
+	# Lock in all placed pieces according to their definition's moveable flag.
+	# Buildings become fixed; other pieces stay moveable for future seasons.
+	for piece_id: int in _placed_items:
+		var def: PlaceableDefinition = _placed_items[piece_id].data as PlaceableDefinition
+		farm_grid.set_piece_moveable(piece_id, def.moveable if def else true)
 	GameState.season += 1
 	GameState.energy = GameState.energy_capacity
 	GameState.matter = GameState.matter_capacity

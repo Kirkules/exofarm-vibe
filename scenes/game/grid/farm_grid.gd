@@ -19,7 +19,9 @@ const COLOR_BORDER   := Color(0.08, 0.08, 0.08)
 const COLOR_HOVER    := Color(0.25, 0.35, 0.25)
 const COLOR_VALID    := Color(0.30, 0.65, 0.30, 0.65)
 const COLOR_INVALID  := Color(0.65, 0.25, 0.25, 0.65)
-const COLOR_EFFECT   := Color(0.90, 0.75, 0.20, 0.28)
+const COLOR_EFFECT         := Color(0.90, 0.75, 0.20, 0.28)
+const COLOR_POWER_RANGE    := Color(0.35, 0.70, 1.00, 0.18)  # sufficient network
+const COLOR_POWER_WEAK     := Color(0.95, 0.50, 0.20, 0.18)  # insufficient network
 
 # Piece fill colours cycle by piece_id for visual distinction.
 const PIECE_COLORS: Array[Color] = [
@@ -102,6 +104,7 @@ var has_pending_pickup: bool:
 var _piece_sprites:      Dictionary = {}  # piece_id -> Sprite2D
 var _piece_label_hints:  Dictionary = {}  # piece_id -> String (display name for label)
 var _piece_moveable:     Dictionary = {}  # piece_id -> bool (false = fixed, cannot be picked up)
+var _piece_toggleable:   Dictionary = {}  # piece_id -> bool (true = double-tap fires piece_double_tapped)
 var _held_sprite:        Sprite2D   = null
 var _held_label:         Label      = null
 var _held_label_hint:    String     = ""
@@ -110,6 +113,12 @@ var _held_sprite_layer: CanvasLayer = null
 
 # Set by game.gd so drop detection can test whether the sprite overlaps the panel.
 var _inventory_control: Control = null
+
+# Power range overlay data. Each entry: {row, col, range, sufficient}.
+# Repopulated by game.gd after every grid change via set_power_overlay().
+var _power_sources: Array = []
+# Power range of the currently held piece (0 = none). Set by game.gd on pickup.
+var _held_power_range: int = 0
 
 signal piece_picked_up_from_grid(piece_id: int, shape: PieceShape)
 signal piece_placed_on_grid(piece_id: int)
@@ -170,6 +179,7 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	_draw_cells()
+	_draw_power_overlays()
 	_draw_effect_overlays()
 	if _held_shape:
 		_draw_placement_preview()
@@ -187,6 +197,27 @@ func _draw_cells() -> void:
 
 			draw_rect(rect, color)
 			draw_rect(rect, COLOR_BORDER, false)
+
+func _draw_power_overlays() -> void:
+	# Preview for the currently held piece, anchored to the snapped cursor position.
+	if _held_power_range > 0 and _held_shape != null:
+		var origin: Vector2i = _pos_to_cell(_effective_cursor_pos())
+		if origin != Vector2i(-1, -1):
+			var preview: Color = Color(COLOR_POWER_RANGE.r, COLOR_POWER_RANGE.g, COLOR_POWER_RANGE.b, 0.28)
+			for r: int in range(1, ROWS + 1):
+				for c: int in range(1, COLS + 1):
+					if absi(origin.x - r) + absi(origin.y - c) <= _held_power_range:
+						draw_rect(_cell_rect(r, c), preview)
+	# Permanent overlays for placed power sources.
+	for src: Dictionary in _power_sources:
+		var color: Color = COLOR_POWER_RANGE if src["sufficient"] else COLOR_POWER_WEAK
+		var row: int = src["row"]
+		var col: int = src["col"]
+		var range_val: int = src["range"]
+		for r: int in range(1, ROWS + 1):
+			for c: int in range(1, COLS + 1):
+				if absi(row - r) + absi(col - c) <= range_val:
+					draw_rect(_cell_rect(r, c), color)
 
 func _draw_effect_overlays() -> void:
 	if not _held_shape or _held_shape.effect_range <= 0:
@@ -272,6 +303,8 @@ func _input(event: InputEvent) -> void:
 						_pending_timer      = 0.0
 						_pending_source     = PendingSource.GRID
 						_pending_grid_cell  = cell
+						if _piece_toggleable.get(cell_val, false) and _active_touches.is_empty():
+							_start_tap_down(cell_val, InputSource.MOUSE, event.position, -1)
 					elif cell_val > 0 and _active_touches.is_empty():
 						_start_tap_down(cell_val, InputSource.MOUSE, event.position, -1)
 			else:
@@ -281,6 +314,14 @@ func _input(event: InputEvent) -> void:
 					if _held_shape:
 						_try_place_or_return()
 				elif _pending_input == InputSource.MOUSE:
+					if _pending_source == PendingSource.GRID and _pending_grid_cell != Vector2i(-1, -1):
+						var cv: int = grid_data.get_cell(_pending_grid_cell.x, _pending_grid_cell.y)
+						if cv > 0 and _tap_piece_id == cv:
+							if _tap_state == TapState.DOWN:
+								_tap_state = TapState.WINDOW
+								_tap_timer = 0.0
+							elif _tap_state == TapState.LOCKED:
+								_clear_tap()
 					_cancel_pending()
 				elif _pending_source == PendingSource.INVENTORY and _pending_input == InputSource.NONE:
 					_cancel_pending()
@@ -328,6 +369,8 @@ func _input(event: InputEvent) -> void:
 					_pending_timer      = 0.0
 					_pending_source     = PendingSource.GRID
 					_pending_grid_cell  = cell
+					if _piece_toggleable.get(cell_val, false):
+						_start_tap_down(cell_val, InputSource.TOUCH, event.position, event.index)
 				elif cell_val > 0:
 					_start_tap_down(cell_val, InputSource.TOUCH, event.position, event.index)
 		else:
@@ -338,7 +381,15 @@ func _input(event: InputEvent) -> void:
 				if _held_shape:
 					_try_place_or_return()
 			elif _pending_input == InputSource.TOUCH and event.index == _pending_touch_idx:
-				# Released before threshold met — nothing happens.
+				if _pending_source == PendingSource.GRID and _pending_grid_cell != Vector2i(-1, -1):
+					var cv: int = grid_data.get_cell(_pending_grid_cell.x, _pending_grid_cell.y)
+					if cv > 0 and _tap_piece_id == cv:
+						if _tap_state == TapState.DOWN:
+							_tap_state     = TapState.WINDOW
+							_tap_timer     = 0.0
+							_tap_touch_idx = -1
+						elif _tap_state == TapState.LOCKED:
+							_clear_tap()
 				_cancel_pending()
 			elif _pending_source == PendingSource.INVENTORY and _pending_input == InputSource.NONE:
 				# Finger released before _input claimed it (GUI-first, very fast tap).
@@ -388,6 +439,7 @@ func _input(event: InputEvent) -> void:
 # ---------------------------------------------------------------------------
 
 func _confirm_pending() -> void:
+	_clear_tap()  # a hold/drag pickup cancels any concurrent tap detection
 	match _pending_source:
 		PendingSource.GRID:
 			var cell: Vector2i = _pending_grid_cell
@@ -590,6 +642,11 @@ func set_held_hint(hint: String) -> void:
 func set_piece_moveable(piece_id: int, moveable: bool) -> void:
 	_piece_moveable[piece_id] = moveable
 
+## Mark a placed piece as toggleable (true = double-tap fires piece_double_tapped).
+## Called by game.gd after piece_placed_on_grid / piece_returned_to_grid.
+func set_piece_toggleable(piece_id: int, toggleable: bool) -> void:
+	_piece_toggleable[piece_id] = toggleable
+
 ## Dim (active=false) or restore (active=true) a placed piece sprite.
 func set_piece_active_visual(piece_id: int, active: bool) -> void:
 	if _piece_sprites.has(piece_id):
@@ -598,6 +655,18 @@ func set_piece_active_visual(piece_id: int, active: bool) -> void:
 ## Provide the inventory panel Control so drop detection can test sprite overlap.
 func set_inventory_control(c: Control) -> void:
 	_inventory_control = c
+
+## Update the power range overlay. Each entry: {row, col, range, sufficient}.
+## Pass an empty array to clear all overlays.
+func set_power_overlay(sources: Array) -> void:
+	_power_sources = sources
+	queue_redraw()
+
+## Set the power range of the currently held piece for preview rendering.
+## Call with 0 when the piece is placed, returned, or cancelled.
+func set_held_power_range(power_range: int) -> void:
+	_held_power_range = power_range
+	queue_redraw()
 
 ## Returns pixel size of the full grid.
 func get_grid_pixel_size() -> Vector2:
@@ -655,6 +724,7 @@ func _remove_piece_sprite(piece_id: int) -> void:
 		_piece_sprites.erase(piece_id)
 	_piece_label_hints.erase(piece_id)
 	_piece_moveable.erase(piece_id)
+	_piece_toggleable.erase(piece_id)
 
 # ---------------------------------------------------------------------------
 # Helpers
