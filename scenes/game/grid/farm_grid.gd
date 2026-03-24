@@ -85,8 +85,11 @@ var has_pending_pickup: bool:
 	get: return _pending_input != InputSource.NONE
 
 # Sprites: one per placed piece, plus one that follows the cursor while holding.
-var _piece_sprites: Dictionary = {}  # piece_id -> Sprite2D
-var _held_sprite:       Sprite2D    = null
+var _piece_sprites:      Dictionary = {}  # piece_id -> Sprite2D
+var _piece_label_hints:  Dictionary = {}  # piece_id -> String (display name for label)
+var _held_sprite:        Sprite2D   = null
+var _held_label:         Label      = null
+var _held_label_hint:    String     = ""
 # Dedicated CanvasLayer above all UI so the dragged sprite renders on top.
 var _held_sprite_layer: CanvasLayer = null
 
@@ -116,6 +119,19 @@ func _ready() -> void:
 	_held_sprite.visible = false
 	_held_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_held_sprite_layer.add_child(_held_sprite)
+
+	_held_label = Label.new()
+	_held_label.size = Vector2(CELL_SIZE, CELL_SIZE)
+	_held_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_held_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_held_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_held_label.visible = false
+	_held_label.add_theme_font_size_override("font_size", 8)
+	_held_label.add_theme_color_override("font_color", Color.WHITE)
+	_held_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.85))
+	_held_label.add_theme_constant_override("shadow_offset_x", 1)
+	_held_label.add_theme_constant_override("shadow_offset_y", 1)
+	_held_sprite_layer.add_child(_held_label)
 
 func _process(delta: float) -> void:
 	if _pending_input == InputSource.NONE:
@@ -336,21 +352,27 @@ func _confirm_pending() -> void:
 				_held_origin       = HeldOrigin.GRID
 				_held_origin_cell  = Vector2i(info["row"], info["col"])
 				_held_origin_shape = shape
+				_held_label_hint   = _piece_label_hints.get(val, "")
 				_drag_source    = _pending_input
 				_drag_touch_idx = _pending_touch_idx
 				_held_sprite.texture = PieceSpriteGenerator.generate(shape, shape.color)
 				_held_sprite.visible = true
+				_held_label.text    = shape.get_label(_held_label_hint)
+				_held_label.visible = true
 				_update_held_sprite_pos()
 				emit_signal("piece_picked_up_from_grid", val, shape)
 		PendingSource.INVENTORY:
 			if _pending_inv_item != null:
 				var shape: PieceShape = _pending_inv_item.data
-				_held_shape  = shape
-				_held_origin = HeldOrigin.INVENTORY
+				_held_shape      = shape
+				_held_origin     = HeldOrigin.INVENTORY
+				_held_label_hint = _pending_inv_item.display_name
 				_drag_source    = _pending_input
 				_drag_touch_idx = _pending_touch_idx
 				_held_sprite.texture = PieceSpriteGenerator.generate(shape, shape.color)
 				_held_sprite.visible = true
+				_held_label.text    = shape.get_label(_held_label_hint)
+				_held_label.visible = true
 				_update_held_sprite_pos()
 				emit_signal("inventory_item_pickup_confirmed", _pending_inv_item)
 
@@ -382,8 +404,11 @@ func _try_place_or_return() -> void:
 			var shape_to_place: PieceShape = _held_shape
 			var piece_id: int = grid_data.place_piece(shape_to_place, cell.x, cell.y)
 			if piece_id != -1:
+				_piece_label_hints[piece_id] = _held_label_hint
 				_held_shape = null
 				_held_sprite.visible = false
+				_held_label.visible  = false
+				_held_label_hint     = ""
 				_create_piece_sprite(piece_id, shape_to_place, cell)
 				_clear_held_origin()
 				emit_signal("piece_placed_on_grid", piece_id)
@@ -394,6 +419,8 @@ func _try_place_or_return() -> void:
 		var shape: PieceShape = _held_shape
 		_held_shape = null
 		_held_sprite.visible = false
+		_held_label.visible  = false
+		_held_label_hint     = ""
 		_clear_held_origin()
 		emit_signal("piece_hold_cancelled", shape)
 		queue_redraw()
@@ -404,10 +431,14 @@ func _try_place_or_return() -> void:
 func _return_held_to_grid() -> void:
 	var shape: PieceShape  = _held_origin_shape
 	var cell: Vector2i     = _held_origin_cell
-	_held_shape = null
+	var hint: String       = _held_label_hint
+	_held_shape          = null
 	_held_sprite.visible = false
+	_held_label.visible  = false
+	_held_label_hint     = ""
 	var piece_id: int = grid_data.place_piece(shape, cell.x, cell.y)
 	if piece_id != -1:
+		_piece_label_hints[piece_id] = hint
 		_create_piece_sprite(piece_id, shape, cell)
 		_clear_held_origin()
 		emit_signal("piece_returned_to_grid", piece_id)
@@ -445,12 +476,15 @@ func _sprite_com_over_inventory() -> bool:
 # ---------------------------------------------------------------------------
 
 ## Begin holding a piece (programmatic — skips threshold). Treats origin as inventory.
-func hold_piece(shape: PieceShape) -> void:
-	_held_shape  = shape
-	_held_origin = HeldOrigin.INVENTORY
-	_drag_source = InputSource.NONE
+func hold_piece(shape: PieceShape, hint: String = "") -> void:
+	_held_shape      = shape
+	_held_origin     = HeldOrigin.INVENTORY
+	_held_label_hint = hint
+	_drag_source     = InputSource.NONE
 	_held_sprite.texture = PieceSpriteGenerator.generate(shape, shape.color)
 	_held_sprite.visible = true
+	_held_label.text    = shape.get_label(hint)
+	_held_label.visible = true
 	_update_held_sprite_pos()
 	queue_redraw()
 
@@ -485,13 +519,22 @@ func rotate_held_cw() -> void:
 ## Does not emit any signal; caller is responsible for disposing the shape.
 func cancel_hold() -> PieceShape:
 	var shape: PieceShape = _held_shape
-	_held_shape     = null
-	_drag_source    = InputSource.NONE
-	_drag_touch_idx = -1
+	_held_shape          = null
+	_drag_source         = InputSource.NONE
+	_drag_touch_idx      = -1
 	_held_sprite.visible = false
+	_held_label.visible  = false
+	_held_label_hint     = ""
 	_clear_held_origin()
 	queue_redraw()
 	return shape
+
+## Update the display name hint for the currently held piece.
+## Called by game.gd after piece_picked_up_from_grid to supply the item name.
+func set_held_hint(hint: String) -> void:
+	_held_label_hint = hint
+	if _held_label and _held_shape:
+		_held_label.text = _held_shape.get_label(_held_label_hint)
 
 ## Provide the inventory panel Control so drop detection can test sprite overlap.
 func set_inventory_control(c: Control) -> void:
@@ -511,8 +554,10 @@ func _update_held_sprite_pos() -> void:
 	# The held sprite lives on a CanvasLayer whose coordinate space is viewport
 	# pixels. Use _cursor_screen_pos (raw event.position) directly — no
 	# scene-transform conversion needed.
-	_held_sprite.position = _effective_cursor_screen_pos() \
-		+ PieceSpriteGenerator.origin_offset(_held_shape)
+	var origin: Vector2 = _effective_cursor_screen_pos()
+	_held_sprite.position = origin + PieceSpriteGenerator.origin_offset(_held_shape)
+	# Label sits over the origin cell (top-left = cursor pos); size matches one cell.
+	_held_label.position = origin
 
 func _create_piece_sprite(piece_id: int, shape: PieceShape, origin_cell: Vector2i) -> void:
 	var sprite: Sprite2D = Sprite2D.new()
@@ -524,6 +569,24 @@ func _create_piece_sprite(piece_id: int, shape: PieceShape, origin_cell: Vector2
 		(origin_cell.y + bb.position.y - 1) * CELL_SIZE,
 		(origin_cell.x + bb.position.x - 1) * CELL_SIZE
 	)
+	# Label sits over the origin cell (offset 0,0) within the sprite's local space.
+	var hint: String = _piece_label_hints.get(piece_id, "")
+	var text: String = shape.get_label(hint)
+	if not text.is_empty():
+		var lbl: Label = Label.new()
+		lbl.text = text
+		# Position label at the origin cell's top-left within sprite-local coords.
+		lbl.position = Vector2(-bb.position.y, -bb.position.x) * CELL_SIZE
+		lbl.size = Vector2(CELL_SIZE, CELL_SIZE)
+		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		lbl.add_theme_font_size_override("font_size", 8)
+		lbl.add_theme_color_override("font_color", Color.WHITE)
+		lbl.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.85))
+		lbl.add_theme_constant_override("shadow_offset_x", 1)
+		lbl.add_theme_constant_override("shadow_offset_y", 1)
+		sprite.add_child(lbl)
 	add_child(sprite)
 	_piece_sprites[piece_id] = sprite
 
@@ -531,6 +594,7 @@ func _remove_piece_sprite(piece_id: int) -> void:
 	if _piece_sprites.has(piece_id):
 		_piece_sprites[piece_id].queue_free()
 		_piece_sprites.erase(piece_id)
+	_piece_label_hints.erase(piece_id)
 
 # ---------------------------------------------------------------------------
 # Helpers

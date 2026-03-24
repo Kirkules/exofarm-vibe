@@ -17,6 +17,18 @@ extends Resource
 ## Manhattan-distance radius of this piece's field of effect.
 ## 0 = no effect overlay. Used by FarmGrid to draw coverage highlights.
 @export var effect_range: int = 0
+## Short display label shown on the piece sprite and inventory icon.
+## Leave empty to auto-derive from the first 3 characters of the item's display name.
+@export var label: String = ""
+
+## Returns the label to display. If label is non-empty it is returned as-is;
+## otherwise the first 3 characters of hint are uppercased and returned.
+func get_label(hint: String = "") -> String:
+	if not label.is_empty():
+		return label
+	if not hint.is_empty():
+		return hint.left(3).to_upper()
+	return ""
 
 ## Returns the number of cells this piece occupies.
 func get_cell_count() -> int:
@@ -33,6 +45,7 @@ func rotated_cw() -> PieceShape:
 	shape.offsets = new_offsets
 	shape.color = color
 	shape.effect_range = effect_range
+	shape.label = label
 	return shape
 
 ## Returns a new PieceShape rotated 90 degrees counter-clockwise around the origin.
@@ -45,6 +58,7 @@ func rotated_ccw() -> PieceShape:
 	shape.offsets = new_offsets
 	shape.color = color
 	shape.effect_range = effect_range
+	shape.label = label
 	return shape
 
 ## Returns all 4 clockwise rotation states starting from this shape.
@@ -86,6 +100,7 @@ func with_centered_origin() -> PieceShape:
 	shape.offsets = new_offsets
 	shape.color = color
 	shape.effect_range = effect_range
+	shape.label = label
 	return shape
 
 ## Returns the bounding rect of this shape as Rect2i(min_row, min_col, height, width).

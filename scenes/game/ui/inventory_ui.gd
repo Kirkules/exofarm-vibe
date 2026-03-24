@@ -226,6 +226,18 @@ func _make_row(item: InventoryItem, inventory_over_cap: bool) -> PanelContainer:
 		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		icon_btn.add_child(icon)
+		var icon_label: Label = Label.new()
+		icon_label.text = (item.data as PieceShape).get_label(item.display_name)
+		icon_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		icon_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icon_label.add_theme_font_size_override("font_size", 8)
+		icon_label.add_theme_color_override("font_color", Color.WHITE)
+		icon_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.85))
+		icon_label.add_theme_constant_override("shadow_offset_x", 1)
+		icon_label.add_theme_constant_override("shadow_offset_y", 1)
+		icon_btn.add_child(icon_label)
 
 	var lbl: Button = Button.new()
 	lbl.text = "%s  [%d]" % [item.display_name, item.slot_size]

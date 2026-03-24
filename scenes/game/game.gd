@@ -55,6 +55,8 @@ func _on_inventory_item_pickup_confirmed(item: InventoryItem) -> void:
 func _on_piece_picked_up_from_grid(piece_id: int, _shape: PieceShape) -> void:
 	_held_item = _placed_items.get(piece_id, null)
 	_placed_items.erase(piece_id)
+	if _held_item:
+		farm_grid.set_held_hint(_held_item.display_name)
 
 func _on_piece_placed_on_grid(piece_id: int) -> void:
 	if _held_item:
