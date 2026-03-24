@@ -87,6 +87,7 @@ var has_pending_pickup: bool:
 # Sprites: one per placed piece, plus one that follows the cursor while holding.
 var _piece_sprites:      Dictionary = {}  # piece_id -> Sprite2D
 var _piece_label_hints:  Dictionary = {}  # piece_id -> String (display name for label)
+var _piece_moveable:     Dictionary = {}  # piece_id -> bool (false = fixed, cannot be picked up)
 var _held_sprite:        Sprite2D   = null
 var _held_label:         Label      = null
 var _held_label_hint:    String     = ""
@@ -237,7 +238,8 @@ func _input(event: InputEvent) -> void:
 					_pending_screen_pos = event.position
 				elif _pending_input == InputSource.NONE:
 					var cell: Vector2i = _pos_to_cell(_cursor_pos)
-					if cell != Vector2i(-1, -1) and grid_data.get_cell(cell.x, cell.y) > 0:
+					var cell_val: int = grid_data.get_cell(cell.x, cell.y) if cell != Vector2i(-1, -1) else 0
+					if cell_val > 0 and _piece_moveable.get(cell_val, true):
 						_pending_input      = InputSource.MOUSE
 						_pending_screen_pos = event.position
 						_pending_timer      = 0.0
@@ -284,7 +286,8 @@ func _input(event: InputEvent) -> void:
 				_pending_screen_pos = event.position
 			elif _pending_input == InputSource.NONE:
 				var cell: Vector2i = _pos_to_cell(_cursor_pos)
-				if cell != Vector2i(-1, -1) and grid_data.get_cell(cell.x, cell.y) > 0:
+				var cell_val: int = grid_data.get_cell(cell.x, cell.y) if cell != Vector2i(-1, -1) else 0
+				if cell_val > 0 and _piece_moveable.get(cell_val, true):
 					_pending_input      = InputSource.TOUCH
 					_pending_touch_idx  = event.index
 					_pending_screen_pos = event.position
@@ -536,6 +539,11 @@ func set_held_hint(hint: String) -> void:
 	if _held_label and _held_shape:
 		_held_label.text = _held_shape.get_label(_held_label_hint)
 
+## Mark a placed piece as fixed (false) or moveable (true).
+## Called by game.gd after piece_placed_on_grid / piece_returned_to_grid.
+func set_piece_moveable(piece_id: int, moveable: bool) -> void:
+	_piece_moveable[piece_id] = moveable
+
 ## Provide the inventory panel Control so drop detection can test sprite overlap.
 func set_inventory_control(c: Control) -> void:
 	_inventory_control = c
@@ -595,6 +603,7 @@ func _remove_piece_sprite(piece_id: int) -> void:
 		_piece_sprites[piece_id].queue_free()
 		_piece_sprites.erase(piece_id)
 	_piece_label_hints.erase(piece_id)
+	_piece_moveable.erase(piece_id)
 
 # ---------------------------------------------------------------------------
 # Helpers

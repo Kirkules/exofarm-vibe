@@ -98,6 +98,8 @@ func _on_piece_picked_up_from_grid(piece_id: int, _shape: PieceShape) -> void:
 func _on_piece_placed_on_grid(piece_id: int) -> void:
 	if _held_item:
 		_placed_items[piece_id] = _held_item
+		var def: PlaceableDefinition = _held_item.data as PlaceableDefinition
+		farm_grid.set_piece_moveable(piece_id, def.moveable if def else true)
 	_held_item = null
 
 func _on_piece_hold_cancelled(_shape: PieceShape) -> void:
@@ -108,6 +110,8 @@ func _on_piece_hold_cancelled(_shape: PieceShape) -> void:
 func _on_piece_returned_to_grid(piece_id: int) -> void:
 	if _held_item:
 		_placed_items[piece_id] = _held_item
+		var def: PlaceableDefinition = _held_item.data as PlaceableDefinition
+		farm_grid.set_piece_moveable(piece_id, def.moveable if def else true)
 	_held_item = null
 
 func _on_next_season_pressed() -> void:
