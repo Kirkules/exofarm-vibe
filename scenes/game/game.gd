@@ -27,6 +27,7 @@ func _ready() -> void:
 	farm_grid.piece_returned_to_grid.connect(_on_piece_returned_to_grid)
 	farm_grid.inventory_item_pickup_confirmed.connect(_on_inventory_item_pickup_confirmed)
 	hud_ui.next_season_pressed.connect(_on_next_season_pressed)
+	farm_grid.piece_double_tapped.connect(toggle_piece)
 
 	# Seed inventory with starting buildings and test pieces.
 	for def: PlaceableDefinition in _starting_placeables():
@@ -126,7 +127,9 @@ func _on_piece_returned_to_grid(piece_id: int) -> void:
 
 ## Toggle a placed building on or off and recompute power.
 func toggle_piece(piece_id: int) -> void:
-	_piece_active[piece_id] = not _piece_active.get(piece_id, true)
+	var now_active: bool = not _piece_active.get(piece_id, true)
+	_piece_active[piece_id] = now_active
+	farm_grid.set_piece_active_visual(piece_id, now_active)
 	_recompute_power()
 
 func _recompute_power() -> void:

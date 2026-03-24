@@ -286,6 +286,27 @@ Types of power sources:
 
 ---
 
+## Interaction Hierarchy (Fixed Buildings)
+
+Fixed (non-moveable) buildings respond to three tap/touch gestures, in increasing
+"weight" of interaction:
+
+| Gesture | Threshold | Action |
+|---------|-----------|--------|
+| **Single tap** | Two distinct press+release events with only one tap registered | Tooltip / info pop-up (not yet implemented) |
+| **Double tap** | Two taps on the same piece within 0.5 s | Toggle building on/off (power draw to 0 or normal) |
+| **Tap-hold** | Press held for ≥ 0.5 s without release | Open building's merge/crafting UI (not yet implemented) |
+
+Implementation notes:
+- The 0.5 s double-tap window matches the 0.5 s hold-pickup threshold used by
+  moveable pieces — consistent feel across interactions
+- A slight delay before a "single tap" fires is acceptable at this stage; will be
+  revisited if it feels sluggish in playtesting
+- Drag beyond PICKUP_DRAG_THRESHOLD_SQ (16 px) during a tap DOWN cancels the tap
+  (avoids accidental toggles when the player is panning or misses a piece)
+
+---
+
 ## Inventory
 
 - All crafted items and pieces removed from the grid go to a **general inventory** —
@@ -698,8 +719,8 @@ live in `scripts/`.
 ### Phase 1 — Core Planning Loop
 - [ ] Initial set of placeable element types (shape, cost, effects)
 - [ ] Resource system (Energy + Matter, seasonal regeneration)
-- [ ] Power system: broadcast range, network formation, shared pool, binary power state
-- [ ] Building on/off toggle
+- [x] Power system: broadcast range, network formation, shared pool, binary power state
+- [x] Building on/off toggle (double-tap on fixed building)
 - [ ] Neighbor effect calculation engine
 - [ ] Visual synergy, coverage, and power range indicators during planning
 - [ ] "Proceed to Next Season" confirmation and lock-in

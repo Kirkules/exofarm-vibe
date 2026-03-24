@@ -12,6 +12,7 @@ const DRAG_OFFSET_PX := -CELL_SIZE * 2
 ## Pickup requires either a drag of this many pixels or a hold this many seconds.
 const PICKUP_DRAG_THRESHOLD_SQ: float = 16.0 * 16.0
 const PICKUP_HOLD_TIME:         float = 0.5
+const TAP_DOUBLE_WINDOW:        float = 0.5
 
 const COLOR_EMPTY    := Color(0.18, 0.18, 0.18)
 const COLOR_BORDER   := Color(0.08, 0.08, 0.08)
@@ -77,6 +78,19 @@ var _pending_timer:      float        = 0.0
 var _pending_grid_cell:  Vector2i     = Vector2i(-1, -1)
 var _pending_inv_item:   InventoryItem = null
 
+# ---------------------------------------------------------------------------
+# Tap-detection (non-moveable fixed buildings)
+# ---------------------------------------------------------------------------
+## Two taps on the same non-moveable piece within TAP_DOUBLE_WINDOW seconds
+## emits piece_double_tapped. Single taps and tap-holds are silently consumed.
+enum TapState { NONE, DOWN, WINDOW, LOCKED }
+var _tap_state:      TapState    = TapState.NONE
+var _tap_piece_id:   int         = -1
+var _tap_timer:      float       = 0.0
+var _tap_input:      InputSource = InputSource.NONE
+var _tap_touch_idx:  int         = -1
+var _tap_screen_pos: Vector2     = Vector2.ZERO
+
 # Recorded on every press so begin_pending_inventory_hold() can claim it.
 var _last_touch_idx: int     = -1   # last real touch finger index; -1 = none yet
 var _last_input_pos: Vector2 = Vector2.ZERO  # position of last press (touch or mouse)
@@ -105,6 +119,8 @@ signal piece_hold_cancelled(shape: PieceShape)
 signal piece_returned_to_grid(piece_id: int)
 ## Emitted when the drag/hold threshold is met for an inventory item pending pickup.
 signal inventory_item_pickup_confirmed(item: InventoryItem)
+## Emitted when a non-moveable building is double-tapped (two taps within TAP_DOUBLE_WINDOW).
+signal piece_double_tapped(piece_id: int)
 
 func _ready() -> void:
 	grid_data = GridData.new(ROWS, COLS)
@@ -135,11 +151,18 @@ func _ready() -> void:
 	_held_sprite_layer.add_child(_held_label)
 
 func _process(delta: float) -> void:
-	if _pending_input == InputSource.NONE:
-		return
-	_pending_timer += delta
-	if _pending_timer >= PICKUP_HOLD_TIME:
-		_confirm_pending()
+	if _pending_input != InputSource.NONE:
+		_pending_timer += delta
+		if _pending_timer >= PICKUP_HOLD_TIME:
+			_confirm_pending()
+	if _tap_state != TapState.NONE:
+		_tap_timer += delta
+		if _tap_state == TapState.DOWN and _tap_timer >= PICKUP_HOLD_TIME:
+			_clear_tap()  # tap-hold: no-op for now
+		elif _tap_state == TapState.WINDOW and _tap_timer >= TAP_DOUBLE_WINDOW:
+			_clear_tap()  # single-tap window expired, no action
+		elif _tap_state == TapState.LOCKED and _tap_timer >= PICKUP_HOLD_TIME:
+			_clear_tap()  # safety escape in case release was never delivered
 
 # ---------------------------------------------------------------------------
 # Drawing
@@ -220,6 +243,10 @@ func _input(event: InputEvent) -> void:
 				if _drag_source == InputSource.NONE:
 					_drag_source = InputSource.MOUSE
 				_hovered_cell = _pos_to_cell(_effective_cursor_pos())
+			elif _tap_state == TapState.DOWN and _tap_input == InputSource.MOUSE:
+				var dist_sq: float = event.position.distance_squared_to(_tap_screen_pos)
+				if dist_sq >= PICKUP_DRAG_THRESHOLD_SQ:
+					_clear_tap()
 		_update_held_sprite_pos()
 		queue_redraw()
 
@@ -245,6 +272,8 @@ func _input(event: InputEvent) -> void:
 						_pending_timer      = 0.0
 						_pending_source     = PendingSource.GRID
 						_pending_grid_cell  = cell
+					elif cell_val > 0 and _active_touches.is_empty():
+						_start_tap_down(cell_val, InputSource.MOUSE, event.position, -1)
 			else:
 				_mouse_held = false
 				if _drag_source == InputSource.MOUSE:
@@ -257,6 +286,11 @@ func _input(event: InputEvent) -> void:
 					_cancel_pending()
 				elif _held_shape and _drag_source == InputSource.NONE:
 					_try_place_or_return()
+				elif _tap_state == TapState.DOWN and _tap_input == InputSource.MOUSE:
+					_tap_state = TapState.WINDOW
+					_tap_timer = 0.0
+				elif _tap_state == TapState.LOCKED and _tap_input == InputSource.MOUSE:
+					_clear_tap()
 		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed and _held_shape:
 			rotate_held_cw()
 		queue_redraw()
@@ -294,6 +328,8 @@ func _input(event: InputEvent) -> void:
 					_pending_timer      = 0.0
 					_pending_source     = PendingSource.GRID
 					_pending_grid_cell  = cell
+				elif cell_val > 0:
+					_start_tap_down(cell_val, InputSource.TOUCH, event.position, event.index)
 		else:
 			_active_touches.erase(event.index)
 			if _drag_source == InputSource.TOUCH and event.index == _drag_touch_idx:
@@ -310,6 +346,12 @@ func _input(event: InputEvent) -> void:
 			elif _held_shape and _drag_source == InputSource.NONE:
 				# Held (confirmed) but no drag finger claimed yet; treat as tap-release.
 				_try_place_or_return()
+			elif _tap_state == TapState.DOWN and _tap_input == InputSource.TOUCH and event.index == _tap_touch_idx:
+				_tap_state     = TapState.WINDOW
+				_tap_timer     = 0.0
+				_tap_touch_idx = -1
+			elif _tap_state == TapState.LOCKED and _tap_input == InputSource.TOUCH and event.index == _tap_touch_idx:
+				_clear_tap()
 		queue_redraw()
 
 	elif event is InputEventScreenDrag:
@@ -336,6 +378,10 @@ func _input(event: InputEvent) -> void:
 			_hovered_cell = _pos_to_cell(_effective_cursor_pos())
 			_update_held_sprite_pos()
 			queue_redraw()
+		elif _tap_state == TapState.DOWN and _tap_input == InputSource.TOUCH and event.index == _tap_touch_idx:
+			var dist_sq: float = event.position.distance_squared_to(_tap_screen_pos)
+			if dist_sq >= PICKUP_DRAG_THRESHOLD_SQ:
+				_clear_tap()
 
 # ---------------------------------------------------------------------------
 # Pending-pickup confirmation / cancellation
@@ -544,6 +590,11 @@ func set_held_hint(hint: String) -> void:
 func set_piece_moveable(piece_id: int, moveable: bool) -> void:
 	_piece_moveable[piece_id] = moveable
 
+## Dim (active=false) or restore (active=true) a placed piece sprite.
+func set_piece_active_visual(piece_id: int, active: bool) -> void:
+	if _piece_sprites.has(piece_id):
+		_piece_sprites[piece_id].modulate = Color(1, 1, 1, 1) if active else Color(0.35, 0.35, 0.35, 0.7)
+
 ## Provide the inventory panel Control so drop detection can test sprite overlap.
 func set_inventory_control(c: Control) -> void:
 	_inventory_control = c
@@ -637,3 +688,39 @@ func _pos_to_cell(pos: Vector2) -> Vector2i:
 	if grid_data.is_in_bounds(row, col):
 		return Vector2i(row, col)
 	return Vector2i(-1, -1)
+
+# ---------------------------------------------------------------------------
+# Tap-detection helpers
+# ---------------------------------------------------------------------------
+
+## Called on every press targeting a non-moveable piece.
+## If we are already in WINDOW state for the same piece, emit double-tap and clear.
+## Otherwise, start (or restart) the DOWN state for this piece.
+func _start_tap_down(piece_id: int, source: InputSource, screen_pos: Vector2, touch_idx: int) -> void:
+	if _tap_state == TapState.WINDOW and _tap_piece_id == piece_id:
+		emit_signal("piece_double_tapped", piece_id)
+		# Transition to LOCKED so the release of THIS press is consumed without
+		# starting a new WINDOW state. Two fresh taps are required to retrigger.
+		_tap_state      = TapState.LOCKED
+		_tap_timer      = 0.0
+		_tap_input      = source
+		_tap_touch_idx  = touch_idx
+	elif (_tap_state == TapState.DOWN and _tap_piece_id == piece_id) or _tap_state == TapState.LOCKED:
+		# Another input path (touch or emulated mouse) already claimed this gesture.
+		# Ignore regardless of event ordering.
+		pass
+	else:
+		_tap_state      = TapState.DOWN
+		_tap_piece_id   = piece_id
+		_tap_timer      = 0.0
+		_tap_input      = source
+		_tap_touch_idx  = touch_idx
+		_tap_screen_pos = screen_pos
+
+func _clear_tap() -> void:
+	_tap_state      = TapState.NONE
+	_tap_piece_id   = -1
+	_tap_timer      = 0.0
+	_tap_input      = InputSource.NONE
+	_tap_touch_idx  = -1
+	_tap_screen_pos = Vector2.ZERO
