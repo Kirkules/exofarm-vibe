@@ -16,6 +16,12 @@ var _piece_active: Dictionary = {}
 var _power_state: PowerSystem.PowerState = null
 ## Most recently computed neighbor state. Null until the first piece is placed.
 var _neighbor_state: NeighborSystem.NeighborState = null
+## Reusable confirmation dialog for risky Next Season actions.
+var _confirm_dialog: ConfirmationDialog
+
+## Warn if the player is leaving more than this much energy/matter unused.
+const WARN_UNUSED_ENERGY := 3
+const WARN_UNUSED_MATTER := 3
 
 func _ready() -> void:
 	_inventory = Inventory.new(10)
@@ -29,6 +35,9 @@ func _ready() -> void:
 	farm_grid.piece_returned_to_grid.connect(_on_piece_returned_to_grid)
 	farm_grid.inventory_item_pickup_confirmed.connect(_on_inventory_item_pickup_confirmed)
 	hud_ui.next_season_pressed.connect(_on_next_season_pressed)
+	_confirm_dialog = ConfirmationDialog.new()
+	_confirm_dialog.confirmed.connect(_advance_season)
+	add_child(_confirm_dialog)
 	farm_grid.piece_double_tapped.connect(toggle_piece)
 
 	# Seed inventory with starting buildings and test pieces.
@@ -189,6 +198,18 @@ func _build_placed_dict() -> Dictionary:
 	return placed
 
 func _on_next_season_pressed() -> void:
+	var warnings: Array[String] = []
+	if GameState.energy > WARN_UNUSED_ENERGY:
+		warnings.append("%d Energy will go unused" % GameState.energy)
+	if GameState.matter > WARN_UNUSED_MATTER:
+		warnings.append("%d Matter will go unused" % GameState.matter)
+	if warnings.is_empty():
+		_advance_season()
+		return
+	_confirm_dialog.dialog_text = "\n".join(warnings) + "\n\nAdvance to next season anyway?"
+	_confirm_dialog.popup_centered()
+
+func _advance_season() -> void:
 	# Lock in all placed pieces according to their definition's moveable flag.
 	# Buildings become fixed; other pieces stay moveable for future seasons.
 	for piece_id: int in _placed_items:
