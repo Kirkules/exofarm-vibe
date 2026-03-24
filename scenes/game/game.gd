@@ -10,6 +10,10 @@ var _held_item: InventoryItem = null
 ## Maps piece_id -> InventoryItem for pieces currently on the grid,
 ## so their name and metadata survive pick-up/put-down cycles.
 var _placed_items: Dictionary = {}
+## Maps piece_id -> bool: false = building is toggled off by the player.
+var _piece_active: Dictionary = {}
+## Most recently computed power state. Null until the first piece is placed.
+var _power_state: PowerSystem.PowerState = null
 
 func _ready() -> void:
 	_inventory = Inventory.new(10)
@@ -40,6 +44,7 @@ func _starting_placeables() -> Array[PlaceableDefinition]:
 	solar_rig.shape = solar_shape
 	solar_rig.moveable = false
 	solar_rig.energy_production = 3
+	solar_rig.power_range = 3
 	result.append(solar_rig)
 
 	# Matter Manipulator — produces matter each season.
@@ -51,6 +56,7 @@ func _starting_placeables() -> Array[PlaceableDefinition]:
 	matter_manip.shape = matter_shape
 	matter_manip.moveable = false
 	matter_manip.matter_production = 3
+	matter_manip.power_draw = 1
 	result.append(matter_manip)
 
 	# Placeholder test pieces (to be replaced by proper definitions in later phases).
@@ -92,8 +98,10 @@ func _on_inventory_item_pickup_confirmed(item: InventoryItem) -> void:
 func _on_piece_picked_up_from_grid(piece_id: int, _shape: PieceShape) -> void:
 	_held_item = _placed_items.get(piece_id, null)
 	_placed_items.erase(piece_id)
+	_piece_active.erase(piece_id)
 	if _held_item:
 		farm_grid.set_held_hint(_held_item.display_name)
+	_recompute_power()
 
 func _on_piece_placed_on_grid(piece_id: int) -> void:
 	if _held_item:
@@ -101,6 +109,7 @@ func _on_piece_placed_on_grid(piece_id: int) -> void:
 		var def: PlaceableDefinition = _held_item.data as PlaceableDefinition
 		farm_grid.set_piece_moveable(piece_id, def.moveable if def else true)
 	_held_item = null
+	_recompute_power()
 
 func _on_piece_hold_cancelled(_shape: PieceShape) -> void:
 	if _held_item:
@@ -113,6 +122,30 @@ func _on_piece_returned_to_grid(piece_id: int) -> void:
 		var def: PlaceableDefinition = _held_item.data as PlaceableDefinition
 		farm_grid.set_piece_moveable(piece_id, def.moveable if def else true)
 	_held_item = null
+	_recompute_power()
+
+## Toggle a placed building on or off and recompute power.
+func toggle_piece(piece_id: int) -> void:
+	_piece_active[piece_id] = not _piece_active.get(piece_id, true)
+	_recompute_power()
+
+func _recompute_power() -> void:
+	_power_state = PowerSystem.compute(_build_placed_dict())
+	hud_ui.refresh_power(_power_state.total_pool(), _power_state.total_draw())
+
+func _build_placed_dict() -> Dictionary:
+	var placed: Dictionary = {}
+	for piece_id: int in _placed_items:
+		var info: Dictionary = farm_grid.grid_data.get_piece_info(piece_id)
+		if info.is_empty():
+			continue
+		placed[piece_id] = {
+			"row":    info["row"],
+			"col":    info["col"],
+			"def":    _placed_items[piece_id].data,
+			"active": _piece_active.get(piece_id, true),
+		}
+	return placed
 
 func _on_next_season_pressed() -> void:
 	GameState.season += 1
