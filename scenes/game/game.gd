@@ -24,18 +24,55 @@ func _ready() -> void:
 	farm_grid.inventory_item_pickup_confirmed.connect(_on_inventory_item_pickup_confirmed)
 	hud_ui.next_season_pressed.connect(_on_next_season_pressed)
 
-	# Phase 0: seed inventory with test pieces.
+	# Seed inventory with starting buildings and test pieces.
+	for def: PlaceableDefinition in _starting_placeables():
+		_inventory.add(InventoryItem.new(def.display_name, def.slot_size, def))
+
+func _starting_placeables() -> Array[PlaceableDefinition]:
+	var result: Array[PlaceableDefinition] = []
+
+	# Solar Rig — produces energy each season.
+	var solar_shape: PieceShape = PieceShape.new()
+	solar_shape.color = Color(0.95, 0.80, 0.20)
+	solar_shape.label = "SOL"
+	var solar_rig: BuildingDefinition = BuildingDefinition.new()
+	solar_rig.display_name = "Solar Rig"
+	solar_rig.shape = solar_shape
+	solar_rig.moveable = false
+	solar_rig.energy_production = 3
+	result.append(solar_rig)
+
+	# Matter Manipulator — produces matter each season.
+	var matter_shape: PieceShape = PieceShape.new()
+	matter_shape.color = Color(0.45, 0.75, 0.55)
+	matter_shape.label = "MAT"
+	var matter_manip: BuildingDefinition = BuildingDefinition.new()
+	matter_manip.display_name = "Matter Manipulator"
+	matter_manip.shape = matter_shape
+	matter_manip.moveable = false
+	matter_manip.matter_production = 3
+	result.append(matter_manip)
+
+	# Placeholder test pieces (to be replaced by proper definitions in later phases).
 	var l_shape: PieceShape = PieceShape.new()
 	l_shape.offsets = [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(2, 1)]
 	l_shape.color = Color(0.40, 0.60, 0.90)
 	l_shape.effect_range = 2
-	_inventory.add(InventoryItem.new("L-Piece", 1, l_shape.with_centered_origin()))
+	var l_piece: PlaceableDefinition = PlaceableDefinition.new()
+	l_piece.display_name = "L-Piece"
+	l_piece.shape = l_shape.with_centered_origin()
+	result.append(l_piece)
 
-	var singleton_shape: PieceShape = PieceShape.new()
-	singleton_shape.color = Color(0.55, 0.88, 0.38)
-	singleton_shape.effect_range = 1
-	_inventory.add(InventoryItem.new("Crop Plot", 1, singleton_shape))
-	_inventory.add(InventoryItem.new("Crop Plot", 1, singleton_shape))
+	var crop_shape: PieceShape = PieceShape.new()
+	crop_shape.color = Color(0.55, 0.88, 0.38)
+	crop_shape.effect_range = 1
+	var crop_plot: PlaceableDefinition = PlaceableDefinition.new()
+	crop_plot.display_name = "Crop Plot"
+	crop_plot.shape = crop_shape
+	result.append(crop_plot)
+	result.append(crop_plot)  # two copies
+
+	return result
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Phase 0: Enter/space rotates the held piece clockwise.
@@ -45,7 +82,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _on_item_requested(item: InventoryItem) -> void:
 	if farm_grid.has_held_piece or farm_grid.has_pending_pickup:
 		return
-	if item.data is PieceShape:
+	if item.data is PlaceableDefinition:
 		farm_grid.begin_pending_inventory_hold(item)
 
 func _on_inventory_item_pickup_confirmed(item: InventoryItem) -> void:

@@ -213,21 +213,22 @@ func _make_row(item: InventoryItem, inventory_over_cap: bool) -> PanelContainer:
 	btn_dn.pressed.connect(_inventory.send_to_bottom.bind(item))
 	hbox.add_child(btn_dn)
 
-	if item.data is PieceShape:
+	if item.data is PlaceableDefinition:
+		var shape: PieceShape = (item.data as PlaceableDefinition).shape
 		var icon_btn: Button = Button.new()
 		icon_btn.custom_minimum_size = Vector2(ROW_H, ROW_H)
 		icon_btn.flat = true
 		icon_btn.button_down.connect(_on_item_tapped.bind(item))
 		hbox.add_child(icon_btn)
 		var icon: TextureRect = TextureRect.new()
-		icon.texture = PieceSpriteGenerator.generate_icon(item.data, item.data.color)
+		icon.texture = PieceSpriteGenerator.generate_icon(shape, shape.color)
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		icon_btn.add_child(icon)
 		var icon_label: Label = Label.new()
-		icon_label.text = (item.data as PieceShape).get_label(item.display_name)
+		icon_label.text = shape.get_label(item.display_name)
 		icon_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER

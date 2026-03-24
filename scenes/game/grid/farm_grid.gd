@@ -363,7 +363,7 @@ func _confirm_pending() -> void:
 				emit_signal("piece_picked_up_from_grid", val, shape)
 		PendingSource.INVENTORY:
 			if _pending_inv_item != null:
-				var shape: PieceShape = _pending_inv_item.data
+				var shape: PieceShape = (_pending_inv_item.data as PlaceableDefinition).shape
 				_held_shape      = shape
 				_held_origin     = HeldOrigin.INVENTORY
 				_held_label_hint = _pending_inv_item.display_name
