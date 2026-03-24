@@ -1347,4 +1347,147 @@ provide all piece visuals)*
 **User:** Thank you for pointing out the assumption you made (returning the original
 rotation on snap-back) along the way, even though you thought it was sensible.
 
+---
+
+## Session 4 — Double-Tap Toggle, Power Overlays, Display Cutout, Confirmation Dialog
+
+### Double-Tap Toggle for Fixed Buildings
+
+**User:** Let's add double-tap toggle for buildings (Solar Rig, Matter Manipulator).
+
+**Claude:** *(added `TapState { NONE, DOWN, WINDOW }` enum and tap state machine in
+`farm_grid.gd`; signal `piece_double_tapped(piece_id: int)`; mouse and touch press paths
+both call `_start_tap_down()` on a non-moveable piece; release advances DOWN→WINDOW
+(starts 0.5s timer) or fires toggle on WINDOW→NONE (if same piece); `_process()` handles
+the timer; `game.gd` connects signal to new `toggle_piece()` which flips `_piece_active`
+dict and calls `farm_grid.set_piece_active_visual()`)*
+
+---
+
+### LOCKED State — Preventing Immediate Retrigger
+
+**User:** After a double-tap fires, two fresh taps should be required before the next
+toggle. Currently a third tap within 0.5s of the second triggers another toggle.
+
+**Claude:** *(introduced `TapState.LOCKED`; the press that fires the toggle transitions to
+LOCKED instead of NONE; LOCKED state's following release clears to NONE without advancing
+any tap counter; added 0.5s safety escape in `_process()` if LOCKED persists)*
+
+---
+
+### Mobile Fix — emulate_mouse_from_touch Deduplication
+
+**User:** The LOCKED fix works on desktop but not on mobile. After investigation: Godot's
+`emulate_mouse_from_touch = ON` fires both `InputEventScreenTouch` and an emulated
+`InputEventMouseButton` for every physical tap, in unspecified order.
+
+**Claude:** *(added deduplication in `_start_tap_down()`: if state is already LOCKED, or
+already DOWN for the same piece, silently ignore the call; whichever input path (touch or
+emulated mouse) claims the gesture first, the second is a no-op; kept
+`emulate_mouse_from_touch` ON because turning it OFF broke all inventory/UI interactions)*
+
+---
+
+### NeighborSystem Utility
+
+**User:** Add a NeighborSystem global static, similar to PowerSystem, computing
+piece-to-piece neighbor relationships.
+
+**Claude:** *(created `scripts/systems/neighbor_system.gd`; `NeighborState` inner class
+holds `neighbors: Dictionary` (piece_id → Array of piece_ids within effect_range) and
+`in_range_of: Dictionary` (reverse map); single O(n²) pass using Manhattan distance;
+`game.gd._recompute_power()` now calls both `PowerSystem.compute()` and
+`NeighborSystem.compute()` on the same placed dict)*
+
+---
+
+### Power Range Overlays
+
+**User:** Show a colored overlay on the grid showing each placed power source's broadcast
+range.
+
+**Claude:** *(added `COLOR_POWER_RANGE` (blue, α=0.18) and `COLOR_POWER_WEAK` (orange,
+α=0.18) to `farm_grid.gd`; `set_power_overlay(sources: Array)` stores source list and
+calls `queue_redraw()`; `_draw_power_overlays()` called from `_draw()` fills each cell
+within Manhattan range of each source; color is blue if that source's power network is
+sufficient, orange if not; `game.gd._refresh_overlays()` builds the sources array and
+passes it to the grid after every recompute)*
+
+---
+
+### Power Range Preview While Holding a Building
+
+**User:** Show the power range overlay before placing the building, as a placement guide.
+
+**Claude:** *(added `_held_power_range: int` to `farm_grid.gd`; `set_held_power_range(r)`
+sets it and calls `queue_redraw()`; when `_held_power_range > 0`, `_draw_power_overlays()`
+also draws a preview overlay centered on the current snapped cursor position; `game.gd`
+calls `set_held_power_range(pr)` from both `_on_inventory_item_pickup_confirmed()` and
+`_on_piece_picked_up_from_grid()`, and resets to 0 on place/return/cancel)*
+
+---
+
+### Reversible Building Placement During Planning
+
+**User:** Building placement should be reversible during the planning phase. Buildings
+should only lock in when Next Season is confirmed.
+
+**Claude:** *(changed `_on_piece_placed_on_grid()` and `_on_piece_returned_to_grid()` to
+always call `set_piece_moveable(piece_id, true)`; `_on_next_season_pressed()` renamed to
+`_advance_season()` and now iterates `_placed_items` calling
+`set_piece_moveable(piece_id, def.moveable if def else true)` — buildings (moveable=false)
+become fixed, other pieces stay moveable)*
+
+---
+
+### Toggleable ≠ Moveable — Decoupling
+
+**User:** After making buildings moveable during planning, toggling stopped working.
+
+**Claude:** *(root cause: press handler's `if _piece_moveable.get(cell_val, true):`
+sent all presses to pending pickup for moveable pieces, skipping tap detection; fix:
+added separate `_piece_toggleable: Dictionary` and `set_piece_toggleable(piece_id, v)`
+public method; `_on_piece_placed_on_grid()` calls `set_piece_toggleable(piece_id, def is
+BuildingDefinition)`; press handler for moveable+toggleable pieces now runs both pending
+pickup AND `_start_tap_down()` in parallel; `_confirm_pending()` calls `_clear_tap()` to
+cancel the tap when a hold/drag pickup is confirmed)*
+
+---
+
+### Display Cutout / Punch-Hole Camera — HUD Safe Area
+
+**User:** The Pixel 10a's screen-embedded front camera cuts out part of the top HUD.
+How should we handle this generally?
+
+**Claude:** Godot exposes `DisplayServer.get_display_safe_area()` which returns a `Rect2i`
+of the usable screen area in physical pixels — it accounts for punch-hole cameras, notches,
+and status bars on any Android device. We can use this to inset the HUD content below the
+cutout while letting the HUD background extend up to cover it.
+
+**User:** I'd rather the grid not shift. The HUD should just overlap the blank display
+area above the grid.
+
+**Claude:** *(rewrote `hud_ui.gd` to add `MarginContainer _content_margin` between the
+`PanelContainer` and the `HBoxContainer`; `_apply_safe_area()` converts
+`safe_area.position.y` from physical to logical pixels via `viewport_size / window_size`
+ratio, sets `margin_top` on `_content_margin`, and grows `custom_minimum_size.y` +
+`offset_bottom` by the inset amount; `_notification()` overridden to re-apply on
+`NOTIFICATION_APPLICATION_FOCUS_IN`; grid position unaffected since HUD is on a
+CanvasLayer)*
+
+---
+
+### Conditional Next Season Confirmation Dialog
+
+**User:** The Next Season button should be at the top right. No confirmation dialog by
+default — only warn when resources would be wasted (e.g. more than 3 Energy or Matter
+going unused).
+
+**Claude:** *(the button was already rightmost in the HBoxContainer; added
+`WARN_UNUSED_ENERGY := 3` and `WARN_UNUSED_MATTER := 3` constants in `game.gd`; renamed
+existing handler to `_advance_season()`; new `_on_next_season_pressed()` checks
+`GameState.energy` and `GameState.matter` against thresholds and builds a warning list;
+if no warnings → calls `_advance_season()` directly; if warnings → populates and shows
+`ConfirmationDialog` whose `confirmed` signal connects to `_advance_season()`)*
+
 **Claude:** Noted — will keep flagging assumptions like that even when they seem obvious.

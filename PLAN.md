@@ -721,10 +721,14 @@ live in `scripts/`.
 - [ ] Resource system (Energy + Matter, seasonal regeneration)
 - [x] Power system: broadcast range, network formation, shared pool, binary power state
 - [x] Building on/off toggle (double-tap on fixed building)
-- [ ] Neighbor effect calculation engine
-- [ ] Visual synergy, coverage, and power range indicators during planning
-- [ ] "Proceed to Next Season" confirmation and lock-in
-- [ ] Moveable vs. fixed piece distinction; upgrade hook
+- [x] Neighbor effect calculation engine (NeighborSystem.compute(); effects not yet
+  applied to simulation output)
+- [ ] Visual synergy and coverage indicators during planning
+- [x] Power range visual overlay during planning (placed buildings + hold preview)
+- [x] "Proceed to Next Season" confirmation and lock-in (buildings lock in on Next Season;
+  conditional dialog warns when Energy or Matter would go unused)
+- [x] Moveable vs. fixed piece distinction (all pieces moveable during planning; buildings
+  lock to moveable=false on Next Season confirmation; upgrade hook deferred)
 
 ### Phase 2 — Season Simulation
 - [ ] Season resolution logic (crop yield, resource consumption, weather events)
