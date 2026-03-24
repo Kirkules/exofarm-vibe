@@ -14,6 +14,8 @@ var _placed_items: Dictionary = {}
 var _piece_active: Dictionary = {}
 ## Most recently computed power state. Null until the first piece is placed.
 var _power_state: PowerSystem.PowerState = null
+## Most recently computed neighbor state. Null until the first piece is placed.
+var _neighbor_state: NeighborSystem.NeighborState = null
 
 func _ready() -> void:
 	_inventory = Inventory.new(10)
@@ -133,7 +135,9 @@ func toggle_piece(piece_id: int) -> void:
 	_recompute_power()
 
 func _recompute_power() -> void:
-	_power_state = PowerSystem.compute(_build_placed_dict())
+	var placed: Dictionary = _build_placed_dict()
+	_power_state    = PowerSystem.compute(placed)
+	_neighbor_state = NeighborSystem.compute(placed)
 	hud_ui.refresh_power(_power_state.total_pool(), _power_state.total_draw())
 
 func _build_placed_dict() -> Dictionary:
