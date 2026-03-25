@@ -181,10 +181,12 @@ func _recompute_power() -> void:
 	# During planning, energy is always at full capacity (nothing spent yet).
 	GameState.energy_capacity = _power_state.total_pool()
 	GameState.energy = GameState.energy_capacity - _power_state.total_draw()
-	# Push matter projection to HUD before refresh() reads it.
-	var matter_prod: int = _compute_matter_production()
-	var food_cost: int   = GameState.settler_count if _food_is_powered() else 0
-	hud_ui.refresh_matter(GameState.matter + matter_prod - food_cost, matter_prod - food_cost)
+	# Compute food and matter projection for HUD.
+	var food: Dictionary    = _compute_food_state()
+	var paste_produced: int = food["paste_produced"]
+	var matter_prod: int    = food["matter_prod"]
+	hud_ui.set_settler_fed_count(food["fed_count"])
+	hud_ui.refresh_matter(GameState.matter + matter_prod - paste_produced, matter_prod - paste_produced)
 	hud_ui.refresh()
 	_refresh_overlays(placed)
 
@@ -205,7 +207,6 @@ func _compute_matter_production() -> int:
 	return matter_prod
 
 ## Returns true if any active placed building with matter_production > 0 is powered.
-## When false, no Nutrient Paste is produced and all settlers starve.
 func _food_is_powered() -> bool:
 	if _power_state == null:
 		return false
@@ -219,6 +220,29 @@ func _food_is_powered() -> bool:
 		if bdef.matter_production > 0 and _power_state.is_powered(piece_id):
 			return true
 	return false
+
+## Computes the projected food and Nutrient Paste state for the upcoming season end.
+## Keys: matter_prod, food_items, paste_needed, paste_produced, fed_count, deaths.
+## fed_count settlers (first in settler_names order) will survive; the rest starve.
+## Paste is only made if needed and if a powered food-producing building exists.
+## Available Matter for paste is calculated after other Matter usages (currently none).
+func _compute_food_state() -> Dictionary:
+	var matter_prod: int  = _compute_matter_production()
+	var food_items: int   = 0  # placeholder until food items are introduced
+	var paste_needed: int = maxi(0, GameState.settler_count - food_items)
+	var paste_produced: int = 0
+	if paste_needed > 0 and _food_is_powered():
+		var matter_avail: int = GameState.matter + matter_prod  # after other usages (none yet)
+		paste_produced = mini(paste_needed, maxi(0, matter_avail))
+	var fed_count: int = mini(GameState.settler_count, food_items + paste_produced)
+	return {
+		"matter_prod":    matter_prod,
+		"food_items":     food_items,
+		"paste_needed":   paste_needed,
+		"paste_produced": paste_produced,
+		"fed_count":      fed_count,
+		"deaths":         GameState.settler_count - fed_count,
+	}
 
 func _refresh_overlays(placed: Dictionary) -> void:
 	var sources: Array = []
@@ -257,18 +281,11 @@ func _build_placed_dict() -> Dictionary:
 	return placed
 
 func _on_next_season_pressed() -> void:
-	# Deaths occur if the food system is unpowered, or matter + production is less than food cost.
-	var matter_prod: int   = _compute_matter_production()
-	var food_powered: bool = _food_is_powered()
-	var deaths: int
-	if not food_powered:
-		deaths = GameState.settler_count
-	else:
-		deaths = maxi(0, GameState.settler_count - (GameState.matter + matter_prod))
-	if deaths > 0:
+	var food: Dictionary = _compute_food_state()
+	if food["deaths"] > 0:
 		_confirm_dialog.dialog_text = \
-			"Not enough Matter to feed all settlers.\n%d settler(s) will die.\n\nProceed anyway?" \
-			% deaths
+			"Not enough food for all settlers.\n%d settler(s) will starve.\n\nProceed anyway?" \
+			% food["deaths"]
 		_confirm_dialog.popup_centered()
 	else:
 		_begin_simulation()
@@ -287,13 +304,14 @@ func _begin_simulation() -> void:
 
 ## Called when the simulation timer fires. Compute season outcomes and return to planning.
 func _end_simulation() -> void:
-	# Production first, then food consumption (only if the food system is powered).
-	GameState.matter += _compute_matter_production()
-	var food_powered: bool = _food_is_powered()
-	var food_cost: int     = GameState.settler_count if food_powered else 0
-	var deaths: int        = GameState.settler_count if not food_powered \
-		else maxi(0, food_cost - GameState.matter)
-	GameState.matter        = maxi(0, GameState.matter - food_cost)
+	# Compute food state before applying changes (power state is still valid from planning).
+	var food: Dictionary    = _compute_food_state()
+	var deaths: int         = food["deaths"]
+	var paste_produced: int = food["paste_produced"]
+	# Apply matter: production first, then paste consumption.
+	GameState.matter += food["matter_prod"]
+	GameState.matter  = maxi(0, GameState.matter - paste_produced)
+	# Apply deaths: starving settlers die (removed from the end of the list, matching UI order).
 	GameState.settler_count = maxi(0, GameState.settler_count - deaths)
 	for _i: int in range(deaths):
 		if not GameState.settler_names.is_empty():
@@ -304,4 +322,13 @@ func _end_simulation() -> void:
 	_sim_overlay.visible = false
 	farm_grid.set_planning_active(true)
 	hud_ui.set_simulation_active(false)
-	_recompute_power()  # updates energy capacity/current and refreshes HUD
+	_recompute_power()
+	if GameState.settler_count == 0:
+		_on_colony_lost()
+
+func _on_colony_lost() -> void:
+	var dlg: AcceptDialog = AcceptDialog.new()
+	dlg.title = "Colony Lost"
+	dlg.dialog_text = "All settlers have perished.\nThe colony is lost."
+	add_child(dlg)
+	dlg.popup_centered()
