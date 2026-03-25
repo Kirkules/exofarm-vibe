@@ -22,9 +22,19 @@ var _confirm_dialog: ConfirmationDialog
 ## Timer that drives the placeholder simulation phase duration.
 var _sim_timer: Timer
 var _sim_overlay: SimulationOverlay
+var _build_menu: BuildMenu
 
 enum Phase { PLANNING, SIMULATION }
 var _phase: Phase = Phase.PLANNING
+
+## Build state for each placed piece.  UNBUILT = placed this planning phase,
+## flashing, discarded if dragged off-grid.  BUILT = permanent, cannot move.
+enum BuildState { UNBUILT, BUILT }
+var _piece_build_state: Dictionary = {}    # piece_id -> BuildState
+## Build state carried by the currently held piece.
+var _held_build_state: BuildState = BuildState.BUILT
+## The pending InventoryItem created for a build-menu selection (not from _inventory).
+var _pending_menu_item: InventoryItem = null
 
 ## Duration of the placeholder simulation animation (seconds).
 const SIMULATION_PLACEHOLDER_DURATION := 2.0
@@ -59,11 +69,18 @@ func _ready() -> void:
 	_sim_overlay.size     = Vector2(270.0, grid_bottom - overlay_top)
 	_ui_layer.add_child(_sim_overlay)
 
-	# Pre-place starting buildings directly on the grid.
+	# Build menu — shown below the grid when the inventory is collapsed.
+	var viewport_h: float = get_viewport().get_visible_rect().size.y
+	_build_menu = BuildMenu.new()
+	_build_menu.position = Vector2(0.0, grid_bottom)
+	_build_menu.size     = Vector2(270.0, viewport_h - grid_bottom - InventoryUI.COLLAPSED_H)
+	_build_menu.building_requested.connect(_on_building_requested)
+	_ui_layer.add_child(_build_menu)  # _ready() fires here, initialising _item_list
+	_build_menu.set_definitions(_buildable_definitions())
+	inventory_ui.state_changed.connect(_on_inventory_state_changed)
+
+	# Pre-place starting buildings directly on the grid (as BUILT).
 	_place_starting_buildings()
-	# Seed inventory with starting placeable items.
-	for def: PlaceableDefinition in _starting_placeables():
-		_inventory.add(InventoryItem.new(def.display_name, def.slot_size, def))
 
 ## Builds starting building definitions and places them directly on the grid.
 func _place_starting_buildings() -> void:
@@ -100,9 +117,9 @@ func _place_starting_buildings() -> void:
 		farm_grid.place_piece_at(def.shape, row, col, def.display_name)
 		# _held_item cleared by _on_piece_placed_on_grid
 
-func _starting_placeables() -> Array[PlaceableDefinition]:
+## Returns the definitions available in the build menu this run.
+func _buildable_definitions() -> Array[PlaceableDefinition]:
 	var result: Array[PlaceableDefinition] = []
-
 	var crop_shape: PieceShape = PieceShape.new()
 	crop_shape.color = Color(0.55, 0.88, 0.38)
 	crop_shape.effect_range = 1
@@ -110,9 +127,16 @@ func _starting_placeables() -> Array[PlaceableDefinition]:
 	crop_plot.display_name = "Crop Plot"
 	crop_plot.shape = crop_shape
 	result.append(crop_plot)
-	result.append(crop_plot)  # two copies
-
 	return result
+
+func _on_building_requested(def: PlaceableDefinition) -> void:
+	if farm_grid.has_held_piece or farm_grid.has_pending_pickup:
+		return
+	_pending_menu_item = InventoryItem.new(def.display_name, 1, def)
+	farm_grid.begin_pending_inventory_hold(_pending_menu_item)
+
+func _on_inventory_state_changed(collapsed: bool) -> void:
+	_build_menu.visible = collapsed
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Phase 0: Enter/space rotates the held piece clockwise.
@@ -128,13 +152,18 @@ func _on_item_requested(item: InventoryItem) -> void:
 func _on_inventory_item_pickup_confirmed(item: InventoryItem) -> void:
 	_held_item = item
 	_inventory.remove(item)
+	# Items selected from the build menu (not _inventory) start UNBUILT.
+	_held_build_state = BuildState.UNBUILT if item == _pending_menu_item else BuildState.BUILT
+	_pending_menu_item = null
 	var def: PlaceableDefinition = item.data as PlaceableDefinition
 	var pr: int = (def as BuildingDefinition).power_range if def is BuildingDefinition else 0
 	farm_grid.set_held_power_range(pr)
 
 func _on_piece_picked_up_from_grid(piece_id: int, _shape: PieceShape) -> void:
 	_held_item = _placed_items.get(piece_id, null)
+	_held_build_state = _piece_build_state.get(piece_id, BuildState.BUILT)
 	_placed_items.erase(piece_id)
+	_piece_build_state.erase(piece_id)
 	_piece_active.erase(piece_id)
 	if _held_item:
 		farm_grid.set_held_hint(_held_item.display_name)
@@ -148,15 +177,21 @@ func _on_piece_placed_on_grid(piece_id: int) -> void:
 		_placed_items[piece_id] = _held_item
 	_held_item = null
 	var def: PlaceableDefinition = (_placed_items[piece_id].data if _placed_items.has(piece_id) else null) as PlaceableDefinition
+	_piece_build_state[piece_id] = _held_build_state
+	var is_unbuilt: bool = _held_build_state == BuildState.UNBUILT
+	_held_build_state = BuildState.BUILT  # reset for next placement
 	farm_grid.set_piece_moveable(piece_id, true)
-	farm_grid.set_piece_toggleable(piece_id, def is BuildingDefinition)
+	farm_grid.set_piece_toggleable(piece_id, def is BuildingDefinition and not is_unbuilt)
+	farm_grid.set_piece_flashing(piece_id, is_unbuilt)
 	farm_grid.set_held_power_range(0)
 	_recompute_power()
 
 func _on_piece_hold_cancelled(_shape: PieceShape) -> void:
-	if _held_item:
+	# UNBUILT pieces (from build menu or picked up off grid) are discarded on drop.
+	if _held_build_state != BuildState.UNBUILT and _held_item:
 		_inventory.add(_held_item)
-		_held_item = null
+	_held_item = null
+	_held_build_state = BuildState.BUILT
 	farm_grid.set_held_power_range(0)
 
 func _on_piece_returned_to_grid(piece_id: int) -> void:
@@ -164,8 +199,12 @@ func _on_piece_returned_to_grid(piece_id: int) -> void:
 		_placed_items[piece_id] = _held_item
 	_held_item = null
 	var def: PlaceableDefinition = (_placed_items[piece_id].data if _placed_items.has(piece_id) else null) as PlaceableDefinition
+	_piece_build_state[piece_id] = _held_build_state
+	var is_unbuilt: bool = _held_build_state == BuildState.UNBUILT
+	_held_build_state = BuildState.BUILT
 	farm_grid.set_piece_moveable(piece_id, true)
-	farm_grid.set_piece_toggleable(piece_id, def is BuildingDefinition)
+	farm_grid.set_piece_toggleable(piece_id, def is BuildingDefinition and not is_unbuilt)
+	farm_grid.set_piece_flashing(piece_id, is_unbuilt)
 	farm_grid.set_held_power_range(0)
 	_recompute_power()
 
@@ -336,9 +375,13 @@ func _on_next_season_pressed() -> void:
 ## Lock in the grid and start the simulation phase.
 func _begin_simulation() -> void:
 	_phase = Phase.SIMULATION
-	# Lock buildings in place; other pieces remain moveable for next planning phase.
 	for piece_id: int in _placed_items:
 		var def: PlaceableDefinition = _placed_items[piece_id].data as PlaceableDefinition
+		# Transition UNBUILT → BUILT: stop flashing, then apply moveable lock.
+		if _piece_build_state.get(piece_id, BuildState.BUILT) == BuildState.UNBUILT:
+			_piece_build_state[piece_id] = BuildState.BUILT
+			farm_grid.set_piece_flashing(piece_id, false)
+			farm_grid.set_piece_toggleable(piece_id, def is BuildingDefinition)
 		farm_grid.set_piece_moveable(piece_id, def.moveable if def else true)
 	farm_grid.set_planning_active(false)
 	hud_ui.set_simulation_active(true)

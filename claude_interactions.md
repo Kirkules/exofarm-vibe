@@ -1514,3 +1514,177 @@ updated `_on_next_season_pressed()` overflow warning — now warns when
 of checking raw stored amount; added `_energy_prod` and `_matter_prod` fields to
 `HudUI`; `refresh_resources()` stores them and updates labels; `refresh()` uses stored
 values; HUD now shows "E 5/10 +3" format)*
+
+---
+
+## Session 6 — Settlers, Food, Tooltips, Build Menu
+
+### Settlers and Food Consumption
+
+**User:** Good. Let's commit and adjust the other HUD displays a bit (ask me).
+
+**Claude:** *(committed resource system work; asked what HUD adjustments to make)*
+
+**User:** *(described settlers and food system)* Let's add settlers and food consumption.
+The Matter Manipulator should automatically provide basic food: 1 Matter per settler per
+season converted to Nutrient Paste. Consumption should be gated on the Matter Manipulator
+being powered.
+
+**Claude:** *(added `settler_count: int`, `settler_names: Array[String]`, `matter: int`,
+`matter_capacity: int` to `GameState`; added `_compute_food_state() -> Dictionary` to
+`game.gd` returning `{matter_prod, food_items, paste_needed, paste_produced, fed_count,
+deaths}`; paste only produced if `_food_is_powered()` and matter available;
+`_food_is_powered()` iterates `_placed_items` for active `BuildingDefinition` with
+`matter_production > 0` that is powered; updated HUD with settler label showing
+"Settlers: N"; added confirmation dialog for deaths — shown if `deaths > 0` when Next
+Season pressed, asks "Some settlers could die. Proceed anyway?"; `_advance_season()`
+handles settler death by reducing `GameState.settler_count` and removing names from tail
+of `settler_names`)*
+
+---
+
+### Per-Settler Food Tracking and Colony-Lost Condition
+
+**User:** Add per-settler food tracking (fed/starving) so each settler gets a status, and
+add a colony-lost condition when all settlers die.
+
+**Claude:** *(added `_settler_fed_count: int` to `HudUI`; `set_settler_fed_count(n)`
+caches the count; settler label colored red `(#ee8888)` when `fed_count < settler_count`,
+default color otherwise; extended settler tooltip — shows each settler name with
+`([color=#88ee88]fed[/color])` or `([color=#ee8888]starving[/color])` status; first
+`fed_count` settlers in `settler_names` list order are fed, rest are starving; colony-lost
+condition: `_advance_season()` checks if deaths == settler_count and shows a "Colony Lost"
+dialog; added `AcceptDialog _colony_lost_dialog`; on dismiss, simulation state is entered
+to lock out further planning)*
+
+---
+
+### Energy and Matter HUD Tooltips
+
+**User:** Let's update the Matter and Energy displays to also show a tooltip when
+tap-held or click-held; for Energy, I want the tooltip to show a list of the named power
+sources each followed by '(+[provided Energy])', and named power drawing items each
+followed by '(-[drawn Energy])'. For Matter, similarly I want the tooltip to show current
+Matter as 'Stored Matter ([stored amount])', then named Matter production sources each
+followed by '(+[provided Matter])' and Matter consumption items each followed by
+'(-[consumed Matter])'. The tooltip lists should be in relatively small font, same as is
+used for settler names/statuses. Each tooltip list item should be on its own line. The
+tooltips should appear on TOP of the grid and inventory, in case the lists become long
+enough to enter that part of the screen.
+
+**Claude:** *(added `_energy_tooltip`, `_energy_info_box`, `_matter_tooltip`,
+`_matter_info_box` PanelContainers to `HudUI`; `_make_tooltip_panel()` creates a panel
+with `COLOR_TOOLTIP` bg, `mouse_filter = MOUSE_FILTER_IGNORE`, `z_index = 100` (renders
+above inventory in the same CanvasLayer); `_make_tooltip_rtlabel(bbcode)` creates a
+`RichTextLabel` with `bbcode_enabled`, `fit_content`, `scroll_active=false`, `INFO_FONT_SIZE`;
+`refresh_energy_tooltip(entries)` and `refresh_matter_tooltip(stored, entries)` rebuild
+the info boxes; `_delta_line_bbcode(name, delta)` returns BBCode with `+/-N` colored
+green `#88ee88` / red `#ee8888`; `_on_energy_label_input()` and `_on_matter_label_input()`
+set tooltip visibility on press/release; all three tooltips positioned at
+`Vector2(0, tooltip_y)` in `_apply_safe_area()`; `set_simulation_active()` hides all
+three tooltips; `game.gd` added `_build_energy_entries()` and `_build_matter_entries(food)`
+to compose the arrays passed to the new refresh calls in `_recompute_power()`)*
+
+---
+
+### Tooltip RichTextLabel Collapse Fix
+
+**User:** Something about the change to RichTextLabels has collapsed the tooltips so that
+they are just a few pixels on the left side of the screen. Do they need to be inside of
+some kind of PanelContainers so that they are sized to the contained text?
+
+**Claude:** Root cause: `RichTextLabel` with `fit_content=true` has autowrap enabled by
+default, which lets it wrap at zero width — so the minimum width collapses. Fix: added
+`lbl.autowrap_mode = TextServer.AUTOWRAP_OFF` in `_make_tooltip_rtlabel()` so
+`fit_content` drives both width and height correctly.
+
+---
+
+### Green/Red Color Schema for Deltas
+
+**User:** Before committing, let's add color to the values inside parentheticals in the
+tooltips, and in general going forward, numbers showing deltas should follow this schema:
+red for negative deltas, light green for positive deltas.
+
+**Claude:** *(applied `#88ee88` (light green) for positive and `#ee8888` (red) for
+negative to all delta parentheticals; updated the Matter label inline delta, all tooltip
+entries, and the settler status labels to follow the schema consistently)*
+
+---
+
+### Pre-Placed Buildings and Inventory Stacking
+
+**User:** Let's actually remove the L-Piece from automatically entering the inventory, and
+move the matter manipulator and solar rig to by default already be placed near the middle
+of the grid. Also, the Crop Plots that appear in the inventory take up separate inventory
+slots, but they should take up just one slot as a group, and the number shown in square
+brackets on the listing should reflect the number of that item in the inventory.
+
+**Claude:** *(removed `_starting_placeables()` entirely so no pieces auto-enter inventory;
+added `_place_starting_buildings()` to `game.gd._ready()` — uses `_held_item` trick to
+set `_held_item` before calling `farm_grid.place_piece_at(shape, row, col, hint)` so
+`_on_piece_placed_on_grid()` registers the item in `_placed_items` correctly; Solar Rig
+placed at (3,3), Matter Manipulator at (3,6), both as BUILT state;
+`farm_grid.place_piece_at(shape, row, col, hint)` added as a public method — checks
+`can_place()`, calls `place_piece()`, creates sprite, emits `piece_placed_on_grid`, calls
+`queue_redraw()`; inventory UI `_rebuild_rows()` updated to group items sharing the same
+`data` reference into a single row; `{item: InventoryItem, count: int}` groups tracked
+via a `seen: Dictionary` keyed on `item.data`; `_make_row(item, count, over_cap)` updated
+to show `[count]` instead of slot size; 2 Crop Plots in starting inventory now appear as
+one row)*
+
+---
+
+### Build Menu and UNBUILT/BUILT Building State
+
+**User:** Actually, before we dive in to crop plot behavior, let's change how they are
+acquired. There shouldn't be 2 in the inventory by default, but instead they should be
+selected from a menu of sorts as a thing to plan to build on the grid during the season.
+In general, buildings should be introduced to the grid in this way, rather than appearing
+in the inventory. I want to leave it as an option for a building to be in the inventory
+if it is crafted from merging or something later on, but for now, buildings don't go into
+the inventory. When buildings are placed on the grid during planning, they can be moved
+around as they are not 'built' yet. We should introduce a building state variable with
+values like UNBUILT and BUILT. UNBUILT buildings are movable, and when not being dragged
+they display as slowly flashing (interpolate between 50% and 0% transparent with a
+2-second cycle). When dragged off the grid (so that releasing doesn't put them in a valid
+location), UNBUILT buildings are simply removed from the game. BUILT buildings, on the
+other hand, cannot be moved around and do not flash. The menu for placing buildings should
+appear where the opened-up inventory appears, below the grid, but only when the inventory
+is collapsed.
+
+**Claude:** *(created `scenes/game/ui/build_menu.gd` — `class_name BuildMenu extends
+Control`; `signal building_requested(def: PlaceableDefinition)`; `_build_ui()` called
+from `_ready()` builds scroll list; `set_definitions(defs)` must be called after
+`add_child()`; each row has an icon button (using `button_down`) and name button, both
+emit `building_requested`; added `enum BuildState { UNBUILT, BUILT }` to `game.gd`; added
+`_piece_build_state: Dictionary`, `_held_build_state: BuildState`, `_pending_menu_item:
+InventoryItem`, `_build_menu: BuildMenu` fields; `_on_inventory_state_changed(collapsed)`
+toggles `_build_menu.visible`; `_on_building_requested(def)` creates a temporary
+`InventoryItem` as `_pending_menu_item` and calls `begin_pending_inventory_hold`;
+`_on_inventory_item_pickup_confirmed()` sets `_held_build_state = UNBUILT` if item ==
+`_pending_menu_item`; `_on_piece_placed_on_grid()` sets `_piece_build_state`, calls
+`set_piece_flashing()` if UNBUILT, only calls `set_piece_toggleable()` for BUILT;
+`_on_piece_picked_up_from_grid()` saves `_held_build_state`; `_on_piece_hold_cancelled()`
+discards item if UNBUILT (no return to inventory), else adds to inventory;
+`_on_piece_returned_to_grid()` restores build state and flashing; `_begin_simulation()`
+transitions all UNBUILT→BUILT (stop flashing, enable toggleable, lock moveable);
+`farm_grid.gd` added `_piece_flashing: Dictionary`, `_flash_time: float`;
+`_process()` updates flash before the `planning_active` guard:
+`alpha = 0.75 + 0.25 * cos(TAU * _flash_time / 2.0)`; `set_piece_flashing(id, v)`
+resets modulate to `Color.WHITE` on disable; removed 2 Crop Plots from starting inventory;
+`_buildable_definitions()` returns `[crop_plot]` definition for the build menu; build menu
+positioned below grid, sized to fill space between grid bottom and inventory header)*
+
+---
+
+### BuildMenu Crash Fix
+
+**User:** We have a game crash error: E 0:00:00:357 BuildMenu._rebuild_rows: Cannot call
+method 'get_children' on a null value.
+
+**Claude:** Root cause: `set_definitions()` was being called before
+`_ui_layer.add_child(_build_menu)`. Godot's `_ready()` — which calls `_build_ui()` and
+initializes `_item_list` — only fires when the node enters the scene tree via
+`add_child()`. Fix: moved `set_definitions()` to after `add_child()` in
+`game.gd._ready()`.

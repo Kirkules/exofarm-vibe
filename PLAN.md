@@ -731,13 +731,22 @@ live in `scripts/`.
   conditional dialog warns when Energy or Matter production would overflow storage)
 - [x] Moveable vs. fixed piece distinction (all pieces moveable during planning; buildings
   lock to moveable=false on Next Season confirmation; upgrade hook deferred)
+- [x] UNBUILT/BUILT building state: UNBUILT buildings (placed from build menu) flash and
+  can be moved; if dropped off-grid they are discarded; transition to BUILT at season
+  confirmation (stop flashing, lock moveable, enable toggle)
+- [x] Build menu: shown below the grid when inventory is collapsed; lists buildable
+  definitions; tapping begins the hold-to-place flow onto the grid as an UNBUILT building
+- [x] HUD tooltips: press-and-hold Energy label shows per-building energy deltas; same
+  for Matter label (includes stored amount); colored deltas (#88ee88 positive, #ee8888
+  negative) used consistently throughout HUD
 
 ### Phase 2 — Season Simulation
 - [ ] Season resolution logic (crop yield, resource consumption, weather events)
 - [ ] Animated simulation playback with outcome log
 - [ ] Playback speed controls (1×, 2×, 3×, 5×)
-- [ ] Settler food consumption and starvation check (Nutrient Paste auto-queue,
-  shortfall → settler death, confirmation dialog)
+- [x] Settler food consumption and starvation check (Nutrient Paste auto-queue from
+  powered Matter Manipulator; shortfall → settler death; confirmation dialog; per-settler
+  fed/starving tracking; colony-lost condition when all settlers die)
 - [ ] Morale calculation (fresh each season from inputs)
 - [ ] Morale bar UI with projected delta display
 - [ ] Cafeteria building: merge space + consumption area UI

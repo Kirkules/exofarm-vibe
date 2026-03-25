@@ -24,6 +24,8 @@ const COLOR_HEADER     := Color(0.12, 0.12, 0.16)
 
 ## Emitted when the player taps an item and wants to pick it up (e.g. a piece shape).
 signal item_requested(item: InventoryItem)
+## Emitted whenever the panel state changes; collapsed=true when the panel is collapsed.
+signal state_changed(collapsed: bool)
 
 var _inventory: Inventory = null
 var _state: PanelState = PanelState.COLLAPSED
@@ -96,6 +98,7 @@ func _build_ui() -> void:
 func _set_state(s: PanelState) -> void:
 	_state = s
 	_apply_state()
+	state_changed.emit(s == PanelState.COLLAPSED)
 
 func _apply_state() -> void:
 	for child: Node in _header_panel.get_children():

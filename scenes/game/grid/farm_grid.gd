@@ -105,6 +105,8 @@ var _piece_sprites:      Dictionary = {}  # piece_id -> Sprite2D
 var _piece_label_hints:  Dictionary = {}  # piece_id -> String (display name for label)
 var _piece_moveable:     Dictionary = {}  # piece_id -> bool (false = fixed, cannot be picked up)
 var _piece_toggleable:   Dictionary = {}  # piece_id -> bool (true = double-tap fires piece_double_tapped)
+var _piece_flashing:     Dictionary = {}  # piece_id -> bool (UNBUILT pieces pulse opacity)
+var _flash_time:         float      = 0.0
 var _held_sprite:        Sprite2D   = null
 var _held_label:         Label      = null
 var _held_label_hint:    String     = ""
@@ -163,6 +165,13 @@ func _ready() -> void:
 	_held_sprite_layer.add_child(_held_label)
 
 func _process(delta: float) -> void:
+	# Update UNBUILT flash independently of planning_active (harmless during simulation
+	# since all pieces will have been transitioned to BUILT before simulation starts).
+	_flash_time = fmod(_flash_time + delta, 2.0)
+	for piece_id: int in _piece_flashing:
+		if _piece_flashing[piece_id] and _piece_sprites.has(piece_id):
+			var alpha: float = 0.75 + 0.25 * cos(TAU * _flash_time / 2.0)
+			_piece_sprites[piece_id].modulate = Color(1.0, 1.0, 1.0, alpha)
 	if not planning_active:
 		return
 	if _pending_input != InputSource.NONE:
@@ -667,6 +676,13 @@ func set_piece_moveable(piece_id: int, moveable: bool) -> void:
 func set_piece_toggleable(piece_id: int, toggleable: bool) -> void:
 	_piece_toggleable[piece_id] = toggleable
 
+## Enable or disable the UNBUILT flash pulse on a piece.
+## Disabling restores the sprite to full opacity.
+func set_piece_flashing(piece_id: int, flashing: bool) -> void:
+	_piece_flashing[piece_id] = flashing
+	if not flashing and _piece_sprites.has(piece_id):
+		_piece_sprites[piece_id].modulate = Color.WHITE
+
 ## Dim (active=false) or restore (active=true) a placed piece sprite.
 func set_piece_active_visual(piece_id: int, active: bool) -> void:
 	if _piece_sprites.has(piece_id):
@@ -745,6 +761,7 @@ func _remove_piece_sprite(piece_id: int) -> void:
 	_piece_label_hints.erase(piece_id)
 	_piece_moveable.erase(piece_id)
 	_piece_toggleable.erase(piece_id)
+	_piece_flashing.erase(piece_id)
 
 # ---------------------------------------------------------------------------
 # Helpers

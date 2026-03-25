@@ -7,7 +7,6 @@ var settler_count: int = 3
 var settler_names: Array[String] = ["Alice", "Bruno", "Carmen"]
 var morale: int = 10
 var energy_capacity: int = 0
-var matter_capacity: int = 10
 var energy: int = 0
 var matter: int = 0
 
