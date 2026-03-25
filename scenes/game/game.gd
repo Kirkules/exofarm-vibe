@@ -239,14 +239,26 @@ func _build_placed_dict() -> Dictionary:
 	return placed
 
 func _on_next_season_pressed() -> void:
-	var matter_prod: int = _compute_matter_production()
-	var matter_overflow: int = maxi(0, GameState.matter + matter_prod - GameState.matter_capacity)
-	if matter_overflow > WARN_UNUSED_MATTER:
-		_confirm_dialog.dialog_text = \
-			"%d Matter will overflow storage\n\nAdvance to next season anyway?" % matter_overflow
-		_confirm_dialog.popup_centered()
-	else:
+	var food_cost: int    = GameState.settler_count
+	var deaths: int       = maxi(0, food_cost - GameState.matter)
+	var matter_prod: int  = _compute_matter_production()
+	# Overflow is computed on matter remaining after food, plus production.
+	var after_food: int   = maxi(0, GameState.matter - food_cost)
+	var overflow: int     = maxi(0, after_food + matter_prod - GameState.matter_capacity)
+
+	var warnings: Array[String] = []
+	if deaths > 0:
+		warnings.append(
+			"Not enough Matter to feed all settlers.\n%d settler(s) will die." % deaths)
+	if overflow > WARN_UNUSED_MATTER:
+		warnings.append("%d Matter will overflow storage." % overflow)
+
+	if warnings.is_empty():
 		_begin_simulation()
+	else:
+		_confirm_dialog.dialog_text = \
+			"\n\n".join(warnings) + "\n\nAdvance to next season anyway?"
+		_confirm_dialog.popup_centered()
 
 ## Lock in the grid and start the simulation phase.
 func _begin_simulation() -> void:
@@ -262,8 +274,20 @@ func _begin_simulation() -> void:
 
 ## Called when the simulation timer fires. Compute season outcomes and return to planning.
 func _end_simulation() -> void:
+	# Food: consume 1 Matter per settler; shortfall kills settlers.
+	var food_cost: int = GameState.settler_count
+	var deaths: int    = maxi(0, food_cost - GameState.matter)
+	GameState.matter        = maxi(0, GameState.matter - food_cost)
+	GameState.settler_count = maxi(0, GameState.settler_count - deaths)
+	# Remove names of dead settlers (from the end of the list, arbitrarily).
+	for _i: int in range(deaths):
+		if not GameState.settler_names.is_empty():
+			GameState.settler_names.remove_at(GameState.settler_names.size() - 1)
+
+	# Matter production added after food.
 	GameState.matter = mini(GameState.matter_capacity, GameState.matter + _compute_matter_production())
 	GameState.season += 1
+
 	_phase = Phase.PLANNING
 	_sim_overlay.visible = false
 	farm_grid.set_planning_active(true)
