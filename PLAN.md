@@ -718,7 +718,9 @@ live in `scripts/`.
 
 ### Phase 1 — Core Planning Loop
 - [ ] Initial set of placeable element types (shape, cost, effects)
-- [ ] Resource system (Energy + Matter, seasonal regeneration)
+- [x] Resource system (Energy + Matter, seasonal regeneration; production computed from
+  placed active buildings; HUD shows stored/capacity/+production; overflow warning on
+  Next Season)
 - [x] Power system: broadcast range, network formation, shared pool, binary power state
 - [x] Building on/off toggle (double-tap on fixed building)
 - [x] Neighbor effect calculation engine (NeighborSystem.compute(); effects not yet
@@ -726,7 +728,7 @@ live in `scripts/`.
 - [ ] Visual synergy and coverage indicators during planning
 - [x] Power range visual overlay during planning (placed buildings + hold preview)
 - [x] "Proceed to Next Season" confirmation and lock-in (buildings lock in on Next Season;
-  conditional dialog warns when Energy or Matter would go unused)
+  conditional dialog warns when Energy or Matter production would overflow storage)
 - [x] Moveable vs. fixed piece distinction (all pieces moveable during planning; buildings
   lock to moveable=false on Next Season confirmation; upgrade hook deferred)
 

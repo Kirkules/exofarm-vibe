@@ -14,8 +14,8 @@ signal next_season_pressed
 var _season_label:   Label
 var _energy_label:   Label
 var _matter_label:   Label
-var _power_label:    Label
 var _content_margin: MarginContainer
+
 
 func _ready() -> void:
 	_build_ui()
@@ -59,11 +59,6 @@ func _build_ui() -> void:
 	_matter_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hbox.add_child(_matter_label)
 
-	_power_label = Label.new()
-	_power_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_power_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hbox.add_child(_power_label)
-
 	var btn: Button = Button.new()
 	btn.text = "Next Season"
 	btn.pressed.connect(_on_next_season_button_pressed)
@@ -91,13 +86,8 @@ func _apply_safe_area() -> void:
 ## Reads current values from GameState and updates all labels.
 func refresh() -> void:
 	_season_label.text = "Season %d" % GameState.season
-	_energy_label.text = "Energy  %d / %d" % [GameState.energy, GameState.energy_capacity]
-	_matter_label.text = "Matter  %d / %d" % [GameState.matter, GameState.matter_capacity]
-	_power_label.text  = "Power  — / —"
-
-## Update the power draw / pool display. Called by game.gd after every grid change.
-func refresh_power(total_pool: int, total_draw: int) -> void:
-	_power_label.text = "Power  %d / %d" % [total_draw, total_pool]
+	_energy_label.text = "E %d/%d" % [GameState.energy, GameState.energy_capacity]
+	_matter_label.text = "M %d/%d" % [GameState.matter, GameState.matter_capacity]
 
 # ---------------------------------------------------------------------------
 # Internal

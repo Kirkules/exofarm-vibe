@@ -19,8 +19,7 @@ var _neighbor_state: NeighborSystem.NeighborState = null
 ## Reusable confirmation dialog for risky Next Season actions.
 var _confirm_dialog: ConfirmationDialog
 
-## Warn if the player is leaving more than this much energy/matter unused.
-const WARN_UNUSED_ENERGY := 3
+## Warn if matter production would overflow storage by more than this amount.
 const WARN_UNUSED_MATTER := 3
 
 func _ready() -> void:
@@ -55,7 +54,7 @@ func _starting_placeables() -> Array[PlaceableDefinition]:
 	solar_rig.display_name = "Solar Rig"
 	solar_rig.shape = solar_shape
 	solar_rig.moveable = false
-	solar_rig.energy_production = 3
+	solar_rig.energy_production = 10
 	solar_rig.power_range = 3
 	result.append(solar_rig)
 
@@ -68,7 +67,7 @@ func _starting_placeables() -> Array[PlaceableDefinition]:
 	matter_manip.shape = matter_shape
 	matter_manip.moveable = false
 	matter_manip.matter_production = 3
-	matter_manip.power_draw = 1
+	matter_manip.power_draw = 2
 	result.append(matter_manip)
 
 	# Placeholder test pieces (to be replaced by proper definitions in later phases).
@@ -158,8 +157,28 @@ func _recompute_power() -> void:
 	var placed: Dictionary = _build_placed_dict()
 	_power_state    = PowerSystem.compute(placed)
 	_neighbor_state = NeighborSystem.compute(placed)
-	hud_ui.refresh_power(_power_state.total_pool(), _power_state.total_draw())
+	# Energy capacity = total power pool from all placed sources.
+	# During planning, energy is always at full capacity (nothing spent yet).
+	GameState.energy_capacity = _power_state.total_pool()
+	GameState.energy = GameState.energy_capacity - _power_state.total_draw()
+	hud_ui.refresh()
 	_refresh_overlays(placed)
+
+## Returns the Matter that would be produced this season given the current grid layout.
+## Buildings with power_draw > 0 only produce if powered.
+func _compute_matter_production() -> int:
+	var matter_prod: int = 0
+	for piece_id: int in _placed_items:
+		if not _piece_active.get(piece_id, true):
+			continue
+		var def: PlaceableDefinition = _placed_items[piece_id].data as PlaceableDefinition
+		if not def is BuildingDefinition:
+			continue
+		var bdef: BuildingDefinition = def as BuildingDefinition
+		if bdef.power_draw > 0 and (_power_state == null or not _power_state.is_powered(piece_id)):
+			continue
+		matter_prod += bdef.matter_production
+	return matter_prod
 
 func _refresh_overlays(placed: Dictionary) -> void:
 	var sources: Array = []
@@ -198,16 +217,14 @@ func _build_placed_dict() -> Dictionary:
 	return placed
 
 func _on_next_season_pressed() -> void:
-	var warnings: Array[String] = []
-	if GameState.energy > WARN_UNUSED_ENERGY:
-		warnings.append("%d Energy will go unused" % GameState.energy)
-	if GameState.matter > WARN_UNUSED_MATTER:
-		warnings.append("%d Matter will go unused" % GameState.matter)
-	if warnings.is_empty():
+	var matter_prod: int = _compute_matter_production()
+	var matter_overflow: int = maxi(0, GameState.matter + matter_prod - GameState.matter_capacity)
+	if matter_overflow > WARN_UNUSED_MATTER:
+		_confirm_dialog.dialog_text = \
+			"%d Matter will overflow storage\n\nAdvance to next season anyway?" % matter_overflow
+		_confirm_dialog.popup_centered()
+	else:
 		_advance_season()
-		return
-	_confirm_dialog.dialog_text = "\n".join(warnings) + "\n\nAdvance to next season anyway?"
-	_confirm_dialog.popup_centered()
 
 func _advance_season() -> void:
 	# Lock in all placed pieces according to their definition's moveable flag.
@@ -215,7 +232,8 @@ func _advance_season() -> void:
 	for piece_id: int in _placed_items:
 		var def: PlaceableDefinition = _placed_items[piece_id].data as PlaceableDefinition
 		farm_grid.set_piece_moveable(piece_id, def.moveable if def else true)
-	GameState.season += 1
+	GameState.matter = mini(GameState.matter_capacity, GameState.matter + _compute_matter_production())
+	# Energy resets to current capacity at the start of each new season.
 	GameState.energy = GameState.energy_capacity
-	GameState.matter = GameState.matter_capacity
+	GameState.season += 1
 	hud_ui.refresh()

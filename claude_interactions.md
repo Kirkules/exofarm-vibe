@@ -1491,3 +1491,26 @@ if no warnings → calls `_advance_season()` directly; if warnings → populates
 `ConfirmationDialog` whose `confirmed` signal connects to `_advance_season()`)*
 
 **Claude:** Noted — will keep flagging assumptions like that even when they seem obvious.
+
+---
+
+## Session 5 — Resource System
+
+### Resource System (Energy + Matter, Seasonal Regeneration)
+
+**User:** Let's resume working on the next step of our plan.
+
+**Claude:** *(Phase 1 next item was the resource system; changed `GameState._ready()` to
+initialize `energy = 0` and `matter = 0` (was `energy_capacity`) since resources now
+accumulate from production rather than resetting to capacity; added
+`_compute_resource_production() -> Dictionary` to `game.gd` — iterates `_placed_items`,
+skips inactive pieces and non-buildings, skips buildings with `power_draw > 0` that are
+not powered, sums `energy_production` and `matter_production` from the rest; updated
+`_recompute_power()` to call `_compute_resource_production()` and pass results to new
+`hud_ui.refresh_resources(energy_prod, matter_prod)`; updated `_advance_season()` to add
+production to current stores capped at capacity via `mini()`, replacing the old reset;
+updated `_on_next_season_pressed()` overflow warning — now warns when
+`energy + production > energy_capacity` exceeds `WARN_UNUSED_ENERGY` threshold, instead
+of checking raw stored amount; added `_energy_prod` and `_matter_prod` fields to
+`HudUI`; `refresh_resources()` stores them and updates labels; `refresh()` uses stored
+values; HUD now shows "E 5/10 +3" format)*
