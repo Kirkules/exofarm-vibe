@@ -59,14 +59,14 @@ func _ready() -> void:
 	_sim_overlay.size     = Vector2(270.0, grid_bottom - overlay_top)
 	_ui_layer.add_child(_sim_overlay)
 
-	# Seed inventory with starting buildings and test pieces.
+	# Pre-place starting buildings directly on the grid.
+	_place_starting_buildings()
+	# Seed inventory with starting placeable items.
 	for def: PlaceableDefinition in _starting_placeables():
 		_inventory.add(InventoryItem.new(def.display_name, def.slot_size, def))
 
-func _starting_placeables() -> Array[PlaceableDefinition]:
-	var result: Array[PlaceableDefinition] = []
-
-	# Solar Rig — produces energy each season.
+## Builds starting building definitions and places them directly on the grid.
+func _place_starting_buildings() -> void:
 	var solar_shape: PieceShape = PieceShape.new()
 	solar_shape.color = Color(0.95, 0.80, 0.20)
 	solar_shape.label = "SOL"
@@ -76,9 +76,7 @@ func _starting_placeables() -> Array[PlaceableDefinition]:
 	solar_rig.moveable = false
 	solar_rig.energy_production = 10
 	solar_rig.power_range = 3
-	result.append(solar_rig)
 
-	# Matter Manipulator — produces matter each season.
 	var matter_shape: PieceShape = PieceShape.new()
 	matter_shape.color = Color(0.45, 0.75, 0.55)
 	matter_shape.label = "MAT"
@@ -88,17 +86,22 @@ func _starting_placeables() -> Array[PlaceableDefinition]:
 	matter_manip.moveable = false
 	matter_manip.matter_production = 5
 	matter_manip.power_draw = 2
-	result.append(matter_manip)
 
-	# Placeholder test pieces (to be replaced by proper definitions in later phases).
-	var l_shape: PieceShape = PieceShape.new()
-	l_shape.offsets = [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(2, 1)]
-	l_shape.color = Color(0.40, 0.60, 0.90)
-	l_shape.effect_range = 2
-	var l_piece: PlaceableDefinition = PlaceableDefinition.new()
-	l_piece.display_name = "L-Piece"
-	l_piece.shape = l_shape.with_centered_origin()
-	result.append(l_piece)
+	# Place each building by temporarily setting _held_item so _on_piece_placed_on_grid
+	# registers it correctly, then call place_piece_at which emits the signal.
+	for entry: Array in [
+		[solar_rig,    3, 3],
+		[matter_manip, 3, 6],
+	]:
+		var def: BuildingDefinition = entry[0]
+		var row: int                = entry[1]
+		var col: int                = entry[2]
+		_held_item = InventoryItem.new(def.display_name, 1, def)
+		farm_grid.place_piece_at(def.shape, row, col, def.display_name)
+		# _held_item cleared by _on_piece_placed_on_grid
+
+func _starting_placeables() -> Array[PlaceableDefinition]:
+	var result: Array[PlaceableDefinition] = []
 
 	var crop_shape: PieceShape = PieceShape.new()
 	crop_shape.color = Color(0.55, 0.88, 0.38)

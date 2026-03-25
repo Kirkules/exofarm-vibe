@@ -615,6 +615,19 @@ func begin_pending_inventory_hold(item: InventoryItem) -> void:
 		_pending_touch_idx  = _last_touch_idx
 		_pending_screen_pos = _last_input_pos
 
+## Directly place a piece on the grid without going through the hold flow.
+## Emits piece_placed_on_grid so game.gd can register the piece normally.
+## Returns the new piece_id, or -1 if the position is occupied or out of bounds.
+func place_piece_at(shape: PieceShape, row: int, col: int, hint: String = "") -> int:
+	if not grid_data.can_place(shape, row, col):
+		return -1
+	var piece_id: int = grid_data.place_piece(shape, row, col)
+	_piece_label_hints[piece_id] = hint
+	_create_piece_sprite(piece_id, shape, Vector2i(row, col))
+	piece_placed_on_grid.emit(piece_id)
+	queue_redraw()
+	return piece_id
+
 ## Rotate the currently held piece 90 degrees clockwise.
 func rotate_held_cw() -> void:
 	if _held_shape:

@@ -188,10 +188,21 @@ func _rebuild_rows() -> void:
 		return
 	var items: Array[InventoryItem] = _inventory.get_items()
 	var over: bool = _inventory.is_over_capacity()
+	# Group items that share the same data reference into a single row with a count.
+	var groups: Array = []       # Array of {item: InventoryItem, count: int}
+	var seen: Dictionary = {}    # data -> index in groups
 	for item: InventoryItem in items:
-		_item_list.add_child(_make_row(item, over))
+		var key: Variant = item.data
+		if key != null and seen.has(key):
+			groups[seen[key]]["count"] += 1
+		else:
+			if key != null:
+				seen[key] = groups.size()
+			groups.append({"item": item, "count": 1})
+	for entry: Dictionary in groups:
+		_item_list.add_child(_make_row(entry["item"], entry["count"], over))
 
-func _make_row(item: InventoryItem, inventory_over_cap: bool) -> PanelContainer:
+func _make_row(item: InventoryItem, count: int, inventory_over_cap: bool) -> PanelContainer:
 	var row: PanelContainer = PanelContainer.new()
 	row.custom_minimum_size = Vector2(0, ROW_H)
 	var style: StyleBoxFlat = StyleBoxFlat.new()
@@ -241,7 +252,7 @@ func _make_row(item: InventoryItem, inventory_over_cap: bool) -> PanelContainer:
 		icon_btn.add_child(icon_label)
 
 	var lbl: Button = Button.new()
-	lbl.text = "%s  [%d]" % [item.display_name, item.slot_size]
+	lbl.text = "%s  [%d]" % [item.display_name, count]
 	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	lbl.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	lbl.flat = true
