@@ -120,6 +120,9 @@ var _power_sources: Array = []
 # Power range of the currently held piece (0 = none). Set by game.gd on pickup.
 var _held_power_range: int = 0
 
+## When false, all player input is ignored (e.g. during season simulation).
+var planning_active: bool = true
+
 signal piece_picked_up_from_grid(piece_id: int, shape: PieceShape)
 signal piece_placed_on_grid(piece_id: int)
 ## Emitted when a piece from the inventory is released without a valid grid placement.
@@ -160,6 +163,8 @@ func _ready() -> void:
 	_held_sprite_layer.add_child(_held_label)
 
 func _process(delta: float) -> void:
+	if not planning_active:
+		return
 	if _pending_input != InputSource.NONE:
 		_pending_timer += delta
 		if _pending_timer >= PICKUP_HOLD_TIME:
@@ -260,6 +265,8 @@ func _draw_placement_preview() -> void:
 # ---------------------------------------------------------------------------
 
 func _input(event: InputEvent) -> void:
+	if not planning_active:
+		return
 	if event is InputEventMouseMotion:
 		_cursor_screen_pos = event.position
 		_cursor_pos = to_local(event.position)
@@ -794,3 +801,11 @@ func _clear_tap() -> void:
 	_tap_input      = InputSource.NONE
 	_tap_touch_idx  = -1
 	_tap_screen_pos = Vector2.ZERO
+
+## Enable or disable planning input. Disabling cancels any in-progress
+## pending-pickup or tap so no stale state carries into simulation.
+func set_planning_active(v: bool) -> void:
+	planning_active = v
+	if not v:
+		_cancel_pending()
+		_clear_tap()

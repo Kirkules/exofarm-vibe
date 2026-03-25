@@ -14,6 +14,7 @@ signal next_season_pressed
 var _season_label:   Label
 var _energy_label:   Label
 var _matter_label:   Label
+var _next_btn:       Button
 var _content_margin: MarginContainer
 
 
@@ -59,10 +60,10 @@ func _build_ui() -> void:
 	_matter_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hbox.add_child(_matter_label)
 
-	var btn: Button = Button.new()
-	btn.text = "Next Season"
-	btn.pressed.connect(_on_next_season_button_pressed)
-	hbox.add_child(btn)
+	_next_btn = Button.new()
+	_next_btn.text = "Next Season"
+	_next_btn.pressed.connect(_on_next_season_button_pressed)
+	hbox.add_child(_next_btn)
 
 # ---------------------------------------------------------------------------
 # Safe area
@@ -82,6 +83,10 @@ func _apply_safe_area() -> void:
 # ---------------------------------------------------------------------------
 # Public
 # ---------------------------------------------------------------------------
+
+## Hide the Next Season button during simulation; restore it on return to planning.
+func set_simulation_active(v: bool) -> void:
+	_next_btn.visible = not v
 
 ## Reads current values from GameState and updates all labels.
 func refresh() -> void:

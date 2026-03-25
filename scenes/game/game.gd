@@ -1,8 +1,9 @@
 extends Node2D
 
-@onready var farm_grid: FarmGrid = $FarmGrid
+@onready var farm_grid:    FarmGrid    = $FarmGrid
 @onready var inventory_ui: InventoryUI = $UILayer/InventoryUI
-@onready var hud_ui: HudUI = $UILayer/HudUI
+@onready var hud_ui:       HudUI       = $UILayer/HudUI
+@onready var _ui_layer:    CanvasLayer = $UILayer
 
 var _inventory: Inventory
 ## The InventoryItem currently in the air (held by farm_grid).
@@ -18,7 +19,15 @@ var _power_state: PowerSystem.PowerState = null
 var _neighbor_state: NeighborSystem.NeighborState = null
 ## Reusable confirmation dialog for risky Next Season actions.
 var _confirm_dialog: ConfirmationDialog
+## Timer that drives the placeholder simulation phase duration.
+var _sim_timer: Timer
+var _sim_overlay: SimulationOverlay
 
+enum Phase { PLANNING, SIMULATION }
+var _phase: Phase = Phase.PLANNING
+
+## Duration of the placeholder simulation animation (seconds).
+const SIMULATION_PLACEHOLDER_DURATION := 2.0
 ## Warn if matter production would overflow storage by more than this amount.
 const WARN_UNUSED_MATTER := 3
 
@@ -35,9 +44,22 @@ func _ready() -> void:
 	farm_grid.inventory_item_pickup_confirmed.connect(_on_inventory_item_pickup_confirmed)
 	hud_ui.next_season_pressed.connect(_on_next_season_pressed)
 	_confirm_dialog = ConfirmationDialog.new()
-	_confirm_dialog.confirmed.connect(_advance_season)
+	_confirm_dialog.confirmed.connect(_begin_simulation)
 	add_child(_confirm_dialog)
+	_sim_timer = Timer.new()
+	_sim_timer.one_shot = true
+	_sim_timer.timeout.connect(_end_simulation)
+	add_child(_sim_timer)
 	farm_grid.piece_double_tapped.connect(toggle_piece)
+
+	# Simulation overlay: covers the scenic view + grid area in UILayer space.
+	# FarmGrid sits at world y=150 with 192px height; HUD occupies the top strip.
+	var overlay_top: float = hud_ui.offset_bottom
+	var grid_bottom: float = farm_grid.position.y + farm_grid.get_grid_pixel_size().y
+	_sim_overlay = SimulationOverlay.new()
+	_sim_overlay.position = Vector2(0.0, overlay_top)
+	_sim_overlay.size     = Vector2(270.0, grid_bottom - overlay_top)
+	_ui_layer.add_child(_sim_overlay)
 
 	# Seed inventory with starting buildings and test pieces.
 	for def: PlaceableDefinition in _starting_placeables():
@@ -224,16 +246,26 @@ func _on_next_season_pressed() -> void:
 			"%d Matter will overflow storage\n\nAdvance to next season anyway?" % matter_overflow
 		_confirm_dialog.popup_centered()
 	else:
-		_advance_season()
+		_begin_simulation()
 
-func _advance_season() -> void:
-	# Lock in all placed pieces according to their definition's moveable flag.
-	# Buildings become fixed; other pieces stay moveable for future seasons.
+## Lock in the grid and start the simulation phase.
+func _begin_simulation() -> void:
+	_phase = Phase.SIMULATION
+	# Lock buildings in place; other pieces remain moveable for next planning phase.
 	for piece_id: int in _placed_items:
 		var def: PlaceableDefinition = _placed_items[piece_id].data as PlaceableDefinition
 		farm_grid.set_piece_moveable(piece_id, def.moveable if def else true)
+	farm_grid.set_planning_active(false)
+	hud_ui.set_simulation_active(true)
+	_sim_overlay.visible = true
+	_sim_timer.start(SIMULATION_PLACEHOLDER_DURATION)
+
+## Called when the simulation timer fires. Compute season outcomes and return to planning.
+func _end_simulation() -> void:
 	GameState.matter = mini(GameState.matter_capacity, GameState.matter + _compute_matter_production())
-	# Energy resets to current capacity at the start of each new season.
-	GameState.energy = GameState.energy_capacity
 	GameState.season += 1
-	hud_ui.refresh()
+	_phase = Phase.PLANNING
+	_sim_overlay.visible = false
+	farm_grid.set_planning_active(true)
+	hud_ui.set_simulation_active(false)
+	_recompute_power()  # updates energy capacity/current and refreshes HUD
