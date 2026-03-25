@@ -26,7 +26,11 @@ var _matter_delta:     int = 0
 ## How many settlers (first N in list order) are projected to be fed this season.
 var _settler_fed_count: int = 0
 
-## Tooltip panel that drops below the HUD bar to show settler names.
+## Tooltip panels that drop below the HUD bar (z_index=100 renders above inventory).
+var _energy_tooltip:   PanelContainer
+var _energy_info_box:  VBoxContainer
+var _matter_tooltip:   PanelContainer
+var _matter_info_box:  VBoxContainer
 var _settler_tooltip:  PanelContainer
 var _tooltip_name_box: VBoxContainer
 
@@ -58,6 +62,8 @@ func _build_ui() -> void:
 	outer_hbox.add_child(info_vbox)
 
 	_energy_label = _make_info_label()
+	_energy_label.mouse_filter = Control.MOUSE_FILTER_STOP
+	_energy_label.gui_input.connect(_on_energy_label_input)
 	info_vbox.add_child(_energy_label)
 
 	_matter_label = RichTextLabel.new()
@@ -66,6 +72,8 @@ func _build_ui() -> void:
 	_matter_label.scroll_active = false
 	_matter_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_matter_label.add_theme_font_size_override("normal_font_size", INFO_FONT_SIZE)
+	_matter_label.mouse_filter = Control.MOUSE_FILTER_STOP
+	_matter_label.gui_input.connect(_on_matter_label_input)
 	info_vbox.add_child(_matter_label)
 
 	_settler_label = _make_info_label()
@@ -78,17 +86,49 @@ func _build_ui() -> void:
 	_next_btn.pressed.connect(_on_next_season_button_pressed)
 	outer_hbox.add_child(_next_btn)
 
-	# Settler name tooltip — drops below the HUD bar.
-	_settler_tooltip = PanelContainer.new()
-	var tt_bg: StyleBoxFlat = StyleBoxFlat.new()
-	tt_bg.bg_color = COLOR_TOOLTIP
-	_settler_tooltip.add_theme_stylebox_override("panel", tt_bg)
-	_settler_tooltip.visible = false
-	_settler_tooltip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_settler_tooltip)
+	# Tooltips — drop below the HUD bar; z_index=100 renders above inventory.
+	_energy_tooltip = _make_tooltip_panel()
+	_energy_info_box = VBoxContainer.new()
+	_energy_tooltip.add_child(_energy_info_box)
+	add_child(_energy_tooltip)
 
+	_matter_tooltip = _make_tooltip_panel()
+	_matter_info_box = VBoxContainer.new()
+	_matter_tooltip.add_child(_matter_info_box)
+	add_child(_matter_tooltip)
+
+	_settler_tooltip = _make_tooltip_panel()
 	_tooltip_name_box = VBoxContainer.new()
 	_settler_tooltip.add_child(_tooltip_name_box)
+	add_child(_settler_tooltip)
+
+func _make_tooltip_panel() -> PanelContainer:
+	var panel: PanelContainer = PanelContainer.new()
+	var bg: StyleBoxFlat = StyleBoxFlat.new()
+	bg.bg_color = COLOR_TOOLTIP
+	panel.add_theme_stylebox_override("panel", bg)
+	panel.visible = false
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.z_index = 100
+	return panel
+
+## Creates a single-line RichTextLabel sized for tooltip content.
+func _make_tooltip_rtlabel(bbcode: String) -> RichTextLabel:
+	var lbl: RichTextLabel = RichTextLabel.new()
+	lbl.bbcode_enabled = true
+	lbl.fit_content = true
+	lbl.scroll_active = false
+	lbl.autowrap_mode = TextServer.AUTOWRAP_OFF  # lets fit_content drive width too
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lbl.add_theme_font_size_override("normal_font_size", INFO_FONT_SIZE)
+	lbl.text = bbcode
+	return lbl
+
+## Returns BBCode for "Name (+/-N)" with the parenthetical colored by sign.
+func _delta_line_bbcode(name: String, delta: int) -> String:
+	var sign: String  = "+" if delta > 0 else ""
+	var color: String = "#88ee88" if delta > 0 else "#ee8888"
+	return "%s ([color=%s]%s%d[/color])" % [name, color, sign, delta]
 
 func _make_info_label() -> Label:
 	var lbl: Label = Label.new()
@@ -111,7 +151,10 @@ func _apply_safe_area() -> void:
 	var total_height: int = BASE_HEIGHT + top_inset
 	custom_minimum_size.y = total_height
 	offset_bottom = total_height
-	_settler_tooltip.position = Vector2(0.0, float(total_height))
+	var tooltip_y: float = float(total_height)
+	_energy_tooltip.position  = Vector2(0.0, tooltip_y)
+	_matter_tooltip.position  = Vector2(0.0, tooltip_y)
+	_settler_tooltip.position = Vector2(0.0, tooltip_y)
 
 # ---------------------------------------------------------------------------
 # Public
@@ -121,7 +164,26 @@ func _apply_safe_area() -> void:
 func set_simulation_active(v: bool) -> void:
 	_next_btn.visible = not v
 	if v:
+		_energy_tooltip.visible  = false
+		_matter_tooltip.visible  = false
 		_hide_settler_tooltip()
+
+## Rebuild the Energy tooltip content.
+## entries: Array of {name: String, delta: int} — positive = production, negative = draw.
+func refresh_energy_tooltip(entries: Array) -> void:
+	for child: Node in _energy_info_box.get_children():
+		child.queue_free()
+	for entry: Dictionary in entries:
+		_energy_info_box.add_child(_make_tooltip_rtlabel(_delta_line_bbcode(entry["name"], entry["delta"])))
+
+## Rebuild the Matter tooltip content.
+## entries: Array of {name: String, delta: int} — positive = production, negative = consumption.
+func refresh_matter_tooltip(stored: int, entries: Array) -> void:
+	for child: Node in _matter_info_box.get_children():
+		child.queue_free()
+	_matter_info_box.add_child(_make_tooltip_rtlabel("Stored Matter (%d)" % stored))
+	for entry: Dictionary in entries:
+		_matter_info_box.add_child(_make_tooltip_rtlabel(_delta_line_bbcode(entry["name"], entry["delta"])))
 
 ## Update how many settlers are projected to be fed (first N in list order).
 func set_settler_fed_count(fed_count: int) -> void:
@@ -160,11 +222,11 @@ func _show_settler_tooltip() -> void:
 		child.queue_free()
 	for i: int in range(GameState.settler_names.size()):
 		var settler_name: String = GameState.settler_names[i]
-		var status: String = "fed" if i < _settler_fed_count else "starving"
-		var lbl: Label = Label.new()
-		lbl.text = "%s (%s)" % [settler_name, status]
-		lbl.add_theme_font_size_override("font_size", INFO_FONT_SIZE)
-		_tooltip_name_box.add_child(lbl)
+		var fed: bool = i < _settler_fed_count
+		var color: String = "#88ee88" if fed else "#ee8888"
+		var status: String = "fed" if fed else "starving"
+		_tooltip_name_box.add_child(_make_tooltip_rtlabel(
+			"%s ([color=%s]%s[/color])" % [settler_name, color, status]))
 	_settler_tooltip.visible = true
 
 func _hide_settler_tooltip() -> void:
@@ -188,6 +250,22 @@ func _on_settler_label_input(event: InputEvent) -> void:
 			_show_settler_tooltip()
 		else:
 			_hide_settler_tooltip()
+
+func _on_energy_label_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var mb: InputEventMouseButton = event as InputEventMouseButton
+		if mb.button_index == MOUSE_BUTTON_LEFT:
+			_energy_tooltip.visible = mb.pressed
+	elif event is InputEventScreenTouch:
+		_energy_tooltip.visible = (event as InputEventScreenTouch).pressed
+
+func _on_matter_label_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var mb: InputEventMouseButton = event as InputEventMouseButton
+		if mb.button_index == MOUSE_BUTTON_LEFT:
+			_matter_tooltip.visible = mb.pressed
+	elif event is InputEventScreenTouch:
+		_matter_tooltip.visible = (event as InputEventScreenTouch).pressed
 
 func _on_next_season_button_pressed() -> void:
 	next_season_pressed.emit()

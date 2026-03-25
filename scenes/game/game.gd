@@ -187,6 +187,8 @@ func _recompute_power() -> void:
 	var matter_prod: int    = food["matter_prod"]
 	hud_ui.set_settler_fed_count(food["fed_count"])
 	hud_ui.refresh_matter(GameState.matter + matter_prod - paste_produced, matter_prod - paste_produced)
+	hud_ui.refresh_energy_tooltip(_build_energy_entries())
+	hud_ui.refresh_matter_tooltip(GameState.matter, _build_matter_entries(food))
 	hud_ui.refresh()
 	_refresh_overlays(placed)
 
@@ -243,6 +245,44 @@ func _compute_food_state() -> Dictionary:
 		"fed_count":      fed_count,
 		"deaths":         GameState.settler_count - fed_count,
 	}
+
+## Builds the entry list for the Energy HUD tooltip.
+## Each entry: {name: String, delta: int} — positive = produced, negative = drawn.
+func _build_energy_entries() -> Array:
+	var entries: Array = []
+	for piece_id: int in _placed_items:
+		if not _piece_active.get(piece_id, true):
+			continue
+		var item: InventoryItem = _placed_items[piece_id]
+		var def: PlaceableDefinition = item.data as PlaceableDefinition
+		if not def is BuildingDefinition:
+			continue
+		var bdef: BuildingDefinition = def as BuildingDefinition
+		if bdef.energy_production > 0:
+			entries.append({"name": item.display_name, "delta": bdef.energy_production})
+		if bdef.power_draw > 0 and _power_state != null and _power_state.is_powered(piece_id):
+			entries.append({"name": item.display_name, "delta": -bdef.power_draw})
+	return entries
+
+## Builds the entry list for the Matter HUD tooltip.
+## Each entry: {name: String, delta: int} — positive = produced, negative = consumed.
+func _build_matter_entries(food: Dictionary) -> Array:
+	var entries: Array = []
+	for piece_id: int in _placed_items:
+		if not _piece_active.get(piece_id, true):
+			continue
+		var item: InventoryItem = _placed_items[piece_id]
+		var def: PlaceableDefinition = item.data as PlaceableDefinition
+		if not def is BuildingDefinition:
+			continue
+		var bdef: BuildingDefinition = def as BuildingDefinition
+		if bdef.matter_production > 0:
+			if bdef.power_draw == 0 or (_power_state != null and _power_state.is_powered(piece_id)):
+				entries.append({"name": item.display_name, "delta": bdef.matter_production})
+	var paste: int = food["paste_produced"]
+	if paste > 0:
+		entries.append({"name": "Nutrient Paste", "delta": -paste})
+	return entries
 
 func _refresh_overlays(placed: Dictionary) -> void:
 	var sources: Array = []
