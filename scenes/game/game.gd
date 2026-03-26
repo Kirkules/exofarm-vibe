@@ -38,6 +38,9 @@ var _pending_menu_item: InventoryItem = null
 
 ## Duration of the placeholder simulation animation (seconds).
 const SIMULATION_PLACEHOLDER_DURATION := 2.0
+## Construction cost locked in at simulation start, before UNBUILT→BUILT transition
+## erases the information. Used by _end_simulation() to correctly charge Matter.
+var _sim_construction_cost: int = 0
 
 func _ready() -> void:
 	_inventory = Inventory.new(10)
@@ -149,10 +152,11 @@ func _buildable_definitions() -> Array[PlaceableDefinition]:
 	var wheat_gh_shape: PieceShape = PieceShape.new()
 	wheat_gh_shape.color = Color(0.95, 0.85, 0.30)  # muted gold
 	wheat_gh_shape.label = "WGH"
-	var wheat_gh: CropDefinition = CropDefinition.new()
+	var wheat_gh: GreenhouseDefinition = GreenhouseDefinition.new()
 	wheat_gh.display_name = "Wheat Greenhouse"
 	wheat_gh.shape = wheat_gh_shape
 	wheat_gh.matter_cost = 1
+	wheat_gh.power_draw = 1
 	wheat_gh.yield_per_season = 1
 	wheat_gh.output_item = wheat_item
 	result.append(wheat_gh)
@@ -160,10 +164,11 @@ func _buildable_definitions() -> Array[PlaceableDefinition]:
 	var tomato_gh_shape: PieceShape = PieceShape.new()
 	tomato_gh_shape.color = Color(0.90, 0.28, 0.20)  # muted red
 	tomato_gh_shape.label = "TGH"
-	var tomato_gh: CropDefinition = CropDefinition.new()
+	var tomato_gh: GreenhouseDefinition = GreenhouseDefinition.new()
 	tomato_gh.display_name = "Tomato Greenhouse"
 	tomato_gh.shape = tomato_gh_shape
 	tomato_gh.matter_cost = 1
+	tomato_gh.power_draw = 1
 	tomato_gh.yield_per_season = 1
 	tomato_gh.output_item = tomato_item
 	result.append(tomato_gh)
@@ -171,10 +176,11 @@ func _buildable_definitions() -> Array[PlaceableDefinition]:
 	var eggplant_gh_shape: PieceShape = PieceShape.new()
 	eggplant_gh_shape.color = Color(0.50, 0.15, 0.65)  # muted purple
 	eggplant_gh_shape.label = "EGH"
-	var eggplant_gh: CropDefinition = CropDefinition.new()
+	var eggplant_gh: GreenhouseDefinition = GreenhouseDefinition.new()
 	eggplant_gh.display_name = "Eggplant Greenhouse"
 	eggplant_gh.shape = eggplant_gh_shape
 	eggplant_gh.matter_cost = 1
+	eggplant_gh.power_draw = 1
 	eggplant_gh.yield_per_season = 1
 	eggplant_gh.output_item = eggplant_item
 	result.append(eggplant_gh)
@@ -281,7 +287,7 @@ func _recompute_power() -> void:
 	var matter_prod: int       = food["matter_prod"]
 	var construction_cost: int = food["construction_cost"]
 	var matter_net: int        = matter_prod - construction_cost - paste_produced
-	hud_ui.set_settler_fed_count(food["fed_count"])
+	hud_ui.set_settler_projected_health(food["projected_health"])
 	hud_ui.refresh_matter(GameState.matter + matter_net, matter_net)
 	hud_ui.refresh_energy_tooltip(_build_energy_entries())
 	hud_ui.refresh_matter_tooltip(GameState.matter, _build_matter_entries(food))
@@ -332,27 +338,44 @@ func _food_is_powered() -> bool:
 	return false
 
 ## Computes the projected food and Nutrient Paste state for the upcoming season end.
+## Dead settlers are skipped; construction cost is deducted before paste is produced.
 ## Keys: matter_prod, construction_cost, food_items, paste_needed, paste_produced,
-##       fed_count, deaths.
-## Construction cost is deducted before paste is produced.
-func _compute_food_state() -> Dictionary:
+##       projected_health (Array[int] parallel to settler_names), deaths.
+## Pass construction_cost_override >= 0 to use a pre-computed cost (used in simulation
+## after the UNBUILT→BUILT transition has already run).
+func _compute_food_state(construction_cost_override: int = -1) -> Dictionary:
 	var matter_prod: int       = _compute_matter_production()
-	var construction_cost: int = _compute_construction_cost()
+	var construction_cost: int = construction_cost_override if construction_cost_override >= 0 \
+		else _compute_construction_cost()
 	var food_items: int        = 0  # placeholder until food items are introduced
-	var paste_needed: int      = maxi(0, GameState.settler_count - food_items)
+	var living: int            = GameState.settler_count  # non-DEAD
+	var paste_needed: int      = maxi(0, living - food_items)
 	var paste_produced: int    = 0
 	if paste_needed > 0 and _food_is_powered():
 		var matter_avail: int = maxi(0, GameState.matter + matter_prod - construction_cost)
 		paste_produced = mini(paste_needed, matter_avail)
-	var fed_count: int = mini(GameState.settler_count, food_items + paste_produced)
+	# Allocate food to living settlers in list order; project each settler's outcome.
+	var food_remaining: int = food_items + paste_produced
+	var projected_health: Array[int] = []
+	var deaths: int = 0
+	for i: int in GameState.settler_names.size():
+		var current: int = GameState.settler_health[i]
+		if current == GameState.SettlerHealth.DEAD:
+			projected_health.append(GameState.SettlerHealth.DEAD)
+		elif food_remaining > 0:
+			projected_health.append(GameState.SettlerHealth.FED)
+			food_remaining -= 1
+		else:
+			projected_health.append(GameState.SettlerHealth.DEAD)
+			deaths += 1
 	return {
 		"matter_prod":       matter_prod,
 		"construction_cost": construction_cost,
 		"food_items":        food_items,
 		"paste_needed":      paste_needed,
 		"paste_produced":    paste_produced,
-		"fed_count":         fed_count,
-		"deaths":            GameState.settler_count - fed_count,
+		"projected_health":  projected_health,
+		"deaths":            deaths,
 	}
 
 ## Builds the entry list for the Energy HUD tooltip.
@@ -435,11 +458,13 @@ func _build_placed_dict() -> Dictionary:
 		var info: Dictionary = farm_grid.grid_data.get_piece_info(piece_id)
 		if info.is_empty():
 			continue
+		# UNBUILT pieces are not yet constructed; exclude them from power entirely.
+		var is_built: bool = _piece_build_state.get(piece_id, BuildState.BUILT) == BuildState.BUILT
 		placed[piece_id] = {
 			"row":    info["row"],
 			"col":    info["col"],
 			"def":    _placed_items[piece_id].data,
-			"active": _piece_active.get(piece_id, true),
+			"active": is_built and _piece_active.get(piece_id, true),
 		}
 	return placed
 
@@ -455,6 +480,8 @@ func _on_next_season_pressed() -> void:
 
 ## Lock in the grid and start the simulation phase.
 func _begin_simulation() -> void:
+	# Capture construction cost before UNBUILT→BUILT erases it.
+	_sim_construction_cost = _compute_construction_cost()
 	_phase = Phase.SIMULATION
 	for piece_id: int in _placed_items:
 		var def: PlaceableDefinition = _placed_items[piece_id].data as PlaceableDefinition
@@ -471,19 +498,16 @@ func _begin_simulation() -> void:
 
 ## Called when the simulation timer fires. Compute season outcomes and return to planning.
 func _end_simulation() -> void:
-	# Compute food state before applying changes (power state is still valid from planning).
-	var food: Dictionary    = _compute_food_state()
-	var deaths: int         = food["deaths"]
+	# Use construction cost saved before UNBUILT→BUILT transition ran.
+	var food: Dictionary    = _compute_food_state(_sim_construction_cost)
 	var paste_produced: int = food["paste_produced"]
 	# Apply matter: production first, then construction cost, then paste consumption.
 	GameState.matter += food["matter_prod"]
 	GameState.matter  = maxi(0, GameState.matter - food["construction_cost"])
 	GameState.matter  = maxi(0, GameState.matter - paste_produced)
-	# Apply deaths: starving settlers die (removed from the end of the list, matching UI order).
-	GameState.settler_count = maxi(0, GameState.settler_count - deaths)
-	for _i: int in range(deaths):
-		if not GameState.settler_names.is_empty():
-			GameState.settler_names.remove_at(GameState.settler_names.size() - 1)
+	# Apply settler health outcomes. Use .assign() so the typed Array[int] is updated
+	# correctly from the plain Array retrieved from the food Dictionary.
+	GameState.settler_health.assign(food["projected_health"])
 	GameState.season += 1
 
 	_phase = Phase.PLANNING

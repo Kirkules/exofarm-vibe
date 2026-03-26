@@ -23,8 +23,9 @@ var _content_margin: MarginContainer
 ## Cached matter projection values, set by refresh_matter() before refresh().
 var _matter_projected: int = 0
 var _matter_delta:     int = 0
-## How many settlers (first N in list order) are projected to be fed this season.
-var _settler_fed_count: int = 0
+## Projected health for each settler after this season (parallel to GameState.settler_names).
+## Empty until the first _recompute_power call.
+var _settler_projected_health: Array[int] = []
 
 ## Tooltip panels that drop below the HUD bar (z_index=100 renders above inventory).
 var _energy_tooltip:   PanelContainer
@@ -185,9 +186,9 @@ func refresh_matter_tooltip(stored: int, entries: Array) -> void:
 	for entry: Dictionary in entries:
 		_matter_info_box.add_child(_make_tooltip_rtlabel(_delta_line_bbcode(entry["name"], entry["delta"])))
 
-## Update how many settlers are projected to be fed (first N in list order).
-func set_settler_fed_count(fed_count: int) -> void:
-	_settler_fed_count = fed_count
+## Update the projected health for each settler (parallel to GameState.settler_names).
+func set_settler_projected_health(projected: Array[int]) -> void:
+	_settler_projected_health = projected
 
 ## Store projected matter and delta, then update the matter label.
 ## Must be called before refresh() so the correct values are displayed.
@@ -201,8 +202,14 @@ func refresh() -> void:
 	_energy_label.text  = "Energy: %d/%d" % [GameState.energy, GameState.energy_capacity]
 	_update_matter_label()
 	_settler_label.text = "Settlers: %d" % GameState.settler_count
-	if _settler_fed_count < GameState.settler_count:
-		_settler_label.add_theme_color_override("font_color", Color("#ee8888"))
+	var any_starving: bool = false
+	for i: int in _settler_projected_health.size():
+		if GameState.settler_health[i] != GameState.SettlerHealth.DEAD \
+				and _settler_projected_health[i] == GameState.SettlerHealth.DEAD:
+			any_starving = true
+			break
+	if any_starving:
+		_settler_label.add_theme_color_override("font_color", Color("#ee8800"))
 	else:
 		_settler_label.remove_theme_color_override("font_color")
 	_next_btn.text      = "Go to Season %d" % (GameState.season + 1)
@@ -220,13 +227,21 @@ func _update_matter_label() -> void:
 func _show_settler_tooltip() -> void:
 	for child: Node in _tooltip_name_box.get_children():
 		child.queue_free()
-	for i: int in range(GameState.settler_names.size()):
+	for i: int in GameState.settler_names.size():
 		var settler_name: String = GameState.settler_names[i]
-		var fed: bool = i < _settler_fed_count
-		var color: String = "#88ee88" if fed else "#ee8888"
-		var status: String = "fed" if fed else "starving"
-		_tooltip_name_box.add_child(_make_tooltip_rtlabel(
-			"%s ([color=%s]%s[/color])" % [settler_name, color, status]))
+		var current: int = GameState.settler_health[i] if i < GameState.settler_health.size() \
+			else GameState.SettlerHealth.FED
+		var line: String
+		if current == GameState.SettlerHealth.DEAD:
+			line = "%s ([color=#ee4444]dead[/color])" % settler_name
+		else:
+			var projected: int = _settler_projected_health[i] \
+				if i < _settler_projected_health.size() else GameState.SettlerHealth.FED
+			if projected == GameState.SettlerHealth.FED:
+				line = "%s ([color=#88ee88]fed[/color])" % settler_name
+			else:
+				line = "%s ([color=#ee8800]starving[/color])" % settler_name
+		_tooltip_name_box.add_child(_make_tooltip_rtlabel(line))
 	_settler_tooltip.visible = true
 
 func _hide_settler_tooltip() -> void:

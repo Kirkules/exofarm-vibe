@@ -740,7 +740,7 @@ live in `scripts/`.
   per piece; toggleable per-piece via effect_range property)
 
 ### Phase 1 — Core Planning Loop
-- [x] Initial set of placeable element types (CropDefinition class; Wheat/Tomato/Eggplant
+- [x] Initial set of placeable element types (GreenhouseDefinition class; Wheat/Tomato/Eggplant
   Greenhouses in build menu; 1×1 crop pieces, yield_per_season=1; separate
   PlaceableDefinition instances for Wheat/Tomato/Eggplant crop items as harvest output)
 - [x] Resource system (Energy + Matter, seasonal regeneration; production computed from
