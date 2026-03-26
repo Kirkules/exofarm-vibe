@@ -19,9 +19,14 @@ var _power_state: PowerSystem.PowerState = null
 var _neighbor_state: NeighborSystem.NeighborState = null
 ## Reusable confirmation dialog for risky Next Season actions.
 var _confirm_dialog: ConfirmationDialog
-## Timer that drives the placeholder simulation phase duration.
+## Timer that ends the simulation phase after SIMULATION_DURATION seconds.
 var _sim_timer: Timer
-var _sim_overlay: SimulationOverlay
+## Season progress bar and elapsed-time label shown just above the grid during simulation.
+var _sim_progress_container: HBoxContainer
+var _sim_progress_bar:       ProgressBar
+var _sim_progress_label:     Label
+## Elapsed seconds in the current simulation; reset at start of each season.
+var _sim_elapsed: float = 0.0
 var _build_menu: BuildMenu
 
 enum Phase { PLANNING, SIMULATION }
@@ -36,11 +41,31 @@ var _held_build_state: BuildState = BuildState.BUILT
 ## The pending InventoryItem created for a build-menu selection (not from _inventory).
 var _pending_menu_item: InventoryItem = null
 
-## Duration of the placeholder simulation animation (seconds).
-const SIMULATION_PLACEHOLDER_DURATION := 2.0
+## Duration of one season simulation (seconds).
+const SIMULATION_DURATION := 15.0
+## Simulation log entry color constants.
+const LOG_COLOR_GAIN  := "#88ee88"  # light green — basic resource production
+const LOG_COLOR_LOSS  := "#ee8800"  # orange — basic resource consumption
+const LOG_COLOR_DEATH := "#ee4444"  # red — settler death / critical event
+const LOG_COLOR_ITEM  := "#eeee88"  # yellow — inventory item gained
 ## Construction cost locked in at simulation start, before UNBUILT→BUILT transition
 ## erases the information. Used by _end_simulation() to correctly charge Matter.
 var _sim_construction_cost: int = 0
+## Season outcome log. Reset at simulation start; populated during _end_simulation().
+## Each entry: {"label": String, "value": String, "label_color": String, "value_color": String}
+var _sim_log: Array[Dictionary] = []
+## Piece ID of the Solar Rig; settlers walk from here to greenhouses.
+var _solar_rig_piece_id: int = -1
+## Per-greenhouse state during simulation. Each entry:
+## {piece_id, def (GreenhouseDefinition), row, col, tend_countdown, tend_count, settler_dispatched}
+var _greenhouse_states: Array[Dictionary] = []
+## Active settler animations. Each entry:
+## {sprite, from_pos, to_pos, solar_pos, elapsed, duration, returning, gh_idx, settler_name}
+var _settler_agents: Array[Dictionary] = []
+## Live log overlay VBoxContainer — shows entries as they occur during simulation.
+var _sim_live_log_box: VBoxContainer
+## Maximum entries shown in the live log overlay at once.
+const LIVE_LOG_MAX_ENTRIES := 6
 
 func _ready() -> void:
 	_inventory = Inventory.new(10)
@@ -63,14 +88,40 @@ func _ready() -> void:
 	add_child(_sim_timer)
 	farm_grid.piece_double_tapped.connect(toggle_piece)
 
-	# Simulation overlay: covers the scenic view + grid area in UILayer space.
-	# FarmGrid sits at world y=150 with 192px height; HUD occupies the top strip.
-	var overlay_top: float = hud_ui.offset_bottom
+	# Season progress bar — sits just above the farm grid, visible only during simulation.
+	const PROGRESS_H := 16
 	var grid_bottom: float = farm_grid.position.y + farm_grid.get_grid_pixel_size().y
-	_sim_overlay = SimulationOverlay.new()
-	_sim_overlay.position = Vector2(0.0, overlay_top)
-	_sim_overlay.size     = Vector2(270.0, grid_bottom - overlay_top)
-	_ui_layer.add_child(_sim_overlay)
+	_sim_progress_container = HBoxContainer.new()
+	_sim_progress_container.position = Vector2(0.0, farm_grid.position.y - PROGRESS_H)
+	_sim_progress_container.size     = Vector2(270.0, PROGRESS_H)
+	_sim_progress_container.visible  = false
+	_ui_layer.add_child(_sim_progress_container)
+
+	_sim_progress_bar = ProgressBar.new()
+	_sim_progress_bar.min_value = 0.0
+	_sim_progress_bar.max_value = SIMULATION_DURATION
+	_sim_progress_bar.value = 0.0
+	_sim_progress_bar.show_percentage = false
+	_sim_progress_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_sim_progress_bar.size_flags_vertical   = Control.SIZE_EXPAND_FILL
+	_sim_progress_container.add_child(_sim_progress_bar)
+
+	_sim_progress_label = Label.new()
+	_sim_progress_label.text = "0.0 s"
+	_sim_progress_label.custom_minimum_size = Vector2(40.0, 0.0)
+	_sim_progress_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_sim_progress_label.add_theme_font_size_override("font_size", 10)
+	_sim_progress_container.add_child(_sim_progress_label)
+
+	# Live log overlay — fills the scenic-view area between HUD and progress bar.
+	var live_log_top: float = hud_ui.offset_bottom
+	var live_log_h: float   = _sim_progress_container.position.y - live_log_top
+	_sim_live_log_box = VBoxContainer.new()
+	_sim_live_log_box.position      = Vector2(2.0, live_log_top)
+	_sim_live_log_box.size          = Vector2(266.0, live_log_h)
+	_sim_live_log_box.clip_contents = true
+	_sim_live_log_box.visible       = false
+	_ui_layer.add_child(_sim_live_log_box)
 
 	# Build menu — shown below the grid when the inventory is collapsed.
 	var viewport_h: float = get_viewport().get_visible_rect().size.y
@@ -107,18 +158,12 @@ func _place_starting_buildings() -> void:
 	matter_manip.matter_production = 5
 	matter_manip.power_draw = 2
 
-	# Place each building by temporarily setting _held_item so _on_piece_placed_on_grid
-	# registers it correctly, then call place_piece_at which emits the signal.
-	for entry: Array in [
-		[solar_rig,    3, 3],
-		[matter_manip, 3, 4],
-	]:
-		var def: BuildingDefinition = entry[0]
-		var row: int                = entry[1]
-		var col: int                = entry[2]
-		_held_item = InventoryItem.new(def.display_name, 1, def)
-		farm_grid.place_piece_at(def.shape, row, col, def.display_name)
-		# _held_item cleared by _on_piece_placed_on_grid
+	# Place each building — set _held_item so _on_piece_placed_on_grid registers it.
+	# Capture the solar rig piece_id for settler dispatch during simulation.
+	_held_item = InventoryItem.new(solar_rig.display_name, 1, solar_rig)
+	_solar_rig_piece_id = farm_grid.place_piece_at(solar_rig.shape, 3, 3, solar_rig.display_name)
+	_held_item = InventoryItem.new(matter_manip.display_name, 1, matter_manip)
+	farm_grid.place_piece_at(matter_manip.shape, 3, 4, matter_manip.display_name)
 
 ## Returns the definitions available in the build menu this run.
 func _buildable_definitions() -> Array[PlaceableDefinition]:
@@ -132,6 +177,7 @@ func _buildable_definitions() -> Array[PlaceableDefinition]:
 	var wheat_item: PlaceableDefinition = PlaceableDefinition.new()
 	wheat_item.display_name = "Wheat"  # auto-label: "WHE"
 	wheat_item.shape = wheat_item_shape
+	wheat_item.allowed_grids = [PlaceableDefinition.GridType.KITCHEN_GRID]
 
 	var tomato_item_shape: PieceShape = PieceShape.new()
 	tomato_item_shape.color = Color(0.95, 0.35, 0.25)  # brighter red
@@ -139,6 +185,7 @@ func _buildable_definitions() -> Array[PlaceableDefinition]:
 	var tomato_item: PlaceableDefinition = PlaceableDefinition.new()
 	tomato_item.display_name = "Tomato"  # auto-label: "TOM"
 	tomato_item.shape = tomato_item_shape
+	tomato_item.allowed_grids = [PlaceableDefinition.GridType.KITCHEN_GRID]
 
 	var eggplant_item_shape: PieceShape = PieceShape.new()
 	eggplant_item_shape.color = Color(0.65, 0.25, 0.85)  # brighter purple
@@ -146,6 +193,7 @@ func _buildable_definitions() -> Array[PlaceableDefinition]:
 	var eggplant_item: PlaceableDefinition = PlaceableDefinition.new()
 	eggplant_item.display_name = "Eggplant"  # auto-label: "EGG"
 	eggplant_item.shape = eggplant_item_shape
+	eggplant_item.allowed_grids = [PlaceableDefinition.GridType.KITCHEN_GRID]
 
 	# --- Greenhouse definitions (crop-producing grid pieces) ---
 
@@ -157,7 +205,6 @@ func _buildable_definitions() -> Array[PlaceableDefinition]:
 	wheat_gh.shape = wheat_gh_shape
 	wheat_gh.matter_cost = 1
 	wheat_gh.power_draw = 1
-	wheat_gh.yield_per_season = 1
 	wheat_gh.output_item = wheat_item
 	result.append(wheat_gh)
 
@@ -169,7 +216,6 @@ func _buildable_definitions() -> Array[PlaceableDefinition]:
 	tomato_gh.shape = tomato_gh_shape
 	tomato_gh.matter_cost = 1
 	tomato_gh.power_draw = 1
-	tomato_gh.yield_per_season = 1
 	tomato_gh.output_item = tomato_item
 	result.append(tomato_gh)
 
@@ -181,7 +227,6 @@ func _buildable_definitions() -> Array[PlaceableDefinition]:
 	eggplant_gh.shape = eggplant_gh_shape
 	eggplant_gh.matter_cost = 1
 	eggplant_gh.power_draw = 1
-	eggplant_gh.yield_per_season = 1
 	eggplant_gh.output_item = eggplant_item
 	result.append(eggplant_gh)
 
@@ -235,6 +280,14 @@ func _on_piece_placed_on_grid(piece_id: int) -> void:
 		_placed_items[piece_id] = _held_item
 	_held_item = null
 	var def: PlaceableDefinition = (_placed_items[piece_id].data if _placed_items.has(piece_id) else null) as PlaceableDefinition
+	# Reject items that don't belong on the farm grid (e.g. crop output items).
+	if def != null and not (PlaceableDefinition.GridType.FARM_GRID in def.allowed_grids):
+		farm_grid.remove_piece(piece_id)
+		_inventory.add(_placed_items[piece_id])
+		_placed_items.erase(piece_id)
+		_piece_build_state.erase(piece_id)
+		farm_grid.set_held_power_range(0)
+		return
 	_piece_build_state[piece_id] = _held_build_state
 	var is_unbuilt: bool = _held_build_state == BuildState.UNBUILT
 	_held_build_state = BuildState.BUILT  # reset for next placement
@@ -480,6 +533,13 @@ func _on_next_season_pressed() -> void:
 
 ## Lock in the grid and start the simulation phase.
 func _begin_simulation() -> void:
+	_sim_elapsed = 0.0
+	_sim_log.clear()
+	hud_ui.refresh_log([])
+	for child: Node in _sim_live_log_box.get_children():
+		_sim_live_log_box.remove_child(child)
+		child.queue_free()
+	_sim_live_log_box.visible = true
 	# Capture construction cost before UNBUILT→BUILT erases it.
 	_sim_construction_cost = _compute_construction_cost()
 	_phase = Phase.SIMULATION
@@ -487,36 +547,238 @@ func _begin_simulation() -> void:
 		var def: PlaceableDefinition = _placed_items[piece_id].data as PlaceableDefinition
 		# Transition UNBUILT → BUILT: stop flashing, then apply moveable lock.
 		if _piece_build_state.get(piece_id, BuildState.BUILT) == BuildState.UNBUILT:
+			if def != null and def.matter_cost > 0:
+				_add_log_entry({
+					"label": "Constructed %s:" % def.display_name,
+					"value": "-%d Matter" % def.matter_cost,
+					"label_color": "", "value_color": LOG_COLOR_LOSS,
+				})
 			_piece_build_state[piece_id] = BuildState.BUILT
 			farm_grid.set_piece_flashing(piece_id, false)
 			farm_grid.set_piece_toggleable(piece_id, def is BuildingDefinition)
 		farm_grid.set_piece_moveable(piece_id, def.moveable if def else true)
+	# Initialize per-greenhouse simulation state for all powered BUILT greenhouses.
+	_greenhouse_states.clear()
+	_settler_agents.clear()
+	for piece_id: int in _placed_items:
+		var def: PlaceableDefinition = _placed_items[piece_id].data as PlaceableDefinition
+		if not def is GreenhouseDefinition:
+			continue
+		if not _power_state.is_powered(piece_id):
+			continue
+		var info: Dictionary = farm_grid.grid_data.get_piece_info(piece_id)
+		_greenhouse_states.append({
+			"piece_id":           piece_id,
+			"def":                def as GreenhouseDefinition,
+			"row":                info["row"],
+			"col":                info["col"],
+			"tend_countdown":     (def as GreenhouseDefinition).tend_interval,
+			"tend_count":         0,
+			"settler_dispatched": false,
+		})
 	farm_grid.set_planning_active(false)
 	hud_ui.set_simulation_active(true)
-	_sim_overlay.visible = true
-	_sim_timer.start(SIMULATION_PLACEHOLDER_DURATION)
+	_sim_progress_bar.value  = 0.0
+	_sim_progress_label.text = "0.0 s"
+	_sim_progress_container.visible = true
+	_sim_timer.start(SIMULATION_DURATION)
 
 ## Called when the simulation timer fires. Compute season outcomes and return to planning.
 func _end_simulation() -> void:
 	# Use construction cost saved before UNBUILT→BUILT transition ran.
 	var food: Dictionary    = _compute_food_state(_sim_construction_cost)
 	var paste_produced: int = food["paste_produced"]
-	# Apply matter: production first, then construction cost, then paste consumption.
+
+	# Log and apply Matter production.
+	if food["matter_prod"] > 0:
+		_add_log_entry({"label": "Matter Manipulator:", "value": "+%d Matter" % food["matter_prod"],
+				"label_color": "", "value_color": LOG_COLOR_GAIN})
 	GameState.matter += food["matter_prod"]
-	GameState.matter  = maxi(0, GameState.matter - food["construction_cost"])
-	GameState.matter  = maxi(0, GameState.matter - paste_produced)
+
+	# Construction cost was already logged per-building in _begin_simulation().
+	GameState.matter = maxi(0, GameState.matter - food["construction_cost"])
+
+	# Log and apply Nutrient Paste.
+	if paste_produced > 0:
+		_add_log_entry({"label": "Nutrient Paste:", "value": "-%d Matter" % paste_produced,
+				"label_color": "", "value_color": LOG_COLOR_LOSS})
+	elif food["paste_needed"] > 0 and not _food_is_powered():
+		_add_log_entry({"label": "Matter Manipulator not powered —", "value": "no Nutrient Paste",
+				"label_color": "", "value_color": LOG_COLOR_LOSS})
+	GameState.matter = maxi(0, GameState.matter - paste_produced)
+
+	# Log settler deaths before applying health update.
+	var projected: Array = food["projected_health"]
+	for i: int in GameState.settler_names.size():
+		if GameState.settler_health[i] != GameState.SettlerHealth.DEAD \
+				and projected[i] == GameState.SettlerHealth.DEAD:
+			_add_log_entry({"label": "%s starved to death." % GameState.settler_names[i], "value": "",
+					"label_color": LOG_COLOR_DEATH, "value_color": ""})
 	# Apply settler health outcomes. Use .assign() so the typed Array[int] is updated
 	# correctly from the plain Array retrieved from the food Dictionary.
 	GameState.settler_health.assign(food["projected_health"])
+
+	# Clean up any settler sprites still walking at simulation end.
+	for agent: Dictionary in _settler_agents:
+		(agent["sprite"] as ColorRect).queue_free()
+	_settler_agents.clear()
+	_greenhouse_states.clear()
+
 	GameState.season += 1
+	hud_ui.refresh_log(_sim_log)
 
 	_phase = Phase.PLANNING
-	_sim_overlay.visible = false
+	_sim_progress_container.visible = false
 	farm_grid.set_planning_active(true)
 	hud_ui.set_simulation_active(false)
 	_recompute_power()
 	if GameState.settler_count == 0:
 		_on_colony_lost()
+
+func _process(delta: float) -> void:
+	if _phase != Phase.SIMULATION:
+		return
+	_sim_elapsed += delta
+	_sim_progress_bar.value  = _sim_elapsed
+	_sim_progress_label.text = "%.1f s" % _sim_elapsed
+	_tick_greenhouses(delta)
+	_tick_settlers(delta)
+
+## Advance greenhouse tend countdowns; dispatch a settler when a greenhouse needs tending.
+func _tick_greenhouses(delta: float) -> void:
+	for i: int in _greenhouse_states.size():
+		var gh: Dictionary = _greenhouse_states[i]
+		if gh["settler_dispatched"]:
+			continue
+		gh["tend_countdown"] = (gh["tend_countdown"] as float) - delta
+		if (gh["tend_countdown"] as float) <= 0.0:
+			_dispatch_settler(i)
+
+## Dispatch a settler sprite from the Solar Rig to greenhouse index gh_idx.
+## Does nothing if the solar rig is unknown or all settlers are already walking.
+func _dispatch_settler(gh_idx: int) -> void:
+	if _solar_rig_piece_id == -1:
+		return
+	# Find a living settler not currently walking.
+	var busy_names: Array[String] = []
+	for agent: Dictionary in _settler_agents:
+		busy_names.append(agent["settler_name"] as String)
+	var free_name: String = ""
+	for i: int in GameState.settler_names.size():
+		if GameState.settler_health[i] == GameState.SettlerHealth.DEAD:
+			continue
+		var n: String = GameState.settler_names[i]
+		if not busy_names.has(n):
+			free_name = n
+			break
+	if free_name.is_empty():
+		return
+	var gh: Dictionary = _greenhouse_states[gh_idx]
+	gh["settler_dispatched"] = true
+	var solar_info: Dictionary = farm_grid.grid_data.get_piece_info(_solar_rig_piece_id)
+	var solar_pos: Vector2 = _grid_cell_center(solar_info["row"], solar_info["col"])
+	var gh_pos: Vector2    = _grid_cell_center(gh["row"], gh["col"])
+	# Speed = 2 grid-units/second; grid-unit = CELL_SIZE px.
+	var grid_dist: float   = (gh_pos - solar_pos).length() / 32.0
+	var travel_time: float = maxf(grid_dist / 2.0, 0.01)
+	var sprite: ColorRect = ColorRect.new()
+	sprite.size    = Vector2(10.0, 10.0)
+	sprite.color   = Color(0.9, 0.75, 0.6)
+	sprite.z_index = 200
+	_ui_layer.add_child(sprite)
+	sprite.position = solar_pos - Vector2(5.0, 5.0)
+	_settler_agents.append({
+		"sprite":        sprite,
+		"from_pos":      solar_pos,
+		"to_pos":        gh_pos,
+		"solar_pos":     solar_pos,
+		"elapsed":       0.0,
+		"duration":      travel_time,
+		"returning":     false,
+		"gh_idx":        gh_idx,
+		"settler_name":  free_name,
+	})
+
+## Advance settler sprites; handle arrival at greenhouse and return to Solar Rig.
+func _tick_settlers(delta: float) -> void:
+	for i: int in range(_settler_agents.size() - 1, -1, -1):
+		var agent: Dictionary = _settler_agents[i]
+		agent["elapsed"] = (agent["elapsed"] as float) + delta
+		var t: float = clampf((agent["elapsed"] as float) / (agent["duration"] as float), 0.0, 1.0)
+		var pos: Vector2 = (agent["from_pos"] as Vector2).lerp(agent["to_pos"], t)
+		(agent["sprite"] as ColorRect).position = pos - Vector2(5.0, 5.0)
+		if (agent["elapsed"] as float) < (agent["duration"] as float):
+			continue
+		if not agent["returning"]:
+			# Arrived at greenhouse: perform one tending operation.
+			var gh: Dictionary = _greenhouse_states[agent["gh_idx"]]
+			var gh_def: GreenhouseDefinition = gh["def"] as GreenhouseDefinition
+			_add_log_entry({
+				"label": "%s tended to %s." % [agent["settler_name"], gh_def.display_name],
+				"value": "", "label_color": "", "value_color": "",
+			})
+			gh["tend_count"] = (gh["tend_count"] as int) + 1
+			if (gh["tend_count"] as int) >= gh_def.tend_per_yield:
+				gh["tend_count"] = 0
+				if gh_def.output_item != null:
+					_inventory.add(InventoryItem.new(
+						gh_def.output_item.display_name,
+						gh_def.output_item.slot_size,
+						gh_def.output_item,
+					))
+					_add_log_entry({
+						"label": "%s:" % gh_def.display_name,
+						"value": "+1 %s" % gh_def.output_item.display_name,
+						"label_color": "", "value_color": LOG_COLOR_ITEM,
+					})
+			# Reset countdown and begin return trip.
+			gh["tend_countdown"] = gh_def.tend_interval
+			agent["returning"] = true
+			agent["from_pos"]  = agent["to_pos"]
+			agent["to_pos"]    = agent["solar_pos"]
+			agent["elapsed"]   = 0.0
+		else:
+			# Returned to Solar Rig: free this settler.
+			(agent["sprite"] as ColorRect).queue_free()
+			_greenhouse_states[agent["gh_idx"]]["settler_dispatched"] = false
+			_settler_agents.remove_at(i)
+
+## World-space center of a grid cell, usable as a CanvasLayer screen coordinate.
+func _grid_cell_center(row: int, col: int) -> Vector2:
+	return farm_grid.global_position + Vector2((col - 0.5) * 32.0, (row - 0.5) * 32.0)
+
+## Stamp current timestamp onto base, append to _sim_log, and push to live overlay.
+func _add_log_entry(base: Dictionary) -> void:
+	base["timestamp"] = _sim_elapsed
+	_sim_log.append(base)
+	_update_live_log(base)
+
+## Add a single-line entry to the live log overlay, trimming oldest beyond max.
+func _update_live_log(entry: Dictionary) -> void:
+	var ts: float = entry.get("timestamp", -1.0) as float
+	var label_text: String = entry.get("label", "") as String
+	var value_text: String = entry.get("value", "") as String
+	var line: String = label_text
+	if not value_text.is_empty():
+		line = line + "  " + value_text
+	var ts_str: String = "(%.1fs)" % ts if ts >= 0.0 else ""
+	var bbcode: String = line
+	if not ts_str.is_empty():
+		bbcode = "%s [color=#999999]%s[/color]" % [line, ts_str]
+	var lbl: RichTextLabel = RichTextLabel.new()
+	lbl.bbcode_enabled = true
+	lbl.fit_content = true
+	lbl.scroll_active = false
+	lbl.autowrap_mode = TextServer.AUTOWRAP_OFF
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lbl.add_theme_font_size_override("normal_font_size", 10)
+	lbl.text = bbcode
+	_sim_live_log_box.add_child(lbl)
+	# Trim oldest entries beyond the max.
+	while _sim_live_log_box.get_child_count() > LIVE_LOG_MAX_ENTRIES:
+		var oldest: Node = _sim_live_log_box.get_child(0)
+		_sim_live_log_box.remove_child(oldest)
+		oldest.queue_free()
 
 func _on_colony_lost() -> void:
 	var dlg: AcceptDialog = AcceptDialog.new()

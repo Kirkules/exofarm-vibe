@@ -680,6 +680,13 @@ func set_held_hint(hint: String) -> void:
 	if _held_label and _held_shape:
 		_held_label.text = _held_shape.get_label(_held_label_hint)
 
+## Remove a placed piece from the grid and destroy its sprite.
+## Used by game.gd to reject a placement that isn't valid for this grid.
+func remove_piece(piece_id: int) -> void:
+	grid_data.remove_piece(piece_id)
+	_remove_piece_sprite(piece_id)
+	queue_redraw()
+
 ## Mark a placed piece as fixed (false) or moveable (true).
 ## Called by game.gd after piece_placed_on_grid / piece_returned_to_grid.
 func set_piece_moveable(piece_id: int, moveable: bool) -> void:

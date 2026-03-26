@@ -8,6 +8,8 @@ extends Control
 const COLOR_TOOLTIP := Color(0.12, 0.12, 0.16)
 ## Font size for HUD info labels (~80% of Godot's default 16px).
 const INFO_FONT_SIZE := 13
+## Font size for simulation log entries (~80% of INFO_FONT_SIZE).
+const LOG_FONT_SIZE := 10
 ## Content height before safe-area inset — fits three rows at INFO_FONT_SIZE.
 const BASE_HEIGHT := 52
 
@@ -34,6 +36,10 @@ var _matter_tooltip:   PanelContainer
 var _matter_info_box:  VBoxContainer
 var _settler_tooltip:  PanelContainer
 var _tooltip_name_box: VBoxContainer
+
+var _log_btn:   Button
+var _log_panel: PanelContainer
+var _log_vbox:  VBoxContainer
 
 
 func _ready() -> void:
@@ -82,10 +88,20 @@ func _build_ui() -> void:
 	_settler_label.gui_input.connect(_on_settler_label_input)
 	info_vbox.add_child(_settler_label)
 
+	var right_vbox: VBoxContainer = VBoxContainer.new()
+	right_vbox.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	outer_hbox.add_child(right_vbox)
+
 	_next_btn = Button.new()
-	_next_btn.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	_next_btn.pressed.connect(_on_next_season_button_pressed)
-	outer_hbox.add_child(_next_btn)
+	right_vbox.add_child(_next_btn)
+
+	_log_btn = Button.new()
+	_log_btn.text = "log"
+	_log_btn.custom_minimum_size = Vector2(32.0, 32.0)
+	_log_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
+	_log_btn.pressed.connect(_on_log_btn_pressed)
+	right_vbox.add_child(_log_btn)
 
 	# Tooltips — drop below the HUD bar; z_index=100 renders above inventory.
 	_energy_tooltip = _make_tooltip_panel()
@@ -102,6 +118,17 @@ func _build_ui() -> void:
 	_tooltip_name_box = VBoxContainer.new()
 	_settler_tooltip.add_child(_tooltip_name_box)
 	add_child(_settler_tooltip)
+
+	_log_panel = PanelContainer.new()
+	var log_bg: StyleBoxFlat = StyleBoxFlat.new()
+	log_bg.bg_color = COLOR_TOOLTIP
+	_log_panel.add_theme_stylebox_override("panel", log_bg)
+	_log_panel.visible = false
+	_log_panel.z_index = 100
+	_log_panel.custom_minimum_size = Vector2(270.0, 0.0)
+	_log_vbox = VBoxContainer.new()
+	_log_panel.add_child(_log_vbox)
+	add_child(_log_panel)
 
 func _make_tooltip_panel() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
@@ -156,6 +183,7 @@ func _apply_safe_area() -> void:
 	_energy_tooltip.position  = Vector2(0.0, tooltip_y)
 	_matter_tooltip.position  = Vector2(0.0, tooltip_y)
 	_settler_tooltip.position = Vector2(0.0, tooltip_y)
+	_log_panel.position       = Vector2(0.0, tooltip_y)
 
 # ---------------------------------------------------------------------------
 # Public
@@ -168,6 +196,7 @@ func set_simulation_active(v: bool) -> void:
 		_energy_tooltip.visible  = false
 		_matter_tooltip.visible  = false
 		_hide_settler_tooltip()
+		_log_panel.visible = false
 
 ## Rebuild the Energy tooltip content.
 ## entries: Array of {name: String, delta: int} — positive = production, negative = draw.
@@ -219,6 +248,57 @@ func _update_matter_label() -> void:
 	var color: String = "#88ee88" if _matter_delta >= 0 else "#ee8888"
 	_matter_label.text = "Matter: %d([color=%s]%s%d[/color])" \
 		% [_matter_projected, color, sign, _matter_delta]
+
+## Replace the log panel contents with the given list of entries.
+## Each entry: {"label", "value", "label_color", "value_color", "timestamp"} — timestamp is float.
+func refresh_log(entries: Array[Dictionary]) -> void:
+	for child: Node in _log_vbox.get_children():
+		child.queue_free()
+	for entry: Dictionary in entries:
+		_log_vbox.add_child(_make_log_row(
+				entry["label"], entry.get("label_color", ""),
+				entry["value"], entry.get("value_color", ""),
+				entry.get("timestamp", -1.0)))
+
+## Creates a log entry: label line (with timestamp right-justified), then value on next line.
+## label_color/value_color are hex strings (e.g. "#88ee88"); empty = no color override.
+## timestamp < 0 means no timestamp shown.
+func _make_log_row(label: String, label_color: String,
+		value: String, value_color: String, timestamp: float = -1.0) -> VBoxContainer:
+	var row: VBoxContainer = VBoxContainer.new()
+	# Label line: HBox with label text (left, expand) + timestamp (right, grey).
+	var label_hbox: HBoxContainer = HBoxContainer.new()
+	var label_bbcode: String = label if label_color.is_empty() \
+			else "[color=%s]%s[/color]" % [label_color, label]
+	label_hbox.add_child(_make_log_rtlabel(label_bbcode, true))
+	if timestamp >= 0.0:
+		var ts_lbl: Label = Label.new()
+		ts_lbl.text = "(%.1fs)" % timestamp
+		ts_lbl.add_theme_font_size_override("font_size", LOG_FONT_SIZE)
+		ts_lbl.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+		ts_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		label_hbox.add_child(ts_lbl)
+	row.add_child(label_hbox)
+	if not value.is_empty():
+		var bbcode: String = "[right]%s[/right]" % (
+				"[color=%s]%s[/color]" % [value_color, value] if not value_color.is_empty() else value)
+		row.add_child(_make_log_rtlabel(bbcode, true))
+	return row
+
+## Creates a RichTextLabel sized for a log row at LOG_FONT_SIZE.
+## expand: whether to set SIZE_EXPAND_FILL (needed so [right] fills the panel width).
+func _make_log_rtlabel(bbcode: String, expand: bool) -> RichTextLabel:
+	var lbl: RichTextLabel = RichTextLabel.new()
+	lbl.bbcode_enabled = true
+	lbl.fit_content = true
+	lbl.scroll_active = false
+	lbl.autowrap_mode = TextServer.AUTOWRAP_OFF
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lbl.add_theme_font_size_override("normal_font_size", LOG_FONT_SIZE)
+	if expand:
+		lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lbl.text = bbcode
+	return lbl
 
 # ---------------------------------------------------------------------------
 # Settler tooltip
@@ -281,6 +361,13 @@ func _on_matter_label_input(event: InputEvent) -> void:
 			_matter_tooltip.visible = mb.pressed
 	elif event is InputEventScreenTouch:
 		_matter_tooltip.visible = (event as InputEventScreenTouch).pressed
+
+func _on_log_btn_pressed() -> void:
+	_log_panel.visible = not _log_panel.visible
+	if _log_panel.visible:
+		_energy_tooltip.visible = false
+		_matter_tooltip.visible = false
+		_settler_tooltip.visible = false
 
 func _on_next_season_button_pressed() -> void:
 	next_season_pressed.emit()
