@@ -1688,3 +1688,72 @@ method 'get_children' on a null value.
 initializes `_item_list` — only fires when the node enters the scene tree via
 `add_child()`. Fix: moved `set_definitions()` to after `add_child()` in
 `game.gd._ready()`.
+
+---
+
+### GridType Drop Enforcement, CLAUDE.md, Simulation Log, and Animated Simulation
+
+**User:** The grid type check should only disallow dropping/placing on a grid, but moveable
+items should be draggable from the inventory in all contexts.
+
+**Claude:** Moved the GridType rejection from `_on_item_requested()` (which blocked pickup)
+to `_on_piece_placed_on_grid()` (which fires at drop time). Added `farm_grid.remove_piece(piece_id)`
+public method so the drop handler can undo a rejected placement before returning the item
+to inventory.
+
+**User:** Let's create a CLAUDE.md for you to ramp up each time we begin working on this
+project together.
+
+**Claude:** Created `CLAUDE.md` at project root with sections: Project Summary, Current Focus,
+Tech Stack/Architecture, Code Style/Naming Conventions, Game Story Summary, Known Issues/TODOs,
+and Design Choices.
+
+**User:** Let's tackle animated simulation playback and outcome log. The playback should
+still be a placeholder for now, but let's populate a log (which resets each season) accessed
+by a small 'log' button just under the 'Go to Season' button. Let's update the log to include
+more granular information — each construction on its own line with left-justified labels and
+right-justified values. Let's reduce font size to about 80% and put values on the next line.
+Color code the output parts: gains = light green, reductions = orange, deaths = red, items = yellow.
+
+**Claude:** Added `_sim_log: Array[Dictionary]` populated in `_end_simulation()`. Added "log"
+button (32×32) in HUD right column. `refresh_log(entries)` rebuilds a `PanelContainer` with
+`VBoxContainer` rows per entry. Each row: label line (left) + value line right-justified.
+`LOG_FONT_SIZE = 10`. Colors: `#88ee88` gain, `#ee8800` loss, `#ee4444` death, `#eeee88` item.
+
+**User:** Now let's add actual activity during the simulation. We'll insert CropProductionDefinition
+between BuildingDefinition and GreenhouseDefinition, then implement real-time settler labor
+animation. Settlers walk Solar Rig↔greenhouse at 2 grid-units/sec. 15s simulation. Crops
+produced on 3rd tend.
+
+**Claude:** Created `scripts/resources/crop_production_definition.gd` (extends `BuildingDefinition`;
+`tend_interval: float = 3.0`, `tend_per_yield: int = 3`). Updated `GreenhouseDefinition` to
+extend `CropProductionDefinition`. Removed `_apply_greenhouse_yield()`. Added `_solar_rig_piece_id`,
+`_greenhouse_states`, `_settler_agents` to `game.gd`. `_dispatch_settler(gh_idx)` creates a
+10×10 ColorRect sprite and appends an agent dict. `_tick_settlers(delta)` lerps sprites, handles
+arrival (tend + optional yield) and return trip. `_process(delta)` advances `_sim_elapsed`, calls
+`_tick_greenhouses` and `_tick_settlers`.
+
+**User:** Let's add a season progress bar just above the grid (0→15s with "X.X s" label) and
+entirely remove the placeholder 'Season animating...' and its grey overlay region.
+
+**Claude:** Added 16px `HBoxContainer` with `ProgressBar` + `Label` positioned at
+`farm_grid.position.y - 16`. `SimulationOverlay` node and all references removed.
+`_sim_progress_container.visible` toggled by `_begin_simulation`/`_end_simulation`.
+
+**User:** Now let's add a small overlay during season simulation above the progress bar showing
+log updates as they are added. Add log entries for settler tending. Add timestamps to log entries.
+
+**Claude:** Added `_sim_live_log_box: VBoxContainer` (between HUD bottom and progress bar,
+`clip_contents=true`, max 6 entries). Added `_add_log_entry(base: Dictionary)` — stamps
+`base["timestamp"] = _sim_elapsed`, appends to `_sim_log`, calls `_update_live_log`.
+Added `_update_live_log(entry)` — creates RichTextLabel with label + `(X.Xs)` timestamp,
+adds to live box, trims oldest beyond `LIVE_LOG_MAX_ENTRIES`. Updated `_dispatch_settler`
+to find a free living settler by name (not size check); stores `"settler_name"` in agent dict.
+Updated `_tick_settlers` to log `"[name] tended to [structure]."` on arrival. Updated
+`hud_ui.gd` `_make_log_row` to accept `timestamp: float = -1.0` and show `"(X.Xs)"` right-
+justified in grey on the label line. All `_sim_log.append` calls replaced with `_add_log_entry`.
+
+**User:** We should remove the simulation log display when the next season's planning starts.
+
+**Claude:** Added `hud_ui.refresh_log([])` in `_begin_simulation()` alongside `_sim_log.clear()`,
+so the log panel is empty during planning until the next season simulation completes.

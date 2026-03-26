@@ -161,13 +161,19 @@ Each game round = one **season** on the planet.
 - Tooltips and contextual information throughout
 - Player can **toggle buildings on/off** at any time during planning to manage power
 
-### Simulation Phase (~30 seconds baseline)
+### Simulation Phase (~15 seconds baseline)
 - **Passive** — no player input required (may evolve later)
-- Animated events play out: harvests, weather, incidents
-- **Outcome log** builds up alongside the animation
-- Playback speed: **1×, 2×, 3×, 5×** (player-controlled)
+- Settler sprites (ColorRect) walk from Solar Rig to greenhouses and back in real time;
+  speed = 2 grid-units/sec; each arrival = one tending operation; `tend_per_yield`
+  tend operations = one crop yield
+- Season progress bar (16px, above grid) with elapsed-time readout
+- **Live log overlay** (between HUD and progress bar): last 6 entries shown as events occur,
+  with timestamps in `(X.Xs)` format
+- **Outcome log** button ("log") in HUD: full log accessible after simulation; cleared at
+  start of each new simulation
+- Playback speed: **1×, 2×, 3×, 5×** — **not yet implemented**
 - Results feed into the next planning phase
-- Building on/off toggle **not available** during simulation (may change later)
+- Building on/off toggle **not available** during simulation
 
 ---
 

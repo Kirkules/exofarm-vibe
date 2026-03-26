@@ -27,14 +27,19 @@ exists but caused irreversible climate change on Earth, making new planets neces
 Recently completed:
 - GridType enum (`FARM_GRID`, `KITCHEN_GRID`) on `PlaceableDefinition`; crop output
   items restricted to `KITCHEN_GRID` (not droppable on farm grid, but still draggable)
-- Greenhouse yield logic: powered BUILT greenhouses add crop items to inventory each season
-- GreenhouseDefinition (renamed from CropDefinition); extends BuildingDefinition (power_draw=1)
+- `CropProductionDefinition` inserted between `BuildingDefinition` and `GreenhouseDefinition`;
+  holds `tend_interval` and `tend_per_yield`
+- Real-time 15s settler labor animation: ColorRect sprites walk Solar Rig↔greenhouses at
+  2 grid-units/sec; `tend_per_yield` arrivals yield one crop item
+- Season progress bar (16px above grid) with elapsed-time label; SimulationOverlay removed
+- Live log overlay between HUD and progress bar: shows last 6 entries as they occur
+- Outcome log with timestamps, color-coded values, and per-entry label/value layout;
+  accessible via "log" button below Next Season; cleared at start of each simulation
 - SettlerHealth enum (FED, STARVING, DEAD); DEAD settlers skip food; starvation kills
 - Construction cost (matter_cost=1 per greenhouse) deducted before Nutrient Paste at sim start
 - UNBUILT/BUILT building state machine; starting buildings pre-placed as BUILT
 
 Next up (Phase 2):
-- [ ] Animated simulation playback with outcome log
 - [ ] Playback speed controls (1×, 2×, 3×, 5×)
 - [ ] Morale calculation and bar UI
 - [ ] Cafeteria building: merge space + consumption area
@@ -69,14 +74,16 @@ Next up (Phase 2):
 | `scripts/autoloads/event_bus.gd` | Global signal bus |
 | `scripts/resources/placeable_definition.gd` | Base resource; GridType enum; allowed_grids |
 | `scripts/resources/building_definition.gd` | Extends PlaceableDefinition; power fields |
-| `scripts/resources/greenhouse_definition.gd` | Extends BuildingDefinition; yield_per_season, output_item |
+| `scripts/resources/crop_production_definition.gd` | Extends BuildingDefinition; tend_interval, tend_per_yield |
+| `scripts/resources/greenhouse_definition.gd` | Extends CropProductionDefinition; output_item |
 
 ### Resource Hierarchy
 
 ```
-PlaceableDefinition          ← crop items, generic placeables
-  └── BuildingDefinition     ← Solar Rig, Matter Manipulator, etc.
-        └── GreenhouseDefinition  ← Wheat/Tomato/Eggplant Greenhouses
+PlaceableDefinition              ← crop items, generic placeables
+  └── BuildingDefinition         ← Solar Rig, Matter Manipulator, etc.
+        └── CropProductionDefinition  ← tend_interval, tend_per_yield
+              └── GreenhouseDefinition    ← Wheat/Tomato/Eggplant Greenhouses
 ```
 
 ### Grid System
@@ -90,10 +97,20 @@ PlaceableDefinition          ← crop items, generic placeables
 
 1. Player presses "Go to Season N"
 2. Confirmation dialog (if starvation risk)
-3. `_begin_simulation()`: capture construction cost, transition UNBUILT→BUILT, lock grid
-4. 2-second placeholder delay (animation TBD)
-5. `_end_simulation()`: deduct construction Matter, run food simulation, apply greenhouse
-   yield, update `GameState`, unlock grid
+3. `_begin_simulation()`: clear log, capture construction cost, transition UNBUILT→BUILT,
+   log construction entries, initialize `_greenhouse_states`, start 15s timer + live log overlay
+4. `_process(delta)`: advance `_sim_elapsed`, update progress bar, tick greenhouses + settlers;
+   settlers walk Solar Rig→greenhouse at 2 grid-units/sec; each arrival is a tend; on
+   `tend_per_yield` tends the greenhouse yields one crop item
+5. `_end_simulation()`: deduct construction Matter, run food simulation, log and apply Matter
+   production/paste/deaths, update `GameState`, push final log to HUD, unlock grid
+
+### Simulation Log Format
+
+Each entry dict: `{"label": String, "value": String, "label_color": String,
+"value_color": String, "timestamp": float}`. Colors: `#88ee88` gain, `#ee8800` loss,
+`#ee4444` death, `#eeee88` item. Pass through `_add_log_entry(base)` — never append
+to `_sim_log` directly (it stamps timestamp and pushes to live overlay).
 
 ### Power System
 
@@ -173,7 +190,6 @@ Both paths use the Cafeteria for meal crafting.
 ## Known Issues and Current TODOs
 
 ### Pending Features (Phase 2)
-- Animated simulation playback and outcome log (currently a 2-second placeholder)
 - Playback speed controls (1×/2×/3×/5×)
 - Inventory overflow: items beyond capacity broken down into Matter at sim start
 - Morale: calculation logic + bar UI with projected delta display
