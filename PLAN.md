@@ -183,6 +183,29 @@ Each game round = one **season** on the planet.
 - Finding a rich deposit of a rare material early can accelerate access to advanced
   technology within that run.
 
+### Agriculture Branching
+
+Every run starts with **greenhouse farming**: the settlers bring seeds and grow familiar
+crops inside enclosed structures before they know how to work with the planet's biosphere.
+The player can then branch along two paths depending on the planet's character:
+
+- **Advanced Greenhouse Path** — build larger, more efficient greenhouse structures.
+  Favored on planets with **hostile atmospheres or extreme weather** but **plentiful
+  building materials** (energy, ore). Crop output scales with greenhouse quality rather
+  than outside conditions.
+
+- **Local Agriculture Path** — hybridize Earth crops with native planet-side flora,
+  eventually farming directly in the open. Favored on planets with a **hospitable
+  atmosphere** but **scarce building resources**. Unlocks planet-specific crops and
+  higher long-term yield potential.
+
+Both paths converge on the Cafeteria for meal crafting; the crops produced differ but
+the food system is the same. The path taken affects score factors (efficiency vs.
+adaptability) and which advanced designs become accessible.
+
+*Planet types will be designed to make one path clearly more efficient while leaving
+the other viable — not to make one path always correct.*
+
 ### Across Runs (Meta-Progression)
 - Gathering enough of a **new resource type** (one not seen in prior runs) during a run
   causes Earth's designers to develop a new design using that material.
@@ -717,7 +740,9 @@ live in `scripts/`.
   per piece; toggleable per-piece via effect_range property)
 
 ### Phase 1 — Core Planning Loop
-- [ ] Initial set of placeable element types (shape, cost, effects)
+- [x] Initial set of placeable element types (CropDefinition class; Wheat/Tomato/Eggplant
+  Greenhouses in build menu; 1×1 crop pieces, yield_per_season=1; separate
+  PlaceableDefinition instances for Wheat/Tomato/Eggplant crop items as harvest output)
 - [x] Resource system (Energy + Matter, seasonal regeneration; production computed from
   placed active buildings; HUD shows stored/capacity/+production; overflow warning on
   Next Season)
@@ -725,7 +750,9 @@ live in `scripts/`.
 - [x] Building on/off toggle (double-tap on fixed building)
 - [x] Neighbor effect calculation engine (NeighborSystem.compute(); effects not yet
   applied to simulation output)
-- [ ] Visual synergy and coverage indicators during planning
+- [x] Visual synergy and coverage indicators during planning (permanent effect-range
+  overlay for placed pieces with effect_range > 0, dimmer shade than drag preview;
+  power overlay refactored into shared _refresh_overlays() path)
 - [x] Power range visual overlay during planning (placed buildings + hold preview)
 - [x] "Proceed to Next Season" confirmation and lock-in (buildings lock in on Next Season;
   conditional dialog warns when Energy or Matter production would overflow storage)

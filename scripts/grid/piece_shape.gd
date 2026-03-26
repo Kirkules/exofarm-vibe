@@ -12,6 +12,11 @@ extends Resource
 ##
 ## Offsets may be negative (e.g. a cell two columns left of origin = Vector2i(0, -2)).
 
+## How each cell of this piece is drawn in placeholder graphics.
+## SQUARE = beveled rectangle (buildings and grid structures).
+## CIRCLE = filled circle (food/crop items).
+enum CellStyle { SQUARE, CIRCLE }
+
 @export var offsets: Array[Vector2i] = [Vector2i(0, 0)]
 @export var color: Color = Color.WHITE
 ## Manhattan-distance radius of this piece's field of effect.
@@ -20,6 +25,8 @@ extends Resource
 ## Short display label shown on the piece sprite and inventory icon.
 ## Leave empty to auto-derive from the first 3 characters of the item's display name.
 @export var label: String = ""
+## Visual cell style used when rendering placeholder sprites.
+@export var cell_style: CellStyle = CellStyle.SQUARE
 
 ## Returns the label to display. If label is non-empty it is returned as-is;
 ## otherwise the first 3 characters of hint are uppercased and returned.
@@ -46,6 +53,7 @@ func rotated_cw() -> PieceShape:
 	shape.color = color
 	shape.effect_range = effect_range
 	shape.label = label
+	shape.cell_style = cell_style
 	return shape
 
 ## Returns a new PieceShape rotated 90 degrees counter-clockwise around the origin.
@@ -59,6 +67,7 @@ func rotated_ccw() -> PieceShape:
 	shape.color = color
 	shape.effect_range = effect_range
 	shape.label = label
+	shape.cell_style = cell_style
 	return shape
 
 ## Returns all 4 clockwise rotation states starting from this shape.
@@ -101,6 +110,7 @@ func with_centered_origin() -> PieceShape:
 	shape.color = color
 	shape.effect_range = effect_range
 	shape.label = label
+	shape.cell_style = cell_style
 	return shape
 
 ## Returns the bounding rect of this shape as Rect2i(min_row, min_col, height, width).

@@ -55,10 +55,14 @@ static func _generate_image(shape: PieceShape, base_color: Color) -> Image:
 	var light: Color = base_color.lightened(0.35)
 	var dark: Color  = base_color.darkened(0.40)
 
+	var use_circle: bool = shape.cell_style == PieceShape.CellStyle.CIRCLE
 	for offset: Vector2i in shape.offsets:
 		var ix: int = (offset.y - bb.position.y) * CELL_PX
 		var iy: int = (offset.x - bb.position.x) * CELL_PX
-		_draw_cell(img, ix, iy, base_color, light, dark)
+		if use_circle:
+			_draw_cell_circle(img, ix, iy, base_color, light, dark)
+		else:
+			_draw_cell(img, ix, iy, base_color, light, dark)
 
 	return img
 
@@ -67,6 +71,31 @@ static func _generate_image(shape: PieceShape, base_color: Color) -> Image:
 static func origin_offset(shape: PieceShape) -> Vector2:
 	var bb: Rect2i = shape.get_bounding_rect()
 	return Vector2(bb.position.y, bb.position.x) * CELL_PX
+
+## Draws a circle into one CELL_PX × CELL_PX region of img.
+## The outer BEVEL pixels of the circle radius form a directional bevel ring:
+## top-left arc is lighter, bottom-right arc is darker.
+static func _draw_cell_circle(
+		img: Image, ix: int, iy: int,
+		base: Color, light: Color, dark: Color) -> void:
+	var cx: float = ix + CELL_PX * 0.5
+	var cy: float = iy + CELL_PX * 0.5
+	var r: float       = (CELL_PX - PADDING * 2) * 0.5
+	var r_sq: float    = r * r
+	var r_inner: float = r - BEVEL
+	var r_inner_sq: float = r_inner * r_inner
+	for py: int in range(iy, iy + CELL_PX):
+		for px: int in range(ix, ix + CELL_PX):
+			var dx: float    = float(px) - cx + 0.5  # use pixel centre
+			var dy: float    = float(py) - cy + 0.5
+			var dist_sq: float = dx * dx + dy * dy
+			if dist_sq > r_sq:
+				continue
+			if dist_sq > r_inner_sq:
+				# Bevel ring: top-left arc = light, bottom-right arc = dark.
+				img.set_pixel(px, py, light if dx + dy < 0.0 else dark)
+			else:
+				img.set_pixel(px, py, base)
 
 static func _draw_cell(
 		img: Image, ix: int, iy: int,

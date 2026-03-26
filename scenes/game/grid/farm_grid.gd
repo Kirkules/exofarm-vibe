@@ -5,9 +5,9 @@ const CELL_SIZE := 32
 const ROWS := 6
 const COLS := 8
 
-## Vertical offset applied to dragged piece when Settings.drag_offset is true,
-## so the piece appears above the player's finger.
-const DRAG_OFFSET_PX := -CELL_SIZE * 2
+## Offset applied to the dragged piece sprite when Settings.drag_offset is true,
+## so the piece appears above and to the left of the player's finger.
+const DRAG_OFFSET := Vector2(-CELL_SIZE, -CELL_SIZE * 1.5)
 
 ## Pickup requires either a drag of this many pixels or a hold this many seconds.
 const PICKUP_DRAG_THRESHOLD_SQ: float = 16.0 * 16.0
@@ -19,7 +19,8 @@ const COLOR_BORDER   := Color(0.08, 0.08, 0.08)
 const COLOR_HOVER    := Color(0.25, 0.35, 0.25)
 const COLOR_VALID    := Color(0.30, 0.65, 0.30, 0.65)
 const COLOR_INVALID  := Color(0.65, 0.25, 0.25, 0.65)
-const COLOR_EFFECT         := Color(0.90, 0.75, 0.20, 0.28)
+const COLOR_EFFECT         := Color(0.90, 0.75, 0.20, 0.28)  # drag preview
+const COLOR_EFFECT_PLACED  := Color(0.90, 0.75, 0.20, 0.12)  # permanent overlay for placed pieces
 const COLOR_POWER_RANGE    := Color(0.35, 0.70, 1.00, 0.18)  # sufficient network
 const COLOR_POWER_WEAK     := Color(0.95, 0.50, 0.20, 0.18)  # insufficient network
 
@@ -119,6 +120,9 @@ var _inventory_control: Control = null
 # Power range overlay data. Each entry: {row, col, range, sufficient}.
 # Repopulated by game.gd after every grid change via set_power_overlay().
 var _power_sources: Array = []
+# Effect-range overlay data for placed pieces with effect_range > 0. Each entry: {row, col, range}.
+# Repopulated by game.gd after every grid change via set_effect_overlay().
+var _effect_sources: Array = []
 # Power range of the currently held piece (0 = none). Set by game.gd on pickup.
 var _held_power_range: int = 0
 
@@ -167,10 +171,10 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	# Update UNBUILT flash independently of planning_active (harmless during simulation
 	# since all pieces will have been transitioned to BUILT before simulation starts).
-	_flash_time = fmod(_flash_time + delta, 2.0)
+	_flash_time = fmod(_flash_time + delta, 0.5)
 	for piece_id: int in _piece_flashing:
 		if _piece_flashing[piece_id] and _piece_sprites.has(piece_id):
-			var alpha: float = 0.75 + 0.25 * cos(TAU * _flash_time / 2.0)
+			var alpha: float = 0.75 + 0.25 * cos(TAU * _flash_time / 0.5)
 			_piece_sprites[piece_id].modulate = Color(1.0, 1.0, 1.0, alpha)
 	if not planning_active:
 		return
@@ -234,6 +238,16 @@ func _draw_power_overlays() -> void:
 					draw_rect(_cell_rect(r, c), color)
 
 func _draw_effect_overlays() -> void:
+	# Permanent overlays for placed pieces with effect_range > 0.
+	for src: Dictionary in _effect_sources:
+		var row: int      = src["row"]
+		var col: int      = src["col"]
+		var range_val: int = src["range"]
+		for r: int in range(1, ROWS + 1):
+			for c: int in range(1, COLS + 1):
+				if absi(row - r) + absi(col - c) <= range_val:
+					draw_rect(_cell_rect(r, c), COLOR_EFFECT_PLACED)
+	# Drag preview: highlight cells within effect_range of the held piece's would-be position.
 	if not _held_shape or _held_shape.effect_range <= 0:
 		return
 	var origin: Vector2i = _pos_to_cell(_effective_cursor_pos())
@@ -698,6 +712,12 @@ func set_power_overlay(sources: Array) -> void:
 	_power_sources = sources
 	queue_redraw()
 
+## Update the effect-range overlay for placed pieces. Each entry: {row, col, range}.
+## Pass an empty array to clear all overlays.
+func set_effect_overlay(sources: Array) -> void:
+	_effect_sources = sources
+	queue_redraw()
+
 ## Set the power range of the currently held piece for preview rendering.
 ## Call with 0 when the piece is placed, returned, or cancelled.
 func set_held_power_range(power_range: int) -> void:
@@ -771,14 +791,14 @@ func _remove_piece_sprite(piece_id: int) -> void:
 ## Used for grid cell snapping and placement preview.
 func _effective_cursor_pos() -> Vector2:
 	if Settings.drag_offset and _held_shape != null:
-		return _cursor_pos + Vector2(0, DRAG_OFFSET_PX)
+		return _cursor_pos + DRAG_OFFSET
 	return _cursor_pos
 
 ## Returns cursor in viewport/screen pixels, with drag offset applied.
 ## Used for positioning the held sprite on the CanvasLayer.
 func _effective_cursor_screen_pos() -> Vector2:
 	if Settings.drag_offset and _held_shape != null:
-		return _cursor_screen_pos + Vector2(0, DRAG_OFFSET_PX)
+		return _cursor_screen_pos + DRAG_OFFSET
 	return _cursor_screen_pos
 
 func _cell_rect(row: int, col: int) -> Rect2:

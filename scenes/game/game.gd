@@ -108,7 +108,7 @@ func _place_starting_buildings() -> void:
 	# registers it correctly, then call place_piece_at which emits the signal.
 	for entry: Array in [
 		[solar_rig,    3, 3],
-		[matter_manip, 3, 6],
+		[matter_manip, 3, 4],
 	]:
 		var def: BuildingDefinition = entry[0]
 		var row: int                = entry[1]
@@ -120,13 +120,65 @@ func _place_starting_buildings() -> void:
 ## Returns the definitions available in the build menu this run.
 func _buildable_definitions() -> Array[PlaceableDefinition]:
 	var result: Array[PlaceableDefinition] = []
-	var crop_shape: PieceShape = PieceShape.new()
-	crop_shape.color = Color(0.55, 0.88, 0.38)
-	crop_shape.effect_range = 1
-	var crop_plot: PlaceableDefinition = PlaceableDefinition.new()
-	crop_plot.display_name = "Crop Plot"
-	crop_plot.shape = crop_shape
-	result.append(crop_plot)
+
+	# --- Crop item definitions (harvested produce; not placed on the farm grid) ---
+
+	var wheat_item_shape: PieceShape = PieceShape.new()
+	wheat_item_shape.color = Color(1.0, 0.92, 0.40)  # brighter gold than the greenhouse
+	wheat_item_shape.cell_style = PieceShape.CellStyle.CIRCLE
+	var wheat_item: PlaceableDefinition = PlaceableDefinition.new()
+	wheat_item.display_name = "Wheat"  # auto-label: "WHE"
+	wheat_item.shape = wheat_item_shape
+
+	var tomato_item_shape: PieceShape = PieceShape.new()
+	tomato_item_shape.color = Color(0.95, 0.35, 0.25)  # brighter red
+	tomato_item_shape.cell_style = PieceShape.CellStyle.CIRCLE
+	var tomato_item: PlaceableDefinition = PlaceableDefinition.new()
+	tomato_item.display_name = "Tomato"  # auto-label: "TOM"
+	tomato_item.shape = tomato_item_shape
+
+	var eggplant_item_shape: PieceShape = PieceShape.new()
+	eggplant_item_shape.color = Color(0.65, 0.25, 0.85)  # brighter purple
+	eggplant_item_shape.cell_style = PieceShape.CellStyle.CIRCLE
+	var eggplant_item: PlaceableDefinition = PlaceableDefinition.new()
+	eggplant_item.display_name = "Eggplant"  # auto-label: "EGG"
+	eggplant_item.shape = eggplant_item_shape
+
+	# --- Greenhouse definitions (crop-producing grid pieces) ---
+
+	var wheat_gh_shape: PieceShape = PieceShape.new()
+	wheat_gh_shape.color = Color(0.95, 0.85, 0.30)  # muted gold
+	wheat_gh_shape.label = "WGH"
+	var wheat_gh: CropDefinition = CropDefinition.new()
+	wheat_gh.display_name = "Wheat Greenhouse"
+	wheat_gh.shape = wheat_gh_shape
+	wheat_gh.matter_cost = 1
+	wheat_gh.yield_per_season = 1
+	wheat_gh.output_item = wheat_item
+	result.append(wheat_gh)
+
+	var tomato_gh_shape: PieceShape = PieceShape.new()
+	tomato_gh_shape.color = Color(0.90, 0.28, 0.20)  # muted red
+	tomato_gh_shape.label = "TGH"
+	var tomato_gh: CropDefinition = CropDefinition.new()
+	tomato_gh.display_name = "Tomato Greenhouse"
+	tomato_gh.shape = tomato_gh_shape
+	tomato_gh.matter_cost = 1
+	tomato_gh.yield_per_season = 1
+	tomato_gh.output_item = tomato_item
+	result.append(tomato_gh)
+
+	var eggplant_gh_shape: PieceShape = PieceShape.new()
+	eggplant_gh_shape.color = Color(0.50, 0.15, 0.65)  # muted purple
+	eggplant_gh_shape.label = "EGH"
+	var eggplant_gh: CropDefinition = CropDefinition.new()
+	eggplant_gh.display_name = "Eggplant Greenhouse"
+	eggplant_gh.shape = eggplant_gh_shape
+	eggplant_gh.matter_cost = 1
+	eggplant_gh.yield_per_season = 1
+	eggplant_gh.output_item = eggplant_item
+	result.append(eggplant_gh)
+
 	return result
 
 func _on_building_requested(def: PlaceableDefinition) -> void:
@@ -180,7 +232,7 @@ func _on_piece_placed_on_grid(piece_id: int) -> void:
 	_piece_build_state[piece_id] = _held_build_state
 	var is_unbuilt: bool = _held_build_state == BuildState.UNBUILT
 	_held_build_state = BuildState.BUILT  # reset for next placement
-	farm_grid.set_piece_moveable(piece_id, true)
+	farm_grid.set_piece_moveable(piece_id, is_unbuilt or (def != null and def.moveable))
 	farm_grid.set_piece_toggleable(piece_id, def is BuildingDefinition and not is_unbuilt)
 	farm_grid.set_piece_flashing(piece_id, is_unbuilt)
 	farm_grid.set_held_power_range(0)
@@ -202,7 +254,7 @@ func _on_piece_returned_to_grid(piece_id: int) -> void:
 	_piece_build_state[piece_id] = _held_build_state
 	var is_unbuilt: bool = _held_build_state == BuildState.UNBUILT
 	_held_build_state = BuildState.BUILT
-	farm_grid.set_piece_moveable(piece_id, true)
+	farm_grid.set_piece_moveable(piece_id, is_unbuilt or (def != null and def.moveable))
 	farm_grid.set_piece_toggleable(piece_id, def is BuildingDefinition and not is_unbuilt)
 	farm_grid.set_piece_flashing(piece_id, is_unbuilt)
 	farm_grid.set_held_power_range(0)
@@ -225,14 +277,28 @@ func _recompute_power() -> void:
 	GameState.energy = GameState.energy_capacity - _power_state.total_draw()
 	# Compute food and matter projection for HUD.
 	var food: Dictionary    = _compute_food_state()
-	var paste_produced: int = food["paste_produced"]
-	var matter_prod: int    = food["matter_prod"]
+	var paste_produced: int    = food["paste_produced"]
+	var matter_prod: int       = food["matter_prod"]
+	var construction_cost: int = food["construction_cost"]
+	var matter_net: int        = matter_prod - construction_cost - paste_produced
 	hud_ui.set_settler_fed_count(food["fed_count"])
-	hud_ui.refresh_matter(GameState.matter + matter_prod - paste_produced, matter_prod - paste_produced)
+	hud_ui.refresh_matter(GameState.matter + matter_net, matter_net)
 	hud_ui.refresh_energy_tooltip(_build_energy_entries())
 	hud_ui.refresh_matter_tooltip(GameState.matter, _build_matter_entries(food))
 	hud_ui.refresh()
 	_refresh_overlays(placed)
+
+## Returns the total Matter construction cost of all UNBUILT pieces on the grid.
+## Deducted from Matter at season confirmation, before Nutrient Paste production.
+func _compute_construction_cost() -> int:
+	var cost: int = 0
+	for piece_id: int in _placed_items:
+		if _piece_build_state.get(piece_id, BuildState.BUILT) != BuildState.UNBUILT:
+			continue
+		var def: PlaceableDefinition = _placed_items[piece_id].data as PlaceableDefinition
+		if def != null:
+			cost += def.matter_cost
+	return cost
 
 ## Returns the Matter that would be produced this season given the current grid layout.
 ## Buildings with power_draw > 0 only produce if powered.
@@ -266,26 +332,27 @@ func _food_is_powered() -> bool:
 	return false
 
 ## Computes the projected food and Nutrient Paste state for the upcoming season end.
-## Keys: matter_prod, food_items, paste_needed, paste_produced, fed_count, deaths.
-## fed_count settlers (first in settler_names order) will survive; the rest starve.
-## Paste is only made if needed and if a powered food-producing building exists.
-## Available Matter for paste is calculated after other Matter usages (currently none).
+## Keys: matter_prod, construction_cost, food_items, paste_needed, paste_produced,
+##       fed_count, deaths.
+## Construction cost is deducted before paste is produced.
 func _compute_food_state() -> Dictionary:
-	var matter_prod: int  = _compute_matter_production()
-	var food_items: int   = 0  # placeholder until food items are introduced
-	var paste_needed: int = maxi(0, GameState.settler_count - food_items)
-	var paste_produced: int = 0
+	var matter_prod: int       = _compute_matter_production()
+	var construction_cost: int = _compute_construction_cost()
+	var food_items: int        = 0  # placeholder until food items are introduced
+	var paste_needed: int      = maxi(0, GameState.settler_count - food_items)
+	var paste_produced: int    = 0
 	if paste_needed > 0 and _food_is_powered():
-		var matter_avail: int = GameState.matter + matter_prod  # after other usages (none yet)
-		paste_produced = mini(paste_needed, maxi(0, matter_avail))
+		var matter_avail: int = maxi(0, GameState.matter + matter_prod - construction_cost)
+		paste_produced = mini(paste_needed, matter_avail)
 	var fed_count: int = mini(GameState.settler_count, food_items + paste_produced)
 	return {
-		"matter_prod":    matter_prod,
-		"food_items":     food_items,
-		"paste_needed":   paste_needed,
-		"paste_produced": paste_produced,
-		"fed_count":      fed_count,
-		"deaths":         GameState.settler_count - fed_count,
+		"matter_prod":       matter_prod,
+		"construction_cost": construction_cost,
+		"food_items":        food_items,
+		"paste_needed":      paste_needed,
+		"paste_produced":    paste_produced,
+		"fed_count":         fed_count,
+		"deaths":            GameState.settler_count - fed_count,
 	}
 
 ## Builds the entry list for the Energy HUD tooltip.
@@ -321,32 +388,46 @@ func _build_matter_entries(food: Dictionary) -> Array:
 		if bdef.matter_production > 0:
 			if bdef.power_draw == 0 or (_power_state != null and _power_state.is_powered(piece_id)):
 				entries.append({"name": item.display_name, "delta": bdef.matter_production})
+	var construction: int = food["construction_cost"]
+	if construction > 0:
+		entries.append({"name": "Construction", "delta": -construction})
 	var paste: int = food["paste_produced"]
 	if paste > 0:
 		entries.append({"name": "Nutrient Paste", "delta": -paste})
 	return entries
 
 func _refresh_overlays(placed: Dictionary) -> void:
-	var sources: Array = []
+	var power_sources: Array = []
+	var effect_sources: Array = []
 	for piece_id: int in placed:
 		var entry: Dictionary = placed[piece_id]
 		if not entry["active"]:
 			continue
-		if not entry["def"] is BuildingDefinition:
+		var def: PlaceableDefinition = entry["def"] as PlaceableDefinition
+		if def == null or def.shape == null:
 			continue
-		var bdef: BuildingDefinition = entry["def"] as BuildingDefinition
-		if bdef.power_range <= 0:
-			continue
-		var net_idx: int = _power_state.piece_network_idx.get(piece_id, -1)
-		var sufficient: bool = net_idx != -1 \
-			and (_power_state.networks[net_idx] as PowerSystem.Network).is_sufficient()
-		sources.append({
-			"row":       entry["row"],
-			"col":       entry["col"],
-			"range":     bdef.power_range,
-			"sufficient": sufficient,
-		})
-	farm_grid.set_power_overlay(sources)
+		# Power range overlay — buildings only.
+		if def is BuildingDefinition:
+			var bdef: BuildingDefinition = def as BuildingDefinition
+			if bdef.power_range > 0:
+				var net_idx: int = _power_state.piece_network_idx.get(piece_id, -1)
+				var sufficient: bool = net_idx != -1 \
+					and (_power_state.networks[net_idx] as PowerSystem.Network).is_sufficient()
+				power_sources.append({
+					"row":        entry["row"],
+					"col":        entry["col"],
+					"range":      bdef.power_range,
+					"sufficient": sufficient,
+				})
+		# Effect-range overlay — any piece with effect_range > 0.
+		if def.shape.effect_range > 0:
+			effect_sources.append({
+				"row":   entry["row"],
+				"col":   entry["col"],
+				"range": def.shape.effect_range,
+			})
+	farm_grid.set_power_overlay(power_sources)
+	farm_grid.set_effect_overlay(effect_sources)
 
 func _build_placed_dict() -> Dictionary:
 	var placed: Dictionary = {}
@@ -394,8 +475,9 @@ func _end_simulation() -> void:
 	var food: Dictionary    = _compute_food_state()
 	var deaths: int         = food["deaths"]
 	var paste_produced: int = food["paste_produced"]
-	# Apply matter: production first, then paste consumption.
+	# Apply matter: production first, then construction cost, then paste consumption.
 	GameState.matter += food["matter_prod"]
+	GameState.matter  = maxi(0, GameState.matter - food["construction_cost"])
 	GameState.matter  = maxi(0, GameState.matter - paste_produced)
 	# Apply deaths: starving settlers die (removed from the end of the list, matching UI order).
 	GameState.settler_count = maxi(0, GameState.settler_count - deaths)

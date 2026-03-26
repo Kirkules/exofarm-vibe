@@ -13,3 +13,6 @@ extends Resource
 ## If false, the piece cannot be picked up from the grid during planning.
 ## Buildings are fixed by default; other placeables are moveable.
 @export var moveable: bool = true
+## Matter spent when this piece transitions from UNBUILT to BUILT at season confirmation.
+## 0 = no construction cost.
+@export var matter_cost: int = 0
