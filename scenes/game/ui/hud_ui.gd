@@ -268,6 +268,7 @@ func _make_log_row(label: String, label_color: String,
 	var row: VBoxContainer = VBoxContainer.new()
 	# Label line: HBox with label text (left, expand) + timestamp (right, grey).
 	var label_hbox: HBoxContainer = HBoxContainer.new()
+	label_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var label_bbcode: String = label if label_color.is_empty() \
 			else "[color=%s]%s[/color]" % [label_color, label]
 	label_hbox.add_child(_make_log_rtlabel(label_bbcode, true))

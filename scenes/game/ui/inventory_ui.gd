@@ -55,6 +55,10 @@ func set_inventory(inv: Inventory) -> void:
 func set_grid_bottom(y: float) -> void:
 	_grid_bottom = y
 
+## Re-apply current state so PARTIAL height recalculates after _grid_bottom changes.
+func refresh_layout() -> void:
+	_apply_state()
+
 func _partial_h() -> float:
 	var available: float = get_viewport_rect().size.y - _grid_bottom - 8.0
 	return maxf(float(COLLAPSED_H) * 2.0, available)
