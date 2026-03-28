@@ -116,6 +116,13 @@ var _held_sprite_layer: CanvasLayer = null
 
 # Set by game.gd so drop detection can test whether the sprite overlaps the panel.
 var _inventory_control: Control = null
+# Set by game.gd so drop detection can test whether the sprite overlaps the kitchen panel.
+var _kitchen_panel_control: Control = null
+# When false, the held item cannot be placed on the farm grid — skip preview and placement.
+var _held_can_place_on_farm_grid: bool = true
+## When true, grid pickup and tap detection are suppressed (e.g. a merge panel is open).
+## Inventory-hold drag and held-sprite movement are still fully functional.
+var _block_grid_interaction: bool = false
 
 # Power range overlay data. Each entry: {row, col, range, sufficient}.
 # Repopulated by game.gd after every grid change via set_power_overlay().
@@ -139,6 +146,11 @@ signal piece_returned_to_grid(piece_id: int)
 signal inventory_item_pickup_confirmed(item: InventoryItem)
 ## Emitted when a non-moveable building is double-tapped (two taps within TAP_DOUBLE_WINDOW).
 signal piece_double_tapped(piece_id: int)
+## Emitted when a non-moveable building is held for PICKUP_HOLD_TIME seconds without dragging.
+signal piece_long_pressed(piece_id: int)
+## Emitted when a held piece is released with its CoM over the kitchen panel.
+## com_screen_pos is the sprite centre-of-mass in screen coordinates.
+signal piece_dropped_on_kitchen_panel(shape: PieceShape, com_screen_pos: Vector2)
 
 func _ready() -> void:
 	grid_data = GridData.new(ROWS, COLS)
@@ -185,7 +197,9 @@ func _process(delta: float) -> void:
 	if _tap_state != TapState.NONE:
 		_tap_timer += delta
 		if _tap_state == TapState.DOWN and _tap_timer >= PICKUP_HOLD_TIME:
-			_clear_tap()  # tap-hold: no-op for now
+			var long_piece_id: int = _tap_piece_id
+			_clear_tap()
+			piece_long_pressed.emit(long_piece_id)
 		elif _tap_state == TapState.WINDOW and _tap_timer >= TAP_DOUBLE_WINDOW:
 			_clear_tap()  # single-tap window expired, no action
 		elif _tap_state == TapState.LOCKED and _tap_timer >= PICKUP_HOLD_TIME:
@@ -208,7 +222,8 @@ func _draw_cells() -> void:
 			var rect: Rect2 = _cell_rect(row, col)
 			var val: int = grid_data.get_cell(row, col)
 			var color: Color
-			if Vector2i(row, col) == _hovered_cell and val == 0:
+			if Vector2i(row, col) == _hovered_cell and val == 0 \
+					and (_held_shape == null or _held_can_place_on_farm_grid):
 				color = COLOR_HOVER
 			else:
 				color = COLOR_EMPTY
@@ -272,6 +287,8 @@ func _draw_effect_overlays() -> void:
 					break
 
 func _draw_placement_preview() -> void:
+	if not _held_can_place_on_farm_grid:
+		return
 	var origin: Vector2i = _pos_to_cell(_effective_cursor_pos())
 	if origin == Vector2i(-1, -1):
 		return
@@ -324,7 +341,7 @@ func _input(event: InputEvent) -> void:
 					# begin_pending_inventory_hold set source before _input ran.
 					_pending_input      = InputSource.MOUSE
 					_pending_screen_pos = event.position
-				elif _pending_input == InputSource.NONE:
+				elif _pending_input == InputSource.NONE and not _block_grid_interaction:
 					var cell: Vector2i = _pos_to_cell(_cursor_pos)
 					var cell_val: int = grid_data.get_cell(cell.x, cell.y) if cell != Vector2i(-1, -1) else 0
 					if cell_val > 0 and _piece_moveable.get(cell_val, true):
@@ -389,7 +406,7 @@ func _input(event: InputEvent) -> void:
 				_pending_input      = InputSource.TOUCH
 				_pending_touch_idx  = event.index
 				_pending_screen_pos = event.position
-			elif _pending_input == InputSource.NONE:
+			elif _pending_input == InputSource.NONE and not _block_grid_interaction:
 				var cell: Vector2i = _pos_to_cell(_cursor_pos)
 				var cell_val: int = grid_data.get_cell(cell.x, cell.y) if cell != Vector2i(-1, -1) else 0
 				if cell_val > 0 and _piece_moveable.get(cell_val, true):
@@ -525,11 +542,12 @@ func _cancel_pending() -> void:
 
 ## Place on grid if valid; otherwise snap back to origin (grid or inventory).
 func _try_place_or_return() -> void:
-	# Use the sprite's center of mass to decide inventory vs grid. This correctly
-	# handles drag offset: the cursor may be over the inventory while the sprite
-	# (and the highlighted grid cell) are above it, or vice versa.
-	var com_over_inv: bool = _sprite_com_over_inventory()
-	if not com_over_inv:
+	# Use the sprite's center of mass to decide kitchen panel, inventory, or grid.
+	# This correctly handles drag offset: the cursor may be over a target while the
+	# sprite (and the highlighted grid cell) are above it, or vice versa.
+	var com_over_inv: bool     = _sprite_com_over_inventory()
+	var com_over_kitchen: bool = _sprite_com_over_kitchen_panel()
+	if not com_over_inv and not com_over_kitchen and _held_can_place_on_farm_grid:
 		var cell: Vector2i = _pos_to_cell(_effective_cursor_pos())
 		if cell != Vector2i(-1, -1):
 			var shape_to_place: PieceShape = _held_shape
@@ -545,8 +563,18 @@ func _try_place_or_return() -> void:
 				emit_signal("piece_placed_on_grid", piece_id)
 				queue_redraw()
 				return
-	# CoM over inventory, or no valid grid placement — send to inventory or snap back.
-	if com_over_inv or _held_origin == HeldOrigin.INVENTORY:
+	# CoM over kitchen panel, inventory, or no valid grid placement.
+	if com_over_kitchen:
+		var shape: PieceShape = _held_shape
+		var com_pos: Vector2  = _held_sprite_com()
+		_held_shape = null
+		_held_sprite.visible = false
+		_held_label.visible  = false
+		_held_label_hint     = ""
+		_clear_held_origin()
+		emit_signal("piece_dropped_on_kitchen_panel", shape, com_pos)
+		queue_redraw()
+	elif com_over_inv or _held_origin == HeldOrigin.INVENTORY:
 		var shape: PieceShape = _held_shape
 		_held_shape = null
 		_held_sprite.visible = false
@@ -584,23 +612,35 @@ func _clear_held_origin() -> void:
 	_held_origin_cell  = Vector2i(-1, -1)
 	_held_origin_shape = null
 
-## Returns true if the sprite's center of mass is over the inventory panel.
-## Each cell's screen center = effective_cursor_screen_pos + (offset + 0.5) * CELL_SIZE,
-## so the CoM = effective_cursor_screen_pos + (avg_offset + 0.5) * CELL_SIZE.
-func _sprite_com_over_inventory() -> bool:
-	if _inventory_control == null or _held_shape == null:
-		return false
-	var n: int        = _held_shape.offsets.size()
+## Screen-space centre of mass of the currently held sprite.
+## Each cell's screen centre = effective_cursor_screen_pos + (offset + 0.5) * CELL_SIZE,
+## so CoM = effective_cursor_screen_pos + (avg_offset + 0.5) * CELL_SIZE.
+## Returns Vector2.ZERO if no shape is held.
+func _held_sprite_com() -> Vector2:
+	if _held_shape == null:
+		return Vector2.ZERO
+	var n: int         = _held_shape.offsets.size()
 	var sum_col: float = 0.0
 	var sum_row: float = 0.0
 	for offset: Vector2i in _held_shape.offsets:
 		sum_col += float(offset.y)
 		sum_row += float(offset.x)
-	var com: Vector2 = _effective_cursor_screen_pos() + Vector2(
+	return _effective_cursor_screen_pos() + Vector2(
 		(sum_col / float(n) + 0.5) * CELL_SIZE,
 		(sum_row / float(n) + 0.5) * CELL_SIZE
 	)
-	return _inventory_control.get_global_rect().has_point(com)
+
+## Returns true if the sprite's centre of mass is over the inventory panel.
+func _sprite_com_over_inventory() -> bool:
+	if _inventory_control == null or _held_shape == null:
+		return false
+	return _inventory_control.get_global_rect().has_point(_held_sprite_com())
+
+## Returns true if the sprite's CoM is over the kitchen panel (only when visible).
+func _sprite_com_over_kitchen_panel() -> bool:
+	if _kitchen_panel_control == null or _held_shape == null or not _kitchen_panel_control.visible:
+		return false
+	return _kitchen_panel_control.get_global_rect().has_point(_held_sprite_com())
 
 # ---------------------------------------------------------------------------
 # Public API
@@ -608,6 +648,7 @@ func _sprite_com_over_inventory() -> bool:
 
 ## Begin holding a piece (programmatic — skips threshold). Treats origin as inventory.
 func hold_piece(shape: PieceShape, hint: String = "") -> void:
+	_held_can_place_on_farm_grid = true
 	_held_shape      = shape
 	_held_origin     = HeldOrigin.INVENTORY
 	_held_label_hint = hint
@@ -713,6 +754,11 @@ func set_piece_active_visual(piece_id: int, active: bool) -> void:
 func set_inventory_control(c: Control) -> void:
 	_inventory_control = c
 
+## Provide the kitchen panel Control so drop detection can test sprite overlap.
+## Only returns true when the control is visible (panel open).
+func set_kitchen_panel_control(c: Control) -> void:
+	_kitchen_panel_control = c
+
 ## Update the power range overlay. Each entry: {row, col, range, sufficient}.
 ## Pass an empty array to clear all overlays.
 func set_power_overlay(sources: Array) -> void:
@@ -725,11 +771,29 @@ func set_effect_overlay(sources: Array) -> void:
 	_effect_sources = sources
 	queue_redraw()
 
+## Set whether the currently held piece can be placed on the farm grid.
+## When false, the placement preview is hidden and grid drops are skipped.
+## Reset to true before or during the next pickup confirmation.
+func set_held_can_place_on_farm_grid(can_place: bool) -> void:
+	_held_can_place_on_farm_grid = can_place
+	queue_redraw()
+
 ## Set the power range of the currently held piece for preview rendering.
 ## Call with 0 when the piece is placed, returned, or cancelled.
 func set_held_power_range(power_range: int) -> void:
 	_held_power_range = power_range
 	queue_redraw()
+
+## Block or unblock grid pickup and tap-start interactions.
+## Use when an overlay (e.g. KitchenPanel) is open so touches on it don't
+## accidentally pick up grid pieces underneath.  Inventory-hold drag is NOT
+## affected.  Clears any pending grid pickup when set to true.
+func set_block_grid_interaction(block: bool) -> void:
+	_block_grid_interaction = block
+	if block and _pending_source == PendingSource.GRID:
+		_cancel_pending()
+	if block:
+		_clear_tap()
 
 ## Returns pixel size of the full grid.
 func get_grid_pixel_size() -> Vector2:
