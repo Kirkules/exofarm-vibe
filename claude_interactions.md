@@ -1757,3 +1757,87 @@ justified in grey on the label line. All `_sim_log.append` calls replaced with `
 
 **Claude:** Added `hud_ui.refresh_log([])` in `_begin_simulation()` alongside `_sim_log.clear()`,
 so the log panel is empty during planning until the next season simulation completes.
+
+---
+
+## Session 2026-03-26 (continued) / 2026-03-27 — Cafeteria + KitchenPanel overlay
+
+**User:** Let's make Wheat, Tomato and Eggplant placeable in the cafeteria's merge grid using
+PlaceableDefinition.GridType.KITCHEN_GRID. Also, let's add a title label to the Cafeteria's
+merge grid that just says 'Kitchen'.
+
+**Claude:** Added `GridType` enum (`FARM_GRID`, `KITCHEN_GRID`) to `PlaceableDefinition`; added
+`allowed_grids: Array[int]` field. Wheat/Tomato/Eggplant definitions updated with
+`allowed_grids = [GridType.KITCHEN_GRID]`. Added `CafeteriaDefinition` resource
+(`merge_slots: int`). Added `KitchenPanel` scene script: horizontal slot row, `add_item()`/
+`remove_item()`/`set_capacity()`, `item_held`/`item_tapped` signals. `game.gd`: panel
+positioned as overlay at bottom of farm grid; `_sync_kitchen_panel()` updates capacity from
+placed cafeterias; `_on_item_requested` routes KITCHEN_GRID items to panel instead of
+`begin_pending_inventory_hold`. Changed "Merge:" label to "Kitchen".
+
+**User:** Long-pressing the cafeteria does open the kitchen panel overlay, but releasing the
+long-press hides it immediately. Let's change the 'close when clicking outside' logic to require
+a new click after the long-click.
+
+**Claude:** Changed `_unhandled_input` to only close the panel when `event.pressed == true`
+(new press events only), so releasing the long-press that opened it has no effect. Added
+`signal piece_long_pressed(piece_id: int)` to `farm_grid.gd`; emitted after 0.5s hold on
+a non-moveable piece. `_open_kitchen_panel()` and `_close_kitchen_panel()` just toggle
+`_kitchen_panel.visible` without changing `planning_active`.
+
+**User:** Let's change the kitchen panel merge grid interaction with Wheat/Tomato/Eggplant to
+be dragging to/from the inventory, just like buildings were done.
+
+**Claude:** Removed tap-to-kitchen routing from `_on_item_requested`. Added
+`_on_kitchen_item_held(item)`: sets `_held_from_kitchen = true`, calls
+`begin_pending_inventory_hold`. Added `_on_piece_dropped_on_kitchen_panel`: routes
+KITCHEN_GRID items to panel on drop. In `_on_inventory_item_pickup_confirmed`: if
+`_held_from_kitchen`, remove from kitchen panel instead of inventory. Changed
+`KitchenPanel` slot `btn.button_down` to emit `item_held` (not `pressed`/`item_tapped`).
+
+**User:** A dragged KITCHEN_GRID item should use the sprite location for deciding which slot
+it is placed into. Also, while KITCHEN_GRID items cannot be placed in the farm grid, we are
+still showing a highlighted square in the farm grid when the sprite is dragged over it.
+
+**Claude:** Added `_held_can_place_on_farm_grid: bool` flag to `farm_grid.gd`; set false in
+`_on_inventory_item_pickup_confirmed` when `FARM_GRID` not in `allowed_grids`. Added
+`_sprite_com_over_kitchen_panel()` using sprite CoM formula (same as `_sprite_com_over_inventory`).
+`_try_place_or_return()` checks CoM over kitchen before attempting grid placement; emits
+`piece_dropped_on_kitchen_panel`. `_draw_placement_preview()` returns early when
+`not _held_can_place_on_farm_grid`. Farm grid hover highlight suppressed when holding
+a non-grid item.
+
+**User:** Add to CLAUDE.md as a project design decision that the visual location of the CoM
+of a dragged sprite should be used as its location for practical purposes.
+
+**Claude:** Added "Sprite CoM as Authoritative Position" section to CLAUDE.md Design Choices.
+
+**User:** When the kitchen grid (or any other merge UI) is visible, there should be no
+interactions possible at all with the farm grid other than seeing the parts that aren't
+covered up.
+
+**Claude:** Added `_block_grid_interaction: bool` to `farm_grid.gd`. Both
+`elif _pending_input == InputSource.NONE` branches (mouse and touch) in `_input()` guard
+with `and not _block_grid_interaction`. Added `set_block_grid_interaction(block)` public
+method — cancels any in-flight grid pending and clears tap state when set true.
+`_open_kitchen_panel()` calls `set_block_grid_interaction(true)`;
+`_close_kitchen_panel()` calls `set_block_grid_interaction(false)`.
+
+---
+
+## Session 2026-03-28 — 3×4 kitchen grid, free slot placement
+
+**User:** The player should be able to place a piece in any location in the kitchen merge
+grid, not just the next-leftmost-open one. Also, the grid should be 3×4 slots.
+
+**Claude:** Rewrote `KitchenPanel`: added `COLS=3`, `ROWS=4` constants; `PANEL_H` auto-
+computed (~216px); `_items` changed to sparse fixed-size array (null = empty). Layout
+changed from `HBoxContainer` to `GridContainer(columns=COLS)`. Added `add_item_at(item,
+slot_idx)` and `find_nearest_empty_slot(global_pos)` (returns closest empty slot to
+screen pos). Inactive slots (beyond capacity) rendered dimmed/disabled. Updated
+`piece_dropped_on_kitchen_panel` signal to carry `com_screen_pos: Vector2`. Extracted
+`_held_sprite_com() -> Vector2` helper shared by `_sprite_com_over_inventory` and
+`_sprite_com_over_kitchen_panel`. `_on_piece_dropped_on_kitchen_panel` calls
+`find_nearest_empty_slot(com_screen_pos)` + `add_item_at`. Cafeteria
+`merge_slots = KitchenPanel.COLS * KitchenPanel.ROWS` (12). `_slot_center_global`
+uses `_grid_container.global_position` (not local position) for correct screen mapping.
