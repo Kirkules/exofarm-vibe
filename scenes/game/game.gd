@@ -79,7 +79,7 @@ func _ready() -> void:
 	inventory_ui.item_requested.connect(_on_item_requested)
 	farm_grid.piece_picked_up_from_grid.connect(_on_piece_picked_up_from_grid)
 	farm_grid.piece_placed_on_grid.connect(_on_piece_placed_on_grid)
-	farm_grid.piece_hold_cancelled.connect(_on_piece_hold_cancelled)
+	farm_grid.piece_released.connect(_on_piece_released)
 	farm_grid.piece_returned_to_grid.connect(_on_piece_returned_to_grid)
 	farm_grid.inventory_item_pickup_confirmed.connect(_on_inventory_item_pickup_confirmed)
 	hud_ui.next_season_pressed.connect(_on_next_season_pressed)
@@ -136,9 +136,7 @@ func _ready() -> void:
 	_kitchen_panel.item_tapped.connect(_on_kitchen_item_tapped)
 	_kitchen_panel.item_held.connect(_on_kitchen_item_held)
 	_ui_layer.add_child(_kitchen_panel)
-	farm_grid.set_kitchen_panel_control(_kitchen_panel)
 	farm_grid.piece_long_pressed.connect(_on_piece_long_pressed)
-	farm_grid.piece_dropped_on_kitchen_panel.connect(_on_piece_dropped_on_kitchen_panel)
 
 	# Build menu — shown below the grid when the inventory is collapsed.
 	var viewport_h: float = get_viewport().get_visible_rect().size.y
@@ -149,6 +147,8 @@ func _ready() -> void:
 	_ui_layer.add_child(_build_menu)  # _ready() fires here, initialising _item_list
 	_build_menu.set_definitions(_buildable_definitions())
 	inventory_ui.state_changed.connect(_on_inventory_state_changed)
+	# Ensure inventory_ui renders on top of all programmatically-added UILayer children.
+	_ui_layer.move_child(inventory_ui, _ui_layer.get_child_count() - 1)
 
 	# Pre-place starting buildings directly on the grid (as BUILT).
 	_place_starting_buildings()
@@ -310,7 +310,7 @@ func _on_inventory_item_pickup_confirmed(item: InventoryItem) -> void:
 	_pending_menu_item = null
 	var def: PlaceableDefinition = item.data as PlaceableDefinition
 	var can_place_on_grid: bool = def == null or PlaceableDefinition.GridType.FARM_GRID in def.allowed_grids
-	farm_grid.set_held_can_place_on_farm_grid(can_place_on_grid)
+	farm_grid.set_held_can_place(can_place_on_grid)
 	var pr: int = (def as BuildingDefinition).power_range if def is BuildingDefinition else 0
 	farm_grid.set_held_power_range(pr)
 
@@ -326,6 +326,8 @@ func _on_piece_picked_up_from_grid(piece_id: int, _shape: PieceShape) -> void:
 		var def: PlaceableDefinition = _held_item.data as PlaceableDefinition
 		var pr: int = (def as BuildingDefinition).power_range if def is BuildingDefinition else 0
 		farm_grid.set_held_power_range(pr)
+	# UNBUILT pieces dropped off-grid should be discarded, not snapped back.
+	farm_grid.set_held_discardable(_held_build_state == BuildState.UNBUILT)
 	_recompute_power()
 	_sync_kitchen_panel()
 
@@ -352,13 +354,32 @@ func _on_piece_placed_on_grid(piece_id: int) -> void:
 	_recompute_power()
 	_sync_kitchen_panel()
 
-func _on_piece_hold_cancelled(_shape: PieceShape) -> void:
-	# UNBUILT pieces (from build menu or picked up off grid) are discarded on drop.
-	if _held_build_state != BuildState.UNBUILT and _held_item:
-		_inventory.add(_held_item)
-	_held_item = null
+## Called when a held INVENTORY-origin piece is released without landing on this grid.
+## Routes KITCHEN_GRID items to the kitchen panel if CoM is over it; all others go to
+## inventory unless the piece was UNBUILT (from build menu), in which case it is discarded.
+func _on_piece_released(com_screen_pos: Vector2) -> void:
+	var item: InventoryItem     = _held_item
+	var build_state: BuildState = _held_build_state
+	_held_item        = null
 	_held_build_state = BuildState.BUILT
 	farm_grid.set_held_power_range(0)
+	if item == null:
+		return
+	var def: PlaceableDefinition = item.data as PlaceableDefinition
+	# Route KITCHEN_GRID-only items to kitchen panel if CoM is over it.
+	if def != null \
+			and PlaceableDefinition.GridType.KITCHEN_GRID in def.allowed_grids \
+			and not (PlaceableDefinition.GridType.FARM_GRID in def.allowed_grids) \
+			and _kitchen_panel.visible \
+			and _kitchen_panel.get_global_rect().has_point(com_screen_pos):
+		var slot_idx: int = _kitchen_panel.find_nearest_empty_slot(com_screen_pos)
+		if slot_idx != -1:
+			_kitchen_panel.add_item_at(item, slot_idx)
+			return
+	# UNBUILT pieces (from build menu) are discarded when dropped off-grid.
+	if build_state == BuildState.UNBUILT:
+		return
+	_inventory.add(item)
 
 func _on_piece_returned_to_grid(piece_id: int) -> void:
 	if _held_item:
@@ -396,25 +417,6 @@ func _on_kitchen_item_held(item: InventoryItem) -> void:
 	_held_from_kitchen = true
 	farm_grid.begin_pending_inventory_hold(item)
 
-## Called when a held piece is released with its CoM over the kitchen panel.
-## Routes KITCHEN_GRID items into the nearest empty slot; all others fall back to inventory.
-func _on_piece_dropped_on_kitchen_panel(_shape: PieceShape, com_screen_pos: Vector2) -> void:
-	var item: InventoryItem = _held_item
-	_held_item = null
-	_held_build_state = BuildState.BUILT
-	farm_grid.set_held_power_range(0)
-	if item == null:
-		return
-	var def: PlaceableDefinition = item.data as PlaceableDefinition
-	if def != null \
-			and PlaceableDefinition.GridType.KITCHEN_GRID in def.allowed_grids \
-			and not (PlaceableDefinition.GridType.FARM_GRID in def.allowed_grids) \
-			and _kitchen_panel.visible:
-		var slot_idx: int = _kitchen_panel.find_nearest_empty_slot(com_screen_pos)
-		if slot_idx != -1:
-			_kitchen_panel.add_item_at(item, slot_idx)
-			return
-	_inventory.add(item)
 
 ## Update kitchen panel capacity based on placed Cafeteria buildings.
 ## Closes the panel if all cafeterias are removed.
@@ -431,12 +433,12 @@ func _sync_kitchen_panel() -> void:
 ## Open the kitchen merge panel as an overlay on the farm grid.
 func _open_kitchen_panel() -> void:
 	_kitchen_panel.visible = true
-	farm_grid.set_block_grid_interaction(true)
+	farm_grid.set_interaction_blocked(true)
 
 ## Close the kitchen merge panel.
 func _close_kitchen_panel() -> void:
 	_kitchen_panel.visible = false
-	farm_grid.set_block_grid_interaction(false)
+	farm_grid.set_interaction_blocked(false)
 
 ## Called when a non-moveable building is long-pressed; opens kitchen panel for cafeterias.
 func _on_piece_long_pressed(piece_id: int) -> void:
@@ -713,7 +715,7 @@ func _begin_simulation() -> void:
 			"tend_count":         0,
 			"settler_dispatched": false,
 		})
-	farm_grid.set_planning_active(false)
+	farm_grid.set_planning_locked(true)
 	hud_ui.set_simulation_active(true)
 	_sim_progress_bar.value  = 0.0
 	_sim_progress_label.text = "0.0 s"
@@ -781,7 +783,7 @@ func _end_simulation() -> void:
 	_phase = Phase.PLANNING
 	_sim_progress_container.visible = false
 	_sim_live_log_box.visible = false
-	farm_grid.set_planning_active(true)
+	farm_grid.set_planning_locked(false)
 	hud_ui.set_simulation_active(false)
 	_recompute_power()
 	if GameState.settler_count == 0:
