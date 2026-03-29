@@ -45,7 +45,11 @@ Recently completed:
   if cafeteria powered; `piece_dropped_on_kitchen_panel` signal carries CoM screen pos
   so items land in the nearest empty slot, not just the first one
 
-Next up (Phase 2):
+Next up:
+- [ ] **Grid refactor** — extract `GameGrid` base class from `farm_grid.gd`; replace
+  `KitchenPanel` (Control) with `KitchenGrid` (GameGrid subclass); signal-driven locking
+  via EventBus; runtime-configurable grid dimensions; inactive cells in GridData.
+  Full design in `GRID_REFACTOR_PLAN.md`.
 - [ ] Playback speed controls (1×, 2×, 3×, 5×)
 - [ ] Morale calculation and bar UI
 - [ ] Meal item crafting and consumption

@@ -1841,3 +1841,37 @@ screen pos). Inactive slots (beyond capacity) rendered dimmed/disabled. Updated
 `find_nearest_empty_slot(com_screen_pos)` + `add_item_at`. Cafeteria
 `merge_slots = KitchenPanel.COLS * KitchenPanel.ROWS` (12). `_slot_center_global`
 uses `_grid_container.global_position` (not local position) for correct screen mapping.
+
+---
+
+## Session 2026-03-29 — Grid refactor design
+
+**User:** Consider doing a broad refactor so all grid-based UI elements (farm grid,
+kitchen grid, future merge grids) derive from the same base class, with interaction code
+modularly togglable via signals.
+
+**Claude:** Wrote `GRID_REFACTOR_PLAN.md`. Initial analysis noted farm_grid (Node2D,
+custom draw, polyomino state machine) and KitchenPanel (Control, Buttons) are
+architecturally incompatible for full unification. Recommended partial options: MergeGrid
+base (deferred), DragSession cleanup in game.gd (near-term), signal-driven toggles.
+
+**User:** No, the intent is for all grids to use polyominos. The kitchen grid and future
+merge grids should use the same drag model as the farm grid. Signal-driven toggles are
+definitely wanted.
+
+**Claude:** Rewrote plan. Proposed `GameGrid` base class (extends Node2D) owning the
+entire input state machine, rendering pipeline, and drop detection from farm_grid.
+`FarmGrid` extends GameGrid, adds power/effect overlays. `KitchenGrid` replaces
+KitchenPanel entirely (Node2D, extends GameGrid, 3×4, 1×1 polyomino items). EventBus
+signals `simulation_started/ended` and `merge_grid_opened/closed` replace all imperative
+locking calls from game.gd. Uniform signal set across all grids; `piece_released(item,
+com_screen_pos)` replaces grid-specific drop signals. game.gd routes drops via CoM
+screen-rect checks against all registered targets.
+
+**User (open questions):**
+1. CoM screen space for all drop detection, including inventory. ✅
+2. game.gd opens/closes temporary grids and emits EventBus signals; grids self-lock. ✅
+3. Inactive cells first-class in GridData (_inactive bool layer). Grid dimensions
+   runtime-configurable via setup(rows, cols, cell_size) — capacity expressed as active
+   cell count, not a separate variable. ✅
+4. game.gd tracks _drag_source_grid: GameGrid, set at pickup time. ✅
