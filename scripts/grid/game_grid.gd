@@ -168,6 +168,8 @@ signal piece_released(com_screen_pos: Vector2)
 
 func _ready() -> void:
 	grid_data = GridData.new(rows, cols)
+	EventBus.simulation_started.connect(func() -> void: set_planning_locked(true))
+	EventBus.simulation_ended.connect(func() -> void: set_planning_locked(false))
 
 	_held_sprite_layer = CanvasLayer.new()
 	_held_sprite_layer.layer = 100

@@ -8,6 +8,8 @@ signal piece_picked_up(piece_id: int)
 # Season events
 signal season_confirmed()
 signal simulation_complete()
+signal simulation_started()
+signal simulation_ended()
 
 # State events
 signal morale_changed(new_value: int)

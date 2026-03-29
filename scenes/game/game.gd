@@ -715,7 +715,7 @@ func _begin_simulation() -> void:
 			"tend_count":         0,
 			"settler_dispatched": false,
 		})
-	farm_grid.set_planning_locked(true)
+	EventBus.simulation_started.emit()
 	hud_ui.set_simulation_active(true)
 	_sim_progress_bar.value  = 0.0
 	_sim_progress_label.text = "0.0 s"
@@ -783,7 +783,7 @@ func _end_simulation() -> void:
 	_phase = Phase.PLANNING
 	_sim_progress_container.visible = false
 	_sim_live_log_box.visible = false
-	farm_grid.set_planning_locked(false)
+	EventBus.simulation_ended.emit()
 	hud_ui.set_simulation_active(false)
 	_recompute_power()
 	if GameState.settler_count == 0:
