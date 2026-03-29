@@ -57,10 +57,40 @@ Owns everything that is grid-type-agnostic:
   `game.gd` routes to the correct target
 
 **Locking / blocking**
-- `planning_locked: bool` — blocks all input when true (replaces `planning_active`)
-- `interaction_blocked: bool` — blocks grid-pickup/tap only; inventory-hold drag still works
-  (replaces `_block_grid_interaction`)
-- Both toggled via EventBus signals (see below)
+
+Three levels, from most to least restrictive:
+
+- `grid_active: bool` — top-level toggle. When `false`, the grid is fully dormant:
+  no input is processed, and no visual feedback is produced (no hover highlights, no
+  drag preview, no placement overlay, no cell colour changes). Cells render in a neutral
+  dormant style. `game.gd` also checks this flag before routing any
+  `begin_pending_inventory_hold` call to the grid, so inventory drags cannot be
+  initiated toward an inactive grid. Only the logically-active grid(s) appear to respond
+  to the user at any moment.
+
+- `planning_locked: bool` — grid is visible and renders normally, but all input is
+  blocked (e.g. during simulation). Replaces `planning_active`.
+
+- `interaction_blocked: bool` — grid-pickup and tap-start are blocked, but an
+  in-flight inventory-hold drag can still be claimed. Used when another grid opens
+  as an overlay and the underlying grid should visually dim but still receive drops
+  from the active drag. Replaces `_block_grid_interaction`.
+
+  ⚠️ **Likely redundant.** In the refactored model each grid owns its drag engine,
+  and `grid_active = false` already handles the overlay case completely (no input,
+  no visuals, and game.gd won't route new drags to an inactive grid). Migration
+  step 2 should attempt to implement the overlay scenario with only `grid_active`
+  and verify interaction works correctly before introducing `interaction_blocked`.
+  Keeping complexity minimal is a primary goal of this refactor.
+
+All three are toggled via EventBus signals (see below). Typical state combinations:
+
+| Situation | grid_active | planning_locked | interaction_blocked |
+|-----------|-------------|-----------------|---------------------|
+| Normal planning | true | false | false |
+| Simulation running | true | true | false |
+| Another grid open (overlay) | false | — | — |
+| Grid hidden / off-screen | false | — | — |
 
 **Virtual / overridable hooks**
 - `_can_accept_item(item: InventoryItem) -> bool` — subclass filters by GridType
@@ -140,8 +170,15 @@ This is a significant refactor. Recommended order to minimize breakage:
    FarmGrid adds overlays and farm signals. Game should work identically after this step.
    This is the riskiest step; do it first as a standalone commit with thorough testing.
 
-2. **Add EventBus signals + self-locking** — add simulation_started/ended to EventBus;
-   GameGrid subscribes; remove imperative locking from game.gd.
+2. **Add EventBus signals + self-locking** — add simulation_started/ended and
+   merge_grid_opened/closed to EventBus; GameGrid subscribes and self-manages
+   `grid_active` and `planning_locked`. Remove all imperative locking calls from
+   game.gd. **Attempt to implement the overlay case using only `grid_active`,
+   without `interaction_blocked`.** Verify: (a) farm grid shows no visual feedback
+   while kitchen grid is open, (b) inventory drags route correctly to the active
+   grid only, (c) no interaction bleeds through to the dormant grid. If all three
+   hold, remove `interaction_blocked` entirely. Only add it back if a concrete
+   scenario requires it.
 
 3. **Build KitchenGrid as GameGrid subclass** — replace KitchenPanel (Control) with
    KitchenGrid (Node2D, extends GameGrid). Wire it up as a second grid instance in game.gd.
