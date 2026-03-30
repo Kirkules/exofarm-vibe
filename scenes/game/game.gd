@@ -27,6 +27,8 @@ var _sim_progress_bar:       ProgressBar
 var _sim_progress_label:     Label
 ## Elapsed seconds in the current simulation; reset at start of each season.
 var _sim_elapsed: float = 0.0
+## Speed multiplier applied to simulation delta. Set > 1 by _skip_simulation().
+var _sim_speed_scale: float = 1.0
 var _build_menu: BuildMenu
 
 enum Phase { PLANNING, SIMULATION }
@@ -783,6 +785,9 @@ func _build_placed_dict() -> Dictionary:
 	return placed
 
 func _on_next_season_pressed() -> void:
+	if _phase == Phase.SIMULATION:
+		_skip_simulation()
+		return
 	var food: Dictionary = _compute_food_state()
 	if food["deaths"] > 0:
 		_confirm_dialog.dialog_text = \
@@ -792,10 +797,20 @@ func _on_next_season_pressed() -> void:
 	else:
 		_begin_simulation()
 
+## Compress remaining simulation time into 0.5 s for fast-forward during playtesting.
+func _skip_simulation() -> void:
+	var remaining: float = _sim_timer.time_left
+	if remaining <= 0.5:
+		return
+	_sim_speed_scale = remaining / 0.5
+	_sim_timer.stop()
+	_sim_timer.start(0.5)
+
 ## Lock in the grid and start the simulation phase.
 func _begin_simulation() -> void:
 	_close_kitchen_grid()
 	_sim_elapsed = 0.0
+	_sim_speed_scale = 1.0
 	_sim_log.clear()
 	hud_ui.refresh_log([])
 	for child: Node in _sim_live_log_box.get_children():
@@ -923,11 +938,12 @@ func _end_simulation() -> void:
 func _process(delta: float) -> void:
 	if _phase != Phase.SIMULATION:
 		return
-	_sim_elapsed += delta
+	var scaled: float = delta * _sim_speed_scale
+	_sim_elapsed += scaled
 	_sim_progress_bar.value  = _sim_elapsed
 	_sim_progress_label.text = "%.1f s" % _sim_elapsed
-	_tick_greenhouses(delta)
-	_tick_settlers(delta)
+	_tick_greenhouses(scaled)
+	_tick_settlers(scaled)
 
 ## Advance greenhouse tend countdowns; dispatch a settler when a greenhouse needs tending.
 func _tick_greenhouses(delta: float) -> void:

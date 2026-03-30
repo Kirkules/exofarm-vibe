@@ -189,9 +189,10 @@ func _apply_safe_area() -> void:
 # Public
 # ---------------------------------------------------------------------------
 
-## Hide the Next Season button during simulation; restore it on return to planning.
+## Swap the Next Season button to "Skip simulation" during simulation.
 func set_simulation_active(v: bool) -> void:
-	_next_btn.visible = not v
+	if v:
+		_next_btn.text = "Skip simulation"
 	if v:
 		_energy_tooltip.visible  = false
 		_matter_tooltip.visible  = false
