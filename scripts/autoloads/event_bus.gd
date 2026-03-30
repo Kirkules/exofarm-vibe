@@ -10,6 +10,8 @@ signal season_confirmed()
 signal simulation_complete()
 signal simulation_started()
 signal simulation_ended()
+signal merge_grid_opened(grid: GameGrid)
+signal merge_grid_closed()
 
 # State events
 signal morale_changed(new_value: int)

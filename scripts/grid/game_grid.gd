@@ -170,6 +170,11 @@ func _ready() -> void:
 	grid_data = GridData.new(rows, cols)
 	EventBus.simulation_started.connect(func() -> void: set_planning_locked(true))
 	EventBus.simulation_ended.connect(func() -> void: set_planning_locked(false))
+	EventBus.merge_grid_opened.connect(func(grid: GameGrid) -> void:
+		if grid != self:
+			set_grid_active(false)
+	)
+	EventBus.merge_grid_closed.connect(_on_merge_grid_closed)
 
 	_held_sprite_layer = CanvasLayer.new()
 	_held_sprite_layer.layer = 100
@@ -236,6 +241,12 @@ func _draw_grid_overlays() -> void:
 	pass
 
 
+## Override in subclasses to block placement on specific cells (e.g. inactive slots).
+## Called before attempting grid_data.place_piece; return false to reject.
+func _can_place_at_cell(_cell: Vector2i) -> bool:
+	return true
+
+
 func _draw_cells() -> void:
 	for row: int in range(1, rows + 1):
 		for col: int in range(1, cols + 1):
@@ -258,7 +269,8 @@ func _draw_placement_preview() -> void:
 	var origin: Vector2i = _pos_to_cell(_effective_cursor_pos())
 	if origin == Vector2i(-1, -1):
 		return
-	var valid: bool  = grid_data.can_place(_held_shape, origin.x, origin.y)
+	var valid: bool  = grid_data.can_place(_held_shape, origin.x, origin.y) \
+		and _can_place_at_cell(origin)
 	var color: Color = color_valid if valid else color_invalid
 	for offset: Vector2i in _held_shape.offsets:
 		var r: int = origin.x + offset.x
@@ -507,7 +519,7 @@ func _cancel_pending() -> void:
 func _try_place_or_return() -> void:
 	if _held_can_place:
 		var cell: Vector2i = _pos_to_cell(_effective_cursor_pos())
-		if cell != Vector2i(-1, -1):
+		if cell != Vector2i(-1, -1) and _can_place_at_cell(cell):
 			var shape_to_place: PieceShape = _held_shape
 			var piece_id: int = grid_data.place_piece(shape_to_place, cell.x, cell.y)
 			if piece_id != -1:
@@ -523,11 +535,15 @@ func _try_place_or_return() -> void:
 				return
 
 	# Didn't place on this grid.
-	if _held_origin == HeldOrigin.GRID and not _held_discardable:
+	# GRID-origin pieces snap back unless: (a) they're discardable, or (b) the CoM
+	# is over the inventory panel (player is explicitly returning the item to inventory).
+	if _held_origin == HeldOrigin.GRID and not _held_discardable \
+			and not _sprite_com_over_inventory():
 		# Snap back to the cell it came from.
 		_return_held_to_grid()
 	else:
-		# INVENTORY origin, or discardable GRID origin — emit for game.gd to route.
+		# INVENTORY origin, discardable GRID origin, or GRID origin over inventory
+		# — emit for game.gd to route.
 		var com: Vector2 = _held_sprite_com()
 		_held_shape = null
 		_held_sprite.visible = false
@@ -731,6 +747,11 @@ func set_grid_active(active: bool) -> void:
 		_cancel_pending()
 		_clear_tap()
 	queue_redraw()
+
+
+## Called when EventBus.merge_grid_closed fires. Override to suppress restore (e.g. KitchenGrid).
+func _on_merge_grid_closed() -> void:
+	set_grid_active(true)
 
 
 ## Block or unblock input for simulation.

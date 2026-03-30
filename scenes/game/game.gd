@@ -66,10 +66,12 @@ var _settler_agents: Array[Dictionary] = []
 var _sim_live_log_box: VBoxContainer
 ## Maximum entries shown in the live log overlay at once.
 const LIVE_LOG_MAX_ENTRIES := 6
-## Kitchen/merge-space panel; shown as an overlay on the farm grid when a Cafeteria is long-pressed.
-var _kitchen_panel: KitchenPanel
-## True when the item currently held by farm_grid came from the kitchen panel (not inventory).
-var _held_from_kitchen: bool = false
+## Maps cafeteria piece_id -> KitchenGrid; one grid per placed BUILT cafeteria.
+var _kitchen_grids: Dictionary = {}
+## Maps cafeteria piece_id -> {kitchen_piece_id -> InventoryItem}.
+var _kitchen_placed_items: Dictionary = {}
+## piece_id of the cafeteria whose kitchen grid is currently open (-1 = none).
+var _active_cafeteria_id: int = -1
 
 func _ready() -> void:
 	_inventory = Inventory.new(10)
@@ -127,15 +129,6 @@ func _ready() -> void:
 	_sim_live_log_box.visible       = false
 	_ui_layer.add_child(_sim_live_log_box)
 
-	# Kitchen panel — overlay on the farm grid; opened by long-pressing a Cafeteria.
-	_kitchen_panel = KitchenPanel.new()
-	_kitchen_panel.position = Vector2(0.0, farm_grid.global_position.y \
-		+ farm_grid.get_grid_pixel_size().y - KitchenPanel.PANEL_H)
-	_kitchen_panel.size     = Vector2(270.0, KitchenPanel.PANEL_H)
-	_kitchen_panel.visible  = false
-	_kitchen_panel.item_tapped.connect(_on_kitchen_item_tapped)
-	_kitchen_panel.item_held.connect(_on_kitchen_item_held)
-	_ui_layer.add_child(_kitchen_panel)
 	farm_grid.piece_long_pressed.connect(_on_piece_long_pressed)
 
 	# Build menu — shown below the grid when the inventory is collapsed.
@@ -259,7 +252,7 @@ func _buildable_definitions() -> Array[PlaceableDefinition]:
 	cafeteria_def.moveable     = false
 	cafeteria_def.matter_cost  = 2
 	cafeteria_def.power_draw   = 1
-	cafeteria_def.merge_slots  = KitchenPanel.COLS * KitchenPanel.ROWS
+	cafeteria_def.merge_slots  = KitchenGrid.KITCHEN_COLS * KitchenGrid.KITCHEN_ROWS
 	result.append(cafeteria_def)
 
 	return result
@@ -268,22 +261,28 @@ func _on_building_requested(def: PlaceableDefinition) -> void:
 	if farm_grid.has_held_piece or farm_grid.has_pending_pickup:
 		return
 	_pending_menu_item = InventoryItem.new(def.display_name, 1, def)
-	_held_from_kitchen = false
 	farm_grid.begin_pending_inventory_hold(_pending_menu_item)
 
 func _on_inventory_state_changed(collapsed: bool) -> void:
 	_build_menu.visible = collapsed
 
 func _unhandled_input(event: InputEvent) -> void:
-	# Close the kitchen panel on a new press outside it and outside the inventory.
-	if _kitchen_panel.visible:
-		var is_new_press: bool = \
-			(event is InputEventMouseButton and (event as InputEventMouseButton).pressed) or \
-			(event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed)
+	# Close the kitchen grid on a new press outside it and outside the inventory.
+	if _active_cafeteria_id != -1:
+		var press_pos: Vector2 = Vector2.ZERO
+		var is_new_press: bool = false
+		if event is InputEventMouseButton and (event as InputEventMouseButton).pressed:
+			is_new_press = true
+			press_pos = (event as InputEventMouseButton).position
+		elif event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed:
+			is_new_press = true
+			press_pos = (event as InputEventScreenTouch).position
 		if is_new_press:
-			_close_kitchen_panel()
-			get_viewport().set_input_as_handled()
-			return
+			var active_kg: KitchenGrid = _kitchen_grids.get(_active_cafeteria_id, null) as KitchenGrid
+			if active_kg == null or not active_kg.get_full_screen_rect().has_point(press_pos):
+				_close_kitchen_grid()
+				get_viewport().set_input_as_handled()
+				return
 	# Phase 0: Enter/space rotates the held piece clockwise.
 	if event.is_action_pressed("ui_accept"):
 		farm_grid.rotate_held_cw()
@@ -291,20 +290,21 @@ func _unhandled_input(event: InputEvent) -> void:
 func _on_item_requested(item: InventoryItem) -> void:
 	if _phase == Phase.SIMULATION:
 		return
-	if farm_grid.has_held_piece or farm_grid.has_pending_pickup:
-		return
 	if not item.data is PlaceableDefinition:
 		return
-	_held_from_kitchen = false
+	# When the kitchen grid is open, route inventory holds to it.
+	if _active_cafeteria_id != -1:
+		var active_kg: KitchenGrid = _kitchen_grids.get(_active_cafeteria_id, null) as KitchenGrid
+		if active_kg != null and not active_kg.has_held_piece and not active_kg.has_pending_pickup:
+			active_kg.begin_pending_inventory_hold(item)
+		return
+	if farm_grid.has_held_piece or farm_grid.has_pending_pickup:
+		return
 	farm_grid.begin_pending_inventory_hold(item)
 
 func _on_inventory_item_pickup_confirmed(item: InventoryItem) -> void:
 	_held_item = item
-	if _held_from_kitchen:
-		_kitchen_panel.remove_item(item)
-		_held_from_kitchen = false
-	else:
-		_inventory.remove(item)
+	_inventory.remove(item)
 	# Items selected from the build menu (not _inventory) start UNBUILT.
 	_held_build_state = BuildState.UNBUILT if item == _pending_menu_item else BuildState.BUILT
 	_pending_menu_item = null
@@ -315,7 +315,7 @@ func _on_inventory_item_pickup_confirmed(item: InventoryItem) -> void:
 	farm_grid.set_held_power_range(pr)
 
 func _on_piece_picked_up_from_grid(piece_id: int, _shape: PieceShape) -> void:
-	_close_kitchen_panel()
+	_close_kitchen_grid()
 	_held_item = _placed_items.get(piece_id, null)
 	_held_build_state = _piece_build_state.get(piece_id, BuildState.BUILT)
 	_placed_items.erase(piece_id)
@@ -329,7 +329,7 @@ func _on_piece_picked_up_from_grid(piece_id: int, _shape: PieceShape) -> void:
 	# UNBUILT pieces dropped off-grid should be discarded, not snapped back.
 	farm_grid.set_held_discardable(_held_build_state == BuildState.UNBUILT)
 	_recompute_power()
-	_sync_kitchen_panel()
+	_sync_kitchen_grid()
 
 func _on_piece_placed_on_grid(piece_id: int) -> void:
 	if _held_item:
@@ -352,7 +352,7 @@ func _on_piece_placed_on_grid(piece_id: int) -> void:
 	farm_grid.set_piece_flashing(piece_id, is_unbuilt)
 	farm_grid.set_held_power_range(0)
 	_recompute_power()
-	_sync_kitchen_panel()
+	_sync_kitchen_grid()
 
 ## Called when a held INVENTORY-origin piece is released without landing on this grid.
 ## Routes KITCHEN_GRID items to the kitchen panel if CoM is over it; all others go to
@@ -366,16 +366,22 @@ func _on_piece_released(com_screen_pos: Vector2) -> void:
 	if item == null:
 		return
 	var def: PlaceableDefinition = item.data as PlaceableDefinition
-	# Route KITCHEN_GRID-only items to kitchen panel if CoM is over it.
-	if def != null \
+	# Route KITCHEN_GRID-only items to the active kitchen grid if CoM is over it.
+	var active_kg: KitchenGrid = _kitchen_grids.get(_active_cafeteria_id, null) as KitchenGrid
+	if active_kg != null \
+			and def != null \
 			and PlaceableDefinition.GridType.KITCHEN_GRID in def.allowed_grids \
 			and not (PlaceableDefinition.GridType.FARM_GRID in def.allowed_grids) \
-			and _kitchen_panel.visible \
-			and _kitchen_panel.get_global_rect().has_point(com_screen_pos):
-		var slot_idx: int = _kitchen_panel.find_nearest_empty_slot(com_screen_pos)
-		if slot_idx != -1:
-			_kitchen_panel.add_item_at(item, slot_idx)
-			return
+			and active_kg.get_full_screen_rect().has_point(com_screen_pos):
+		var best_cell: Vector2i = _find_nearest_empty_kitchen_cell(active_kg, com_screen_pos)
+		if best_cell != Vector2i(-1, -1):
+			# Restore _held_item so _on_kitchen_piece_placed (fired by place_piece_at)
+			# can register the item in _kitchen_placed_items correctly.
+			_held_item = item
+			var piece_id: int = active_kg.place_piece_at(def.shape, best_cell.x, best_cell.y, item.display_name)
+			_held_item = null
+			if piece_id != -1:
+				return
 	# UNBUILT pieces (from build menu) are discarded when dropped off-grid.
 	if build_state == BuildState.UNBUILT:
 		return
@@ -394,7 +400,7 @@ func _on_piece_returned_to_grid(piece_id: int) -> void:
 	farm_grid.set_piece_flashing(piece_id, is_unbuilt)
 	farm_grid.set_held_power_range(0)
 	_recompute_power()
-	_sync_kitchen_panel()
+	_sync_kitchen_grid()
 
 ## Toggle a placed building on or off and recompute power.
 func toggle_piece(piece_id: int) -> void:
@@ -403,51 +409,165 @@ func toggle_piece(piece_id: int) -> void:
 	farm_grid.set_piece_active_visual(piece_id, now_active)
 	_recompute_power()
 
-## Called when capacity reduction ejects an item from the kitchen panel.
-func _on_kitchen_item_tapped(item: InventoryItem) -> void:
-	_inventory.add(item)
-
-## Called when the player presses down on an occupied kitchen slot (drag start).
-## Begins a farm_grid hold; actual removal from kitchen happens on pickup confirmation.
-func _on_kitchen_item_held(item: InventoryItem) -> void:
-	if _phase == Phase.SIMULATION:
-		return
-	if farm_grid.has_held_piece or farm_grid.has_pending_pickup:
-		return
-	_held_from_kitchen = true
-	farm_grid.begin_pending_inventory_hold(item)
-
-
-## Update kitchen panel capacity based on placed Cafeteria buildings.
-## Closes the panel if all cafeterias are removed.
-func _sync_kitchen_panel() -> void:
-	var total_slots: int = 0
+## Sync kitchen grids to match placed BUILT cafeterias.
+## Creates grids for new cafeterias, tears down grids for removed ones.
+func _sync_kitchen_grid() -> void:
+	# Collect current BUILT cafeterias.
+	var built_cafeterias: Dictionary = {}  # piece_id -> slot count
 	for piece_id: int in _placed_items:
+		if _piece_build_state.get(piece_id, BuildState.BUILT) != BuildState.BUILT:
+			continue
 		var def: PlaceableDefinition = _placed_items[piece_id].data as PlaceableDefinition
 		if def is CafeteriaDefinition:
-			total_slots += (def as CafeteriaDefinition).merge_slots
-	_kitchen_panel.set_capacity(total_slots)
-	if total_slots == 0:
-		_close_kitchen_panel()
+			built_cafeterias[piece_id] = (def as CafeteriaDefinition).merge_slots
+	# Tear down grids whose cafeteria is no longer present.
+	for cid: int in _kitchen_grids.keys():
+		if not built_cafeterias.has(cid):
+			_teardown_kitchen_grid(cid)
+	# Create grids for new cafeterias; update capacity for existing ones.
+	for cid: int in built_cafeterias:
+		if _kitchen_grids.has(cid):
+			(_kitchen_grids[cid] as KitchenGrid).set_capacity(built_cafeterias[cid])
+		else:
+			_create_kitchen_grid_for(cid, built_cafeterias[cid])
 
-## Open the kitchen merge panel as an overlay on the farm grid.
-func _open_kitchen_panel() -> void:
-	_kitchen_panel.visible = true
-	farm_grid.set_interaction_blocked(true)
+## Create and wire a KitchenGrid for the given cafeteria piece_id.
+func _create_kitchen_grid_for(cafeteria_id: int, slots: int) -> void:
+	var kg: KitchenGrid = KitchenGrid.new()
+	var kg_w: float = KitchenGrid.KITCHEN_COLS * KitchenGrid.KITCHEN_CELL_SIZE
+	var grid_bottom: float = farm_grid.position.y + farm_grid.get_grid_pixel_size().y
+	kg.position = Vector2(
+		(270.0 - kg_w) / 2.0,
+		grid_bottom - KitchenGrid.KITCHEN_ROWS * KitchenGrid.KITCHEN_CELL_SIZE)
+	kg.visible = false
+	kg.set_inventory_control(inventory_ui)
+	_kitchen_placed_items[cafeteria_id] = {}
+	var cid: int = cafeteria_id
+	kg.inventory_item_pickup_confirmed.connect(
+		func(item: InventoryItem) -> void: _on_kitchen_inventory_item_pickup_confirmed(kg, item))
+	kg.piece_placed_on_grid.connect(
+		func(pid: int) -> void: _on_kitchen_piece_placed(cid, pid))
+	kg.piece_picked_up_from_grid.connect(
+		func(pid: int, shape: PieceShape) -> void: _on_kitchen_piece_picked_up(kg, cid, pid, shape))
+	kg.piece_released.connect(
+		func(pos: Vector2) -> void: _on_kitchen_piece_released(pos))
+	kg.piece_returned_to_grid.connect(
+		func(pid: int) -> void: _on_kitchen_piece_returned(cid, pid))
+	kg.piece_ejected.connect(
+		func(pid: int) -> void: _on_kitchen_piece_ejected(cid, pid))
+	_ui_layer.add_child(kg)
+	_ui_layer.move_child(inventory_ui, _ui_layer.get_child_count() - 1)
+	_kitchen_grids[cafeteria_id] = kg
+	kg.set_capacity(slots)
 
-## Close the kitchen merge panel.
-func _close_kitchen_panel() -> void:
-	_kitchen_panel.visible = false
-	farm_grid.set_interaction_blocked(false)
+## Eject all items from a kitchen grid to inventory, then remove and free it.
+func _teardown_kitchen_grid(cafeteria_id: int) -> void:
+	if _active_cafeteria_id == cafeteria_id:
+		_close_kitchen_grid()
+	var items: Dictionary = _kitchen_placed_items.get(cafeteria_id, {}) as Dictionary
+	for item: Variant in items.values():
+		_inventory.add(item as InventoryItem)
+	_kitchen_placed_items.erase(cafeteria_id)
+	var kg: KitchenGrid = _kitchen_grids.get(cafeteria_id, null) as KitchenGrid
+	if kg != null:
+		_ui_layer.remove_child(kg)
+		kg.queue_free()
+	_kitchen_grids.erase(cafeteria_id)
 
-## Called when a non-moveable building is long-pressed; opens kitchen panel for cafeterias.
+## Open the kitchen grid for a specific cafeteria.
+func _open_kitchen_grid(cafeteria_piece_id: int) -> void:
+	var kg: KitchenGrid = _kitchen_grids.get(cafeteria_piece_id, null) as KitchenGrid
+	if kg == null:
+		return
+	_active_cafeteria_id = cafeteria_piece_id
+	kg.visible = true
+	kg.set_grid_active(true)  # merge_grid_opened only deactivates others; must activate explicitly
+	EventBus.merge_grid_opened.emit(kg)
+
+## Close the currently open kitchen grid.
+func _close_kitchen_grid() -> void:
+	if _active_cafeteria_id == -1:
+		return
+	var kg: KitchenGrid = _kitchen_grids.get(_active_cafeteria_id, null) as KitchenGrid
+	if kg != null:
+		kg.visible = false
+	_active_cafeteria_id = -1
+	EventBus.merge_grid_closed.emit()
+
+## Called when a non-moveable building is long-pressed; opens kitchen grid for cafeterias.
 func _on_piece_long_pressed(piece_id: int) -> void:
 	if _phase == Phase.SIMULATION:
 		return
 	var item: InventoryItem = _placed_items.get(piece_id, null)
 	if item == null or not item.data is CafeteriaDefinition:
 		return
-	_open_kitchen_panel()
+	_open_kitchen_grid(piece_id)
+
+## Kitchen grid: an inventory hold was confirmed; remove from inventory and begin drag.
+func _on_kitchen_inventory_item_pickup_confirmed(kg: KitchenGrid, item: InventoryItem) -> void:
+	_held_item = item
+	_inventory.remove(item)
+	var def: PlaceableDefinition = item.data as PlaceableDefinition
+	var can_place: bool = def == null or PlaceableDefinition.GridType.KITCHEN_GRID in def.allowed_grids
+	kg.set_held_can_place(can_place)
+
+## Kitchen grid: a piece was placed on a slot.
+func _on_kitchen_piece_placed(cafeteria_id: int, piece_id: int) -> void:
+	var items: Dictionary = _kitchen_placed_items.get(cafeteria_id, {}) as Dictionary
+	if _held_item:
+		items[piece_id] = _held_item
+	_held_item = null
+
+## Kitchen grid: a placed piece was picked up for dragging.
+func _on_kitchen_piece_picked_up(kg: KitchenGrid, cafeteria_id: int, piece_id: int, _shape: PieceShape) -> void:
+	var items: Dictionary = _kitchen_placed_items.get(cafeteria_id, {}) as Dictionary
+	_held_item = items.get(piece_id, null) as InventoryItem
+	items.erase(piece_id)
+	if _held_item:
+		kg.set_held_hint(_held_item.display_name)
+
+## Kitchen grid: a held piece was released without landing on this grid — return to inventory.
+func _on_kitchen_piece_released(_com_screen_pos: Vector2) -> void:
+	var item: InventoryItem = _held_item
+	_held_item = null
+	if item != null:
+		_inventory.add(item)
+
+## Kitchen grid: a held piece snapped back to its original slot.
+func _on_kitchen_piece_returned(cafeteria_id: int, piece_id: int) -> void:
+	var items: Dictionary = _kitchen_placed_items.get(cafeteria_id, {}) as Dictionary
+	if _held_item:
+		items[piece_id] = _held_item
+	_held_item = null
+
+## Kitchen grid: capacity reduction ejected a piece — return to inventory.
+func _on_kitchen_piece_ejected(cafeteria_id: int, piece_id: int) -> void:
+	var items: Dictionary = _kitchen_placed_items.get(cafeteria_id, {}) as Dictionary
+	var item: InventoryItem = items.get(piece_id, null) as InventoryItem
+	items.erase(piece_id)
+	if item != null:
+		_inventory.add(item)
+
+## Find the nearest active empty cell in a KitchenGrid to a screen position.
+## Returns Vector2i(-1, -1) if no empty active cell exists.
+func _find_nearest_empty_kitchen_cell(kg: KitchenGrid, screen_pos: Vector2) -> Vector2i:
+	var best: Vector2i = Vector2i(-1, -1)
+	var best_dist: float = INF
+	for row: int in range(1, KitchenGrid.KITCHEN_ROWS + 1):
+		for col: int in range(1, KitchenGrid.KITCHEN_COLS + 1):
+			var slot_idx: int = (row - 1) * KitchenGrid.KITCHEN_COLS + (col - 1)
+			if slot_idx >= kg._capacity:
+				continue
+			if kg.grid_data.get_cell(row, col) != 0:
+				continue
+			var cell_center: Vector2 = kg.position + Vector2(
+				(col - 0.5) * KitchenGrid.KITCHEN_CELL_SIZE,
+				(row - 0.5) * KitchenGrid.KITCHEN_CELL_SIZE)
+			var dist: float = (cell_center - screen_pos).length_squared()
+			if dist < best_dist:
+				best_dist = dist
+				best = Vector2i(row, col)
+	return best
 
 ## Returns true if any active BUILT Cafeteria on the grid is powered.
 func _cafeteria_is_powered() -> bool:
@@ -538,7 +658,10 @@ func _compute_food_state(construction_cost_override: int = -1) -> Dictionary:
 	var matter_prod: int       = _compute_matter_production()
 	var construction_cost: int = construction_cost_override if construction_cost_override >= 0 \
 		else _compute_construction_cost()
-	var food_items: int        = _kitchen_panel.get_items().size() if _cafeteria_is_powered() else 0
+	var food_items: int        = 0
+	if _cafeteria_is_powered():
+		for cid: int in _kitchen_placed_items:
+			food_items += (_kitchen_placed_items[cid] as Dictionary).size()
 	var living: int            = GameState.settler_count  # non-DEAD
 	var paste_needed: int      = maxi(0, living - food_items)
 	var paste_produced: int    = 0
@@ -671,7 +794,7 @@ func _on_next_season_pressed() -> void:
 
 ## Lock in the grid and start the simulation phase.
 func _begin_simulation() -> void:
-	_close_kitchen_panel()
+	_close_kitchen_grid()
 	_sim_elapsed = 0.0
 	_sim_log.clear()
 	hud_ui.refresh_log([])
@@ -737,15 +860,22 @@ func _end_simulation() -> void:
 	# Construction cost was already logged per-building in _begin_simulation().
 	GameState.matter = maxi(0, GameState.matter - food["construction_cost"])
 
-	# Log and consume kitchen panel items if cafeteria is powered.
-	var kitchen_items: int  = _kitchen_panel.get_items().size()
+	# Log and consume kitchen grid items if cafeteria is powered.
+	var kitchen_items: int   = 0
+	for cid: int in _kitchen_placed_items:
+		kitchen_items += (_kitchen_placed_items[cid] as Dictionary).size()
 	var food_items_used: int = food["food_items"]
 	if kitchen_items > 0:
 		if food_items_used > 0:
 			_add_log_entry({"label": "Cafeteria:",
 					"value": "-%d food item%s" % [kitchen_items, "s" if kitchen_items != 1 else ""],
 					"label_color": "", "value_color": LOG_COLOR_ITEM})
-			_kitchen_panel.clear()
+			for cid: int in _kitchen_placed_items:
+				var kg: KitchenGrid = _kitchen_grids.get(cid, null) as KitchenGrid
+				for pid: int in (_kitchen_placed_items[cid] as Dictionary).keys():
+					if kg != null:
+						kg.remove_piece(pid)
+				(_kitchen_placed_items[cid] as Dictionary).clear()
 		else:
 			_add_log_entry({"label": "Cafeteria not powered —",
 					"value": "food items unused",
@@ -786,6 +916,7 @@ func _end_simulation() -> void:
 	EventBus.simulation_ended.emit()
 	hud_ui.set_simulation_active(false)
 	_recompute_power()
+	_sync_kitchen_grid()  # create grids for cafeterias that became BUILT this season
 	if GameState.settler_count == 0:
 		_on_colony_lost()
 
