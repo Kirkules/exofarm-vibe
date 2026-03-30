@@ -17,6 +17,8 @@ script = ExtResource("2")
 [node name="HudUI" parent="UILayer" unique_id=2075521285 instance=ExtResource("4")]
 layout_mode = 3
 anchors_preset = 10
+offset_bottom = 0.0
+grow_horizontal = 2
 
 [node name="InventoryUI" parent="UILayer" unique_id=109083337 instance=ExtResource("3")]
 layout_mode = 3
