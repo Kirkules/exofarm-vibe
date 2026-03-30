@@ -36,20 +36,16 @@ Recently completed:
 - Outcome log with timestamps, color-coded values, and per-entry label/value layout;
   accessible via "log" button below Next Season; cleared at start of each simulation
 - SettlerHealth enum (FED, STARVING, DEAD); DEAD settlers skip food; starvation kills
-- Construction cost (matter_cost=1 per greenhouse) deducted before Nutrient Paste at sim start
-- UNBUILT/BUILT building state machine; starting buildings pre-placed as BUILT
-- Cafeteria building (1×2, amber, `matter_cost=2`, `power_draw=1`, `merge_slots=12`);
-  KitchenPanel overlay (3×4 grid) opened by 0.5s long-press on Cafeteria, closed by
-  tapping outside; KITCHEN_GRID items drag to/from inventory↔panel; farm grid fully
-  blocked while panel is open (`_block_grid_interaction`); items consumed at season end
-  if cafeteria powered; `piece_dropped_on_kitchen_panel` signal carries CoM screen pos
-  so items land in the nearest empty slot, not just the first one
+- Construction cost deducted before Nutrient Paste at sim start; UNBUILT/BUILT state machine
+- Cafeteria (1×2, amber); `KitchenGrid` (GameGrid subclass, 3×4) opened by long-press;
+  per-cafeteria grids; KITCHEN_GRID items route to nearest empty slot at drop CoM
+- "Skip simulation" button compresses remaining time to 0.5s for fast playtesting
+- Grid refactor complete: `GameGrid` base class; signal-driven sim locking via EventBus;
+  `KitchenGrid` replaces `KitchenPanel`; `interaction_blocked` removed
+- `game.gd` split into `BuildingManager`, `KitchenManager`, `SimulationController`;
+  `game.gd` is now a ~420-line thin orchestrator
 
 Next up:
-- [ ] **Grid refactor** — extract `GameGrid` base class from `farm_grid.gd`; replace
-  `KitchenPanel` (Control) with `KitchenGrid` (GameGrid subclass); signal-driven locking
-  via EventBus; runtime-configurable grid dimensions; inactive cells in GridData.
-  Full design in `GRID_REFACTOR_PLAN.md`.
 - [ ] Playback speed controls (1×, 2×, 3×, 5×)
 - [ ] Morale calculation and bar UI
 - [ ] Meal item crafting and consumption
@@ -67,16 +63,20 @@ Next up:
 
 | File | Role |
 |------|------|
-| `scenes/game/game.gd` | Central game controller; owns grid↔inventory↔HUD wiring, simulation flow |
+| `scenes/game/game.gd` | Thin orchestrator (~420 lines): owns `Phase`, `_compute_food_state()`, `_begin/_end_simulation()`, wires managers |
+| `scenes/game/building_manager.gd` | Farm grid interaction, placement state, power/neighbor, build states, `BuildState` enum |
+| `scenes/game/kitchen_manager.gd` | All per-cafeteria `KitchenGrid` instances, item state, open/close/sync |
+| `scenes/game/simulation_controller.gd` | Simulation timer, progress bar, live log, greenhouse/settler animation |
 | `scenes/game/grid/farm_grid.gd` | Grid input, piece hold/drag/drop, sprites, overlays |
+| `scenes/game/ui/kitchen_grid.gd` | `GameGrid` subclass (3×4, 40px cells); inactive cells; `piece_ejected` signal |
+| `scripts/grid/game_grid.gd` | Base grid class; signal-driven planning lock; `_on_merge_grid_closed()` virtual |
 | `scripts/grid/grid_data.gd` | Grid state (pure logic, no rendering) |
 | `scripts/grid/piece_shape.gd` | Polyomino shape + rotation; `CellStyle` enum (SQUARE/CIRCLE) |
 | `scripts/pieces/piece_sprite_generator.gd` | Generates piece textures procedurally |
 | `scripts/inventory/inventory.gd` | Inventory data model |
 | `scenes/game/ui/inventory_ui.gd` | Inventory panel UI |
-| `scenes/game/ui/hud_ui.gd` | Top HUD (Energy, Matter, Settlers, Next Season button, tooltips) |
+| `scenes/game/ui/hud_ui.gd` | Top HUD (Energy, Matter, Settlers, Next Season/Skip button, tooltips) |
 | `scenes/game/ui/build_menu.gd` | Build menu below inventory |
-| `scenes/game/ui/kitchen_panel.gd` | 3×4 merge-slot overlay; opened by long-pressing Cafeteria |
 | `scripts/systems/power_system.gd` | Union-find power network; `is_powered(piece_id)` |
 | `scripts/systems/neighbor_system.gd` | Manhattan-distance neighbor effect engine |
 | `scripts/autoloads/game_state.gd` | Singleton: season, settler_names/health, energy, matter |
@@ -99,7 +99,8 @@ PlaceableDefinition              ← crop items, generic placeables
 ```
 
 **No `.tres` resource files exist.** All building and item definitions are created
-programmatically in `game.gd:_buildable_definitions()` and `_place_starting_buildings()`.
+programmatically in `game.gd:_buildable_definitions()` and `_place_starting_buildings()`,
+which call `building_manager.place_at_built()` for starting buildings.
 
 ### Screen Layout (270×600 portrait)
 
@@ -117,9 +118,11 @@ y=552    ├─────────────────┤  InventoryUI 
 y=600    └─────────────────┘
 ```
 
-`KitchenPanel` is a modal overlay on the farm grid (not below it). It is sized
-`(270, KitchenPanel.PANEL_H)` (~216px) and positioned so its bottom aligns with
-`grid_bottom` (top ≈ y=126). It does not shift any other UI elements.
+`KitchenGrid` is a modal overlay on the farm grid (not below it). It is sized
+`(KITCHEN_COLS × KITCHEN_CELL_SIZE, KITCHEN_ROWS × KITCHEN_CELL_SIZE)` (120×160px) and
+positioned so its bottom aligns with `grid_bottom`. It does not shift any other UI elements.
+One `KitchenGrid` node exists per placed BUILT Cafeteria; `KitchenManager.sync()` creates
+and tears them down as cafeterias are placed/removed.
 
 `InventoryUI` is anchored to the bottom of the screen (anchor_top=1, anchor_bottom=1,
 offset_top=−48). Its PARTIAL height = `viewport_h − grid_bottom − 8`.
@@ -134,69 +137,82 @@ offset_top=−48). Its PARTIAL height = `viewport_h − grid_bottom − 8`.
 ### Piece Placement Signal Flow
 
 ```
-build menu tap     → _on_building_requested(def) → farm_grid.begin_pending_inventory_hold
-inventory tap      → _on_item_requested(item)    → farm_grid.begin_pending_inventory_hold
-kitchen slot hold  → item_held(item)             → _on_kitchen_item_held
-                       sets _held_from_kitchen=true, calls begin_pending_inventory_hold
+build menu tap   → game._on_building_requested(def)  → building_manager.begin_build_menu_hold
+inventory tap    → game._on_item_requested(item)
+                    • kitchen open: kitchen_manager.route_inventory_hold(item)
+                    • else:         building_manager.begin_inventory_hold(item)
 
-farm_grid drag confirmed → _on_inventory_item_pickup_confirmed
-                            • if _held_from_kitchen: remove from kitchen panel
-                            • else: remove from inventory
-                            • sets farm_grid._held_can_place_on_farm_grid based on allowed_grids
-farm_grid drop on grid   → piece_placed_on_grid → _on_piece_placed_on_grid
-                            • KITCHEN_GRID-only items: removed, returned to inventory
-                            • other items: registered in _placed_items, power recomputed
-farm_grid drop on kitchen → piece_dropped_on_kitchen_panel(shape, com_screen_pos)
-                            → _on_piece_dropped_on_kitchen_panel
-                            • KITCHEN_GRID items: find_nearest_empty_slot(com), add_item_at
-                            • others: returned to inventory
-farm_grid drop off-grid  → piece_hold_cancelled → _on_piece_hold_cancelled
-                            • UNBUILT: discarded; BUILT: returned to inventory
-farm_grid pickup         → piece_picked_up_from_grid → _on_piece_picked_up_from_grid
-                            • erases from _placed_items, recomputes power; closes kitchen panel
-farm_grid snap back      → piece_returned_to_grid → _on_piece_returned_to_grid
-non-moveable 0.5s hold   → piece_long_pressed(piece_id) → _on_piece_long_pressed
-                            • if CafeteriaDefinition: _open_kitchen_panel()
+building_manager internal (farm_grid signals → BuildingManager handlers):
+  inventory_item_pickup_confirmed → remove from inventory; set held state
+  piece_placed_on_grid  → register in _placed_items; KITCHEN_GRID-only items rejected back
+                           to inventory; recompute_power() → power_changed.emit()
+  piece_released        → emit piece_released_off_farm(item, build_state, com_screen_pos)
+  piece_returned_to_grid → restore _placed_items; recompute_power() → power_changed.emit()
+  piece_picked_up_from_grid → erase from _placed_items; recompute_power();
+                               emit piece_picked_up_from_farm()
+  piece_long_pressed    → if CafeteriaDefinition: emit cafeteria_long_pressed(piece_id)
+
+game.gd handles BuildingManager signals:
+  power_changed         → _on_power_changed(): update HUD + kitchen_manager.sync()
+  piece_released_off_farm → route KITCHEN_GRID items to kitchen_manager.try_place_item();
+                             UNBUILT: discard; else: return to inventory
+  piece_picked_up_from_farm → kitchen_manager.close()
+  cafeteria_long_pressed → kitchen_manager.open(piece_id)  [guarded: no-op in SIMULATION]
+
+kitchen_manager (KitchenGrid signals wired per-cafeteria via closures):
+  inventory_item_pickup_confirmed → remove from inventory; set _held_item
+  piece_placed_on_grid  → register in _kitchen_placed_items[cid]
+  piece_picked_up_from_grid → erase from _kitchen_placed_items[cid]
+  piece_released        → return _held_item to inventory
+  piece_returned_to_grid → restore _kitchen_placed_items[cid]
+  piece_ejected         → return item to inventory (capacity reduction)
 ```
 
-`_sync_kitchen_panel()` is called after every placed/picked-up/returned event.
-`_recompute_power()` is called after every placement change; it calls `_compute_food_state()`
-and refreshes all HUD projections.
-
-**Key game.gd state dicts** (all keyed by `piece_id: int`):
+**Key state dicts in BuildingManager** (all keyed by `piece_id: int`):
 - `_placed_items` — piece_id → InventoryItem (survives pick-up/put-down)
-- `_piece_build_state` — piece_id → BuildState (UNBUILT / BUILT)
+- `_piece_build_state` — piece_id → `BuildState` (UNBUILT / BUILT)
 - `_piece_active` — piece_id → bool (toggle state; default true)
 
-`_build_placed_dict()` builds the dict for PowerSystem/NeighborSystem; UNBUILT pieces
-are included but have `"active": false`, so they don't participate in power.
+`BuildState` enum lives in `BuildingManager`; referenced externally as `BuildingManager.BuildState`.
+`_build_placed_dict()` (internal to BuildingManager) builds the dict for PowerSystem/NeighborSystem;
+UNBUILT pieces have `"active": false`, so they don't participate in power.
 
 ### Simulation Flow
 
-1. Player presses "Go to Season N"
+1. Player presses "Go to Season N" → `game._on_next_season_pressed()`
 2. Confirmation dialog (if starvation risk)
-3. `_begin_simulation()`: clear log, capture construction cost, transition UNBUILT→BUILT,
-   log construction entries, initialize `_greenhouse_states`, start 15s timer + live log overlay
-4. `_process(delta)`: advance `_sim_elapsed`, update progress bar, tick greenhouses + settlers;
-   settlers walk Solar Rig→greenhouse at 2 grid-units/sec; each arrival is a tend; on
-   `tend_per_yield` tends the greenhouse yields one crop item
-5. `_end_simulation()`: log/apply Matter prod → log/consume kitchen items → log/apply
-   Nutrient Paste → log deaths → update GameState → push log to HUD → unlock grid
-   Note: `_power_state` is NOT recomputed inside `_begin_simulation()` after UNBUILT→BUILT,
-   so newly-BUILT buildings don't participate in power until the next planning phase.
+3. `game._begin_simulation()`:
+   - `kitchen_manager.close()`
+   - Capture `_sim_construction_cost = building_manager.compute_construction_cost()`
+   - `building_manager.transition_unbuilt_to_built()` → returns per-building log entries
+   - `simulation_controller.begin(placed_items, power_state, solar_rig_piece_id)`
+     — clears log, builds greenhouse states, starts 15s timer, shows progress bar + live log
+   - Add construction log entries via `simulation_controller.add_log_entry()`
+4. `SimulationController._process(delta)`: advances elapsed, updates progress bar,
+   ticks greenhouses + settlers; settlers walk Solar Rig→greenhouse at 2 grid-units/sec;
+   each arrival is a tend; on `tend_per_yield` tends the greenhouse yields one crop item.
+   Player can press "Skip simulation" → `simulation_controller.skip()` (compresses to 0.5s)
+5. Timer fires → `simulation_controller.finished` → `game._end_simulation()`:
+   - log/apply Matter prod → log/consume kitchen items → log/apply Nutrient Paste
+   - log deaths → update GameState → push log to HUD → `simulation_controller.end_cleanup()`
+   - `building_manager.recompute_power()` → `power_changed` → HUD update + kitchen sync
+   Note: power_state is NOT recomputed after UNBUILT→BUILT in `_begin_simulation()`, so
+   newly-BUILT buildings don't participate in power until the next planning phase.
 
 ### Simulation Log Format
 
 Each entry dict: `{"label": String, "value": String, "label_color": String,
-"value_color": String, "timestamp": float}`. Colors: `#88ee88` gain, `#ee8800` loss,
-`#ee4444` death, `#eeee88` item. Pass through `_add_log_entry(base)` — never append
-to `_sim_log` directly (it stamps timestamp and pushes to live overlay).
+"value_color": String, "timestamp": float}`. Colors defined as constants on
+`SimulationController`: `LOG_COLOR_GAIN`, `LOG_COLOR_LOSS`, `LOG_COLOR_DEATH`, `LOG_COLOR_ITEM`.
+Always call `simulation_controller.add_log_entry(base)` — never append to the log directly
+(it stamps timestamp and pushes to live overlay).
 
 ### _compute_food_state() return keys
 
-`matter_prod`, `construction_cost`, `food_items` (from kitchen panel if cafeteria
+Lives in `game.gd`; calls `building_manager` and `kitchen_manager` for inputs.
+Keys: `matter_prod`, `construction_cost`, `food_items` (from kitchen grids if cafeteria
 powered, else 0), `paste_needed`, `paste_produced`, `projected_health` (Array[int]),
-`deaths`. Called with `construction_cost_override >= 0` in `_end_simulation` to use the
+`deaths`. Pass `construction_cost_override >= 0` in `_end_simulation` to use the
 pre-transition cost (captured before UNBUILT→BUILT runs).
 
 ### Power System
@@ -292,25 +308,22 @@ Both paths use the Cafeteria for meal crafting.
 
 ### Behavior Notes
 - Starting buildings (Solar Rig, Matter Manipulator) placed BUILT at (3,3) and (3,4);
-  `moveable=false`; not selectable
+  `moveable=false`; not selectable; placed via `building_manager.place_at_built()`
 - UNBUILT buildings flash at 0.5s period; discarded if dropped off-grid
 - Drag offset while holding: 1 grid-space left, 0.5 grid-space down from touch point
 - Matter Manipulator must be powered for Nutrient Paste to be produced
 - Construction cost captured before UNBUILT→BUILT transition in `_begin_simulation()`
-  (otherwise `_compute_construction_cost()` returns 0 — the buildings are already BUILT)
+  (otherwise `compute_construction_cost()` returns 0 — the buildings are already BUILT)
 - `BuildingDefinition` comment says "non-moveable by default" but the *code* does NOT set
   `moveable=false`; explicitly set it when defining buildings from the build menu
-- `BuildMenu`, `KitchenPanel`, progress bar, and live log are all created programmatically
-  in `game.gd:_ready()` — no `.tscn` counterparts; use `_ui_layer.add_child()`
-- KitchenPanel is a modal overlay (~216px tall); long-press (0.5s) on a placed Cafeteria
-  opens it; any new press outside the panel or inventory closes it (`_unhandled_input`)
-- `_block_grid_interaction` on `farm_grid` blocks all grid pickup/tap while kitchen panel
-  is open; inventory-hold drag still works (claimed before the blocked branch)
-- `_held_from_kitchen: bool` in `game.gd` — set true when a drag starts from the kitchen
-  panel; causes `_on_inventory_item_pickup_confirmed` to remove from panel not inventory
-- KitchenPanel: COLS=3, ROWS=4, PANEL_H≈216; sparse `_items` array (null=empty slot);
-  `find_nearest_empty_slot(global_pos)` returns closest empty slot to drop CoM;
-  `add_item_at(item, slot_idx)` places at a specific slot
+- `BuildMenu`, `KitchenGrid` nodes, progress bar, and live log are all created
+  programmatically — no `.tscn` counterparts; use `_ui_layer.add_child()`
+- `KitchenGrid`: long-press (0.5s) on a placed BUILT Cafeteria opens it; any new press
+  outside it closes it (`game._unhandled_input`); `planning_locked` (set by EventBus
+  `merge_grid_opened/closed`) blocks farm grid interaction while a kitchen grid is open
+- `KitchenManager._find_nearest_empty_cell(kg, screen_pos)` finds the closest active
+  empty slot to the drop CoM; used by `try_place_item()` for off-grid drops
+- `BuildState` enum lives in `BuildingManager`; `BuildingManager.BuildState.UNBUILT/BUILT`
 
 ---
 
