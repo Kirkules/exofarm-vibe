@@ -143,10 +143,6 @@ var grid_active: bool = true
 ## overlays visible).  Used during season simulation.
 var planning_locked: bool = false
 
-## When true, grid-source pickups and tap-start are blocked, but inventory-hold
-## drags can still be initiated and confirmed.  Used in step-1 transitional state
-## when KitchenPanel (Control) is open — removed once KitchenGrid is a real GameGrid.
-var interaction_blocked: bool = false
 
 # ---------------------------------------------------------------------------
 # Signals
@@ -319,7 +315,7 @@ func _input(event: InputEvent) -> void:
 				elif _pending_source == PendingSource.INVENTORY and _pending_input == InputSource.NONE:
 					_pending_input      = InputSource.MOUSE
 					_pending_screen_pos = event.position
-				elif _pending_input == InputSource.NONE and not interaction_blocked:
+				elif _pending_input == InputSource.NONE:
 					var cell: Vector2i = _pos_to_cell(_cursor_pos)
 					var cell_val: int = grid_data.get_cell(cell.x, cell.y) if cell != Vector2i(-1, -1) else 0
 					if cell_val > 0 and _piece_moveable.get(cell_val, true):
@@ -381,7 +377,7 @@ func _input(event: InputEvent) -> void:
 				_pending_input      = InputSource.TOUCH
 				_pending_touch_idx  = event.index
 				_pending_screen_pos = event.position
-			elif _pending_input == InputSource.NONE and not interaction_blocked:
+			elif _pending_input == InputSource.NONE:
 				var cell: Vector2i = _pos_to_cell(_cursor_pos)
 				var cell_val: int = grid_data.get_cell(cell.x, cell.y) if cell != Vector2i(-1, -1) else 0
 				if cell_val > 0 and _piece_moveable.get(cell_val, true):
@@ -763,17 +759,6 @@ func set_planning_locked(locked: bool) -> void:
 		_clear_tap()
 	queue_redraw()
 
-
-## Block or unblock grid-source pickups and tap-start while still allowing
-## inventory-hold drags.  Clears any in-progress grid pending/tap when set true.
-## Transitional: used while KitchenPanel is a Control; removed once KitchenGrid
-## is a proper GameGrid and game.gd routes inventory holds directly to it.
-func set_interaction_blocked(blocked: bool) -> void:
-	interaction_blocked = blocked
-	if blocked and _pending_source == PendingSource.GRID:
-		_cancel_pending()
-	if blocked:
-		_clear_tap()
 
 
 ## Returns the screen-space rect of this grid.
