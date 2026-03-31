@@ -248,9 +248,14 @@ func _build_placed_dict() -> Dictionary:
 		if info.is_empty():
 			continue
 		var is_built: bool = _piece_build_state.get(piece_id, BuildState.BUILT) == BuildState.BUILT
+		var shape: PieceShape = info["shape"] as PieceShape
+		var cells: Array[Vector2i] = []
+		for offset: Vector2i in shape.offsets:
+			cells.append(Vector2i(info["row"] + offset.x, info["col"] + offset.y))
 		placed[piece_id] = {
 			"row":    info["row"],
 			"col":    info["col"],
+			"cells":  cells,
 			"def":    _placed_items[piece_id].data,
 			"active": is_built and _piece_active.get(piece_id, true),
 		}

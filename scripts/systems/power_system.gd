@@ -8,16 +8,17 @@ class_name PowerSystem
 ## `placed` is a Dictionary: piece_id (int) -> {
 ##     "row":    int,
 ##     "col":    int,
+##     "cells":  Array[Vector2i],  # all absolute (row, col) positions of this piece
 ##     "def":    PlaceableDefinition,
 ##     "active": bool
 ## }
 ##
 ## Network formation rules:
 ##   - Two power sources A and B are in the same network if
-##     manhattan_dist(A, B) <= A.power_range  OR  <= B.power_range
-##     (either source can see the other's cell).
+##     min_cell_dist(A, B) <= A.power_range  OR  <= B.power_range
+##     (distance is measured between the nearest pair of cells of each piece).
 ##   - A consumer is assigned to the network whose nearest in-range source
-##     has the shortest Manhattan distance. Ties broken by lower piece_id.
+##     has the shortest min-cell distance. Ties broken by lower piece_id.
 ##   - A building is "powered" if it is connected to a network whose
 ##     pool (sum of sources' energy_production) >= draw (sum of consumers'
 ##     power_draw assigned to that network).
@@ -65,8 +66,8 @@ static func compute(placed: Dictionary) -> PowerSystem.PowerState:
 		state.piece_powered[piece_id]     = false
 
 	# Collect active power sources and consumers from BuildingDefinitions only.
-	var sources: Array = []   # {id, row, col, range, production}
-	var consumers: Array = [] # {id, row, col, draw}
+	var sources: Array = []   # {id, cells, range, production}
+	var consumers: Array = [] # {id, cells, draw}
 
 	for piece_id: int in placed:
 		var entry: Dictionary = placed[piece_id]
@@ -78,17 +79,15 @@ static func compute(placed: Dictionary) -> PowerSystem.PowerState:
 		if def.power_range > 0:
 			sources.append({
 				"id":         piece_id,
-				"row":        entry["row"],
-				"col":        entry["col"],
+				"cells":      entry["cells"],
 				"range":      def.power_range,
 				"production": def.energy_production,
 			})
 		if def.power_draw > 0:
 			consumers.append({
-				"id":  piece_id,
-				"row": entry["row"],
-				"col": entry["col"],
-				"draw": def.power_draw,
+				"id":    piece_id,
+				"cells": entry["cells"],
+				"draw":  def.power_draw,
 			})
 
 	if sources.is_empty():
@@ -105,7 +104,7 @@ static func compute(placed: Dictionary) -> PowerSystem.PowerState:
 		for j: int in range(i + 1, sources.size()):
 			var a: Dictionary = sources[i]
 			var b: Dictionary = sources[j]
-			var d: int = absi(a["row"] - b["row"]) + absi(a["col"] - b["col"])
+			var d: int = _min_cell_dist(a["cells"], b["cells"])
 			if d <= a["range"] or d <= b["range"]:
 				_union(parent, a["id"], b["id"])
 
@@ -132,7 +131,7 @@ static func compute(placed: Dictionary) -> PowerSystem.PowerState:
 		var best_id:      int = -1
 		var best_net_idx: int = -1
 		for s: Dictionary in sources:
-			var d: int = absi(c["row"] - s["row"]) + absi(c["col"] - s["col"])
+			var d: int = _min_cell_dist(c["cells"], s["cells"])
 			if d > s["range"]:
 				continue
 			if d < best_dist or (d == best_dist and s["id"] < best_id):
@@ -159,6 +158,15 @@ static func compute(placed: Dictionary) -> PowerSystem.PowerState:
 # ---------------------------------------------------------------------------
 # Union-Find helpers (path-compressed).
 # ---------------------------------------------------------------------------
+
+static func _min_cell_dist(cells_a: Array, cells_b: Array) -> int:
+	var min_d: int = 2147483647  # INT_MAX
+	for ca: Vector2i in cells_a:
+		for cb: Vector2i in cells_b:
+			var d: int = absi(ca.x - cb.x) + absi(ca.y - cb.y)
+			if d < min_d:
+				min_d = d
+	return min_d
 
 static func _find(parent: Dictionary, x: int) -> int:
 	if parent[x] != x:
