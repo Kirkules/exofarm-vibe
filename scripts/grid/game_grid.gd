@@ -722,8 +722,11 @@ func set_inventory_control(c: Control) -> void:
 
 
 ## When true, a GRID-origin held piece that fails to place emits piece_released
-## instead of snapping back.  Call with true after picking up an UNBUILT piece.
+## instead of snapping back.
+## Call with true after picking up an UNBUILT piece.
 ## Automatically reset to false when the hold ends.
+## Call this after piece_picked_up_from_grid if the manager wants to route the
+## release elsewhere (e.g. cross-slot settler drag).
 func set_held_discardable(discardable: bool) -> void:
 	_held_discardable = discardable
 

@@ -15,12 +15,22 @@ var _sim_construction_cost: int = 0
 var building_manager:      BuildingManager
 var kitchen_manager:       KitchenManager
 var simulation_controller: SimulationController
+var settler_manager:       SettlerManager
 
 enum Phase { PLANNING, SIMULATION }
 var _phase: Phase = Phase.PLANNING
 
+## Shared item definitions — created once so recipe ingredient keys match placed item data.
+var _wheat_def:           PlaceableDefinition
+var _tomato_def:          PlaceableDefinition
+var _eggplant_def:        PlaceableDefinition
+var _pasta_def:           PlaceableDefinition
+var _tomato_sauce_def:    PlaceableDefinition
+var _pasta_norma_def:     MealDefinition
+
 
 func _ready() -> void:
+	_create_item_defs()
 	_inventory = Inventory.new(10)
 	inventory_ui.set_inventory(_inventory)
 	var grid_bottom: float = farm_grid.position.y + farm_grid.get_grid_pixel_size().y
@@ -50,6 +60,15 @@ func _ready() -> void:
 	_confirm_dialog.confirmed.connect(_begin_simulation)
 	add_child(_confirm_dialog)
 
+	settler_manager = SettlerManager.new()
+	add_child(settler_manager)
+	settler_manager.setup(_inventory, inventory_ui, _ui_layer, hud_ui)
+	settler_manager.assignments_changed.connect(_refresh_food_hud)
+	hud_ui.settler_label_tapped.connect(func() -> void:
+		if not settler_manager.is_open():
+			kitchen_manager.close()
+		settler_manager.toggle())
+
 	kitchen_manager.set_recipes(_recipe_definitions())
 	hud_ui.next_season_pressed.connect(_on_next_season_pressed)
 
@@ -73,20 +92,29 @@ func _ready() -> void:
 # ---------------------------------------------------------------------------
 
 func _unhandled_input(event: InputEvent) -> void:
-	# Close the kitchen grid on a new press outside it and outside the inventory.
-	if kitchen_manager.is_open():
-		var press_pos: Vector2 = Vector2.ZERO
-		var is_new_press: bool = false
-		if event is InputEventMouseButton and (event as InputEventMouseButton).pressed:
-			is_new_press = true
-			press_pos    = (event as InputEventMouseButton).position
-		elif event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed:
-			is_new_press = true
-			press_pos    = (event as InputEventScreenTouch).position
-		if is_new_press and not kitchen_manager.active_screen_rect().has_point(press_pos):
+	var press_pos: Vector2 = Vector2.ZERO
+	var is_new_press: bool = false
+	if event is InputEventMouseButton and (event as InputEventMouseButton).pressed:
+		is_new_press = true
+		press_pos    = (event as InputEventMouseButton).position
+	elif event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed:
+		is_new_press = true
+		press_pos    = (event as InputEventScreenTouch).position
+
+	# Close the kitchen grid on a new press outside it.
+	if kitchen_manager.is_open() and is_new_press:
+		if not kitchen_manager.active_screen_rect().has_point(press_pos):
 			kitchen_manager.close()
 			get_viewport().set_input_as_handled()
 			return
+
+	# Close the settler panel on a new press outside it.
+	if settler_manager.is_open() and is_new_press:
+		if not settler_manager.panel_screen_rect().has_point(press_pos):
+			settler_manager.close()
+			get_viewport().set_input_as_handled()
+			return
+
 	# Enter/space rotates the held piece clockwise.
 	if event.is_action_pressed("ui_accept"):
 		farm_grid.rotate_held_cw()
@@ -101,10 +129,12 @@ func _on_item_requested(item: InventoryItem) -> void:
 		return
 	if not item.data is PlaceableDefinition:
 		return
-	# When the kitchen grid is open, route inventory holds to it.
 	if kitchen_manager.is_open():
 		kitchen_manager.route_inventory_hold(item)
 		return
+	if settler_manager.is_open():
+		settler_manager.route_inventory_hold(item)
+		return  # non-SETTLER_GRID items have nowhere to go; farm grid is locked
 	building_manager.begin_inventory_hold(item)
 
 func _on_building_requested(def: PlaceableDefinition) -> void:
@@ -119,14 +149,17 @@ func _on_inventory_state_changed(collapsed: bool) -> void:
 # ---------------------------------------------------------------------------
 
 func _on_power_changed(_placed: Dictionary) -> void:
+	_refresh_food_hud()
+	hud_ui.refresh_energy_tooltip(building_manager.build_energy_entries())
+	kitchen_manager.sync(building_manager.placed_items(), building_manager.build_states())
+
+func _refresh_food_hud() -> void:
 	var food: Dictionary = _compute_food_state()
 	var matter_net: int  = food["matter_prod"] - food["construction_cost"] - food["paste_produced"]
 	hud_ui.set_settler_projected_health(food["projected_health"])
 	hud_ui.refresh_matter(GameState.matter + matter_net, matter_net)
-	hud_ui.refresh_energy_tooltip(building_manager.build_energy_entries())
 	hud_ui.refresh_matter_tooltip(GameState.matter, building_manager.build_matter_entries(food))
 	hud_ui.refresh()
-	kitchen_manager.sync(building_manager.placed_items(), building_manager.build_states())
 
 func _on_piece_picked_up_from_farm() -> void:
 	kitchen_manager.close()
@@ -135,6 +168,11 @@ func _on_piece_picked_up_from_farm() -> void:
 func _on_piece_released_off_farm(item: InventoryItem,
 		build_state: BuildingManager.BuildState, com_screen_pos: Vector2) -> void:
 	var def: PlaceableDefinition = item.data as PlaceableDefinition
+	# Route SETTLER_GRID items to the settler panel if CoM is over a settler slot.
+	if def != null and PlaceableDefinition.GridType.SETTLER_GRID in def.allowed_grids \
+			and settler_manager.is_open():
+		if settler_manager.try_place_item(item, com_screen_pos):
+			return
 	# Route KITCHEN_GRID-only items to the active kitchen grid if CoM is over it.
 	if def != null \
 			and PlaceableDefinition.GridType.KITCHEN_GRID in def.allowed_grids \
@@ -150,6 +188,7 @@ func _on_piece_released_off_farm(item: InventoryItem,
 func _on_cafeteria_long_pressed(piece_id: int) -> void:
 	if _phase == Phase.SIMULATION:
 		return
+	settler_manager.close()
 	kitchen_manager.open(piece_id)
 
 
@@ -172,6 +211,7 @@ func _on_next_season_pressed() -> void:
 
 func _begin_simulation() -> void:
 	kitchen_manager.close()
+	settler_manager.close()
 	_sim_construction_cost = building_manager.compute_construction_cost()
 	var log_entries: Array[Dictionary] = building_manager.transition_unbuilt_to_built()
 	_phase = Phase.SIMULATION
@@ -219,6 +259,13 @@ func _end_simulation() -> void:
 	var crafted_ids: Array[int] = simulation_controller.get_crafted_ingredient_ids()
 	if not crafted_ids.is_empty():
 		kitchen_manager.consume_specific_items(crafted_ids)
+
+	# Consume settler meal assignments.
+	var meals_consumed: int = settler_manager.consume_assigned_meals()
+	if meals_consumed > 0:
+		sim.add_log_entry({"label": "Meals consumed:",
+				"value": "-%d meal(s)" % meals_consumed,
+				"label_color": "", "value_color": SimulationController.LOG_COLOR_ITEM})
 
 	# Nutrient Paste.
 	if paste_produced > 0:
@@ -268,8 +315,7 @@ func _compute_food_state(construction_cost_override: int = -1) -> Dictionary:
 	var matter_prod: int       = building_manager.compute_matter_production()
 	var construction_cost: int = construction_cost_override if construction_cost_override >= 0 \
 		else building_manager.compute_construction_cost()
-	# TODO: count assigned meals from settler food slots (not yet implemented).
-	var food_items: int = 0
+	var food_items: int = settler_manager.assigned_meal_count()
 	var living: int         = GameState.settler_count
 	var paste_needed: int   = maxi(0, living - food_items)
 	var paste_produced: int = 0
@@ -330,43 +376,89 @@ func _place_starting_buildings() -> void:
 	var matter_item: InventoryItem = InventoryItem.new(matter_manip.display_name, 1, matter_manip)
 	building_manager.place_at_built(matter_manip.shape, 3, 4, matter_item)
 
+## Creates all shared item definitions. Called once from _ready() before anything
+## that needs item defs, so recipe ingredient keys match placed InventoryItem.data.
+func _create_item_defs() -> void:
+	var s: PieceShape
+
+	s = PieceShape.new(); s.color = Color(1.0, 0.92, 0.40); s.cell_style = PieceShape.CellStyle.CIRCLE
+	_wheat_def = PlaceableDefinition.new()
+	_wheat_def.display_name  = "Wheat"
+	_wheat_def.shape         = s
+	_wheat_def.allowed_grids = [PlaceableDefinition.GridType.KITCHEN_GRID]
+
+	s = PieceShape.new(); s.color = Color(0.95, 0.35, 0.25); s.cell_style = PieceShape.CellStyle.CIRCLE
+	_tomato_def = PlaceableDefinition.new()
+	_tomato_def.display_name  = "Tomato"
+	_tomato_def.shape         = s
+	_tomato_def.allowed_grids = [PlaceableDefinition.GridType.KITCHEN_GRID]
+
+	s = PieceShape.new(); s.color = Color(0.65, 0.25, 0.85); s.cell_style = PieceShape.CellStyle.CIRCLE
+	_eggplant_def = PlaceableDefinition.new()
+	_eggplant_def.display_name  = "Eggplant"
+	_eggplant_def.shape         = s
+	_eggplant_def.allowed_grids = [PlaceableDefinition.GridType.KITCHEN_GRID]
+
+	s = PieceShape.new(); s.color = Color(0.92, 0.88, 0.65); s.cell_style = PieceShape.CellStyle.CIRCLE
+	_pasta_def = PlaceableDefinition.new()
+	_pasta_def.display_name  = "Pasta"
+	_pasta_def.shape         = s
+	_pasta_def.allowed_grids = [PlaceableDefinition.GridType.KITCHEN_GRID]
+
+	s = PieceShape.new(); s.color = Color(0.85, 0.22, 0.15); s.cell_style = PieceShape.CellStyle.CIRCLE
+	_tomato_sauce_def = PlaceableDefinition.new()
+	_tomato_sauce_def.display_name  = "Tomato Sauce"
+	_tomato_sauce_def.shape         = s
+	_tomato_sauce_def.allowed_grids = [PlaceableDefinition.GridType.KITCHEN_GRID]
+
+	s = PieceShape.new(); s.color = Color(0.78, 0.42, 0.22); s.cell_style = PieceShape.CellStyle.CIRCLE
+	_pasta_norma_def = MealDefinition.new()
+	_pasta_norma_def.display_name  = "Pasta alla Norma"
+	_pasta_norma_def.shape         = s
+	_pasta_norma_def.allowed_grids = [
+		PlaceableDefinition.GridType.KITCHEN_GRID,
+		PlaceableDefinition.GridType.SETTLER_GRID,
+	]
+
+
 ## Returns the recipe definitions available this run.
-## Add recipes here as new ingredients are discovered.
 func _recipe_definitions() -> Array[RecipeDefinition]:
-	return []
+	var result: Array[RecipeDefinition] = []
+
+	var r: RecipeDefinition
+
+	# 2 Wheat → 1 Pasta
+	r = RecipeDefinition.new()
+	r.ingredients  = { _wheat_def: 2 }
+	r.output_item  = _pasta_def
+	r.output_count = 1
+	r.labor_cost   = 1.0
+	result.append(r)
+
+	# 2 Tomato → 1 Tomato Sauce
+	r = RecipeDefinition.new()
+	r.ingredients  = { _tomato_def: 2 }
+	r.output_item  = _tomato_sauce_def
+	r.output_count = 1
+	r.labor_cost   = 1.0
+	result.append(r)
+
+	# 1 Pasta + 1 Tomato Sauce + 1 Eggplant → 3 Pasta alla Norma
+	r = RecipeDefinition.new()
+	r.ingredients  = { _pasta_def: 1, _tomato_sauce_def: 1, _eggplant_def: 1 }
+	r.output_item  = _pasta_norma_def
+	r.output_count = 3
+	r.labor_cost   = 2.0
+	result.append(r)
+
+	return result
 
 
 ## Returns the definitions available in the build menu this run.
 func _buildable_definitions() -> Array[PlaceableDefinition]:
 	var result: Array[PlaceableDefinition] = []
 
-	# --- Crop item definitions (harvested produce; routed to kitchen grid only) ---
-
-	var wheat_item_shape: PieceShape = PieceShape.new()
-	wheat_item_shape.color      = Color(1.0, 0.92, 0.40)
-	wheat_item_shape.cell_style = PieceShape.CellStyle.CIRCLE
-	var wheat_item: PlaceableDefinition = PlaceableDefinition.new()
-	wheat_item.display_name  = "Wheat"
-	wheat_item.shape         = wheat_item_shape
-	wheat_item.allowed_grids = [PlaceableDefinition.GridType.KITCHEN_GRID]
-
-	var tomato_item_shape: PieceShape = PieceShape.new()
-	tomato_item_shape.color      = Color(0.95, 0.35, 0.25)
-	tomato_item_shape.cell_style = PieceShape.CellStyle.CIRCLE
-	var tomato_item: PlaceableDefinition = PlaceableDefinition.new()
-	tomato_item.display_name  = "Tomato"
-	tomato_item.shape         = tomato_item_shape
-	tomato_item.allowed_grids = [PlaceableDefinition.GridType.KITCHEN_GRID]
-
-	var eggplant_item_shape: PieceShape = PieceShape.new()
-	eggplant_item_shape.color      = Color(0.65, 0.25, 0.85)
-	eggplant_item_shape.cell_style = PieceShape.CellStyle.CIRCLE
-	var eggplant_item: PlaceableDefinition = PlaceableDefinition.new()
-	eggplant_item.display_name  = "Eggplant"
-	eggplant_item.shape         = eggplant_item_shape
-	eggplant_item.allowed_grids = [PlaceableDefinition.GridType.KITCHEN_GRID]
-
-	# --- Greenhouse definitions ---
+	# --- Greenhouse definitions (output items come from shared _*_def vars) ---
 
 	var wheat_gh_shape: PieceShape = PieceShape.new()
 	wheat_gh_shape.color = Color(0.95, 0.85, 0.30)
@@ -376,7 +468,7 @@ func _buildable_definitions() -> Array[PlaceableDefinition]:
 	wheat_gh.shape        = wheat_gh_shape
 	wheat_gh.matter_cost  = 1
 	wheat_gh.power_draw   = 1
-	wheat_gh.output_item  = wheat_item
+	wheat_gh.output_item  = _wheat_def
 	result.append(wheat_gh)
 
 	var tomato_gh_shape: PieceShape = PieceShape.new()
@@ -387,7 +479,7 @@ func _buildable_definitions() -> Array[PlaceableDefinition]:
 	tomato_gh.shape        = tomato_gh_shape
 	tomato_gh.matter_cost  = 1
 	tomato_gh.power_draw   = 1
-	tomato_gh.output_item  = tomato_item
+	tomato_gh.output_item  = _tomato_def
 	result.append(tomato_gh)
 
 	var eggplant_gh_shape: PieceShape = PieceShape.new()
@@ -398,7 +490,7 @@ func _buildable_definitions() -> Array[PlaceableDefinition]:
 	eggplant_gh.shape        = eggplant_gh_shape
 	eggplant_gh.matter_cost  = 1
 	eggplant_gh.power_draw   = 1
-	eggplant_gh.output_item  = eggplant_item
+	eggplant_gh.output_item  = _eggplant_def
 	result.append(eggplant_gh)
 
 	# --- Cafeteria ---

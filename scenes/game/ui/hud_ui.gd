@@ -15,6 +15,8 @@ const BASE_HEIGHT := 52
 
 ## Emitted when the player presses the Next Season button.
 signal next_season_pressed
+## Emitted when the player taps the Settlers HUD label (toggle settler panel).
+signal settler_label_tapped
 
 var _energy_label:  Label
 var _matter_label:  RichTextLabel
@@ -40,6 +42,9 @@ var _tooltip_name_box: VBoxContainer
 var _log_btn:   Button
 var _log_panel: PanelContainer
 var _log_vbox:  VBoxContainer
+
+## Spacer Controls inside each settler row — positioned behind SettlerFoodGrid nodes.
+var _settler_slot_spacers: Array[Control] = []
 
 
 func _ready() -> void:
@@ -115,7 +120,10 @@ func _build_ui() -> void:
 	add_child(_matter_tooltip)
 
 	_settler_tooltip = _make_tooltip_panel()
+	_settler_tooltip.mouse_filter = Control.MOUSE_FILTER_STOP
+	_settler_tooltip.custom_minimum_size.x = 210.0
 	_tooltip_name_box = VBoxContainer.new()
+	_tooltip_name_box.add_theme_constant_override("separation", 0)
 	_settler_tooltip.add_child(_tooltip_name_box)
 	add_child(_settler_tooltip)
 
@@ -196,8 +204,36 @@ func set_simulation_active(v: bool) -> void:
 	if v:
 		_energy_tooltip.visible  = false
 		_matter_tooltip.visible  = false
-		_hide_settler_tooltip()
+		hide_settler_panel()
 		_log_panel.visible = false
+
+## Show the settler assignment panel (tooltip + slot spacers for SettlerManager to overlay).
+func show_settler_panel() -> void:
+	_show_settler_tooltip()
+
+## Hide the settler assignment panel.
+func hide_settler_panel() -> void:
+	_hide_settler_tooltip()
+
+## Screen rect of the settler tooltip panel (for outside-tap detection).
+func settler_tooltip_screen_rect() -> Rect2:
+	if not _settler_tooltip.visible:
+		return Rect2()
+	return _settler_tooltip.get_global_rect()
+
+## Screen rects of the per-settler slot areas (used by SettlerManager to position grids).
+## Computed mathematically from the tooltip's explicit position — does not depend on
+## Control layout cascade completing, so safe to call in the same frame as open().
+func get_settler_slot_screen_rects() -> Array[Rect2]:
+	const SLOT_SIZE: float = 40.0
+	var result: Array[Rect2] = []
+	if not _settler_tooltip.visible:
+		return result
+	var origin: Vector2 = _settler_tooltip.global_position
+	var slot_x: float = origin.x + _settler_tooltip.custom_minimum_size.x - SLOT_SIZE
+	for i: int in _settler_slot_spacers.size():
+		result.append(Rect2(slot_x, origin.y + float(i) * SLOT_SIZE, SLOT_SIZE, SLOT_SIZE))
+	return result
 
 ## Rebuild the Energy tooltip content.
 ## entries: Array of {name: String, delta: int} — positive = production, negative = draw.
@@ -309,6 +345,7 @@ func _make_log_rtlabel(bbcode: String, expand: bool) -> RichTextLabel:
 func _show_settler_tooltip() -> void:
 	for child: Node in _tooltip_name_box.get_children():
 		child.queue_free()
+	_settler_slot_spacers.clear()
 	for i: int in GameState.settler_names.size():
 		var settler_name: String = GameState.settler_names[i]
 		var current: int = GameState.settler_health[i] if i < GameState.settler_health.size() \
@@ -323,7 +360,17 @@ func _show_settler_tooltip() -> void:
 				line = "%s ([color=#88ee88]fed[/color])" % settler_name
 			else:
 				line = "%s ([color=#ee8800]starving[/color])" % settler_name
-		_tooltip_name_box.add_child(_make_tooltip_rtlabel(line))
+		var row: HBoxContainer = HBoxContainer.new()
+		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var lbl: RichTextLabel = _make_tooltip_rtlabel(line)
+		lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(lbl)
+		var spacer: Control = Control.new()
+		spacer.custom_minimum_size = Vector2(40.0, 40.0)
+		spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(spacer)
+		_tooltip_name_box.add_child(row)
+		_settler_slot_spacers.append(spacer)
 	_settler_tooltip.visible = true
 
 func _hide_settler_tooltip() -> void:
@@ -336,17 +383,13 @@ func _hide_settler_tooltip() -> void:
 func _on_settler_label_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mb: InputEventMouseButton = event as InputEventMouseButton
-		if mb.button_index == MOUSE_BUTTON_LEFT:
-			if mb.pressed:
-				_show_settler_tooltip()
-			else:
-				_hide_settler_tooltip()
+		if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
+			settler_label_tapped.emit()
+			get_viewport().set_input_as_handled()
 	elif event is InputEventScreenTouch:
-		var st: InputEventScreenTouch = event as InputEventScreenTouch
-		if st.pressed:
-			_show_settler_tooltip()
-		else:
-			_hide_settler_tooltip()
+		if (event as InputEventScreenTouch).pressed:
+			settler_label_tapped.emit()
+			get_viewport().set_input_as_handled()
 
 func _on_energy_label_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:

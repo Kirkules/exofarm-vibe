@@ -14,8 +14,9 @@ extends Resource
 
 ## Multiset of required ingredients: PlaceableDefinition → quantity (int).
 var ingredients: Dictionary = {}
-## The meal produced by this recipe.
-var output_item: MealDefinition = null
+## The item produced by this recipe (may be a MealDefinition or a plain PlaceableDefinition
+## for intermediate ingredients that feed into further recipes).
+var output_item: PlaceableDefinition = null
 ## Number of output_item copies produced per craft execution.
 var output_count: int = 1
 ## Seconds a settler occupies the crafting station per execution.
