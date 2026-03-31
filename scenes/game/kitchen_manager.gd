@@ -17,6 +17,8 @@ var _kitchen_placed_items: Dictionary = {}
 var _active_cafeteria_id: int = -1
 ## Currently held item (picked up from a kitchen grid).
 var _held_item: InventoryItem = null
+## Known recipes propagated to every KitchenGrid.
+var _known_recipes: Array[RecipeDefinition] = []
 
 
 func setup(inventory: Inventory, inventory_ui: InventoryUI,
@@ -44,6 +46,16 @@ func active_screen_rect() -> Rect2:
 		return Rect2()
 	var kg: KitchenGrid = _kitchen_grids.get(_active_cafeteria_id, null) as KitchenGrid
 	return kg.get_full_screen_rect() if kg != null else Rect2()
+
+## Propagate known recipes to all existing and future KitchenGrids.
+func set_recipes(recipes: Array[RecipeDefinition]) -> void:
+	_known_recipes = recipes
+	for cid: int in _kitchen_grids:
+		(_kitchen_grids[cid] as KitchenGrid).set_recipes(recipes)
+
+## Returns the KitchenGrid for a given cafeteria piece_id, or null if none.
+func kitchen_grid_for(cafeteria_id: int) -> KitchenGrid:
+	return _kitchen_grids.get(cafeteria_id, null) as KitchenGrid
 
 ## Total number of items currently stored across all kitchen grids.
 func food_item_count() -> int:
@@ -140,7 +152,23 @@ func consume_all_items() -> void:
 		for pid: int in (_kitchen_placed_items[cid] as Dictionary).keys():
 			if kg != null:
 				kg.remove_piece(pid)
+				kg.on_item_removed(pid)
 		(_kitchen_placed_items[cid] as Dictionary).clear()
+
+## Remove only the specified piece_ids from whichever kitchen grids own them.
+## Items not found in any grid are silently ignored.
+## Used by _end_simulation to consume only the ingredients that were actually crafted.
+func consume_specific_items(piece_ids: Array[int]) -> void:
+	for cid: int in _kitchen_placed_items:
+		var kg: KitchenGrid    = _kitchen_grids.get(cid, null) as KitchenGrid
+		var items: Dictionary  = _kitchen_placed_items[cid] as Dictionary
+		for pid: int in piece_ids:
+			if not items.has(pid):
+				continue
+			items.erase(pid)
+			if kg != null:
+				kg.remove_piece(pid)
+				kg.on_item_removed(pid)
 
 ## Eject all items from the given cafeteria's grid to inventory, then remove and free it.
 func teardown(cafeteria_id: int) -> void:
@@ -186,6 +214,7 @@ func _create_grid_for(cafeteria_id: int, slots: int) -> void:
 	_ui_layer.add_child(kg)
 	_ui_layer.move_child(_inventory_ui, _ui_layer.get_child_count() - 1)
 	_kitchen_grids[cafeteria_id] = kg
+	kg.set_recipes(_known_recipes)
 	kg.set_capacity(slots)
 
 ## Find the nearest active empty cell in a KitchenGrid to a screen position.
@@ -225,6 +254,10 @@ func _on_piece_placed(cafeteria_id: int, piece_id: int) -> void:
 	var items: Dictionary = _kitchen_placed_items.get(cafeteria_id, {}) as Dictionary
 	if _held_item:
 		items[piece_id] = _held_item
+		var def: PlaceableDefinition = _held_item.data as PlaceableDefinition
+		var kg: KitchenGrid = _kitchen_grids.get(cafeteria_id, null) as KitchenGrid
+		if kg != null and def != null:
+			kg.on_item_placed(piece_id, def)
 	_held_item = null
 
 func _on_piece_picked_up(kg: KitchenGrid, cafeteria_id: int, piece_id: int, _shape: PieceShape) -> void:
@@ -233,6 +266,7 @@ func _on_piece_picked_up(kg: KitchenGrid, cafeteria_id: int, piece_id: int, _sha
 	items.erase(piece_id)
 	if _held_item:
 		kg.set_held_hint(_held_item.display_name)
+	kg.on_item_removed(piece_id)
 
 func _on_piece_released(_com_screen_pos: Vector2) -> void:
 	var item: InventoryItem = _held_item
@@ -244,11 +278,18 @@ func _on_piece_returned(cafeteria_id: int, piece_id: int) -> void:
 	var items: Dictionary = _kitchen_placed_items.get(cafeteria_id, {}) as Dictionary
 	if _held_item:
 		items[piece_id] = _held_item
+		var def: PlaceableDefinition = _held_item.data as PlaceableDefinition
+		var kg: KitchenGrid = _kitchen_grids.get(cafeteria_id, null) as KitchenGrid
+		if kg != null and def != null:
+			kg.on_item_placed(piece_id, def)
 	_held_item = null
 
 func _on_piece_ejected(cafeteria_id: int, piece_id: int) -> void:
-	var items: Dictionary = _kitchen_placed_items.get(cafeteria_id, {}) as Dictionary
+	var kg: KitchenGrid    = _kitchen_grids.get(cafeteria_id, null) as KitchenGrid
+	var items: Dictionary  = _kitchen_placed_items.get(cafeteria_id, {}) as Dictionary
 	var item: InventoryItem = items.get(piece_id, null) as InventoryItem
 	items.erase(piece_id)
 	if item != null:
 		_inventory.add(item)
+	if kg != null:
+		kg.on_item_removed(piece_id)

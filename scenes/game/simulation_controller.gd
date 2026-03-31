@@ -36,7 +36,11 @@ var _sim_log:         Array[Dictionary] = []
 
 ## Per-greenhouse state during simulation.
 var _greenhouse_states: Array[Dictionary] = []
-## Active settler walk animations.
+## Per-cafeteria crafting state during simulation.
+var _cafeteria_states: Array[Dictionary] = []
+## piece_ids of kitchen grid items consumed by completed crafting this season.
+var _crafted_ingredient_ids: Array[int] = []
+## Active settler walk/work animations.
 var _settler_agents: Array[Dictionary] = []
 
 var _solar_rig_piece_id: int = -1
@@ -100,16 +104,22 @@ func is_running() -> bool:
 func get_log() -> Array[Dictionary]:
 	return _sim_log
 
+## Returns the kitchen-grid piece_ids consumed by completed crafting this season.
+func get_crafted_ingredient_ids() -> Array[int]:
+	return _crafted_ingredient_ids
+
 ## Begin simulation for the new season.
 ## placed_items: piece_id -> InventoryItem (post UNBUILT→BUILT transition).
 ## power_state: from BuildingManager.power_state() — pre-transition state per design.
+## cafeteria_craft_queue: cafeteria_piece_id -> Array[{recipe, piece_ids}] (complete groups).
 func begin(placed_items: Dictionary, power_state: PowerSystem.PowerState,
-		solar_rig_piece_id: int) -> void:
+		solar_rig_piece_id: int, cafeteria_craft_queue: Dictionary = {}) -> void:
 	_sim_elapsed     = 0.0
 	_sim_speed_scale = 1.0
 	_solar_rig_piece_id = solar_rig_piece_id
 	_sim_log.clear()
 	_hud_ui.refresh_log([])
+	_crafted_ingredient_ids.clear()
 	for child: Node in _sim_live_log_box.get_children():
 		_sim_live_log_box.remove_child(child)
 		child.queue_free()
@@ -117,6 +127,7 @@ func begin(placed_items: Dictionary, power_state: PowerSystem.PowerState,
 
 	# Build greenhouse states for all powered greenhouses.
 	_greenhouse_states.clear()
+	_cafeteria_states.clear()
 	_settler_agents.clear()
 	for piece_id: int in placed_items:
 		var def: PlaceableDefinition = placed_items[piece_id].data as PlaceableDefinition
@@ -132,6 +143,23 @@ func begin(placed_items: Dictionary, power_state: PowerSystem.PowerState,
 			"col":                info["col"],
 			"tend_countdown":     (def as GreenhouseDefinition).tend_interval,
 			"tend_count":         0,
+			"settler_dispatched": false,
+		})
+
+	# Build cafeteria states for powered cafeterias with complete recipe groups.
+	for caf_id: int in cafeteria_craft_queue:
+		var info: Dictionary = _farm_grid.grid_data.get_piece_info(caf_id)
+		if info.is_empty():
+			continue
+		var queue: Array = cafeteria_craft_queue[caf_id] as Array
+		if queue.is_empty():
+			continue
+		_cafeteria_states.append({
+			"piece_id":          caf_id,
+			"row":               info["row"],
+			"col":               info["col"],
+			"craft_queue":       queue.duplicate(),
+			"current_craft_idx": 0,
 			"settler_dispatched": false,
 		})
 
@@ -164,6 +192,7 @@ func end_cleanup() -> void:
 		(agent["sprite"] as ColorRect).queue_free()
 	_settler_agents.clear()
 	_greenhouse_states.clear()
+	_cafeteria_states.clear()
 	_sim_progress_container.visible = false
 	_sim_live_log_box.visible       = false
 	_running = false
@@ -181,6 +210,7 @@ func _process(delta: float) -> void:
 	_sim_progress_bar.value   = _sim_elapsed
 	_sim_progress_label.text  = "%.1f s" % _sim_elapsed
 	_tick_greenhouses(scaled)
+	_tick_cafeterias(scaled)
 	_tick_settlers(scaled)
 
 func _on_timer_finished() -> void:
@@ -227,61 +257,176 @@ func _dispatch_settler(gh_idx: int) -> void:
 	_ui_layer.add_child(sprite)
 	sprite.position = solar_pos - Vector2(5.0, 5.0)
 	_settler_agents.append({
-		"sprite":       sprite,
-		"from_pos":     solar_pos,
-		"to_pos":       gh_pos,
-		"solar_pos":    solar_pos,
-		"elapsed":      0.0,
-		"duration":     travel_time,
-		"returning":    false,
-		"gh_idx":       gh_idx,
-		"settler_name": free_name,
+		"sprite":        sprite,
+		"from_pos":      solar_pos,
+		"to_pos":        gh_pos,
+		"solar_pos":     solar_pos,
+		"elapsed":       0.0,
+		"duration":      travel_time,
+		"returning":     false,
+		"is_cafeteria":  false,
+		"gh_idx":        gh_idx,
+		"caf_idx":       -1,
+		"crafting":      false,
+		"craft_elapsed": 0.0,
+		"craft_duration": 0.0,
+		"settler_name":  free_name,
+	})
+
+func _tick_cafeterias(_delta: float) -> void:
+	for i: int in _cafeteria_states.size():
+		var caf: Dictionary = _cafeteria_states[i]
+		if caf["settler_dispatched"]:
+			continue
+		var idx: int = caf["current_craft_idx"] as int
+		if idx >= (caf["craft_queue"] as Array).size():
+			continue
+		_dispatch_cafeteria_settler(i)
+
+func _dispatch_cafeteria_settler(caf_idx: int) -> void:
+	if _solar_rig_piece_id == -1:
+		return
+	var busy_names: Array[String] = []
+	for agent: Dictionary in _settler_agents:
+		busy_names.append(agent["settler_name"] as String)
+	var free_name: String = ""
+	for i: int in GameState.settler_names.size():
+		if GameState.settler_health[i] == GameState.SettlerHealth.DEAD:
+			continue
+		var n: String = GameState.settler_names[i]
+		if not busy_names.has(n):
+			free_name = n
+			break
+	if free_name.is_empty():
+		return
+	var caf: Dictionary        = _cafeteria_states[caf_idx]
+	caf["settler_dispatched"]  = true
+	var solar_info: Dictionary = _farm_grid.grid_data.get_piece_info(_solar_rig_piece_id)
+	var solar_pos: Vector2     = _grid_cell_center(solar_info["row"], solar_info["col"])
+	var caf_pos: Vector2       = _grid_cell_center(caf["row"], caf["col"])
+	var grid_dist: float       = (caf_pos - solar_pos).length() / 32.0
+	var travel_time: float     = maxf(grid_dist / 2.0, 0.01)
+	var craft: Dictionary      = (caf["craft_queue"] as Array)[caf["current_craft_idx"] as int]
+	var recipe: RecipeDefinition = craft["recipe"] as RecipeDefinition
+	var sprite: ColorRect      = ColorRect.new()
+	sprite.size    = Vector2(10.0, 10.0)
+	sprite.color   = Color(0.9, 0.75, 0.6)
+	sprite.z_index = 200
+	_ui_layer.add_child(sprite)
+	sprite.position = solar_pos - Vector2(5.0, 5.0)
+	_settler_agents.append({
+		"sprite":        sprite,
+		"from_pos":      solar_pos,
+		"to_pos":        caf_pos,
+		"solar_pos":     solar_pos,
+		"elapsed":       0.0,
+		"duration":      travel_time,
+		"returning":     false,
+		"is_cafeteria":  true,
+		"gh_idx":        -1,
+		"caf_idx":       caf_idx,
+		"crafting":      false,
+		"craft_elapsed": 0.0,
+		"craft_duration": recipe.labor_cost,
+		"settler_name":  free_name,
 	})
 
 func _tick_settlers(delta: float) -> void:
 	for i: int in range(_settler_agents.size() - 1, -1, -1):
 		var agent: Dictionary = _settler_agents[i]
+
+		# --- Cafeteria crafting dwell phase ---
+		if agent.get("crafting", false):
+			agent["craft_elapsed"] = (agent["craft_elapsed"] as float) + delta
+			if (agent["craft_elapsed"] as float) < (agent["craft_duration"] as float):
+				continue
+			# Crafting complete: produce meals and start return trip.
+			_on_cafeteria_craft_done(agent)
+			agent["crafting"]  = false
+			agent["returning"] = true
+			agent["from_pos"]  = agent["to_pos"]
+			agent["to_pos"]    = agent["solar_pos"]
+			agent["elapsed"]   = 0.0
+			# Return distance equals outward distance; duration stays unchanged.
+			continue
+
+		# --- Travel phase ---
 		agent["elapsed"] = (agent["elapsed"] as float) + delta
 		var t: float     = clampf((agent["elapsed"] as float) / (agent["duration"] as float), 0.0, 1.0)
 		var pos: Vector2 = (agent["from_pos"] as Vector2).lerp(agent["to_pos"], t)
 		(agent["sprite"] as ColorRect).position = pos - Vector2(5.0, 5.0)
 		if (agent["elapsed"] as float) < (agent["duration"] as float):
 			continue
+
 		if not agent["returning"]:
-			# Arrived at greenhouse: perform one tending operation.
-			var gh: Dictionary             = _greenhouse_states[agent["gh_idx"]]
-			var gh_def: GreenhouseDefinition = gh["def"] as GreenhouseDefinition
-			add_log_entry({
-				"label":       "%s tended to %s." % [agent["settler_name"], gh_def.display_name],
-				"value":       "",
-				"label_color": "",
-				"value_color": "",
-			})
-			gh["tend_count"] = (gh["tend_count"] as int) + 1
-			if (gh["tend_count"] as int) >= gh_def.tend_per_yield:
-				gh["tend_count"] = 0
-				if gh_def.output_item != null:
-					_inventory.add(InventoryItem.new(
-						gh_def.output_item.display_name,
-						gh_def.output_item.slot_size,
-						gh_def.output_item,
-					))
-					add_log_entry({
-						"label":       "%s:" % gh_def.display_name,
-						"value":       "+1 %s" % gh_def.output_item.display_name,
-						"label_color": "",
-						"value_color": LOG_COLOR_ITEM,
-					})
-			gh["tend_countdown"] = gh_def.tend_interval
-			agent["returning"]   = true
-			agent["from_pos"]    = agent["to_pos"]
-			agent["to_pos"]      = agent["solar_pos"]
-			agent["elapsed"]     = 0.0
+			if agent.get("is_cafeteria", false):
+				# Arrived at cafeteria — begin crafting dwell.
+				agent["crafting"]      = true
+				agent["craft_elapsed"] = 0.0
+			else:
+				# Arrived at greenhouse: perform one tending operation.
+				var gh: Dictionary             = _greenhouse_states[agent["gh_idx"]]
+				var gh_def: GreenhouseDefinition = gh["def"] as GreenhouseDefinition
+				add_log_entry({
+					"label":       "%s tended to %s." % [agent["settler_name"], gh_def.display_name],
+					"value":       "",
+					"label_color": "",
+					"value_color": "",
+				})
+				gh["tend_count"] = (gh["tend_count"] as int) + 1
+				if (gh["tend_count"] as int) >= gh_def.tend_per_yield:
+					gh["tend_count"] = 0
+					if gh_def.output_item != null:
+						_inventory.add(InventoryItem.new(
+							gh_def.output_item.display_name,
+							gh_def.output_item.slot_size,
+							gh_def.output_item,
+						))
+						add_log_entry({
+							"label":       "%s:" % gh_def.display_name,
+							"value":       "+1 %s" % gh_def.output_item.display_name,
+							"label_color": "",
+							"value_color": LOG_COLOR_ITEM,
+						})
+				gh["tend_countdown"] = gh_def.tend_interval
+				agent["returning"]   = true
+				agent["from_pos"]    = agent["to_pos"]
+				agent["to_pos"]      = agent["solar_pos"]
+				agent["elapsed"]     = 0.0
 		else:
 			# Returned to Solar Rig: free this settler.
 			(agent["sprite"] as ColorRect).queue_free()
-			_greenhouse_states[agent["gh_idx"]]["settler_dispatched"] = false
+			if agent.get("is_cafeteria", false):
+				pass  # settler_dispatched already cleared in _on_cafeteria_craft_done
+			else:
+				_greenhouse_states[agent["gh_idx"]]["settler_dispatched"] = false
 			_settler_agents.remove_at(i)
+
+func _on_cafeteria_craft_done(agent: Dictionary) -> void:
+	var caf_idx: int         = agent["caf_idx"] as int
+	var caf: Dictionary      = _cafeteria_states[caf_idx]
+	var idx: int             = caf["current_craft_idx"] as int
+	var craft: Dictionary    = (caf["craft_queue"] as Array)[idx]
+	var recipe: RecipeDefinition = craft["recipe"] as RecipeDefinition
+	# Track ingredient piece_ids consumed by this craft.
+	for pid: int in craft["piece_ids"]:
+		_crafted_ingredient_ids.append(pid)
+	# Add output meals to inventory.
+	for _n: int in recipe.output_count:
+		_inventory.add(InventoryItem.new(
+			recipe.output_item.display_name,
+			recipe.output_item.slot_size,
+			recipe.output_item,
+		))
+	add_log_entry({
+		"label":       "%s crafted %s:" % [agent["settler_name"], recipe.output_item.display_name],
+		"value":       "+%d" % recipe.output_count,
+		"label_color": "",
+		"value_color": LOG_COLOR_ITEM,
+	})
+	# Advance queue and free cafeteria for the next recipe immediately.
+	caf["current_craft_idx"]  = idx + 1
+	caf["settler_dispatched"] = false
 
 func _grid_cell_center(row: int, col: int) -> Vector2:
 	return _farm_grid.global_position + Vector2((col - 0.5) * 32.0, (row - 0.5) * 32.0)

@@ -18,5 +18,5 @@ extends Resource
 @export var matter_cost: int = 0
 ## Which grid UIs this item may be placed on.
 ## Use PlaceableDefinition.GridType values. Defaults to farm grid only.
-enum GridType { FARM_GRID, KITCHEN_GRID }
+enum GridType { FARM_GRID, KITCHEN_GRID, SETTLER_GRID }
 @export var allowed_grids: Array[int] = [GridType.FARM_GRID]

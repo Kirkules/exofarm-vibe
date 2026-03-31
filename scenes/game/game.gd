@@ -50,6 +50,7 @@ func _ready() -> void:
 	_confirm_dialog.confirmed.connect(_begin_simulation)
 	add_child(_confirm_dialog)
 
+	kitchen_manager.set_recipes(_recipe_definitions())
 	hud_ui.next_season_pressed.connect(_on_next_season_pressed)
 
 	# Build menu — shown below the grid when the inventory is collapsed.
@@ -174,10 +175,26 @@ func _begin_simulation() -> void:
 	_sim_construction_cost = building_manager.compute_construction_cost()
 	var log_entries: Array[Dictionary] = building_manager.transition_unbuilt_to_built()
 	_phase = Phase.SIMULATION
+	# Build the cafeteria craft queue from powered cafeterias with complete recipe groups.
+	var cafeteria_craft_queue: Dictionary = {}
+	var power_st: PowerSystem.PowerState  = building_manager.power_state()
+	for pid: int in building_manager.placed_items():
+		var item: InventoryItem = (building_manager.placed_items() as Dictionary)[pid] as InventoryItem
+		if not (item.data is CafeteriaDefinition):
+			continue
+		if not power_st.is_powered(pid):
+			continue
+		var kg: KitchenGrid = kitchen_manager.kitchen_grid_for(pid)
+		if kg == null:
+			continue
+		var groups: Array[Dictionary] = kg.get_complete_recipe_groups()
+		if not groups.is_empty():
+			cafeteria_craft_queue[pid] = groups
 	simulation_controller.begin(
 		building_manager.placed_items(),
 		building_manager.power_state(),
-		building_manager.solar_rig_piece_id())
+		building_manager.solar_rig_piece_id(),
+		cafeteria_craft_queue)
 	# Log per-building construction entries after begin() clears the log.
 	for entry: Dictionary in log_entries:
 		simulation_controller.add_log_entry(entry)
@@ -198,20 +215,10 @@ func _end_simulation() -> void:
 	# Construction cost (already logged per-building in _begin_simulation).
 	GameState.matter = maxi(0, GameState.matter - food["construction_cost"])
 
-	# Kitchen grid items consumed if cafeteria is powered.
-	var kitchen_items: int   = kitchen_manager.food_item_count()
-	var food_items_used: int = food["food_items"]
-	if kitchen_items > 0:
-		if food_items_used > 0:
-			sim.add_log_entry({"label": "Cafeteria:",
-					"value": "-%d food item%s" % [kitchen_items, "s" if kitchen_items != 1 else ""],
-					"label_color": "", "value_color": SimulationController.LOG_COLOR_ITEM})
-			kitchen_manager.consume_all_items()
-		else:
-			sim.add_log_entry({"label": "Cafeteria not powered —",
-					"value": "food items unused",
-					"label_color": SimulationController.LOG_COLOR_LOSS,
-					"value_color": SimulationController.LOG_COLOR_LOSS})
+	# Remove ingredients that were consumed during crafting; partial recipe groups stay.
+	var crafted_ids: Array[int] = simulation_controller.get_crafted_ingredient_ids()
+	if not crafted_ids.is_empty():
+		kitchen_manager.consume_specific_items(crafted_ids)
 
 	# Nutrient Paste.
 	if paste_produced > 0:
@@ -261,9 +268,8 @@ func _compute_food_state(construction_cost_override: int = -1) -> Dictionary:
 	var matter_prod: int       = building_manager.compute_matter_production()
 	var construction_cost: int = construction_cost_override if construction_cost_override >= 0 \
 		else building_manager.compute_construction_cost()
+	# TODO: count assigned meals from settler food slots (not yet implemented).
 	var food_items: int = 0
-	if building_manager.cafeteria_is_powered():
-		food_items = kitchen_manager.food_item_count()
 	var living: int         = GameState.settler_count
 	var paste_needed: int   = maxi(0, living - food_items)
 	var paste_produced: int = 0
@@ -323,6 +329,12 @@ func _place_starting_buildings() -> void:
 	matter_manip.power_draw      = 2
 	var matter_item: InventoryItem = InventoryItem.new(matter_manip.display_name, 1, matter_manip)
 	building_manager.place_at_built(matter_manip.shape, 3, 4, matter_item)
+
+## Returns the recipe definitions available this run.
+## Add recipes here as new ingredients are discovered.
+func _recipe_definitions() -> Array[RecipeDefinition]:
+	return []
+
 
 ## Returns the definitions available in the build menu this run.
 func _buildable_definitions() -> Array[PlaceableDefinition]:
