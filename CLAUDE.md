@@ -25,8 +25,8 @@ exists but caused irreversible climate change on Earth, making new planets neces
 **Phase 1 complete. Currently in Phase 2 (Season Simulation).**
 
 Recently completed:
-- GridType enum (`FARM_GRID`, `KITCHEN_GRID`) on `PlaceableDefinition`; crop output
-  items restricted to `KITCHEN_GRID` (not droppable on farm grid, but still draggable)
+- GridType enum (`FARM_GRID`, `KITCHEN_GRID`, `SETTLER_GRID`) on `PlaceableDefinition`;
+  crop items restricted to `KITCHEN_GRID`; meals restricted to `KITCHEN_GRID`+`SETTLER_GRID`
 - `CropProductionDefinition` inserted between `BuildingDefinition` and `GreenhouseDefinition`;
   holds `tend_interval` and `tend_per_yield`
 - Real-time 15s settler labor animation: ColorRect sprites walk Solar Rig↔greenhouses at
@@ -43,12 +43,20 @@ Recently completed:
 - Grid refactor complete: `GameGrid` base class; signal-driven sim locking via EventBus;
   `KitchenGrid` replaces `KitchenPanel`; `interaction_blocked` removed
 - `game.gd` split into `BuildingManager`, `KitchenManager`, `SimulationController`;
-  `game.gd` is now a ~420-line thin orchestrator
+  `game.gd` is now a thin orchestrator
+- `SettlerManager` + `SettlerFoodGrid`: per-settler 1×1 meal-assignment slots shown as
+  a panel overlay (tap settler label to open/close); items draggable across slots;
+  `assignments_changed` signal refreshes HUD; sibling grids deactivated during any drag
+  to suppress hover bleed; `set_held_discardable(true)` on pickup enables cross-slot drag
+- `RecipeDefinition` populated: {2 Wheat}→Pasta, {2 Tomato}→Tomato Sauce,
+  {1 Pasta+1 Tomato Sauce+1 Eggplant}→3 Pasta alla Norma (MealDefinition, SETTLER_GRID)
+- `_refresh_food_hud()` helper in game.gd shared by `power_changed` and
+  `assignments_changed` so Matter HUD/tooltip updates on meal assignment changes
 
 Next up:
 - [ ] Playback speed controls (1×, 2×, 3×, 5×)
 - [ ] Morale calculation and bar UI
-- [ ] Meal item crafting and consumption
+- [ ] Recipe execution during simulation (craft kitchen items into meals)
 - [ ] Inventory overflow → broken down to Matter at sim start
 
 ---
@@ -63,12 +71,14 @@ Next up:
 
 | File | Role |
 |------|------|
-| `scenes/game/game.gd` | Thin orchestrator (~420 lines): owns `Phase`, `_compute_food_state()`, `_begin/_end_simulation()`, wires managers |
+| `scenes/game/game.gd` | Thin orchestrator: owns `Phase`, `_compute_food_state()`, `_refresh_food_hud()`, `_begin/_end_simulation()`, wires managers |
 | `scenes/game/building_manager.gd` | Farm grid interaction, placement state, power/neighbor, build states, `BuildState` enum |
 | `scenes/game/kitchen_manager.gd` | All per-cafeteria `KitchenGrid` instances, item state, open/close/sync |
 | `scenes/game/simulation_controller.gd` | Simulation timer, progress bar, live log, greenhouse/settler animation |
+| `scenes/game/settler_manager.gd` | Per-settler `SettlerFoodGrid` instances; open/close/toggle; `assignments_changed` signal; cross-slot drag |
 | `scenes/game/grid/farm_grid.gd` | Grid input, piece hold/drag/drop, sprites, overlays |
 | `scenes/game/ui/kitchen_grid.gd` | `GameGrid` subclass (3×4, 40px cells); inactive cells; `piece_ejected` signal |
+| `scenes/game/ui/settler_food_grid.gd` | `GameGrid` subclass (1×1, 40px); "paste" placeholder; reactivates on merge_grid_closed only when visible |
 | `scripts/grid/game_grid.gd` | Base grid class; signal-driven planning lock; `_on_merge_grid_closed()` virtual |
 | `scripts/grid/grid_data.gd` | Grid state (pure logic, no rendering) |
 | `scripts/grid/piece_shape.gd` | Polyomino shape + rotation; `CellStyle` enum (SQUARE/CIRCLE) |
@@ -87,11 +97,14 @@ Next up:
 | `scripts/resources/crop_production_definition.gd` | Extends BuildingDefinition; tend_interval, tend_per_yield |
 | `scripts/resources/greenhouse_definition.gd` | Extends CropProductionDefinition; output_item |
 | `scripts/resources/cafeteria_definition.gd` | Extends BuildingDefinition; merge_slots |
+| `scripts/resources/meal_definition.gd` | Extends PlaceableDefinition; nutrient_value, morale_modifier |
+| `scripts/resources/recipe_definition.gd` | ingredients (PlaceableDefinition→int multiset), output_item (PlaceableDefinition), output_count, labor_cost |
 
 ### Resource Hierarchy
 
 ```
-PlaceableDefinition              ← crop items, generic placeables
+PlaceableDefinition              ← crop items, intermediate ingredients, generic placeables
+  ├── MealDefinition             ← Pasta alla Norma (KITCHEN_GRID + SETTLER_GRID)
   └── BuildingDefinition         ← Solar Rig, Matter Manipulator, Cafeteria
         ├── CafeteriaDefinition  ← merge_slots
         └── CropProductionDefinition  ← tend_interval, tend_per_yield
@@ -99,8 +112,10 @@ PlaceableDefinition              ← crop items, generic placeables
 ```
 
 **No `.tres` resource files exist.** All building and item definitions are created
-programmatically in `game.gd:_buildable_definitions()` and `_place_starting_buildings()`,
-which call `building_manager.place_at_built()` for starting buildings.
+programmatically in `game.gd:_create_item_defs()` and `_buildable_definitions()` and
+`_place_starting_buildings()`. Item defs are shared instance vars so recipe ingredient
+Dictionary keys match placed item `.data` references. `_recipe_definitions()` returns
+the three current recipes passed to `kitchen_manager.set_recipes()`.
 
 ### Screen Layout (270×600 portrait)
 
@@ -139,8 +154,9 @@ offset_top=−48). Its PARTIAL height = `viewport_h − grid_bottom − 8`.
 ```
 build menu tap   → game._on_building_requested(def)  → building_manager.begin_build_menu_hold
 inventory tap    → game._on_item_requested(item)
-                    • kitchen open: kitchen_manager.route_inventory_hold(item)
-                    • else:         building_manager.begin_inventory_hold(item)
+                    • settler panel open: settler_manager.route_inventory_hold(item)
+                    • kitchen open:       kitchen_manager.route_inventory_hold(item)
+                    • else:               building_manager.begin_inventory_hold(item)
 
 building_manager internal (farm_grid signals → BuildingManager handlers):
   inventory_item_pickup_confirmed → remove from inventory; set held state
@@ -153,11 +169,25 @@ building_manager internal (farm_grid signals → BuildingManager handlers):
   piece_long_pressed    → if CafeteriaDefinition: emit cafeteria_long_pressed(piece_id)
 
 game.gd handles BuildingManager signals:
-  power_changed         → _on_power_changed(): update HUD + kitchen_manager.sync()
-  piece_released_off_farm → route KITCHEN_GRID items to kitchen_manager.try_place_item();
+  power_changed         → _on_power_changed(): _refresh_food_hud() + kitchen_manager.sync()
+  piece_released_off_farm → route SETTLER_GRID items to settler_manager.try_place_item();
+                             route KITCHEN_GRID items to kitchen_manager.try_place_item();
                              UNBUILT: discard; else: return to inventory
   piece_picked_up_from_farm → kitchen_manager.close()
-  cafeteria_long_pressed → kitchen_manager.open(piece_id)  [guarded: no-op in SIMULATION]
+  cafeteria_long_pressed → settler_manager.close(); kitchen_manager.open(piece_id)
+                            [guarded: no-op in SIMULATION]
+
+settler_manager (SettlerFoodGrid signals wired per-settler via closures):
+  inventory_item_pickup_confirmed → remove from inventory; set _held_item;
+                                    _deactivate_other_grids(g)
+  piece_placed_on_grid  → register in _settler_placed_items[i]; _reactivate_all_grids()
+  piece_picked_up_from_grid → erase from _settler_placed_items[i];
+                               set_held_discardable(true) for cross-slot drag;
+                               _deactivate_other_grids(g)
+  piece_released        → try_place_item on sibling slots; else return to inventory;
+                          _reactivate_all_grids()
+  piece_returned_to_grid → restore _settler_placed_items[i]; _reactivate_all_grids()
+  assignments_changed   → game._refresh_food_hud() (updates Matter HUD + tooltip)
 
 kitchen_manager (KitchenGrid signals wired per-cafeteria via closures):
   inventory_item_pickup_confirmed → remove from inventory; set _held_item
@@ -182,7 +212,7 @@ UNBUILT pieces have `"active": false`, so they don't participate in power.
 1. Player presses "Go to Season N" → `game._on_next_season_pressed()`
 2. Confirmation dialog (if starvation risk)
 3. `game._begin_simulation()`:
-   - `kitchen_manager.close()`
+   - `kitchen_manager.close()` + `settler_manager.close()`
    - Capture `_sim_construction_cost = building_manager.compute_construction_cost()`
    - `building_manager.transition_unbuilt_to_built()` → returns per-building log entries
    - `simulation_controller.begin(placed_items, power_state, solar_rig_piece_id)`
@@ -193,7 +223,8 @@ UNBUILT pieces have `"active": false`, so they don't participate in power.
    each arrival is a tend; on `tend_per_yield` tends the greenhouse yields one crop item.
    Player can press "Skip simulation" → `simulation_controller.skip()` (compresses to 0.5s)
 5. Timer fires → `simulation_controller.finished` → `game._end_simulation()`:
-   - log/apply Matter prod → log/consume kitchen items → log/apply Nutrient Paste
+   - log/apply Matter prod → log/consume kitchen items → log settler meal consumption
+     (`settler_manager.consume_assigned_meals()`) → log/apply Nutrient Paste
    - log deaths → update GameState → push log to HUD → `simulation_controller.end_cleanup()`
    - `building_manager.recompute_power()` → `power_changed` → HUD update + kitchen sync
    Note: power_state is NOT recomputed after UNBUILT→BUILT in `_begin_simulation()`, so
@@ -209,11 +240,15 @@ Always call `simulation_controller.add_log_entry(base)` — never append to the 
 
 ### _compute_food_state() return keys
 
-Lives in `game.gd`; calls `building_manager` and `kitchen_manager` for inputs.
-Keys: `matter_prod`, `construction_cost`, `food_items` (from kitchen grids if cafeteria
-powered, else 0), `paste_needed`, `paste_produced`, `projected_health` (Array[int]),
-`deaths`. Pass `construction_cost_override >= 0` in `_end_simulation` to use the
-pre-transition cost (captured before UNBUILT→BUILT runs).
+Lives in `game.gd`; calls `building_manager`, `kitchen_manager`, and `settler_manager` for inputs.
+Keys: `matter_prod`, `construction_cost`, `food_items` (from `settler_manager.assigned_meal_count()`;
+meals in settler slots count as food, reducing Nutrient Paste need), `paste_needed`,
+`paste_produced`, `projected_health` (Array[int]), `deaths`.
+Pass `construction_cost_override >= 0` in `_end_simulation` to use the pre-transition cost
+(captured before UNBUILT→BUILT runs).
+
+`_refresh_food_hud()` is a shared helper called by both `_on_power_changed` and
+`settler_manager.assignments_changed` to keep Matter HUD/tooltip in sync.
 
 ### Power System
 
@@ -296,7 +331,7 @@ Both paths use the Cafeteria for meal crafting.
 - Playback speed controls (1×/2×/3×/5×)
 - Inventory overflow: items beyond capacity broken down into Matter at sim start
 - Morale: calculation logic + bar UI with projected delta display
-- Meal item crafting and consumption logic
+- Recipe execution during simulation (craft kitchen items into meals using RecipeDefinition)
 
 ### Design Decisions Deferred
 - `KITCHEN_GRID` items (Wheat, Tomato, Eggplant): dragging them onto the farm grid
@@ -324,6 +359,12 @@ Both paths use the Cafeteria for meal crafting.
 - `KitchenManager._find_nearest_empty_cell(kg, screen_pos)` finds the closest active
   empty slot to the drop CoM; used by `try_place_item()` for off-grid drops
 - `BuildState` enum lives in `BuildingManager`; `BuildingManager.BuildState.UNBUILT/BUILT`
+- Settler panel: opened by tapping the settler count label in HUD; `SettlerFoodGrid` nodes
+  on the same `_ui_layer` at z_index=101 (above the settler tooltip at z_index=100);
+  positioned via math from `_settler_tooltip.global_position + offset` (not layout queries)
+- Settler cross-slot drag: `set_held_discardable(true)` on GRID pickup; sibling grids
+  deactivated (`set_grid_active(false)`) during drag to suppress hover bleed; reactivated
+  in all `_on_piece_placed/released/returned` handlers
 
 ---
 
@@ -366,6 +407,17 @@ use the raw tap/cursor position for these decisions. The CoM is computed as
 `_effective_cursor_screen_pos() + (avg_offset + 0.5) * CELL_SIZE` where
 `_effective_cursor_screen_pos()` already incorporates the drag offset setting.
 This keeps visual and logical position in agreement regardless of drag-offset settings.
+
+### Math-Based UI Positioning
+Prefer computing screen positions mathematically from known layout constants (e.g.
+`_settler_tooltip.global_position + Vector2(panel_w - slot_size, i * slot_size)`) over
+querying `Control.get_global_rect()` or `get_global_position()` on individual child
+nodes. Child Control layout cascades (VBoxContainer row placement, HBoxContainer
+distribution, etc.) may not be complete even one frame after nodes are added, making
+runtime queries unreliable. Math-based positioning is deterministic, frame-independent,
+and easier to reason about. Use `get_global_rect()` only when the target node's position
+is explicitly assigned (not layout-driven) and you need its size, or when there is no
+reasonable closed-form alternative.
 
 ### Piece Visuals
 - Buildings/structures: square cells

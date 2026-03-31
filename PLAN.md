@@ -782,8 +782,12 @@ live in `scripts/`.
   fed/starving tracking; colony-lost condition when all settlers die)
 - [ ] Morale calculation (fresh each season from inputs)
 - [ ] Morale bar UI with projected delta display
-- [ ] Cafeteria building: merge space + consumption area UI
-- [ ] Meal item crafting and consumption logic
+- [x] Cafeteria building: merge space (KitchenGrid) + consumption area UI (SettlerFoodGrid
+  per-settler meal assignment panel; meals draggable across slots; HUD reflects savings)
+- [x] Meal item crafting data: RecipeDefinition populated ({2 Wheat}→Pasta,
+  {2 Tomato}→Tomato Sauce, {1 Pasta+1 Tomato Sauce+1 Eggplant}→3 Pasta alla Norma);
+  MealDefinition extends PlaceableDefinition with nutrient_value + morale_modifier
+- [ ] Recipe execution during simulation (actually run recipes in KitchenGrid at sim time)
 - [ ] Exploration task resolution (outcome roll, Morale modifier, windfall delivery,
   site reveal conversion)
 
