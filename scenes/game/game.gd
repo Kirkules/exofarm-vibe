@@ -155,6 +155,7 @@ func _on_power_changed(_placed: Dictionary) -> void:
 func _refresh_food_hud() -> void:
 	var food: Dictionary = _compute_food_state()
 	var matter_net: int  = food["matter_prod"] - food["construction_cost"] - food["paste_produced"]
+	hud_ui.set_settler_projected_morale(food["projected_morale"])
 	hud_ui.set_settler_projected_health(food["projected_health"])
 	hud_ui.refresh_matter(GameState.matter + matter_net, matter_net)
 	hud_ui.refresh_matter_tooltip(GameState.matter, building_manager.build_matter_entries(food))
@@ -277,8 +278,9 @@ func _end_simulation() -> void:
 				"label_color": "", "value_color": SimulationController.LOG_COLOR_LOSS})
 	GameState.matter = maxi(0, GameState.matter - paste_produced)
 
-	# Settler deaths.
-	var projected: Array = food["projected_health"]
+	# Settler deaths and morale.
+	var projected: Array    = food["projected_health"]
+	var proj_morale: Array  = food["projected_morale"]
 	for i: int in GameState.settlers.size():
 		var s: Settler = GameState.settlers[i]
 		if s.health != Settler.Health.DEAD and projected[i] == Settler.Health.DEAD:
@@ -286,6 +288,7 @@ func _end_simulation() -> void:
 					"value": "", "label_color": SimulationController.LOG_COLOR_DEATH,
 					"value_color": ""})
 		s.health = projected[i] as Settler.Health
+		s.morale = proj_morale[i] as int
 
 	GameState.season += 1
 	hud_ui.refresh_log(sim.get_log())
@@ -305,11 +308,12 @@ func _end_simulation() -> void:
 # Food state computation
 # ---------------------------------------------------------------------------
 
-## Computes projected food and Nutrient Paste state for the upcoming season end.
+## Computes projected food, Nutrient Paste, and morale state for the upcoming season end.
 ## Pass construction_cost_override >= 0 to use a pre-computed cost (used inside
 ## _end_simulation after the UNBUILT→BUILT transition has already run).
 ## Keys: matter_prod, construction_cost, food_items, paste_needed, paste_produced,
-##       projected_health (Array[int] of Settler.Health values, parallel to settlers), deaths.
+##       projected_health (Array[int] of Settler.Health, parallel to settlers),
+##       projected_morale (Array[int], parallel to settlers), deaths.
 func _compute_food_state(construction_cost_override: int = -1) -> Dictionary:
 	var matter_prod: int       = building_manager.compute_matter_production()
 	var construction_cost: int = construction_cost_override if construction_cost_override >= 0 \
@@ -336,6 +340,25 @@ func _compute_food_state(construction_cost_override: int = -1) -> Dictionary:
 		else:
 			projected_health.append(Settler.Health.DEAD)
 			deaths += 1
+	# Morale: base 0, minus one per projected-dead settler, minus 1 for paste, plus meal modifier.
+	var projected_dead_count: int = 0
+	for h: int in projected_health:
+		if h == Settler.Health.DEAD:
+			projected_dead_count += 1
+	var projected_morale: Array[int] = []
+	for i: int in GameState.settlers.size():
+		if projected_health[i] == Settler.Health.DEAD:
+			projected_morale.append(0)
+			continue
+		var m: int = -projected_dead_count
+		var meal_item: InventoryItem = settler_manager.get_assigned_meal(i)
+		if meal_item != null:
+			var meal_def: MealDefinition = meal_item.data as MealDefinition
+			if meal_def != null:
+				m += meal_def.morale_modifier
+		else:
+			m -= 1  # Nutrient Paste penalty
+		projected_morale.append(m)
 	return {
 		"matter_prod":       matter_prod,
 		"construction_cost": construction_cost,
@@ -343,6 +366,7 @@ func _compute_food_state(construction_cost_override: int = -1) -> Dictionary:
 		"paste_needed":      paste_needed,
 		"paste_produced":    paste_produced,
 		"projected_health":  projected_health,
+		"projected_morale":  projected_morale,
 		"deaths":            deaths,
 	}
 

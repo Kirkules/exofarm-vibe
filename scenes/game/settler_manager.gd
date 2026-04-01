@@ -48,6 +48,15 @@ func open_screen_rect() -> Rect2:
 			r = r.merge(g.get_screen_rect())
 	return r
 
+## Returns the InventoryItem assigned to the settler's food slot, or null if empty.
+func get_assigned_meal(settler_idx: int) -> InventoryItem:
+	if settler_idx >= _settler_placed_items.size():
+		return null
+	var items: Dictionary = _settler_placed_items[settler_idx] as Dictionary
+	if items.is_empty():
+		return null
+	return items.values()[0] as InventoryItem
+
 ## Returns true if settler at index has a meal assigned in their food slot.
 func has_meal_assigned(settler_idx: int) -> bool:
 	if settler_idx >= _settler_placed_items.size():

@@ -30,6 +30,8 @@ var _matter_delta:     int = 0
 ## Projected health for each settler after this season (parallel to GameState.settlers).
 ## Empty until the first _recompute_power call.
 var _settler_projected_health: Array[int] = []
+## Projected morale for each settler after this season (parallel to GameState.settlers).
+var _settler_projected_morale: Array[int] = []
 
 ## Tooltip panels that drop below the HUD bar (z_index=100 renders above inventory).
 var _energy_tooltip:   PanelContainer
@@ -254,6 +256,11 @@ func refresh_matter_tooltip(stored: int, entries: Array) -> void:
 	for entry: Dictionary in entries:
 		_matter_info_box.add_child(_make_rtlabel(_delta_line_bbcode(entry["name"], entry["delta"])))
 
+## Update the projected morale for each settler (parallel to GameState.settlers).
+## Call before set_settler_projected_health so the tooltip refresh uses current values.
+func set_settler_projected_morale(projected: Array[int]) -> void:
+	_settler_projected_morale = projected
+
 ## Update the projected health for each settler (parallel to GameState.settlers).
 func set_settler_projected_health(projected: Array[int]) -> void:
 	_settler_projected_health = projected
@@ -332,6 +339,21 @@ func _make_log_row(label: String, label_color: String,
 # Settler tooltip
 # ---------------------------------------------------------------------------
 
+func _morale_word(morale: int) -> String:
+	if morale >= 2:  return "Happy"
+	if morale == 1:  return "Good"
+	if morale == 0:  return "Content"
+	if morale == -1: return "Restless"
+	return "Troubled"
+
+func _morale_bbcode(morale: int) -> String:
+	var sign: String = "+" if morale >= 0 else ""
+	if morale > 0:
+		return "[color=#88ee88]%s%d[/color]" % [sign, morale]
+	elif morale < 0:
+		return "[color=#ee8800]%d[/color]" % morale
+	return "%s%d" % [sign, morale]
+
 func _show_settler_tooltip() -> void:
 	for child: Node in _tooltip_name_box.get_children():
 		child.queue_free()
@@ -348,6 +370,9 @@ func _show_settler_tooltip() -> void:
 				line = "%s ([color=#88ee88]fed[/color])" % s.name
 			else:
 				line = "%s ([color=#ee8800]starving[/color])" % s.name
+			var morale: int = _settler_projected_morale[i] \
+				if i < _settler_projected_morale.size() else 0
+			line += " [%s (%s)]" % [_morale_word(morale), _morale_bbcode(morale)]
 		var row: HBoxContainer = HBoxContainer.new()
 		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var lbl: RichTextLabel = _make_rtlabel(line)
