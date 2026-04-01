@@ -17,6 +17,8 @@ const BASE_HEIGHT := 52
 signal next_season_pressed
 ## Emitted when the player taps the Settlers HUD label (toggle settler panel).
 signal settler_label_tapped
+## Emitted after a morale expansion row is toggled so SettlerManager can reposition grids.
+signal settler_panel_layout_changed
 
 var _energy_label:  Label
 var _matter_label:  RichTextLabel
@@ -32,6 +34,11 @@ var _matter_delta:     int = 0
 var _settler_projected_health: Array[int] = []
 ## Projected morale for each settler after this season (parallel to GameState.settlers).
 var _settler_projected_morale: Array[int] = []
+## Per-settler morale breakdown dicts: {dead_penalty, food_delta, food_label}.
+## Empty dict for dead settlers.
+var _settler_morale_breakdown: Array[Dictionary] = []
+## Index of the settler whose morale breakdown is currently expanded (-1 = none).
+var _expanded_morale_settler: int = -1
 
 ## Tooltip panels that drop below the HUD bar (z_index=100 renders above inventory).
 var _energy_tooltip:   PanelContainer
@@ -226,17 +233,13 @@ func settler_tooltip_screen_rect() -> Rect2:
 	return _settler_tooltip.get_global_rect()
 
 ## Screen rects of the per-settler slot areas (used by SettlerManager to position grids).
-## Computed mathematically from the tooltip's explicit position — does not depend on
-## Control layout cascade completing, so safe to call in the same frame as open().
+## Queries actual spacer positions — call only after layout has settled (deferred frame).
 func get_settler_slot_screen_rects() -> Array[Rect2]:
-	const SLOT_SIZE: float = 40.0
 	var result: Array[Rect2] = []
 	if not _settler_tooltip.visible:
 		return result
-	var origin: Vector2 = _settler_tooltip.global_position
-	var slot_x: float = origin.x + _settler_tooltip.custom_minimum_size.x - SLOT_SIZE
-	for i: int in _settler_slot_spacers.size():
-		result.append(Rect2(slot_x, origin.y + float(i) * SLOT_SIZE, SLOT_SIZE, SLOT_SIZE))
+	for spacer: Control in _settler_slot_spacers:
+		result.append(spacer.get_global_rect())
 	return result
 
 ## Rebuild the Energy tooltip content.
@@ -256,10 +259,11 @@ func refresh_matter_tooltip(stored: int, entries: Array) -> void:
 	for entry: Dictionary in entries:
 		_matter_info_box.add_child(_make_rtlabel(_delta_line_bbcode(entry["name"], entry["delta"])))
 
-## Update the projected morale for each settler (parallel to GameState.settlers).
+## Update the projected morale and breakdown for each settler (parallel to GameState.settlers).
 ## Call before set_settler_projected_health so the tooltip refresh uses current values.
-func set_settler_projected_morale(projected: Array[int]) -> void:
-	_settler_projected_morale = projected
+func set_settler_projected_morale(projected: Array[int], breakdown: Array[Dictionary]) -> void:
+	_settler_projected_morale  = projected
+	_settler_morale_breakdown  = breakdown
 
 ## Update the projected health for each settler (parallel to GameState.settlers).
 func set_settler_projected_health(projected: Array[int]) -> void:
@@ -359,35 +363,90 @@ func _show_settler_tooltip() -> void:
 		child.queue_free()
 	_settler_slot_spacers.clear()
 	for i: int in GameState.settlers.size():
-		var s: Settler = GameState.settlers[i]
-		var line: String
+		var s: Settler    = GameState.settlers[i]
+		var settler_vbox: VBoxContainer = VBoxContainer.new()
+		settler_vbox.add_theme_constant_override("separation", 0)
+		settler_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+		# --- Main row: name/health label | morale label | food slot spacer ---
+		var main_row: HBoxContainer = HBoxContainer.new()
+		main_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+		var name_line: String
 		if s.health == Settler.Health.DEAD:
-			line = "%s ([color=#ee4444]dead[/color])" % s.name
+			name_line = "%s ([color=#ee4444]dead[/color])" % s.name
 		else:
 			var projected: int = _settler_projected_health[i] \
 				if i < _settler_projected_health.size() else Settler.Health.FED
-			if projected == Settler.Health.FED:
-				line = "%s ([color=#88ee88]fed[/color])" % s.name
-			else:
-				line = "%s ([color=#ee8800]starving[/color])" % s.name
-			var morale: int = _settler_projected_morale[i] \
-				if i < _settler_projected_morale.size() else 0
-			line += " [%s (%s)]" % [_morale_word(morale), _morale_bbcode(morale)]
-		var row: HBoxContainer = HBoxContainer.new()
-		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		var lbl: RichTextLabel = _make_rtlabel(line)
-		lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(lbl)
+			name_line = "%s ([color=%s]%s[/color])" % [
+				s.name,
+				"#88ee88" if projected == Settler.Health.FED else "#ee8800",
+				"fed" if projected == Settler.Health.FED else "starving",
+			]
+		var name_lbl: RichTextLabel = _make_rtlabel(name_line)
+		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		main_row.add_child(name_lbl)
+
+		if s.health != Settler.Health.DEAD and i < _settler_projected_morale.size():
+			var morale: int = _settler_projected_morale[i]
+			var morale_line: String = "[%s (%s)]" % [_morale_word(morale), _morale_bbcode(morale)]
+			var morale_lbl: RichTextLabel = _make_rtlabel(morale_line)
+			morale_lbl.mouse_filter = Control.MOUSE_FILTER_STOP
+			var idx: int = i  # capture for closure
+			morale_lbl.gui_input.connect(
+				func(event: InputEvent) -> void: _on_morale_label_input(event, idx))
+			main_row.add_child(morale_lbl)
+
 		var spacer: Control = Control.new()
 		spacer.custom_minimum_size = Vector2(40.0, 40.0)
-		spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		row.add_child(spacer)
-		_tooltip_name_box.add_child(row)
+		spacer.mouse_filter        = Control.MOUSE_FILTER_IGNORE
+		main_row.add_child(spacer)
+		settler_vbox.add_child(main_row)
 		_settler_slot_spacers.append(spacer)
+
+		# --- Expansion rows: morale breakdown (visible only when expanded) ---
+		if i == _expanded_morale_settler and i < _settler_morale_breakdown.size():
+			var bd: Dictionary = _settler_morale_breakdown[i] as Dictionary
+			if not bd.is_empty():
+				var expand_vbox: VBoxContainer = VBoxContainer.new()
+				expand_vbox.add_theme_constant_override("separation", 0)
+				expand_vbox.mouse_filter = Control.MOUSE_FILTER_STOP
+				expand_vbox.gui_input.connect(
+					func(event: InputEvent) -> void: _on_morale_label_input(event, i))
+				var dead_penalty: int = bd.get("dead_penalty", 0) as int
+				if dead_penalty < 0:
+					var dead_lbl: RichTextLabel = _make_rtlabel(
+						"  Dead settlers: %s" % _morale_bbcode(dead_penalty),
+						LOG_FONT_SIZE)
+					expand_vbox.add_child(dead_lbl)
+				var food_delta: int   = bd.get("food_delta", 0) as int
+				var food_label: String = bd.get("food_label", "") as String
+				var food_lbl: RichTextLabel = _make_rtlabel(
+					"  %s: %s" % [food_label, _morale_bbcode(food_delta)],
+					LOG_FONT_SIZE)
+				expand_vbox.add_child(food_lbl)
+				settler_vbox.add_child(expand_vbox)
+
+		_tooltip_name_box.add_child(settler_vbox)
 	_settler_tooltip.visible = true
 
+func _on_morale_label_input(event: InputEvent, settler_idx: int) -> void:
+	var pressed: bool = false
+	if event is InputEventMouseButton:
+		var mb: InputEventMouseButton = event as InputEventMouseButton
+		pressed = mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed
+	elif event is InputEventScreenTouch:
+		pressed = (event as InputEventScreenTouch).pressed
+	if not pressed:
+		return
+	_expanded_morale_settler = -1 if _expanded_morale_settler == settler_idx else settler_idx
+	_show_settler_tooltip()
+	settler_panel_layout_changed.emit()
+	get_viewport().set_input_as_handled()
+
 func _hide_settler_tooltip() -> void:
-	_settler_tooltip.visible = false
+	_settler_tooltip.visible     = false
+	_expanded_morale_settler     = -1
 
 # ---------------------------------------------------------------------------
 # Internal

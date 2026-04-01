@@ -86,7 +86,13 @@ func open() -> void:
 	_panel_open = true
 	_sync_grids()
 	_hud_ui.show_settler_panel()
-	_position_grids()
+	call_deferred("_position_grids")
+
+## Re-position food grid overlays after the settler panel layout changes.
+## Called deferred (by game.gd) so VBoxContainer layout settles first.
+func reposition_grids() -> void:
+	if _panel_open:
+		_position_grids()
 
 func close() -> void:
 	if not _panel_open:

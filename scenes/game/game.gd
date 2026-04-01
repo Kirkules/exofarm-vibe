@@ -76,6 +76,8 @@ func _ready() -> void:
 	kitchen_manager.set_recipes(_recipe_definitions())
 	_dismissable_panels = [kitchen_manager, settler_manager]
 	hud_ui.next_season_pressed.connect(_on_next_season_pressed)
+	hud_ui.settler_panel_layout_changed.connect(
+		func() -> void: settler_manager.call_deferred("reposition_grids"))
 
 	# Build menu — shown below the grid when the inventory is collapsed.
 	var viewport_h: float = get_viewport().get_visible_rect().size.y
@@ -155,7 +157,7 @@ func _on_power_changed(_placed: Dictionary) -> void:
 func _refresh_food_hud() -> void:
 	var food: Dictionary = _compute_food_state()
 	var matter_net: int  = food["matter_prod"] - food["construction_cost"] - food["paste_produced"]
-	hud_ui.set_settler_projected_morale(food["projected_morale"])
+	hud_ui.set_settler_projected_morale(food["projected_morale"], food["projected_morale_breakdown"])
 	hud_ui.set_settler_projected_health(food["projected_health"])
 	hud_ui.refresh_matter(GameState.matter + matter_net, matter_net)
 	hud_ui.refresh_matter_tooltip(GameState.matter, building_manager.build_matter_entries(food))
@@ -345,29 +347,33 @@ func _compute_food_state(construction_cost_override: int = -1) -> Dictionary:
 	for h: int in projected_health:
 		if h == Settler.Health.DEAD:
 			projected_dead_count += 1
-	var projected_morale: Array[int] = []
+	var projected_morale:           Array[int]        = []
+	var projected_morale_breakdown: Array[Dictionary] = []
 	for i: int in GameState.settlers.size():
 		if projected_health[i] == Settler.Health.DEAD:
 			projected_morale.append(0)
+			projected_morale_breakdown.append({})
 			continue
-		var m: int = -projected_dead_count
-		var meal_item: InventoryItem = settler_manager.get_assigned_meal(i)
-		if meal_item != null:
-			var meal_def: MealDefinition = meal_item.data as MealDefinition
-			if meal_def != null:
-				m += meal_def.morale_modifier
-		else:
-			m -= 1  # Nutrient Paste penalty
-		projected_morale.append(m)
+		var meal_item: InventoryItem  = settler_manager.get_assigned_meal(i)
+		var meal_def: MealDefinition  = meal_item.data as MealDefinition if meal_item != null else null
+		var food_delta: int           = meal_def.morale_modifier if meal_def != null else -1
+		var food_label: String        = meal_item.display_name if meal_item != null else "Nutrient Paste"
+		projected_morale.append(-projected_dead_count + food_delta)
+		projected_morale_breakdown.append({
+			"dead_penalty": -projected_dead_count,
+			"food_delta":   food_delta,
+			"food_label":   food_label,
+		})
 	return {
-		"matter_prod":       matter_prod,
-		"construction_cost": construction_cost,
-		"food_items":        food_items,
-		"paste_needed":      paste_needed,
-		"paste_produced":    paste_produced,
-		"projected_health":  projected_health,
-		"projected_morale":  projected_morale,
-		"deaths":            deaths,
+		"matter_prod":                matter_prod,
+		"construction_cost":          construction_cost,
+		"food_items":                 food_items,
+		"paste_needed":               paste_needed,
+		"paste_produced":             paste_produced,
+		"projected_health":           projected_health,
+		"projected_morale":           projected_morale,
+		"projected_morale_breakdown": projected_morale_breakdown,
+		"deaths":                     deaths,
 	}
 
 
