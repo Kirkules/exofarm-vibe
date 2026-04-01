@@ -182,17 +182,8 @@ func _ready() -> void:
 	_held_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_held_sprite_layer.add_child(_held_sprite)
 
-	_held_label = Label.new()
-	_held_label.size = Vector2(cell_size, cell_size)
-	_held_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_held_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_held_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_held_label = _make_label(cell_size)
 	_held_label.visible = false
-	_held_label.add_theme_font_size_override("font_size", 8)
-	_held_label.add_theme_color_override("font_color", Color.WHITE)
-	_held_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.85))
-	_held_label.add_theme_constant_override("shadow_offset_x", 1)
-	_held_label.add_theme_constant_override("shadow_offset_y", 1)
 	_held_sprite_layer.add_child(_held_label)
 
 
@@ -310,49 +301,10 @@ func _input(event: InputEvent) -> void:
 			if event.pressed:
 				_mouse_held     = true
 				_last_input_pos = event.position
-				if _held_shape:
-					_drag_source = InputSource.MOUSE
-				elif _pending_source == PendingSource.INVENTORY and _pending_input == InputSource.NONE:
-					_pending_input      = InputSource.MOUSE
-					_pending_screen_pos = event.position
-				elif _pending_input == InputSource.NONE:
-					var cell: Vector2i = _pos_to_cell(_cursor_pos)
-					var cell_val: int = grid_data.get_cell(cell.x, cell.y) if cell != Vector2i(-1, -1) else 0
-					if cell_val > 0 and _piece_moveable.get(cell_val, true):
-						_pending_input      = InputSource.MOUSE
-						_pending_screen_pos = event.position
-						_pending_timer      = 0.0
-						_pending_source     = PendingSource.GRID
-						_pending_grid_cell  = cell
-						if _piece_toggleable.get(cell_val, false) and _active_touches.is_empty():
-							_start_tap_down(cell_val, InputSource.MOUSE, event.position, -1)
-					elif cell_val > 0 and _active_touches.is_empty():
-						_start_tap_down(cell_val, InputSource.MOUSE, event.position, -1)
+				_handle_input_press(InputSource.MOUSE, -1, event.position, _active_touches.is_empty())
 			else:
 				_mouse_held = false
-				if _drag_source == InputSource.MOUSE:
-					_drag_source = InputSource.NONE
-					if _held_shape:
-						_try_place_or_return()
-				elif _pending_input == InputSource.MOUSE:
-					if _pending_source == PendingSource.GRID and _pending_grid_cell != Vector2i(-1, -1):
-						var cv: int = grid_data.get_cell(_pending_grid_cell.x, _pending_grid_cell.y)
-						if cv > 0 and _tap_piece_id == cv:
-							if _tap_state == TapState.DOWN:
-								_tap_state = TapState.WINDOW
-								_tap_timer = 0.0
-							elif _tap_state == TapState.LOCKED:
-								_clear_tap()
-					_cancel_pending()
-				elif _pending_source == PendingSource.INVENTORY and _pending_input == InputSource.NONE:
-					_cancel_pending()
-				elif _held_shape and _drag_source == InputSource.NONE:
-					_try_place_or_return()
-				elif _tap_state == TapState.DOWN and _tap_input == InputSource.MOUSE:
-					_tap_state = TapState.WINDOW
-					_tap_timer = 0.0
-				elif _tap_state == TapState.LOCKED and _tap_input == InputSource.MOUSE:
-					_clear_tap()
+				_handle_input_release(InputSource.MOUSE, -1)
 		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed and _held_shape:
 			rotate_held_cw()
 		queue_redraw()
@@ -362,63 +314,15 @@ func _input(event: InputEvent) -> void:
 			_active_touches[event.index] = true
 			_last_touch_idx = event.index
 			_last_input_pos = event.position
-
 			if _held_shape and _active_touches.size() > 1:
 				rotate_held_cw()
 				return
-
 			_cursor_screen_pos = event.position
 			_cursor_pos        = to_local(event.position)
-
-			if _held_shape:
-				_drag_source    = InputSource.TOUCH
-				_drag_touch_idx = event.index
-			elif _pending_source == PendingSource.INVENTORY and _pending_input == InputSource.NONE:
-				_pending_input      = InputSource.TOUCH
-				_pending_touch_idx  = event.index
-				_pending_screen_pos = event.position
-			elif _pending_input == InputSource.NONE:
-				var cell: Vector2i = _pos_to_cell(_cursor_pos)
-				var cell_val: int = grid_data.get_cell(cell.x, cell.y) if cell != Vector2i(-1, -1) else 0
-				if cell_val > 0 and _piece_moveable.get(cell_val, true):
-					_pending_input      = InputSource.TOUCH
-					_pending_touch_idx  = event.index
-					_pending_screen_pos = event.position
-					_pending_timer      = 0.0
-					_pending_source     = PendingSource.GRID
-					_pending_grid_cell  = cell
-					if _piece_toggleable.get(cell_val, false):
-						_start_tap_down(cell_val, InputSource.TOUCH, event.position, event.index)
-				elif cell_val > 0:
-					_start_tap_down(cell_val, InputSource.TOUCH, event.position, event.index)
+			_handle_input_press(InputSource.TOUCH, event.index, event.position, true)
 		else:
 			_active_touches.erase(event.index)
-			if _drag_source == InputSource.TOUCH and event.index == _drag_touch_idx:
-				_drag_source    = InputSource.NONE
-				_drag_touch_idx = -1
-				if _held_shape:
-					_try_place_or_return()
-			elif _pending_input == InputSource.TOUCH and event.index == _pending_touch_idx:
-				if _pending_source == PendingSource.GRID and _pending_grid_cell != Vector2i(-1, -1):
-					var cv: int = grid_data.get_cell(_pending_grid_cell.x, _pending_grid_cell.y)
-					if cv > 0 and _tap_piece_id == cv:
-						if _tap_state == TapState.DOWN:
-							_tap_state     = TapState.WINDOW
-							_tap_timer     = 0.0
-							_tap_touch_idx = -1
-						elif _tap_state == TapState.LOCKED:
-							_clear_tap()
-				_cancel_pending()
-			elif _pending_source == PendingSource.INVENTORY and _pending_input == InputSource.NONE:
-				_cancel_pending()
-			elif _held_shape and _drag_source == InputSource.NONE:
-				_try_place_or_return()
-			elif _tap_state == TapState.DOWN and _tap_input == InputSource.TOUCH and event.index == _tap_touch_idx:
-				_tap_state     = TapState.WINDOW
-				_tap_timer     = 0.0
-				_tap_touch_idx = -1
-			elif _tap_state == TapState.LOCKED and _tap_input == InputSource.TOUCH and event.index == _tap_touch_idx:
-				_clear_tap()
+			_handle_input_release(InputSource.TOUCH, event.index)
 		queue_redraw()
 
 	elif event is InputEventScreenDrag:
@@ -471,11 +375,7 @@ func _confirm_pending() -> void:
 				_held_label_hint   = _piece_label_hints.get(val, "")
 				_drag_source    = _pending_input
 				_drag_touch_idx = _pending_touch_idx
-				_held_sprite.texture = PieceSpriteGenerator.generate(shape, shape.color)
-				_held_sprite.visible = true
-				_held_label.text    = shape.get_label(_held_label_hint)
-				_held_label.visible = true
-				_update_held_sprite_pos()
+				_show_held_sprite(shape)
 				emit_signal("piece_picked_up_from_grid", val, shape)
 		PendingSource.INVENTORY:
 			if _pending_inv_item != null:
@@ -485,19 +385,10 @@ func _confirm_pending() -> void:
 				_held_label_hint = _pending_inv_item.display_name
 				_drag_source    = _pending_input
 				_drag_touch_idx = _pending_touch_idx
-				_held_sprite.texture = PieceSpriteGenerator.generate(shape, shape.color)
-				_held_sprite.visible = true
-				_held_label.text    = shape.get_label(_held_label_hint)
-				_held_label.visible = true
-				_update_held_sprite_pos()
+				_show_held_sprite(shape)
 				emit_signal("inventory_item_pickup_confirmed", _pending_inv_item)
 
-	_pending_source    = PendingSource.NONE
-	_pending_input     = InputSource.NONE
-	_pending_touch_idx = -1
-	_pending_timer     = 0.0
-	_pending_inv_item  = null
-	_pending_grid_cell = Vector2i(-1, -1)
+	_cancel_pending()
 	queue_redraw()
 
 
@@ -616,11 +507,7 @@ func hold_piece(shape: PieceShape, hint: String = "") -> void:
 	_held_origin     = HeldOrigin.INVENTORY
 	_held_label_hint = hint
 	_drag_source     = InputSource.NONE
-	_held_sprite.texture = PieceSpriteGenerator.generate(shape, shape.color)
-	_held_sprite.visible = true
-	_held_label.text    = shape.get_label(hint)
-	_held_label.visible = true
-	_update_held_sprite_pos()
+	_show_held_sprite(shape)
 	queue_redraw()
 
 
@@ -659,8 +546,7 @@ func place_piece_at(shape: PieceShape, row: int, col: int, hint: String = "") ->
 func rotate_held_cw() -> void:
 	if _held_shape:
 		_held_shape = _held_shape.rotated_cw()
-		_held_sprite.texture = PieceSpriteGenerator.generate(_held_shape, _held_shape.color)
-		_update_held_sprite_pos()
+		_show_held_sprite(_held_shape)
 		queue_redraw()
 
 
@@ -780,6 +666,28 @@ func get_grid_pixel_size() -> Vector2:
 # Sprite helpers
 # ---------------------------------------------------------------------------
 
+func _make_label(sz: int) -> Label:
+	var lbl: Label = Label.new()
+	lbl.size = Vector2(sz, sz)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lbl.add_theme_font_size_override("font_size", 8)
+	lbl.add_theme_color_override("font_color", Color.WHITE)
+	lbl.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.85))
+	lbl.add_theme_constant_override("shadow_offset_x", 1)
+	lbl.add_theme_constant_override("shadow_offset_y", 1)
+	return lbl
+
+
+func _show_held_sprite(shape: PieceShape) -> void:
+	_held_sprite.texture = PieceSpriteGenerator.generate(shape, shape.color)
+	_held_sprite.visible = true
+	_held_label.text     = shape.get_label(_held_label_hint)
+	_held_label.visible  = true
+	_update_held_sprite_pos()
+
+
 func _update_held_sprite_pos() -> void:
 	if not _held_shape:
 		return
@@ -801,18 +709,9 @@ func _create_piece_sprite(piece_id: int, shape: PieceShape, origin_cell: Vector2
 	var hint: String = _piece_label_hints.get(piece_id, "")
 	var text: String = shape.get_label(hint)
 	if not text.is_empty():
-		var lbl: Label = Label.new()
+		var lbl: Label = _make_label(cell_size)
 		lbl.text = text
 		lbl.position = Vector2(-bb.position.y, -bb.position.x) * cell_size
-		lbl.size = Vector2(cell_size, cell_size)
-		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		lbl.add_theme_font_size_override("font_size", 8)
-		lbl.add_theme_color_override("font_color", Color.WHITE)
-		lbl.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.85))
-		lbl.add_theme_constant_override("shadow_offset_x", 1)
-		lbl.add_theme_constant_override("shadow_offset_y", 1)
 		sprite.add_child(lbl)
 	add_child(sprite)
 	_piece_sprites[piece_id] = sprite
@@ -831,16 +730,18 @@ func _remove_piece_sprite(piece_id: int) -> void:
 # Helpers
 # ---------------------------------------------------------------------------
 
-func _effective_cursor_pos() -> Vector2:
+func _drag_offset_vec() -> Vector2:
 	if Settings.drag_offset and _held_shape != null:
-		return _cursor_pos + Vector2(-cell_size, -cell_size * 1.5)
-	return _cursor_pos
+		return Vector2(-cell_size, -cell_size * 1.5)
+	return Vector2.ZERO
+
+
+func _effective_cursor_pos() -> Vector2:
+	return _cursor_pos + _drag_offset_vec()
 
 
 func _effective_cursor_screen_pos() -> Vector2:
-	if Settings.drag_offset and _held_shape != null:
-		return _cursor_screen_pos + Vector2(-cell_size, -cell_size * 1.5)
-	return _cursor_screen_pos
+	return _cursor_screen_pos + _drag_offset_vec()
 
 
 func _cell_rect(row: int, col: int) -> Rect2:
@@ -858,6 +759,74 @@ func _pos_to_cell(pos: Vector2) -> Vector2i:
 	if grid_data.is_in_bounds(row, col):
 		return Vector2i(row, col)
 	return Vector2i(-1, -1)
+
+# ---------------------------------------------------------------------------
+# Shared input helpers
+# ---------------------------------------------------------------------------
+
+## Shared press logic for mouse (idx = -1) and touch.
+## allow_tap: pass _active_touches.is_empty() for mouse, true for touch.
+func _handle_input_press(source: InputSource, idx: int, screen_pos: Vector2, allow_tap: bool) -> void:
+	if _held_shape:
+		_drag_source = source
+		if source == InputSource.TOUCH:
+			_drag_touch_idx = idx
+	elif _pending_source == PendingSource.INVENTORY and _pending_input == InputSource.NONE:
+		_pending_input      = source
+		_pending_screen_pos = screen_pos
+		if source == InputSource.TOUCH:
+			_pending_touch_idx = idx
+	elif _pending_input == InputSource.NONE:
+		var cell: Vector2i = _pos_to_cell(_cursor_pos)
+		var cell_val: int  = grid_data.get_cell(cell.x, cell.y) if cell != Vector2i(-1, -1) else 0
+		if cell_val > 0 and _piece_moveable.get(cell_val, true):
+			_pending_input      = source
+			_pending_screen_pos = screen_pos
+			_pending_timer      = 0.0
+			_pending_source     = PendingSource.GRID
+			_pending_grid_cell  = cell
+			if source == InputSource.TOUCH:
+				_pending_touch_idx = idx
+			if _piece_toggleable.get(cell_val, false) and allow_tap:
+				_start_tap_down(cell_val, source, screen_pos, idx)
+		elif cell_val > 0 and allow_tap:
+			_start_tap_down(cell_val, source, screen_pos, idx)
+
+
+## Shared release logic for mouse (idx = -1) and touch.
+func _handle_input_release(source: InputSource, idx: int) -> void:
+	if _drag_source == source and (source == InputSource.MOUSE or idx == _drag_touch_idx):
+		_drag_source = InputSource.NONE
+		if source == InputSource.TOUCH:
+			_drag_touch_idx = -1
+		if _held_shape:
+			_try_place_or_return()
+	elif _pending_input == source and (source == InputSource.MOUSE or idx == _pending_touch_idx):
+		if _pending_source == PendingSource.GRID and _pending_grid_cell != Vector2i(-1, -1):
+			var cv: int = grid_data.get_cell(_pending_grid_cell.x, _pending_grid_cell.y)
+			if cv > 0 and _tap_piece_id == cv:
+				if _tap_state == TapState.DOWN:
+					_tap_state = TapState.WINDOW
+					_tap_timer = 0.0
+					if source == InputSource.TOUCH:
+						_tap_touch_idx = -1
+				elif _tap_state == TapState.LOCKED:
+					_clear_tap()
+		_cancel_pending()
+	elif _pending_source == PendingSource.INVENTORY and _pending_input == InputSource.NONE:
+		_cancel_pending()
+	elif _held_shape and _drag_source == InputSource.NONE:
+		_try_place_or_return()
+	elif _tap_state == TapState.DOWN and _tap_input == source \
+			and (source == InputSource.MOUSE or idx == _tap_touch_idx):
+		_tap_state = TapState.WINDOW
+		_tap_timer = 0.0
+		if source == InputSource.TOUCH:
+			_tap_touch_idx = -1
+	elif _tap_state == TapState.LOCKED and _tap_input == source \
+			and (source == InputSource.MOUSE or idx == _tap_touch_idx):
+		_clear_tap()
+
 
 # ---------------------------------------------------------------------------
 # Tap-detection helpers
