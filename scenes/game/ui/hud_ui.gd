@@ -48,9 +48,13 @@ var _matter_info_box:  VBoxContainer
 var _settler_tooltip:  PanelContainer
 var _tooltip_name_box: VBoxContainer
 
-var _log_btn:   Button
-var _log_panel: PanelContainer
-var _log_vbox:  VBoxContainer
+var _log_btn:             Button
+var _log_panel:           Panel
+var _log_scroll:          ScrollContainer
+var _log_vbox:            VBoxContainer
+var _log_scrollbar:       ColorRect
+var _log_scrollbar_timer: Timer
+var _log_drag_active:     bool = false
 
 ## Spacer Controls inside each settler row — positioned behind SettlerFoodGrid nodes.
 var _settler_slot_spacers: Array[Control] = []
@@ -136,16 +140,39 @@ func _build_ui() -> void:
 	_settler_tooltip.add_child(_tooltip_name_box)
 	add_child(_settler_tooltip)
 
-	_log_panel = PanelContainer.new()
+	_log_panel = Panel.new()
 	var log_bg: StyleBoxFlat = StyleBoxFlat.new()
 	log_bg.bg_color = COLOR_TOOLTIP
 	_log_panel.add_theme_stylebox_override("panel", log_bg)
 	_log_panel.visible = false
 	_log_panel.z_index = 100
-	_log_panel.custom_minimum_size = Vector2(270.0, 0.0)
-	_log_vbox = VBoxContainer.new()
-	_log_panel.add_child(_log_vbox)
 	add_child(_log_panel)
+
+	_log_scroll = ScrollContainer.new()
+	_log_scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_log_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_log_scroll.vertical_scroll_mode   = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+	_log_scroll.mouse_filter = Control.MOUSE_FILTER_STOP
+	_log_scroll.gui_input.connect(_on_log_panel_input)
+	_log_panel.add_child(_log_scroll)
+
+	_log_vbox = VBoxContainer.new()
+	_log_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_log_scroll.add_child(_log_vbox)
+
+	_log_scrollbar = ColorRect.new()
+	_log_scrollbar.color   = Color(1.0, 1.0, 1.0, 0.45)
+	_log_scrollbar.size    = Vector2(4.0, 0.0)
+	_log_scrollbar.visible = false
+	_log_scrollbar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_log_scrollbar.z_index = 1
+	_log_panel.add_child(_log_scrollbar)
+
+	_log_scrollbar_timer = Timer.new()
+	_log_scrollbar_timer.one_shot = true
+	_log_scrollbar_timer.timeout.connect(
+		func() -> void: _log_scrollbar.visible = false)
+	add_child(_log_scrollbar_timer)
 
 func _make_tooltip_panel() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
@@ -203,7 +230,8 @@ func _apply_safe_area() -> void:
 	_energy_tooltip.position  = Vector2(0.0, tooltip_y)
 	_matter_tooltip.position  = Vector2(0.0, tooltip_y)
 	_settler_tooltip.position = Vector2(0.0, tooltip_y)
-	_log_panel.position       = Vector2(0.0, tooltip_y)
+	_log_panel.position = Vector2(0.0, tooltip_y)
+	_log_panel.size     = Vector2(270.0, viewport_size.y - tooltip_y)
 
 # ---------------------------------------------------------------------------
 # Public
@@ -311,6 +339,8 @@ func refresh_log(entries: Array[Dictionary]) -> void:
 				entry["label"], entry.get("label_color", ""),
 				entry["value"], entry.get("value_color", ""),
 				entry.get("timestamp", -1.0)))
+	# Scroll to bottom deferred so layout completes before max_value is queried.
+	call_deferred("_scroll_log_to_bottom")
 
 ## Creates a log entry: label line (with timestamp right-justified), then value on next line.
 ## label_color/value_color are hex strings (e.g. "#88ee88"); empty = no color override.
@@ -483,9 +513,69 @@ func _on_matter_label_input(event: InputEvent) -> void:
 func _on_log_btn_pressed() -> void:
 	_log_panel.visible = not _log_panel.visible
 	if _log_panel.visible:
-		_energy_tooltip.visible = false
-		_matter_tooltip.visible = false
+		_energy_tooltip.visible  = false
+		_matter_tooltip.visible  = false
 		_settler_tooltip.visible = false
+		call_deferred("_scroll_log_to_bottom")
+
+func _input(event: InputEvent) -> void:
+	if not _log_panel.visible:
+		return
+	var is_press: bool = false
+	var press_pos: Vector2 = Vector2.ZERO
+	if event is InputEventMouseButton:
+		var mb: InputEventMouseButton = event as InputEventMouseButton
+		if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
+			is_press  = true
+			press_pos = mb.position
+	elif event is InputEventScreenTouch:
+		var t: InputEventScreenTouch = event as InputEventScreenTouch
+		if t.pressed:
+			is_press  = true
+			press_pos = t.position
+	if not is_press:
+		return
+	# Exclude the log button itself — _on_log_btn_pressed handles that toggle.
+	if _log_btn.get_global_rect().has_point(press_pos):
+		return
+	if not _log_panel.get_global_rect().has_point(press_pos):
+		_log_panel.visible = false
+
+func _on_log_panel_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var mb: InputEventMouseButton = event as InputEventMouseButton
+		if mb.button_index == MOUSE_BUTTON_LEFT:
+			_log_drag_active = mb.pressed
+	elif event is InputEventScreenTouch:
+		_log_drag_active = (event as InputEventScreenTouch).pressed
+	elif event is InputEventMouseMotion and _log_drag_active:
+		_log_scroll.scroll_vertical -= int((event as InputEventMouseMotion).relative.y)
+		_show_log_scrollbar_indicator()
+	elif event is InputEventScreenDrag and _log_drag_active:
+		_log_scroll.scroll_vertical -= int((event as InputEventScreenDrag).relative.y)
+		_show_log_scrollbar_indicator()
+	get_viewport().set_input_as_handled()
+
+func _show_log_scrollbar_indicator() -> void:
+	_update_log_scrollbar_indicator()
+	_log_scrollbar.visible = true
+	_log_scrollbar_timer.start(1.0)
+
+func _update_log_scrollbar_indicator() -> void:
+	var panel_h: float  = _log_panel.size.y
+	var max_scroll: int = _log_scroll.get_v_scroll_bar().max_value as int
+	if max_scroll <= 0:
+		_log_scrollbar.visible = false
+		return
+	var total_h: float      = panel_h + float(max_scroll)
+	var thumb_h: float      = maxf(panel_h * panel_h / total_h, 16.0)
+	var scroll_ratio: float = float(_log_scroll.scroll_vertical) / float(max_scroll)
+	var thumb_y: float      = scroll_ratio * (panel_h - thumb_h)
+	_log_scrollbar.size     = Vector2(4.0, thumb_h)
+	_log_scrollbar.position = Vector2(_log_panel.size.x - 5.0, thumb_y)
+
+func _scroll_log_to_bottom() -> void:
+	_log_scroll.scroll_vertical = _log_scroll.get_v_scroll_bar().max_value as int
 
 func _on_next_season_button_pressed() -> void:
 	next_season_pressed.emit()
