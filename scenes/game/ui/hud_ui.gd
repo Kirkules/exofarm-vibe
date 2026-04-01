@@ -360,6 +360,7 @@ func _morale_bbcode(morale: int) -> String:
 
 func _show_settler_tooltip() -> void:
 	for child: Node in _tooltip_name_box.get_children():
+		_tooltip_name_box.remove_child(child)
 		child.queue_free()
 	_settler_slot_spacers.clear()
 	for i: int in GameState.settlers.size():
