@@ -396,7 +396,7 @@ func _show_settler_tooltip() -> void:
 
 		if s.health != Settler.Health.DEAD and i < _settler_projected_morale.size():
 			var morale: int = _settler_projected_morale[i]
-			var morale_line: String = "[%s (%s)]" % [_morale_word(morale), _morale_bbcode(morale)]
+			var morale_line: String = "%s (%s)" % [_morale_word(morale), _morale_bbcode(morale)]
 			var morale_lbl: RichTextLabel = _make_rtlabel(morale_line)
 			morale_lbl.mouse_filter = Control.MOUSE_FILTER_STOP
 			var idx: int = i  # capture for closure

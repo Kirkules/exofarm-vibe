@@ -42,6 +42,8 @@ var _cafeteria_states: Array[Dictionary] = []
 var _crafted_ingredient_ids: Array[int] = []
 ## Active settler walk/work animations.
 var _settler_agents: Array[Dictionary] = []
+## Per-settler skip budget for the current season (settler_name -> int).
+var _settler_skips_remaining: Dictionary = {}
 
 var _solar_rig_piece_id: int = -1
 var _running: bool = false
@@ -129,6 +131,10 @@ func begin(placed_items: Dictionary, power_state: PowerSystem.PowerState,
 	_greenhouse_states.clear()
 	_cafeteria_states.clear()
 	_settler_agents.clear()
+	_settler_skips_remaining.clear()
+	for s: Settler in GameState.settlers:
+		if s.health != Settler.Health.DEAD:
+			_settler_skips_remaining[s.name] = maxi(0, -s.morale)
 	for piece_id: int in placed_items:
 		var def: PlaceableDefinition = placed_items[piece_id].data as PlaceableDefinition
 		if not def is GreenhouseDefinition:
@@ -263,20 +269,22 @@ func _dispatch_settler(gh_idx: int) -> void:
 	var travel_time: float     = maxf(grid_dist / 2.0, 0.01)
 	var sprite: ColorRect      = _make_settler_sprite(solar_pos)
 	_settler_agents.append({
-		"sprite":        sprite,
-		"from_pos":      solar_pos,
-		"to_pos":        gh_pos,
-		"solar_pos":     solar_pos,
-		"elapsed":       0.0,
-		"duration":      travel_time,
-		"returning":     false,
-		"is_cafeteria":  false,
-		"gh_idx":        gh_idx,
-		"caf_idx":       -1,
-		"crafting":      false,
-		"craft_elapsed": 0.0,
-		"craft_duration": 0.0,
-		"settler_name":  free_name,
+		"sprite":          sprite,
+		"from_pos":        solar_pos,
+		"to_pos":          gh_pos,
+		"solar_pos":       solar_pos,
+		"elapsed":         0.0,
+		"duration":        travel_time,
+		"returning":       false,
+		"is_cafeteria":    false,
+		"gh_idx":          gh_idx,
+		"caf_idx":         -1,
+		"crafting":        false,
+		"craft_elapsed":   0.0,
+		"craft_duration":  0.0,
+		"settler_name":    free_name,
+		"tasks_this_trip": 0,
+		"tasks_limit":     1 + maxi(0, _get_settler_morale(free_name)),
 	})
 
 func _tick_cafeterias(_delta: float) -> void:
@@ -306,21 +314,86 @@ func _dispatch_cafeteria_settler(caf_idx: int) -> void:
 	var recipe: RecipeDefinition = craft["recipe"] as RecipeDefinition
 	var sprite: ColorRect      = _make_settler_sprite(solar_pos)
 	_settler_agents.append({
-		"sprite":        sprite,
-		"from_pos":      solar_pos,
-		"to_pos":        caf_pos,
-		"solar_pos":     solar_pos,
-		"elapsed":       0.0,
-		"duration":      travel_time,
-		"returning":     false,
-		"is_cafeteria":  true,
-		"gh_idx":        -1,
-		"caf_idx":       caf_idx,
-		"crafting":      false,
-		"craft_elapsed": 0.0,
-		"craft_duration": recipe.labor_cost,
-		"settler_name":  free_name,
+		"sprite":          sprite,
+		"from_pos":        solar_pos,
+		"to_pos":          caf_pos,
+		"solar_pos":       solar_pos,
+		"elapsed":         0.0,
+		"duration":        travel_time,
+		"returning":       false,
+		"is_cafeteria":    true,
+		"gh_idx":          -1,
+		"caf_idx":         caf_idx,
+		"crafting":        false,
+		"craft_elapsed":   0.0,
+		"craft_duration":  recipe.labor_cost,
+		"settler_name":    free_name,
+		"tasks_this_trip": 0,
+		"tasks_limit":     1 + maxi(0, _get_settler_morale(free_name)),
 	})
+
+func _get_settler_morale(settler_name: String) -> int:
+	for s: Settler in GameState.settlers:
+		if s.name == settler_name:
+			return s.morale
+	return 0
+
+## Returns the nearest unclaimed, ready task (greenhouse or cafeteria) to from_pos,
+## or an empty dict if none are available.
+func _find_nearest_available_task(from_pos: Vector2) -> Dictionary:
+	var best: Dictionary = {}
+	var best_dist: float = INF
+	for i: int in _greenhouse_states.size():
+		var gh: Dictionary = _greenhouse_states[i]
+		if gh["settler_dispatched"] or (gh["tend_countdown"] as float) > 0.0:
+			continue
+		var pos: Vector2 = _grid_cell_center(gh["row"] as int, gh["col"] as int)
+		var d: float     = from_pos.distance_to(pos)
+		if d < best_dist:
+			best_dist = d
+			best = {"type": "greenhouse", "idx": i, "pos": pos}
+	for i: int in _cafeteria_states.size():
+		var caf: Dictionary = _cafeteria_states[i]
+		if caf["settler_dispatched"]:
+			continue
+		if (caf["current_craft_idx"] as int) >= (caf["craft_queue"] as Array).size():
+			continue
+		var pos: Vector2 = _grid_cell_center(caf["row"] as int, caf["col"] as int)
+		var d: float     = from_pos.distance_to(pos)
+		if d < best_dist:
+			best_dist = d
+			best = {"type": "cafeteria", "idx": i, "pos": pos}
+	return best
+
+## Mark a task as claimed so no other settler is dispatched to it.
+func _claim_task(task: Dictionary) -> void:
+	if (task["type"] as String) == "greenhouse":
+		_greenhouse_states[task["idx"] as int]["settler_dispatched"] = true
+	else:
+		_cafeteria_states[task["idx"] as int]["settler_dispatched"] = true
+
+## Redirect agent to travel directly to task from from_pos without returning to Solar Rig.
+## Claims the task and updates all relevant agent fields in place.
+func _send_agent_to_task(agent: Dictionary, from_pos: Vector2, task: Dictionary) -> void:
+	_claim_task(task)
+	var to_pos: Vector2    = task["pos"] as Vector2
+	var travel_time: float = maxf((to_pos - from_pos).length() / 32.0 / 2.0, 0.01)
+	agent["from_pos"]      = from_pos
+	agent["to_pos"]        = to_pos
+	agent["elapsed"]       = 0.0
+	agent["duration"]      = travel_time
+	agent["returning"]     = false
+	agent["is_cafeteria"]  = (task["type"] as String) == "cafeteria"
+	agent["gh_idx"]        = task["idx"] if (task["type"] as String) == "greenhouse" else -1
+	agent["caf_idx"]       = task["idx"] if (task["type"] as String) == "cafeteria" else -1
+	agent["crafting"]      = false
+	agent["craft_elapsed"] = 0.0
+	if (task["type"] as String) == "cafeteria":
+		var caf: Dictionary          = _cafeteria_states[task["idx"] as int]
+		var craft: Dictionary        = (caf["craft_queue"] as Array)[caf["current_craft_idx"] as int]
+		agent["craft_duration"]      = (craft["recipe"] as RecipeDefinition).labor_cost
+	else:
+		agent["craft_duration"] = 0.0
 
 func _tick_settlers(delta: float) -> void:
 	for i: int in range(_settler_agents.size() - 1, -1, -1):
@@ -331,14 +404,20 @@ func _tick_settlers(delta: float) -> void:
 			agent["craft_elapsed"] = (agent["craft_elapsed"] as float) + delta
 			if (agent["craft_elapsed"] as float) < (agent["craft_duration"] as float):
 				continue
-			# Crafting complete: produce meals and start return trip.
+			# Crafting complete: produce meals.
 			_on_cafeteria_craft_done(agent)
-			agent["crafting"]  = false
-			agent["returning"] = true
-			agent["from_pos"]  = agent["to_pos"]
-			agent["to_pos"]    = agent["solar_pos"]
-			agent["elapsed"]   = 0.0
-			# Return distance equals outward distance; duration stays unchanged.
+			agent["crafting"]        = false
+			agent["tasks_this_trip"] = (agent["tasks_this_trip"] as int) + 1
+			var caf_next: Dictionary = Dictionary()
+			if (agent["tasks_this_trip"] as int) < (agent["tasks_limit"] as int):
+				caf_next = _find_nearest_available_task(agent["to_pos"] as Vector2)
+			if not caf_next.is_empty():
+				_send_agent_to_task(agent, agent["to_pos"] as Vector2, caf_next)
+			else:
+				agent["returning"] = true
+				agent["from_pos"]  = agent["to_pos"]
+				agent["to_pos"]    = agent["solar_pos"]
+				agent["elapsed"]   = 0.0
 			continue
 
 		# --- Travel phase ---
@@ -355,42 +434,65 @@ func _tick_settlers(delta: float) -> void:
 				agent["crafting"]      = true
 				agent["craft_elapsed"] = 0.0
 			else:
-				# Arrived at greenhouse: perform one tending operation.
-				var gh: Dictionary             = _greenhouse_states[agent["gh_idx"]]
+				# Arrived at greenhouse.
+				var gh: Dictionary               = _greenhouse_states[agent["gh_idx"] as int]
 				var gh_def: GreenhouseDefinition = gh["def"] as GreenhouseDefinition
-				add_log_entry({
-					"label":       "%s tended to %s." % [agent["settler_name"], gh_def.display_name],
-					"value":       "",
-					"label_color": "",
-					"value_color": "",
-				})
-				gh["tend_count"] = (gh["tend_count"] as int) + 1
-				if (gh["tend_count"] as int) >= gh_def.tend_per_yield:
-					gh["tend_count"] = 0
-					if gh_def.output_item != null:
-						_inventory.add(InventoryItem.new(
-							gh_def.output_item.display_name,
-							gh_def.output_item.slot_size,
-							gh_def.output_item,
-						))
-						add_log_entry({
-							"label":       "%s:" % gh_def.display_name,
-							"value":       "+1 %s" % gh_def.output_item.display_name,
-							"label_color": "",
-							"value_color": LOG_COLOR_ITEM,
-						})
-				gh["tend_countdown"] = gh_def.tend_interval
-				agent["returning"]   = true
-				agent["from_pos"]    = agent["to_pos"]
-				agent["to_pos"]      = agent["solar_pos"]
-				agent["elapsed"]     = 0.0
+				var settler_name: String         = agent["settler_name"] as String
+				# Skip check: negative morale gives a skip budget consumed 50% per arrival.
+				var skips_left: int = _settler_skips_remaining.get(settler_name, 0) as int
+				if skips_left > 0 and randf() < 0.5:
+					_settler_skips_remaining[settler_name] = skips_left - 1
+					gh["settler_dispatched"] = false
+					var skip_next: Dictionary = Dictionary()
+					if (agent["tasks_this_trip"] as int) < (agent["tasks_limit"] as int):
+						skip_next = _find_nearest_available_task(agent["to_pos"] as Vector2)
+					if not skip_next.is_empty():
+						_send_agent_to_task(agent, agent["to_pos"] as Vector2, skip_next)
+					else:
+						agent["returning"] = true
+						agent["from_pos"]  = agent["to_pos"]
+						agent["to_pos"]    = agent["solar_pos"]
+						agent["elapsed"]   = 0.0
+				else:
+					# Perform tending.
+					add_log_entry({
+						"label":       "%s tended to %s." % [settler_name, gh_def.display_name],
+						"value":       "",
+						"label_color": "",
+						"value_color": "",
+					})
+					gh["tend_count"] = (gh["tend_count"] as int) + 1
+					if (gh["tend_count"] as int) >= gh_def.tend_per_yield:
+						gh["tend_count"] = 0
+						if gh_def.output_item != null:
+							_inventory.add(InventoryItem.new(
+								gh_def.output_item.display_name,
+								gh_def.output_item.slot_size,
+								gh_def.output_item,
+							))
+							add_log_entry({
+								"label":       "%s:" % gh_def.display_name,
+								"value":       "+1 %s" % gh_def.output_item.display_name,
+								"label_color": "",
+								"value_color": LOG_COLOR_ITEM,
+							})
+					gh["tend_countdown"]     = gh_def.tend_interval
+					gh["settler_dispatched"] = false
+					agent["tasks_this_trip"] = (agent["tasks_this_trip"] as int) + 1
+					var gh_next: Dictionary = Dictionary()
+					if (agent["tasks_this_trip"] as int) < (agent["tasks_limit"] as int):
+						gh_next = _find_nearest_available_task(agent["to_pos"] as Vector2)
+					if not gh_next.is_empty():
+						_send_agent_to_task(agent, agent["to_pos"] as Vector2, gh_next)
+					else:
+						agent["returning"] = true
+						agent["from_pos"]  = agent["to_pos"]
+						agent["to_pos"]    = agent["solar_pos"]
+						agent["elapsed"]   = 0.0
 		else:
 			# Returned to Solar Rig: free this settler.
+			# (settler_dispatched already released at task completion or skip.)
 			(agent["sprite"] as ColorRect).queue_free()
-			if agent.get("is_cafeteria", false):
-				pass  # settler_dispatched already cleared in _on_cafeteria_craft_done
-			else:
-				_greenhouse_states[agent["gh_idx"]]["settler_dispatched"] = false
 			_settler_agents.remove_at(i)
 
 func _on_cafeteria_craft_done(agent: Dictionary) -> void:
