@@ -279,13 +279,13 @@ func _end_simulation() -> void:
 
 	# Settler deaths.
 	var projected: Array = food["projected_health"]
-	for i: int in GameState.settler_names.size():
-		if GameState.settler_health[i] != GameState.SettlerHealth.DEAD \
-				and projected[i] == GameState.SettlerHealth.DEAD:
-			sim.add_log_entry({"label": "%s starved to death." % GameState.settler_names[i],
+	for i: int in GameState.settlers.size():
+		var s: Settler = GameState.settlers[i]
+		if s.health != Settler.Health.DEAD and projected[i] == Settler.Health.DEAD:
+			sim.add_log_entry({"label": "%s starved to death." % s.name,
 					"value": "", "label_color": SimulationController.LOG_COLOR_DEATH,
 					"value_color": ""})
-	GameState.settler_health.assign(food["projected_health"])
+		s.health = projected[i] as Settler.Health
 
 	GameState.season += 1
 	hud_ui.refresh_log(sim.get_log())
@@ -309,7 +309,7 @@ func _end_simulation() -> void:
 ## Pass construction_cost_override >= 0 to use a pre-computed cost (used inside
 ## _end_simulation after the UNBUILT→BUILT transition has already run).
 ## Keys: matter_prod, construction_cost, food_items, paste_needed, paste_produced,
-##       projected_health (Array[int] parallel to settler_names), deaths.
+##       projected_health (Array[int] of Settler.Health values, parallel to settlers), deaths.
 func _compute_food_state(construction_cost_override: int = -1) -> Dictionary:
 	var matter_prod: int       = building_manager.compute_matter_production()
 	var construction_cost: int = construction_cost_override if construction_cost_override >= 0 \
@@ -324,17 +324,17 @@ func _compute_food_state(construction_cost_override: int = -1) -> Dictionary:
 	var paste_remaining: int         = paste_produced
 	var projected_health: Array[int] = []
 	var deaths: int                  = 0
-	for i: int in GameState.settler_names.size():
-		var current: int = GameState.settler_health[i]
-		if current == GameState.SettlerHealth.DEAD:
-			projected_health.append(GameState.SettlerHealth.DEAD)
+	for i: int in GameState.settlers.size():
+		var current: Settler.Health = GameState.settlers[i].health
+		if current == Settler.Health.DEAD:
+			projected_health.append(Settler.Health.DEAD)
 		elif settler_manager.has_meal_assigned(i):
-			projected_health.append(GameState.SettlerHealth.FED)
+			projected_health.append(Settler.Health.FED)
 		elif paste_remaining > 0:
-			projected_health.append(GameState.SettlerHealth.FED)
+			projected_health.append(Settler.Health.FED)
 			paste_remaining -= 1
 		else:
-			projected_health.append(GameState.SettlerHealth.DEAD)
+			projected_health.append(Settler.Health.DEAD)
 			deaths += 1
 	return {
 		"matter_prod":       matter_prod,

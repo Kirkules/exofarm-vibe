@@ -9,7 +9,7 @@ var _inventory_ui: InventoryUI
 var _ui_layer:     CanvasLayer
 var _hud_ui:       HudUI
 
-## One SettlerFoodGrid per settler (parallel to GameState.settler_names).
+## One SettlerFoodGrid per settler (parallel to GameState.settlers).
 var _settler_grids: Array[SettlerFoodGrid] = []
 ## One dict per settler: kitchen piece_id -> InventoryItem for assigned meal.
 var _settler_placed_items: Array[Dictionary] = []
@@ -59,8 +59,8 @@ func has_meal_assigned(settler_idx: int) -> bool:
 func assigned_meal_count() -> int:
 	var count: int = 0
 	for i: int in _settler_grids.size():
-		if i < GameState.settler_health.size() \
-				and GameState.settler_health[i] == GameState.SettlerHealth.DEAD:
+		if i < GameState.settlers.size() \
+				and GameState.settlers[i].health == Settler.Health.DEAD:
 			continue
 		if has_meal_assigned(i):
 			count += 1
@@ -149,7 +149,7 @@ func consume_assigned_meals() -> int:
 # ---------------------------------------------------------------------------
 
 func _sync_grids() -> void:
-	var count: int = GameState.settler_names.size()
+	var count: int = GameState.settlers.size()
 	while _settler_grids.size() < count:
 		_add_grid(_settler_grids.size())
 	while _settler_grids.size() > count:

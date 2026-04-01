@@ -27,7 +27,7 @@ var _content_margin: MarginContainer
 ## Cached matter projection values, set by refresh_matter() before refresh().
 var _matter_projected: int = 0
 var _matter_delta:     int = 0
-## Projected health for each settler after this season (parallel to GameState.settler_names).
+## Projected health for each settler after this season (parallel to GameState.settlers).
 ## Empty until the first _recompute_power call.
 var _settler_projected_health: Array[int] = []
 
@@ -254,7 +254,7 @@ func refresh_matter_tooltip(stored: int, entries: Array) -> void:
 	for entry: Dictionary in entries:
 		_matter_info_box.add_child(_make_rtlabel(_delta_line_bbcode(entry["name"], entry["delta"])))
 
-## Update the projected health for each settler (parallel to GameState.settler_names).
+## Update the projected health for each settler (parallel to GameState.settlers).
 func set_settler_projected_health(projected: Array[int]) -> void:
 	_settler_projected_health = projected
 	if _settler_tooltip.visible:
@@ -274,8 +274,8 @@ func refresh() -> void:
 	_settler_label.text = "Settlers: %d" % GameState.settler_count
 	var any_starving: bool = false
 	for i: int in _settler_projected_health.size():
-		if GameState.settler_health[i] != GameState.SettlerHealth.DEAD \
-				and _settler_projected_health[i] == GameState.SettlerHealth.DEAD:
+		if GameState.settlers[i].health != Settler.Health.DEAD \
+				and _settler_projected_health[i] == Settler.Health.DEAD:
 			any_starving = true
 			break
 	if any_starving:
@@ -336,20 +336,18 @@ func _show_settler_tooltip() -> void:
 	for child: Node in _tooltip_name_box.get_children():
 		child.queue_free()
 	_settler_slot_spacers.clear()
-	for i: int in GameState.settler_names.size():
-		var settler_name: String = GameState.settler_names[i]
-		var current: int = GameState.settler_health[i] if i < GameState.settler_health.size() \
-			else GameState.SettlerHealth.FED
+	for i: int in GameState.settlers.size():
+		var s: Settler = GameState.settlers[i]
 		var line: String
-		if current == GameState.SettlerHealth.DEAD:
-			line = "%s ([color=#ee4444]dead[/color])" % settler_name
+		if s.health == Settler.Health.DEAD:
+			line = "%s ([color=#ee4444]dead[/color])" % s.name
 		else:
 			var projected: int = _settler_projected_health[i] \
-				if i < _settler_projected_health.size() else GameState.SettlerHealth.FED
-			if projected == GameState.SettlerHealth.FED:
-				line = "%s ([color=#88ee88]fed[/color])" % settler_name
+				if i < _settler_projected_health.size() else Settler.Health.FED
+			if projected == Settler.Health.FED:
+				line = "%s ([color=#88ee88]fed[/color])" % s.name
 			else:
-				line = "%s ([color=#ee8800]starving[/color])" % settler_name
+				line = "%s ([color=#ee8800]starving[/color])" % s.name
 		var row: HBoxContainer = HBoxContainer.new()
 		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var lbl: RichTextLabel = _make_rtlabel(line)

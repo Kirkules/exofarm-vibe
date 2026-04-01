@@ -231,12 +231,11 @@ func _find_free_settler() -> String:
 	var busy_names: Array[String] = []
 	for agent: Dictionary in _settler_agents:
 		busy_names.append(agent["settler_name"] as String)
-	for i: int in GameState.settler_names.size():
-		if GameState.settler_health[i] == GameState.SettlerHealth.DEAD:
+	for s: Settler in GameState.settlers:
+		if s.health == Settler.Health.DEAD:
 			continue
-		var n: String = GameState.settler_names[i]
-		if not busy_names.has(n):
-			return n
+		if not busy_names.has(s.name):
+			return s.name
 	return ""
 
 ## Creates and adds a settler sprite at solar_pos. Caller positions it on the UI layer.
