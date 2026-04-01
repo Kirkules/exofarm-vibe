@@ -48,6 +48,13 @@ func open_screen_rect() -> Rect2:
 			r = r.merge(g.get_screen_rect())
 	return r
 
+## Returns true if settler at index has a meal assigned in their food slot.
+func has_meal_assigned(settler_idx: int) -> bool:
+	if settler_idx >= _settler_placed_items.size():
+		return false
+	return (_settler_placed_items[settler_idx] as Dictionary).size() > 0
+
+
 ## Number of living settlers who have a meal assigned in their food slot.
 func assigned_meal_count() -> int:
 	var count: int = 0
@@ -55,7 +62,7 @@ func assigned_meal_count() -> int:
 		if i < GameState.settler_health.size() \
 				and GameState.settler_health[i] == GameState.SettlerHealth.DEAD:
 			continue
-		if (_settler_placed_items[i] as Dictionary).size() > 0:
+		if has_meal_assigned(i):
 			count += 1
 	return count
 

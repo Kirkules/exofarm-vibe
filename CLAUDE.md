@@ -55,8 +55,8 @@ Recently completed:
 
 Next up:
 - [ ] Playback speed controls (1×, 2×, 3×, 5×)
-- [ ] Morale calculation and bar UI
-- [ ] Recipe execution during simulation (craft kitchen items into meals)
+- [ ] Morale calculation and bar UI (per-settler, not aggregate)
+- [x] Recipe execution during simulation (craft kitchen items into meals)
 - [ ] Inventory overflow → broken down to Matter at sim start
 
 ---
@@ -241,9 +241,10 @@ Always call `simulation_controller.add_log_entry(base)` — never append to the 
 ### _compute_food_state() return keys
 
 Lives in `game.gd`; calls `building_manager`, `kitchen_manager`, and `settler_manager` for inputs.
-Keys: `matter_prod`, `construction_cost`, `food_items` (from `settler_manager.assigned_meal_count()`;
-meals in settler slots count as food, reducing Nutrient Paste need), `paste_needed`,
-`paste_produced`, `projected_health` (Array[int]), `deaths`.
+Keys: `matter_prod`, `construction_cost`, `food_items` (from `settler_manager.assigned_meal_count()`),
+`paste_needed`, `paste_produced`, `projected_health` (Array[int] parallel to settler_names), `deaths`.
+Distribution: settlers with a meal assigned (`settler_manager.has_meal_assigned(i)`) are FED from
+their meal; remaining living settlers draw from Nutrient Paste; those without paste die.
 Pass `construction_cost_override >= 0` in `_end_simulation` to use the pre-transition cost
 (captured before UNBUILT→BUILT runs).
 

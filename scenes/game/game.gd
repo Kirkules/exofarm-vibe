@@ -321,16 +321,18 @@ func _compute_food_state(construction_cost_override: int = -1) -> Dictionary:
 	if paste_needed > 0 and building_manager.food_is_powered():
 		var matter_avail: int = maxi(0, GameState.matter + matter_prod - construction_cost)
 		paste_produced = mini(paste_needed, matter_avail)
-	var food_remaining: int       = food_items + paste_produced
+	var paste_remaining: int         = paste_produced
 	var projected_health: Array[int] = []
-	var deaths: int               = 0
+	var deaths: int                  = 0
 	for i: int in GameState.settler_names.size():
 		var current: int = GameState.settler_health[i]
 		if current == GameState.SettlerHealth.DEAD:
 			projected_health.append(GameState.SettlerHealth.DEAD)
-		elif food_remaining > 0:
+		elif settler_manager.has_meal_assigned(i):
 			projected_health.append(GameState.SettlerHealth.FED)
-			food_remaining -= 1
+		elif paste_remaining > 0:
+			projected_health.append(GameState.SettlerHealth.FED)
+			paste_remaining -= 1
 		else:
 			projected_health.append(GameState.SettlerHealth.DEAD)
 			deaths += 1
