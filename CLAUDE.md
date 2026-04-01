@@ -349,8 +349,9 @@ Both paths use the Cafeteria for meal crafting.
 - Matter Manipulator must be powered for Nutrient Paste to be produced
 - Construction cost captured before UNBUILT→BUILT transition in `_begin_simulation()`
   (otherwise `compute_construction_cost()` returns 0 — the buildings are already BUILT)
-- `BuildingDefinition` comment says "non-moveable by default" but the *code* does NOT set
-  `moveable=false`; explicitly set it when defining buildings from the build menu
+- `BuildingManager` enforces moveability by type: `BuildingDefinition` pieces are moveable
+  when UNBUILT and fixed when BUILT; non-building placeables use `def.moveable`. Do NOT
+  set `moveable=false` on building definitions — it has no effect.
 - `BuildMenu`, `KitchenGrid` nodes, progress bar, and live log are all created
   programmatically — no `.tscn` counterparts; use `_ui_layer.add_child()`
 - `KitchenGrid`: long-press (0.5s) on a placed BUILT Cafeteria opens it; any new press

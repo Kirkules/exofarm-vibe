@@ -357,7 +357,6 @@ func _place_starting_buildings() -> void:
 	var solar_rig: BuildingDefinition = BuildingDefinition.new()
 	solar_rig.display_name     = "Solar Rig"
 	solar_rig.shape            = solar_shape
-	solar_rig.moveable         = false
 	solar_rig.energy_production = 10
 	solar_rig.power_range      = 3
 	var solar_item: InventoryItem = InventoryItem.new(solar_rig.display_name, 1, solar_rig)
@@ -370,7 +369,6 @@ func _place_starting_buildings() -> void:
 	var matter_manip: BuildingDefinition = BuildingDefinition.new()
 	matter_manip.display_name    = "Matter Manipulator"
 	matter_manip.shape           = matter_shape
-	matter_manip.moveable        = false
 	matter_manip.matter_production = 5
 	matter_manip.power_draw      = 2
 	var matter_item: InventoryItem = InventoryItem.new(matter_manip.display_name, 1, matter_manip)
@@ -503,7 +501,6 @@ func _buildable_definitions() -> Array[PlaceableDefinition]:
 	var cafeteria_def: CafeteriaDefinition = CafeteriaDefinition.new()
 	cafeteria_def.display_name = "Cafeteria"
 	cafeteria_def.shape        = cafeteria_shape
-	cafeteria_def.moveable     = false
 	cafeteria_def.matter_cost  = 2
 	cafeteria_def.power_draw   = 1
 	cafeteria_def.merge_slots  = KitchenGrid.KITCHEN_COLS * KitchenGrid.KITCHEN_ROWS

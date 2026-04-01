@@ -233,7 +233,7 @@ func transition_unbuilt_to_built() -> Array[Dictionary]:
 	# Lock all pieces against movement for the simulation phase.
 	for piece_id: int in _placed_items:
 		var def: PlaceableDefinition = _placed_items[piece_id].data as PlaceableDefinition
-		_farm_grid.set_piece_moveable(piece_id, def.moveable if def else true)
+		_farm_grid.set_piece_moveable(piece_id, false if def is BuildingDefinition else (def.moveable if def else true))
 	return entries
 
 
@@ -340,7 +340,7 @@ func _on_piece_placed_on_grid(piece_id: int) -> void:
 	_piece_build_state[piece_id] = _held_build_state
 	var is_unbuilt: bool = _held_build_state == BuildState.UNBUILT
 	_held_build_state = BuildState.BUILT
-	_farm_grid.set_piece_moveable(piece_id, is_unbuilt or (def != null and def.moveable))
+	_farm_grid.set_piece_moveable(piece_id, is_unbuilt if def is BuildingDefinition else (def != null and def.moveable))
 	_farm_grid.set_piece_toggleable(piece_id, def is BuildingDefinition and not is_unbuilt)
 	_farm_grid.set_piece_flashing(piece_id, is_unbuilt)
 	_farm_grid.set_held_power_range(0)
@@ -365,7 +365,7 @@ func _on_piece_returned_to_grid(piece_id: int) -> void:
 	_piece_build_state[piece_id] = _held_build_state
 	var is_unbuilt: bool = _held_build_state == BuildState.UNBUILT
 	_held_build_state = BuildState.BUILT
-	_farm_grid.set_piece_moveable(piece_id, is_unbuilt or (def != null and def.moveable))
+	_farm_grid.set_piece_moveable(piece_id, is_unbuilt if def is BuildingDefinition else (def != null and def.moveable))
 	_farm_grid.set_piece_toggleable(piece_id, def is BuildingDefinition and not is_unbuilt)
 	_farm_grid.set_piece_flashing(piece_id, is_unbuilt)
 	_farm_grid.set_held_power_range(0)
