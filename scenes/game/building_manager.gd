@@ -337,14 +337,7 @@ func _on_piece_placed_on_grid(piece_id: int) -> void:
 		_piece_build_state.erase(piece_id)
 		_farm_grid.set_held_power_range(0)
 		return
-	_piece_build_state[piece_id] = _held_build_state
-	var is_unbuilt: bool = _held_build_state == BuildState.UNBUILT
-	_held_build_state = BuildState.BUILT
-	_farm_grid.set_piece_moveable(piece_id, is_unbuilt if def is BuildingDefinition else (def != null and def.moveable))
-	_farm_grid.set_piece_toggleable(piece_id, def is BuildingDefinition and not is_unbuilt)
-	_farm_grid.set_piece_flashing(piece_id, is_unbuilt)
-	_farm_grid.set_held_power_range(0)
-	recompute_power()
+	_commit_piece_to_grid(piece_id, def)
 
 func _on_piece_released(com_screen_pos: Vector2) -> void:
 	var item: InventoryItem     = _held_item
@@ -362,6 +355,11 @@ func _on_piece_returned_to_grid(piece_id: int) -> void:
 	_held_item = null
 	var def: PlaceableDefinition = (_placed_items[piece_id].data \
 		if _placed_items.has(piece_id) else null) as PlaceableDefinition
+	_commit_piece_to_grid(piece_id, def)
+
+## Shared tail for piece_placed and piece_returned: writes build state,
+## sets farm grid flags, resets held state, and recomputes power.
+func _commit_piece_to_grid(piece_id: int, def: PlaceableDefinition) -> void:
 	_piece_build_state[piece_id] = _held_build_state
 	var is_unbuilt: bool = _held_build_state == BuildState.UNBUILT
 	_held_build_state = BuildState.BUILT

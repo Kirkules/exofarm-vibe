@@ -453,44 +453,27 @@ func _recipe_definitions() -> Array[RecipeDefinition]:
 	return result
 
 
+func _make_greenhouse_def(name: String, label: String, color: Color,
+		output: PlaceableDefinition) -> GreenhouseDefinition:
+	var shape: PieceShape = PieceShape.new()
+	shape.color = color
+	shape.label = label
+	var gh: GreenhouseDefinition = GreenhouseDefinition.new()
+	gh.display_name = name
+	gh.shape        = shape
+	gh.matter_cost  = 1
+	gh.power_draw   = 1
+	gh.output_item  = output
+	return gh
+
 ## Returns the definitions available in the build menu this run.
 func _buildable_definitions() -> Array[PlaceableDefinition]:
 	var result: Array[PlaceableDefinition] = []
 
 	# --- Greenhouse definitions (output items come from shared _*_def vars) ---
-
-	var wheat_gh_shape: PieceShape = PieceShape.new()
-	wheat_gh_shape.color = Color(0.95, 0.85, 0.30)
-	wheat_gh_shape.label = "WGH"
-	var wheat_gh: GreenhouseDefinition = GreenhouseDefinition.new()
-	wheat_gh.display_name = "Wheat Greenhouse"
-	wheat_gh.shape        = wheat_gh_shape
-	wheat_gh.matter_cost  = 1
-	wheat_gh.power_draw   = 1
-	wheat_gh.output_item  = _wheat_def
-	result.append(wheat_gh)
-
-	var tomato_gh_shape: PieceShape = PieceShape.new()
-	tomato_gh_shape.color = Color(0.90, 0.28, 0.20)
-	tomato_gh_shape.label = "TGH"
-	var tomato_gh: GreenhouseDefinition = GreenhouseDefinition.new()
-	tomato_gh.display_name = "Tomato Greenhouse"
-	tomato_gh.shape        = tomato_gh_shape
-	tomato_gh.matter_cost  = 1
-	tomato_gh.power_draw   = 1
-	tomato_gh.output_item  = _tomato_def
-	result.append(tomato_gh)
-
-	var eggplant_gh_shape: PieceShape = PieceShape.new()
-	eggplant_gh_shape.color = Color(0.50, 0.15, 0.65)
-	eggplant_gh_shape.label = "EGH"
-	var eggplant_gh: GreenhouseDefinition = GreenhouseDefinition.new()
-	eggplant_gh.display_name = "Eggplant Greenhouse"
-	eggplant_gh.shape        = eggplant_gh_shape
-	eggplant_gh.matter_cost  = 1
-	eggplant_gh.power_draw   = 1
-	eggplant_gh.output_item  = _eggplant_def
-	result.append(eggplant_gh)
+	result.append(_make_greenhouse_def("Wheat Greenhouse",    "WGH", Color(0.95, 0.85, 0.30), _wheat_def))
+	result.append(_make_greenhouse_def("Tomato Greenhouse",   "TGH", Color(0.90, 0.28, 0.20), _tomato_def))
+	result.append(_make_greenhouse_def("Eggplant Greenhouse", "EGH", Color(0.50, 0.15, 0.65), _eggplant_def))
 
 	# --- Cafeteria ---
 

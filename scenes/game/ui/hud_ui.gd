@@ -148,15 +148,18 @@ func _make_tooltip_panel() -> PanelContainer:
 	panel.z_index = 100
 	return panel
 
-## Creates a single-line RichTextLabel sized for tooltip content.
-func _make_tooltip_rtlabel(bbcode: String) -> RichTextLabel:
+## Creates a single-line RichTextLabel. font_size defaults to INFO_FONT_SIZE.
+## expand=true sets SIZE_EXPAND_FILL (needed so [right] fills panel width).
+func _make_rtlabel(bbcode: String, font_size: int = INFO_FONT_SIZE, expand: bool = false) -> RichTextLabel:
 	var lbl: RichTextLabel = RichTextLabel.new()
 	lbl.bbcode_enabled = true
-	lbl.fit_content = true
-	lbl.scroll_active = false
-	lbl.autowrap_mode = TextServer.AUTOWRAP_OFF  # lets fit_content drive width too
-	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	lbl.add_theme_font_size_override("normal_font_size", INFO_FONT_SIZE)
+	lbl.fit_content    = true
+	lbl.scroll_active  = false
+	lbl.autowrap_mode  = TextServer.AUTOWRAP_OFF
+	lbl.mouse_filter   = Control.MOUSE_FILTER_IGNORE
+	lbl.add_theme_font_size_override("normal_font_size", font_size)
+	if expand:
+		lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	lbl.text = bbcode
 	return lbl
 
@@ -200,8 +203,7 @@ func _apply_safe_area() -> void:
 ## Swap the Next Season button to "Skip simulation" during simulation.
 func set_simulation_active(v: bool) -> void:
 	if v:
-		_next_btn.text = "Skip simulation"
-	if v:
+		_next_btn.text           = "Skip simulation"
 		_energy_tooltip.visible  = false
 		_matter_tooltip.visible  = false
 		hide_settler_panel()
@@ -241,16 +243,16 @@ func refresh_energy_tooltip(entries: Array) -> void:
 	for child: Node in _energy_info_box.get_children():
 		child.queue_free()
 	for entry: Dictionary in entries:
-		_energy_info_box.add_child(_make_tooltip_rtlabel(_delta_line_bbcode(entry["name"], entry["delta"])))
+		_energy_info_box.add_child(_make_rtlabel(_delta_line_bbcode(entry["name"], entry["delta"])))
 
 ## Rebuild the Matter tooltip content.
 ## entries: Array of {name: String, delta: int} — positive = production, negative = consumption.
 func refresh_matter_tooltip(stored: int, entries: Array) -> void:
 	for child: Node in _matter_info_box.get_children():
 		child.queue_free()
-	_matter_info_box.add_child(_make_tooltip_rtlabel("Stored Matter (%d)" % stored))
+	_matter_info_box.add_child(_make_rtlabel("Stored Matter (%d)" % stored))
 	for entry: Dictionary in entries:
-		_matter_info_box.add_child(_make_tooltip_rtlabel(_delta_line_bbcode(entry["name"], entry["delta"])))
+		_matter_info_box.add_child(_make_rtlabel(_delta_line_bbcode(entry["name"], entry["delta"])))
 
 ## Update the projected health for each settler (parallel to GameState.settler_names).
 func set_settler_projected_health(projected: Array[int]) -> void:
@@ -310,7 +312,7 @@ func _make_log_row(label: String, label_color: String,
 	label_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var label_bbcode: String = label if label_color.is_empty() \
 			else "[color=%s]%s[/color]" % [label_color, label]
-	label_hbox.add_child(_make_log_rtlabel(label_bbcode, true))
+	label_hbox.add_child(_make_rtlabel(label_bbcode, LOG_FONT_SIZE, true))
 	if timestamp >= 0.0:
 		var ts_lbl: Label = Label.new()
 		ts_lbl.text = "(%.1fs)" % timestamp
@@ -322,23 +324,9 @@ func _make_log_row(label: String, label_color: String,
 	if not value.is_empty():
 		var bbcode: String = "[right]%s[/right]" % (
 				"[color=%s]%s[/color]" % [value_color, value] if not value_color.is_empty() else value)
-		row.add_child(_make_log_rtlabel(bbcode, true))
+		row.add_child(_make_rtlabel(bbcode, LOG_FONT_SIZE, true))
 	return row
 
-## Creates a RichTextLabel sized for a log row at LOG_FONT_SIZE.
-## expand: whether to set SIZE_EXPAND_FILL (needed so [right] fills the panel width).
-func _make_log_rtlabel(bbcode: String, expand: bool) -> RichTextLabel:
-	var lbl: RichTextLabel = RichTextLabel.new()
-	lbl.bbcode_enabled = true
-	lbl.fit_content = true
-	lbl.scroll_active = false
-	lbl.autowrap_mode = TextServer.AUTOWRAP_OFF
-	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	lbl.add_theme_font_size_override("normal_font_size", LOG_FONT_SIZE)
-	if expand:
-		lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lbl.text = bbcode
-	return lbl
 
 # ---------------------------------------------------------------------------
 # Settler tooltip
@@ -364,7 +352,7 @@ func _show_settler_tooltip() -> void:
 				line = "%s ([color=#ee8800]starving[/color])" % settler_name
 		var row: HBoxContainer = HBoxContainer.new()
 		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		var lbl: RichTextLabel = _make_tooltip_rtlabel(line)
+		var lbl: RichTextLabel = _make_rtlabel(line)
 		lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(lbl)
 		var spacer: Control = Control.new()
@@ -393,21 +381,19 @@ func _on_settler_label_input(event: InputEvent) -> void:
 			settler_label_tapped.emit()
 			get_viewport().set_input_as_handled()
 
-func _on_energy_label_input(event: InputEvent) -> void:
+func _toggle_tooltip_on_press(event: InputEvent, tooltip: Control) -> void:
 	if event is InputEventMouseButton:
 		var mb: InputEventMouseButton = event as InputEventMouseButton
 		if mb.button_index == MOUSE_BUTTON_LEFT:
-			_energy_tooltip.visible = mb.pressed
+			tooltip.visible = mb.pressed
 	elif event is InputEventScreenTouch:
-		_energy_tooltip.visible = (event as InputEventScreenTouch).pressed
+		tooltip.visible = (event as InputEventScreenTouch).pressed
+
+func _on_energy_label_input(event: InputEvent) -> void:
+	_toggle_tooltip_on_press(event, _energy_tooltip)
 
 func _on_matter_label_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
-		var mb: InputEventMouseButton = event as InputEventMouseButton
-		if mb.button_index == MOUSE_BUTTON_LEFT:
-			_matter_tooltip.visible = mb.pressed
-	elif event is InputEventScreenTouch:
-		_matter_tooltip.visible = (event as InputEventScreenTouch).pressed
+	_toggle_tooltip_on_press(event, _matter_tooltip)
 
 func _on_log_btn_pressed() -> void:
 	_log_panel.visible = not _log_panel.visible

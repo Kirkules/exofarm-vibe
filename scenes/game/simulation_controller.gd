@@ -226,21 +226,33 @@ func _tick_greenhouses(delta: float) -> void:
 		if (gh["tend_countdown"] as float) <= 0.0:
 			_dispatch_settler(i)
 
-func _dispatch_settler(gh_idx: int) -> void:
-	if _solar_rig_piece_id == -1:
-		return
-	# Find a living settler not currently walking.
+## Returns the name of the first living settler not currently walking, or "" if none free.
+func _find_free_settler() -> String:
 	var busy_names: Array[String] = []
 	for agent: Dictionary in _settler_agents:
 		busy_names.append(agent["settler_name"] as String)
-	var free_name: String = ""
 	for i: int in GameState.settler_names.size():
 		if GameState.settler_health[i] == GameState.SettlerHealth.DEAD:
 			continue
 		var n: String = GameState.settler_names[i]
 		if not busy_names.has(n):
-			free_name = n
-			break
+			return n
+	return ""
+
+## Creates and adds a settler sprite at solar_pos. Caller positions it on the UI layer.
+func _make_settler_sprite(solar_pos: Vector2) -> ColorRect:
+	var sprite: ColorRect = ColorRect.new()
+	sprite.size     = Vector2(10.0, 10.0)
+	sprite.color    = Color(0.9, 0.75, 0.6)
+	sprite.z_index  = 200
+	_ui_layer.add_child(sprite)
+	sprite.position = solar_pos - Vector2(5.0, 5.0)
+	return sprite
+
+func _dispatch_settler(gh_idx: int) -> void:
+	if _solar_rig_piece_id == -1:
+		return
+	var free_name: String = _find_free_settler()
 	if free_name.is_empty():
 		return
 	var gh: Dictionary         = _greenhouse_states[gh_idx]
@@ -250,12 +262,7 @@ func _dispatch_settler(gh_idx: int) -> void:
 	var gh_pos: Vector2        = _grid_cell_center(gh["row"], gh["col"])
 	var grid_dist: float       = (gh_pos - solar_pos).length() / 32.0
 	var travel_time: float     = maxf(grid_dist / 2.0, 0.01)
-	var sprite: ColorRect      = ColorRect.new()
-	sprite.size    = Vector2(10.0, 10.0)
-	sprite.color   = Color(0.9, 0.75, 0.6)
-	sprite.z_index = 200
-	_ui_layer.add_child(sprite)
-	sprite.position = solar_pos - Vector2(5.0, 5.0)
+	var sprite: ColorRect      = _make_settler_sprite(solar_pos)
 	_settler_agents.append({
 		"sprite":        sprite,
 		"from_pos":      solar_pos,
@@ -286,17 +293,7 @@ func _tick_cafeterias(_delta: float) -> void:
 func _dispatch_cafeteria_settler(caf_idx: int) -> void:
 	if _solar_rig_piece_id == -1:
 		return
-	var busy_names: Array[String] = []
-	for agent: Dictionary in _settler_agents:
-		busy_names.append(agent["settler_name"] as String)
-	var free_name: String = ""
-	for i: int in GameState.settler_names.size():
-		if GameState.settler_health[i] == GameState.SettlerHealth.DEAD:
-			continue
-		var n: String = GameState.settler_names[i]
-		if not busy_names.has(n):
-			free_name = n
-			break
+	var free_name: String = _find_free_settler()
 	if free_name.is_empty():
 		return
 	var caf: Dictionary        = _cafeteria_states[caf_idx]
@@ -308,12 +305,7 @@ func _dispatch_cafeteria_settler(caf_idx: int) -> void:
 	var travel_time: float     = maxf(grid_dist / 2.0, 0.01)
 	var craft: Dictionary      = (caf["craft_queue"] as Array)[caf["current_craft_idx"] as int]
 	var recipe: RecipeDefinition = craft["recipe"] as RecipeDefinition
-	var sprite: ColorRect      = ColorRect.new()
-	sprite.size    = Vector2(10.0, 10.0)
-	sprite.color   = Color(0.9, 0.75, 0.6)
-	sprite.z_index = 200
-	_ui_layer.add_child(sprite)
-	sprite.position = solar_pos - Vector2(5.0, 5.0)
+	var sprite: ColorRect      = _make_settler_sprite(solar_pos)
 	_settler_agents.append({
 		"sprite":        sprite,
 		"from_pos":      solar_pos,
@@ -431,6 +423,19 @@ func _on_cafeteria_craft_done(agent: Dictionary) -> void:
 func _grid_cell_center(row: int, col: int) -> Vector2:
 	return _farm_grid.global_position + Vector2((col - 0.5) * 32.0, (row - 0.5) * 32.0)
 
+func _make_live_log_rtlabel(text: String, expand: bool = false) -> RichTextLabel:
+	var lbl: RichTextLabel = RichTextLabel.new()
+	lbl.bbcode_enabled = true
+	lbl.fit_content    = true
+	lbl.scroll_active  = false
+	lbl.autowrap_mode  = TextServer.AUTOWRAP_OFF
+	lbl.mouse_filter   = Control.MOUSE_FILTER_IGNORE
+	lbl.add_theme_font_size_override("normal_font_size", 10)
+	if expand:
+		lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lbl.text = text
+	return lbl
+
 func _update_live_log(entry: Dictionary) -> void:
 	var ts: float          = entry.get("timestamp", -1.0) as float
 	var label_text: String = entry.get("label", "") as String
@@ -440,26 +445,9 @@ func _update_live_log(entry: Dictionary) -> void:
 		line = line + "  " + value_text
 	var row: HBoxContainer = HBoxContainer.new()
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var lbl: RichTextLabel = RichTextLabel.new()
-	lbl.bbcode_enabled    = true
-	lbl.fit_content       = true
-	lbl.scroll_active     = false
-	lbl.autowrap_mode     = TextServer.AUTOWRAP_OFF
-	lbl.mouse_filter      = Control.MOUSE_FILTER_IGNORE
-	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lbl.add_theme_font_size_override("normal_font_size", 10)
-	lbl.text = line
-	row.add_child(lbl)
+	row.add_child(_make_live_log_rtlabel(line, true))
 	if ts >= 0.0:
-		var ts_lbl: RichTextLabel = RichTextLabel.new()
-		ts_lbl.bbcode_enabled = true
-		ts_lbl.fit_content    = true
-		ts_lbl.scroll_active  = false
-		ts_lbl.autowrap_mode  = TextServer.AUTOWRAP_OFF
-		ts_lbl.mouse_filter   = Control.MOUSE_FILTER_IGNORE
-		ts_lbl.add_theme_font_size_override("normal_font_size", 10)
-		ts_lbl.text = "[color=#999999](%.1fs)[/color]" % ts
-		row.add_child(ts_lbl)
+		row.add_child(_make_live_log_rtlabel("[color=#999999](%.1fs)[/color]" % ts))
 	_sim_live_log_box.add_child(row)
 	while _sim_live_log_box.get_child_count() > LIVE_LOG_MAX_ENTRIES:
 		var oldest: Node = _sim_live_log_box.get_child(0)

@@ -208,7 +208,7 @@ func _create_grid_for(cafeteria_id: int, slots: int) -> void:
 	kg.piece_released.connect(
 		func(pos: Vector2) -> void: _on_piece_released(pos))
 	kg.piece_returned_to_grid.connect(
-		func(pid: int) -> void: _on_piece_returned(cid, pid))
+		func(pid: int) -> void: _on_piece_placed(cid, pid))
 	kg.piece_ejected.connect(
 		func(pid: int) -> void: _on_piece_ejected(cid, pid))
 	_ui_layer.add_child(kg)
@@ -273,16 +273,6 @@ func _on_piece_released(_com_screen_pos: Vector2) -> void:
 	_held_item = null
 	if item != null:
 		_inventory.add(item)
-
-func _on_piece_returned(cafeteria_id: int, piece_id: int) -> void:
-	var items: Dictionary = _kitchen_placed_items.get(cafeteria_id, {}) as Dictionary
-	if _held_item:
-		items[piece_id] = _held_item
-		var def: PlaceableDefinition = _held_item.data as PlaceableDefinition
-		var kg: KitchenGrid = _kitchen_grids.get(cafeteria_id, null) as KitchenGrid
-		if kg != null and def != null:
-			kg.on_item_placed(piece_id, def)
-	_held_item = null
 
 func _on_piece_ejected(cafeteria_id: int, piece_id: int) -> void:
 	var kg: KitchenGrid    = _kitchen_grids.get(cafeteria_id, null) as KitchenGrid
