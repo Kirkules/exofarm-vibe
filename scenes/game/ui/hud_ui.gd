@@ -383,6 +383,12 @@ func _show_settler_tooltip() -> void:
 				"#88ee88" if projected == Settler.Health.FED else "#ee8800",
 				"fed" if projected == Settler.Health.FED else "starving",
 			]
+		var spacer: Control = Control.new()
+		spacer.custom_minimum_size = Vector2(40.0, 40.0)
+		spacer.mouse_filter        = Control.MOUSE_FILTER_IGNORE
+		main_row.add_child(spacer)
+		_settler_slot_spacers.append(spacer)
+
 		var name_lbl: RichTextLabel = _make_rtlabel(name_line)
 		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		main_row.add_child(name_lbl)
@@ -397,35 +403,31 @@ func _show_settler_tooltip() -> void:
 				func(event: InputEvent) -> void: _on_morale_label_input(event, idx))
 			main_row.add_child(morale_lbl)
 
-		var spacer: Control = Control.new()
-		spacer.custom_minimum_size = Vector2(40.0, 40.0)
-		spacer.mouse_filter        = Control.MOUSE_FILTER_IGNORE
-		main_row.add_child(spacer)
 		settler_vbox.add_child(main_row)
-		_settler_slot_spacers.append(spacer)
 
 		# --- Expansion rows: morale breakdown (visible only when expanded) ---
 		if i == _expanded_morale_settler and i < _settler_morale_breakdown.size():
 			var bd: Dictionary = _settler_morale_breakdown[i] as Dictionary
 			if not bd.is_empty():
+				var expand_margin: MarginContainer = MarginContainer.new()
+				expand_margin.add_theme_constant_override("margin_left", 40)
+				expand_margin.mouse_filter = Control.MOUSE_FILTER_STOP
+				expand_margin.gui_input.connect(
+					func(event: InputEvent) -> void: _on_morale_label_input(event, i))
 				var expand_vbox: VBoxContainer = VBoxContainer.new()
 				expand_vbox.add_theme_constant_override("separation", 0)
-				expand_vbox.mouse_filter = Control.MOUSE_FILTER_STOP
-				expand_vbox.gui_input.connect(
-					func(event: InputEvent) -> void: _on_morale_label_input(event, i))
 				var dead_penalty: int = bd.get("dead_penalty", 0) as int
 				if dead_penalty < 0:
-					var dead_lbl: RichTextLabel = _make_rtlabel(
-						"  Dead settlers: %s" % _morale_bbcode(dead_penalty),
-						LOG_FONT_SIZE)
-					expand_vbox.add_child(dead_lbl)
-				var food_delta: int   = bd.get("food_delta", 0) as int
+					expand_vbox.add_child(_make_rtlabel(
+						"Dead settlers: %s" % _morale_bbcode(dead_penalty),
+						LOG_FONT_SIZE))
+				var food_delta: int    = bd.get("food_delta", 0) as int
 				var food_label: String = bd.get("food_label", "") as String
-				var food_lbl: RichTextLabel = _make_rtlabel(
-					"  %s: %s" % [food_label, _morale_bbcode(food_delta)],
-					LOG_FONT_SIZE)
-				expand_vbox.add_child(food_lbl)
-				settler_vbox.add_child(expand_vbox)
+				expand_vbox.add_child(_make_rtlabel(
+					"%s: %s" % [food_label, _morale_bbcode(food_delta)],
+					LOG_FONT_SIZE))
+				expand_margin.add_child(expand_vbox)
+				settler_vbox.add_child(expand_margin)
 
 		_tooltip_name_box.add_child(settler_vbox)
 	_settler_tooltip.visible = true
