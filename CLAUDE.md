@@ -52,12 +52,25 @@ Recently completed:
   {1 Pasta+1 Tomato Sauce+1 Eggplant}→3 Pasta alla Norma (MealDefinition, SETTLER_GRID)
 - `_refresh_food_hud()` helper in game.gd shared by `power_changed` and
   `assignments_changed` so Matter HUD/tooltip updates on meal assignment changes
+- `Settler` class replaces parallel `settler_names`/`settler_health` arrays in GameState;
+  owns `Health` enum and `morale: int`
+- Per-settler morale: formula = `0 - dead_count + food_delta` (fresh each season);
+  shown inline in settler tooltip as "Alice (fed) Content (+0)"; morale breakdown
+  expandable by tapping the morale label (one settler at a time)
+- Morale affects simulation: positive morale → settler does `1 + morale` consecutive
+  tasks per trip; negative morale → skip budget of `-morale`, 50% skip chance per
+  greenhouse arrival until budget exhausted
+- `_find_nearest_available_task` / `_claim_task` / `_send_agent_to_task` in
+  `SimulationController` prevent race conditions and route settlers to closest task;
+  `settler_dispatched` released at task completion (not on Solar Rig return)
+- Outcome log refactored: scrollable via grab-to-scroll (`ScrollContainer` + `gui_input`);
+  informational scroll indicator (4px ColorRect, auto-hides after 1s); fills viewport
+  height below HUD; dismissed by tapping outside or tapping log button again
 
 Next up:
 - [ ] Playback speed controls (1×, 2×, 3×, 5×)
-- [ ] Morale calculation and bar UI (per-settler, not aggregate)
-- [x] Recipe execution during simulation (craft kitchen items into meals)
 - [ ] Inventory overflow → broken down to Matter at sim start
+- [ ] End-of-run score / viability report (morale contributes here)
 
 ---
 
@@ -89,7 +102,8 @@ Next up:
 | `scenes/game/ui/build_menu.gd` | Build menu below inventory |
 | `scripts/systems/power_system.gd` | Union-find power network; `is_powered(piece_id)` |
 | `scripts/systems/neighbor_system.gd` | Manhattan-distance neighbor effect engine |
-| `scripts/autoloads/game_state.gd` | Singleton: season, settler_names/health, energy, matter |
+| `scripts/autoloads/game_state.gd` | Singleton: season, `settlers: Array[Settler]`, energy, matter |
+| `scripts/resources/settler.gd` | `class_name Settler extends RefCounted`; `Health` enum; `name`, `health`, `morale` |
 | `scripts/autoloads/catalog.gd` | Known designs/recipes (meta-progression) |
 | `scripts/autoloads/event_bus.gd` | Global signal bus |
 | `scripts/resources/placeable_definition.gd` | Base resource; GridType enum; allowed_grids |
@@ -97,7 +111,7 @@ Next up:
 | `scripts/resources/crop_production_definition.gd` | Extends BuildingDefinition; tend_interval, tend_per_yield |
 | `scripts/resources/greenhouse_definition.gd` | Extends CropProductionDefinition; output_item |
 | `scripts/resources/cafeteria_definition.gd` | Extends BuildingDefinition; merge_slots |
-| `scripts/resources/meal_definition.gd` | Extends PlaceableDefinition; nutrient_value, morale_modifier |
+| `scripts/resources/meal_definition.gd` | Extends PlaceableDefinition; `morale_modifier: int` |
 | `scripts/resources/recipe_definition.gd` | ingredients (PlaceableDefinition→int multiset), output_item (PlaceableDefinition), output_count, labor_cost |
 
 ### Resource Hierarchy
@@ -331,8 +345,7 @@ Both paths use the Cafeteria for meal crafting.
 ### Pending Features (Phase 2)
 - Playback speed controls (1×/2×/3×/5×)
 - Inventory overflow: items beyond capacity broken down into Matter at sim start
-- Morale: calculation logic + bar UI with projected delta display
-- Recipe execution during simulation (craft kitchen items into meals using RecipeDefinition)
+- End-of-run score / viability report (morale contributes)
 
 ### Design Decisions Deferred
 - `KITCHEN_GRID` items (Wheat, Tomato, Eggplant): dragging them onto the farm grid
@@ -367,6 +380,20 @@ Both paths use the Cafeteria for meal crafting.
 - Settler cross-slot drag: `set_held_discardable(true)` on GRID pickup; sibling grids
   deactivated (`set_grid_active(false)`) during drag to suppress hover bleed; reactivated
   in all `_on_piece_placed/released/returned` handlers
+- Morale formula (computed fresh each season in `_compute_food_state()`):
+  `morale = 0 - dead_count + food_delta` where `food_delta = meal.morale_modifier` if
+  settler has a meal assigned, else `-1` for Nutrient Paste; dead settlers get morale=0
+- Simulation morale effects: `tasks_limit = 1 + max(0, morale)` consecutive tasks per trip
+  from Solar Rig; `skips_remaining = max(0, -morale)` skip budget per season initialized
+  in `SimulationController.begin()`; 50% skip chance per greenhouse arrival while budget > 0
+- `_find_nearest_available_task(from_pos)` scans all unclaimed ready greenhouses+cafeterias;
+  `_claim_task(task)` sets `settler_dispatched=true` atomically; `_send_agent_to_task(agent,
+  from_pos, task)` redirects agent in place for consecutive tasks; `settler_dispatched`
+  released at task completion (not Solar Rig return)
+- Outcome log panel: `Panel` + `ScrollContainer` (PRESET_FULL_RECT, `SCROLL_MODE_SHOW_NEVER`)
+  + `_log_vbox`; fills viewport height from `offset_bottom` down; grab-to-scroll via
+  `gui_input` on ScrollContainer; 4px `ColorRect` indicator shown on drag, hidden 1s
+  after last scroll via one-shot Timer; dismissed in `_input` override on outside press
 
 ---
 
