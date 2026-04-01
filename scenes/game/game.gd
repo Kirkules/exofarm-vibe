@@ -17,6 +17,10 @@ var kitchen_manager:       KitchenManager
 var simulation_controller: SimulationController
 var settler_manager:       SettlerManager
 
+## Panels that dismiss on an outside tap. Each entry must implement:
+##   is_open() -> bool, open_screen_rect() -> Rect2, close() -> void.
+var _dismissable_panels: Array[Object] = []
+
 enum Phase { PLANNING, SIMULATION }
 var _phase: Phase = Phase.PLANNING
 
@@ -70,6 +74,7 @@ func _ready() -> void:
 		settler_manager.toggle())
 
 	kitchen_manager.set_recipes(_recipe_definitions())
+	_dismissable_panels = [kitchen_manager, settler_manager]
 	hud_ui.next_season_pressed.connect(_on_next_season_pressed)
 
 	# Build menu — shown below the grid when the inventory is collapsed.
@@ -101,19 +106,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		is_new_press = true
 		press_pos    = (event as InputEventScreenTouch).position
 
-	# Close the kitchen grid on a new press outside it.
-	if kitchen_manager.is_open() and is_new_press:
-		if not kitchen_manager.active_screen_rect().has_point(press_pos):
-			kitchen_manager.close()
-			get_viewport().set_input_as_handled()
-			return
-
-	# Close the settler panel on a new press outside it.
-	if settler_manager.is_open() and is_new_press:
-		if not settler_manager.panel_screen_rect().has_point(press_pos):
-			settler_manager.close()
-			get_viewport().set_input_as_handled()
-			return
+	# Close any open dismissable panel on a new press outside it.
+	if is_new_press:
+		for panel: Object in _dismissable_panels:
+			if panel.is_open() and not panel.open_screen_rect().has_point(press_pos):
+				panel.close()
+				get_viewport().set_input_as_handled()
+				return
 
 	# Enter/space rotates the held piece clockwise.
 	if event.is_action_pressed("ui_accept"):

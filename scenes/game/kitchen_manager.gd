@@ -41,7 +41,7 @@ func active_cafeteria_id() -> int:
 
 ## Returns the full screen rect (including header) of the active kitchen grid.
 ## Returns Rect2() if no kitchen grid is open.
-func active_screen_rect() -> Rect2:
+func open_screen_rect() -> Rect2:
 	if _active_cafeteria_id == -1:
 		return Rect2()
 	var kg: KitchenGrid = _kitchen_grids.get(_active_cafeteria_id, null) as KitchenGrid

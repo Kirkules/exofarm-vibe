@@ -39,7 +39,7 @@ func is_open() -> bool:
 
 ## Combined screen rect of the panel + all visible settler grids.
 ## Used by game.gd to detect outside-panel taps.
-func panel_screen_rect() -> Rect2:
+func open_screen_rect() -> Rect2:
 	if not _panel_open:
 		return Rect2()
 	var r: Rect2 = _hud_ui.settler_tooltip_screen_rect()
