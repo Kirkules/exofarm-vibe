@@ -255,6 +255,8 @@ func refresh_matter_tooltip(stored: int, entries: Array) -> void:
 ## Update the projected health for each settler (parallel to GameState.settler_names).
 func set_settler_projected_health(projected: Array[int]) -> void:
 	_settler_projected_health = projected
+	if _settler_tooltip.visible:
+		_show_settler_tooltip()
 
 ## Store projected matter and delta, then update the matter label.
 ## Must be called before refresh() so the correct values are displayed.
