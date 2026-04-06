@@ -1875,3 +1875,53 @@ screen-rect checks against all registered targets.
    runtime-configurable via setup(rows, cols, cell_size) — capacity expressed as active
    cell count, not a separate variable. ✅
 4. game.gd tracks _drag_source_grid: GameGrid, set at pickup time. ✅
+
+---
+
+## Session: 2026-04-06 — Outcome Log Input + Scrollbar Fixes
+
+### Bug 1: Inventory interactable through the outcome log
+
+**User:** The simulation log is scrollable correctly now, but the inventory is interactable
+through the log (can pick up an item while trying to scroll). The log should capture all
+inputs over it.
+
+**Claude (diagnosis):** `game_grid._input()` uses `_input` (not `_unhandled_input`) and
+processes `InputEventScreenTouch` regardless of whether any Control has marked the event
+as handled. The log panel's scroll container calls `get_viewport().set_input_as_handled()`
+in its `gui_input` handler, but row `VBoxContainer` nodes inside `_log_vbox` have
+`MOUSE_FILTER_STOP` (default) which stops GUI event upward propagation before it reaches
+the ScrollContainer's handler — leaving the event unmarked as handled. Since game_grid
+uses `_input` (not `_unhandled_input`), no amount of `set_input_as_handled()` calls in
+Control gui_input handlers prevents game_grid from processing the raw touch event.
+
+**Fix:** Used the existing `planning_locked` architecture (same pattern as kitchen grids
+and simulation). Added `log_overlay_opened` and `log_overlay_closed` signals to
+`EventBus`. `game_grid._ready()` connects to them to set `planning_locked = true/false`.
+`hud_ui.gd` emits `log_overlay_opened` when the panel opens and `log_overlay_closed` when
+it closes (via button toggle or outside-tap dismiss). To prevent conflict with simulation's
+own `planning_locked` flag, the log button is hidden by `set_simulation_active(true)` and
+shown by `set_simulation_active(false)`.
+
+**Files changed:**
+- `scripts/autoloads/event_bus.gd`: added `signal log_overlay_opened()` and `signal log_overlay_closed()`
+- `scripts/grid/game_grid.gd`: connected signals in `_ready()`
+- `scenes/game/ui/hud_ui.gd`: emit signals on open/close; hide/show `_log_btn` in `set_simulation_active`
+
+### Bug 2: Scrollbar doesn't span full length of log panel
+
+**User:** The scroll bar for the log doesn't stretch the entire length of the displayed
+log, and it should.
+
+**Fix:** Changed `_update_log_scrollbar_indicator` from a proportional thumb (height =
+`panel_h² / content_h`) to a full-panel-height track (height = `panel_h`, position y=0).
+The scrollbar now acts as a static right-side indicator that is always visible while the
+log is open and has scrollable content. Removed the `_log_scrollbar_timer` (was used to
+auto-hide after 1s of no scrolling — no longer needed). The scrollbar is shown/hidden with
+the panel: `refresh_log` and `_on_log_btn_pressed` both call `_update_log_scrollbar_indicator`
+deferred (after layout settles); closing the log hides it immediately.
+
+**Files changed:**
+- `scenes/game/ui/hud_ui.gd`: rewrote `_update_log_scrollbar_indicator`; removed timer
+  variable, node creation, and start call; added deferred update calls to `refresh_log`
+  and `_on_log_btn_pressed`

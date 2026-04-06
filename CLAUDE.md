@@ -64,8 +64,9 @@ Recently completed:
   `SimulationController` prevent race conditions and route settlers to closest task;
   `settler_dispatched` released at task completion (not on Solar Rig return)
 - Outcome log refactored: scrollable via grab-to-scroll (`ScrollContainer` + `gui_input`);
-  informational scroll indicator (4px ColorRect, auto-hides after 1s); fills viewport
-  height below HUD; dismissed by tapping outside or tapping log button again
+  full-height 4px ColorRect scrollbar indicator (always visible while log open, hidden on
+  close); dismissed by tapping outside or tapping log button again; farm grid locked via
+  `EventBus.log_overlay_opened/closed` while log is open; log button hidden during simulation
 
 Next up:
 - [ ] Playback speed controls (1×, 2×, 3×, 5×)
@@ -392,8 +393,13 @@ Both paths use the Cafeteria for meal crafting.
   released at task completion (not Solar Rig return)
 - Outcome log panel: `Panel` + `ScrollContainer` (PRESET_FULL_RECT, `SCROLL_MODE_SHOW_NEVER`)
   + `_log_vbox`; fills viewport height from `offset_bottom` down; grab-to-scroll via
-  `gui_input` on ScrollContainer; 4px `ColorRect` indicator shown on drag, hidden 1s
-  after last scroll via one-shot Timer; dismissed in `_input` override on outside press
+  `gui_input` on ScrollContainer; 4px full-panel-height `ColorRect` scrollbar always
+  visible while log is open (updated deferred on open and on `refresh_log`); dismissed in
+  `_input` override on outside press; opening emits `EventBus.log_overlay_opened` →
+  `planning_locked = true` on all GameGrid instances (same pattern as `merge_grid_opened`);
+  closing emits `EventBus.log_overlay_closed` → `planning_locked = false`; log button
+  hidden by `set_simulation_active(true)` and restored by `set_simulation_active(false)`
+  to prevent opening log during simulation (which would conflict with simulation's own lock)
 
 ---
 

@@ -53,7 +53,6 @@ var _log_panel:           Panel
 var _log_scroll:          ScrollContainer
 var _log_vbox:            VBoxContainer
 var _log_scrollbar:       ColorRect
-var _log_scrollbar_timer: Timer
 var _log_drag_active:     bool = false
 
 ## Spacer Controls inside each settler row — positioned behind SettlerFoodGrid nodes.
@@ -168,11 +167,6 @@ func _build_ui() -> void:
 	_log_scrollbar.z_index = 1
 	_log_panel.add_child(_log_scrollbar)
 
-	_log_scrollbar_timer = Timer.new()
-	_log_scrollbar_timer.one_shot = true
-	_log_scrollbar_timer.timeout.connect(
-		func() -> void: _log_scrollbar.visible = false)
-	add_child(_log_scrollbar_timer)
 
 func _make_tooltip_panel() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
@@ -244,7 +238,11 @@ func set_simulation_active(v: bool) -> void:
 		_energy_tooltip.visible  = false
 		_matter_tooltip.visible  = false
 		hide_settler_panel()
-		_log_panel.visible = false
+		_log_panel.visible       = false
+		_log_btn.visible         = false
+		# Log overlay is hidden by simulation; grid lock handled by simulation_started signal.
+	else:
+		_log_btn.visible = true
 
 ## Show the settler assignment panel (tooltip + slot spacers for SettlerManager to overlay).
 func show_settler_panel() -> void:
@@ -341,6 +339,7 @@ func refresh_log(entries: Array[Dictionary]) -> void:
 				entry.get("timestamp", -1.0)))
 	# Scroll to bottom deferred so layout completes before max_value is queried.
 	call_deferred("_scroll_log_to_bottom")
+	call_deferred("_update_log_scrollbar_indicator")
 
 ## Creates a log entry: label line (with timestamp right-justified), then value on next line.
 ## label_color/value_color are hex strings (e.g. "#88ee88"); empty = no color override.
@@ -517,6 +516,11 @@ func _on_log_btn_pressed() -> void:
 		_matter_tooltip.visible  = false
 		_settler_tooltip.visible = false
 		call_deferred("_scroll_log_to_bottom")
+		call_deferred("_update_log_scrollbar_indicator")
+		EventBus.log_overlay_opened.emit()
+	else:
+		_log_scrollbar.visible = false
+		EventBus.log_overlay_closed.emit()
 
 func _input(event: InputEvent) -> void:
 	if not _log_panel.visible:
@@ -540,6 +544,8 @@ func _input(event: InputEvent) -> void:
 		return
 	if not _log_panel.get_global_rect().has_point(press_pos):
 		_log_panel.visible = false
+		_log_scrollbar.visible = false
+		EventBus.log_overlay_closed.emit()
 
 func _on_log_panel_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -558,8 +564,6 @@ func _on_log_panel_input(event: InputEvent) -> void:
 
 func _show_log_scrollbar_indicator() -> void:
 	_update_log_scrollbar_indicator()
-	_log_scrollbar.visible = true
-	_log_scrollbar_timer.start(1.0)
 
 func _update_log_scrollbar_indicator() -> void:
 	var panel_h: float  = _log_panel.size.y
@@ -567,12 +571,9 @@ func _update_log_scrollbar_indicator() -> void:
 	if max_scroll <= 0:
 		_log_scrollbar.visible = false
 		return
-	var total_h: float      = panel_h + float(max_scroll)
-	var thumb_h: float      = maxf(panel_h * panel_h / total_h, 16.0)
-	var scroll_ratio: float = float(_log_scroll.scroll_vertical) / float(max_scroll)
-	var thumb_y: float      = scroll_ratio * (panel_h - thumb_h)
-	_log_scrollbar.size     = Vector2(4.0, thumb_h)
-	_log_scrollbar.position = Vector2(_log_panel.size.x - 5.0, thumb_y)
+	_log_scrollbar.size     = Vector2(4.0, panel_h)
+	_log_scrollbar.position = Vector2(_log_panel.size.x - 5.0, 0.0)
+	_log_scrollbar.visible  = true
 
 func _scroll_log_to_bottom() -> void:
 	_log_scroll.scroll_vertical = _log_scroll.get_v_scroll_bar().max_value as int

@@ -166,6 +166,8 @@ func _ready() -> void:
 	grid_data = GridData.new(rows, cols)
 	EventBus.simulation_started.connect(func() -> void: set_planning_locked(true))
 	EventBus.simulation_ended.connect(func() -> void: set_planning_locked(false))
+	EventBus.log_overlay_opened.connect(func() -> void: set_planning_locked(true))
+	EventBus.log_overlay_closed.connect(func() -> void: set_planning_locked(false))
 	EventBus.merge_grid_opened.connect(func(grid: GameGrid) -> void:
 		if grid != self:
 			set_grid_active(false)
