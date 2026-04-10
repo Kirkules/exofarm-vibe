@@ -48,12 +48,13 @@ var _matter_info_box:  VBoxContainer
 var _settler_tooltip:  PanelContainer
 var _tooltip_name_box: VBoxContainer
 
-var _log_btn:             Button
-var _log_panel:           Panel
-var _log_scroll:          ScrollContainer
-var _log_vbox:            VBoxContainer
-var _log_scrollbar:       ColorRect
-var _log_drag_active:     bool = false
+var _log_btn:                    Button
+var _log_panel:                  Panel
+var _log_scroll:                 ScrollContainer
+var _log_vbox:                   VBoxContainer
+var _log_scrollbar:              ColorRect
+var _log_scrollbar_hide_timer:   Timer
+var _log_drag_active:            bool = false
 
 ## Spacer Controls inside each settler row — positioned behind SettlerFoodGrid nodes.
 var _settler_slot_spacers: Array[Control] = []
@@ -152,7 +153,6 @@ func _build_ui() -> void:
 	_log_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_log_scroll.vertical_scroll_mode   = ScrollContainer.SCROLL_MODE_SHOW_NEVER
 	_log_scroll.mouse_filter = Control.MOUSE_FILTER_STOP
-	_log_scroll.gui_input.connect(_on_log_panel_input)
 	_log_panel.add_child(_log_scroll)
 
 	_log_vbox = VBoxContainer.new()
@@ -166,6 +166,11 @@ func _build_ui() -> void:
 	_log_scrollbar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_log_scrollbar.z_index = 1
 	_log_panel.add_child(_log_scrollbar)
+
+	_log_scrollbar_hide_timer = Timer.new()
+	_log_scrollbar_hide_timer.one_shot = true
+	_log_scrollbar_hide_timer.timeout.connect(func() -> void: _log_scrollbar.visible = false)
+	add_child(_log_scrollbar_hide_timer)
 
 
 func _make_tooltip_panel() -> PanelContainer:
@@ -339,7 +344,7 @@ func refresh_log(entries: Array[Dictionary]) -> void:
 				entry.get("timestamp", -1.0)))
 	# Scroll to bottom deferred so layout completes before max_value is queried.
 	call_deferred("_scroll_log_to_bottom")
-	call_deferred("_update_log_scrollbar_indicator")
+	call_deferred("_show_log_scrollbar_indicator")
 
 ## Creates a log entry: label line (with timestamp right-justified), then value on next line.
 ## label_color/value_color are hex strings (e.g. "#88ee88"); empty = no color override.
@@ -509,61 +514,66 @@ func _on_energy_label_input(event: InputEvent) -> void:
 func _on_matter_label_input(event: InputEvent) -> void:
 	_toggle_tooltip_on_press(event, _matter_tooltip)
 
+func _close_log() -> void:
+	_log_scrollbar_hide_timer.stop()
+	_log_panel.visible     = false
+	_log_scrollbar.visible = false
+	_log_drag_active       = false
+	EventBus.log_overlay_closed.emit()
+
 func _on_log_btn_pressed() -> void:
-	_log_panel.visible = not _log_panel.visible
 	if _log_panel.visible:
+		_close_log()
+	else:
+		_log_panel.visible       = true
 		_energy_tooltip.visible  = false
 		_matter_tooltip.visible  = false
 		_settler_tooltip.visible = false
 		call_deferred("_scroll_log_to_bottom")
-		call_deferred("_update_log_scrollbar_indicator")
+		call_deferred("_show_log_scrollbar_indicator")
 		EventBus.log_overlay_opened.emit()
-	else:
-		_log_scrollbar.visible = false
-		EventBus.log_overlay_closed.emit()
 
+## Handles all log overlay input: scroll drag tracking, input blocking over obscured UI,
+## and outside-press dismissal. Using _input (fires before GUI processing) ensures events
+## within the log rect are consumed before InventoryUI/BuildMenu can intercept them —
+## gui_input on _log_scroll only fires within the parent HudUI rect (~52px), so it cannot
+## block input over controls in the lower half of the screen.
 func _input(event: InputEvent) -> void:
 	if not _log_panel.visible:
 		return
-	var is_press: bool = false
-	var press_pos: Vector2 = Vector2.ZERO
+	var log_rect: Rect2 = _log_panel.get_global_rect()
 	if event is InputEventMouseButton:
 		var mb: InputEventMouseButton = event as InputEventMouseButton
-		if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
-			is_press  = true
-			press_pos = mb.position
+		if mb.button_index != MOUSE_BUTTON_LEFT:
+			return
+		if log_rect.has_point(mb.position):
+			_log_drag_active = mb.pressed
+			get_viewport().set_input_as_handled()
+		elif not mb.pressed:
+			_log_drag_active = false
+		elif not _log_btn.get_global_rect().has_point(mb.position):
+			_close_log()
 	elif event is InputEventScreenTouch:
 		var t: InputEventScreenTouch = event as InputEventScreenTouch
-		if t.pressed:
-			is_press  = true
-			press_pos = t.position
-	if not is_press:
-		return
-	# Exclude the log button itself — _on_log_btn_pressed handles that toggle.
-	if _log_btn.get_global_rect().has_point(press_pos):
-		return
-	if not _log_panel.get_global_rect().has_point(press_pos):
-		_log_panel.visible = false
-		_log_scrollbar.visible = false
-		EventBus.log_overlay_closed.emit()
-
-func _on_log_panel_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
-		var mb: InputEventMouseButton = event as InputEventMouseButton
-		if mb.button_index == MOUSE_BUTTON_LEFT:
-			_log_drag_active = mb.pressed
-	elif event is InputEventScreenTouch:
-		_log_drag_active = (event as InputEventScreenTouch).pressed
+		if log_rect.has_point(t.position):
+			_log_drag_active = t.pressed
+			get_viewport().set_input_as_handled()
+		elif not t.pressed:
+			_log_drag_active = false
+		elif not _log_btn.get_global_rect().has_point(t.position):
+			_close_log()
 	elif event is InputEventMouseMotion and _log_drag_active:
 		_log_scroll.scroll_vertical -= int((event as InputEventMouseMotion).relative.y)
 		_show_log_scrollbar_indicator()
+		get_viewport().set_input_as_handled()
 	elif event is InputEventScreenDrag and _log_drag_active:
 		_log_scroll.scroll_vertical -= int((event as InputEventScreenDrag).relative.y)
 		_show_log_scrollbar_indicator()
-	get_viewport().set_input_as_handled()
+		get_viewport().set_input_as_handled()
 
 func _show_log_scrollbar_indicator() -> void:
 	_update_log_scrollbar_indicator()
+	_log_scrollbar_hide_timer.start(2.0)
 
 func _update_log_scrollbar_indicator() -> void:
 	var panel_h: float  = _log_panel.size.y

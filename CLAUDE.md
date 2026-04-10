@@ -63,10 +63,14 @@ Recently completed:
 - `_find_nearest_available_task` / `_claim_task` / `_send_agent_to_task` in
   `SimulationController` prevent race conditions and route settlers to closest task;
   `settler_dispatched` released at task completion (not on Solar Rig return)
-- Outcome log refactored: scrollable via grab-to-scroll (`ScrollContainer` + `gui_input`);
-  full-height 4px ColorRect scrollbar indicator (always visible while log open, hidden on
-  close); dismissed by tapping outside or tapping log button again; farm grid locked via
-  `EventBus.log_overlay_opened/closed` while log is open; log button hidden during simulation
+- Outcome log refactored: scrollable via grab-to-scroll (`ScrollContainer`); full-height
+  4px ColorRect scrollbar indicator; auto-hides 2s after last scroll (Timer); dismissed by
+  tapping outside or tapping log button again; farm grid locked via `EventBus.log_overlay_opened/closed`
+  while log is open; log button hidden during simulation
+- Outcome log scroll input moved to `HudUI._input()` (fires before GUI processing) so the
+  log panel properly blocks `InventoryUI`/`BuildMenu` in the lower screen area; `gui_input`
+  on `_log_scroll` was insufficient because Godot routes GUI events only within the parent
+  `HudUI` rect (~52px), leaving the lower half unblocked
 
 Next up:
 - [ ] Playback speed controls (1×, 2×, 3×, 5×)
@@ -392,14 +396,18 @@ Both paths use the Cafeteria for meal crafting.
   from_pos, task)` redirects agent in place for consecutive tasks; `settler_dispatched`
   released at task completion (not Solar Rig return)
 - Outcome log panel: `Panel` + `ScrollContainer` (PRESET_FULL_RECT, `SCROLL_MODE_SHOW_NEVER`)
-  + `_log_vbox`; fills viewport height from `offset_bottom` down; grab-to-scroll via
-  `gui_input` on ScrollContainer; 4px full-panel-height `ColorRect` scrollbar always
-  visible while log is open (updated deferred on open and on `refresh_log`); dismissed in
-  `_input` override on outside press; opening emits `EventBus.log_overlay_opened` →
-  `planning_locked = true` on all GameGrid instances (same pattern as `merge_grid_opened`);
-  closing emits `EventBus.log_overlay_closed` → `planning_locked = false`; log button
-  hidden by `set_simulation_active(true)` and restored by `set_simulation_active(false)`
-  to prevent opening log during simulation (which would conflict with simulation's own lock)
+  + `_log_vbox`; fills viewport height from `offset_bottom` down; all input (drag tracking,
+  scrolling, blocking underlying controls, outside-press dismiss) handled in `HudUI._input()`
+  which fires before GUI processing — this ensures events in the log rect are consumed via
+  `set_input_as_handled()` before `InventoryUI`/`BuildMenu` see them (gui_input on a child
+  of HudUI only fires within HudUI's own ~52px rect); 4px full-panel-height `ColorRect`
+  scrollbar indicator shown on open and on scroll, auto-hidden 2s after last scroll via
+  one-shot `Timer` (`_log_scrollbar_hide_timer`); `_close_log()` helper stops timer and
+  hides scrollbar; opening emits `EventBus.log_overlay_opened` → `planning_locked = true`
+  on all GameGrid instances (same pattern as `merge_grid_opened`); closing emits
+  `EventBus.log_overlay_closed` → `planning_locked = false`; log button hidden by
+  `set_simulation_active(true)` and restored by `set_simulation_active(false)` to prevent
+  opening log during simulation (which would conflict with simulation's own lock)
 
 ---
 

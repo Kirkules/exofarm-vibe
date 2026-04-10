@@ -1925,3 +1925,53 @@ deferred (after layout settles); closing the log hides it immediately.
 - `scenes/game/ui/hud_ui.gd`: rewrote `_update_log_scrollbar_indicator`; removed timer
   variable, node creation, and start call; added deferred update calls to `refresh_log`
   and `_on_log_btn_pressed`
+
+---
+
+## Session — 2026-04-10
+
+### Bug Fix: Outcome log scroll only works in top half of screen
+
+**User:** Scrolling the log works when the cursor is over the top part of the screen (farm
+grid area) but not in the bottom part (inventory / build menu area). Also, the underlying
+UI elements (inventory, build menu) are still interactable when obscured by the log.
+
+**Root cause:** `_log_scroll.gui_input` was connected in `_build_ui()` to handle drag
+tracking and scrolling. In Godot 4, GUI input is only routed to a Control within its parent
+Control's rect. `HudUI` has `offset_bottom ≈ 52px`, so `_log_panel` (a child of HudUI)
+only receives `gui_input` for events within that ~52px strip. The farm grid below it is a
+`Node2D` (no Control rect), so events there fall through and the scroll handler fired. But
+`InventoryUI` and `BuildMenu` are Controls at z_index 0 with `MOUSE_FILTER_STOP` in the
+lower screen area — they consumed events before `_log_scroll.gui_input` ever fired.
+
+**Fix:** Removed the `gui_input` connection and moved all log input logic into
+`HudUI._input()`, which fires for ALL input before GUI processing. HudUI is earlier in
+UILayer's child order than InventoryUI (which was moved to last via `move_child`), so
+`_input` on HudUI fires first. Calling `get_viewport().set_input_as_handled()` for events
+within `_log_panel.get_global_rect()` prevents them from reaching InventoryUI/BuildMenu.
+Extracted `_close_log()` helper to deduplicate close logic between `_on_log_btn_pressed`
+and `_input`.
+
+**Files changed:**
+- `scenes/game/ui/hud_ui.gd`: removed `gui_input.connect`; replaced `_input` and
+  `_on_log_panel_input` with new `_input` + `_close_log()` helpers
+
+### Feature: Outcome log scrollbar auto-hides after 2s of inactivity
+
+**User:** Make the scrollbar visually disappear 2 seconds after a scroll action completes.
+
+**Implementation:** Added `_log_scrollbar_hide_timer: Timer` (one-shot, created in
+`_build_ui()`). `_show_log_scrollbar_indicator()` now calls `_log_scrollbar_hide_timer.start(2.0)`
+after updating the scrollbar geometry — calling `start()` on a running timer resets it, so
+each scroll action defers the hide by another 2 seconds. `_close_log()` stops the timer to
+prevent a stale hide from firing after re-opening. Callers of `_update_log_scrollbar_indicator`
+that should trigger auto-hide (initial open, `refresh_log`) were updated to call
+`_show_log_scrollbar_indicator` instead.
+
+Note: a prior session (2026-04-01) had added then removed a similar 1s auto-hide timer; it
+was removed when the scrollbar was changed to be "always visible while open." This session
+re-introduces the behavior at 2s as a UX improvement.
+
+**Files changed:**
+- `scenes/game/ui/hud_ui.gd`: added `_log_scrollbar_hide_timer`; updated
+  `_show_log_scrollbar_indicator`, `_close_log`, `_on_log_btn_pressed`, `refresh_log`
