@@ -1,4 +1,5 @@
 extends Node
+class_name EventBus
 
 # Grid events
 signal piece_placed(piece_id: int, row: int, col: int)

@@ -1,4 +1,5 @@
 extends Node
+class_name GameState
 
 const SAVE_PATH := "user://save.res"
 

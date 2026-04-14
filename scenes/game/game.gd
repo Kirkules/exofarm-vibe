@@ -1,4 +1,5 @@
 extends Node2D
+class_name Game
 
 @onready var farm_grid:    FarmGrid    = $FarmGrid
 @onready var inventory_ui: InventoryUI = $UILayer/InventoryUI
