@@ -79,6 +79,14 @@ Next up:
 
 ---
 
+## Signal Graph
+
+Full directed graph of all signal connections: **[`.claude/signal_graph.md`](.claude/signal_graph.md)**
+
+**For any task or question involving signals** (adding, removing, rewiring, debugging, or reasoning about signal flow): read `.claude/signal_graph.md` first. After adding, removing, or rewiring a signal, run `/update-signal-graph`.
+
+---
+
 ## Tech Stack and Architecture
 
 - **Engine:** Godot 4.6.1, GDScript only (no C#)
@@ -167,55 +175,6 @@ offset_top=−48). Its PARTIAL height = `viewport_h − grid_bottom − 8`.
 - Polyomino shapes: list of (row, col) offsets from origin; origin = touch anchor + rotation pivot
 - 90° CW rotation: `(r, c) → (c, -r)`, then renormalize to min=(0,0)
 - `piece_id` is an int assigned by `grid_data`; used as key in all piece dictionaries
-
-### Piece Placement Signal Flow
-
-```
-build menu tap   → game._on_building_requested(def)  → building_manager.begin_build_menu_hold
-inventory tap    → game._on_item_requested(item)
-                    • settler panel open: settler_manager.route_inventory_hold(item)
-                    • kitchen open:       kitchen_manager.route_inventory_hold(item)
-                    • else:               building_manager.begin_inventory_hold(item)
-
-building_manager internal (farm_grid signals → BuildingManager handlers):
-  inventory_item_pickup_confirmed → remove from inventory; set held state
-  piece_placed_on_grid  → register in _placed_items; KITCHEN_GRID-only items rejected back
-                           to inventory; recompute_power() → power_changed.emit()
-  piece_released        → emit piece_released_off_farm(item, build_state, com_screen_pos)
-  piece_returned_to_grid → restore _placed_items; recompute_power() → power_changed.emit()
-  piece_picked_up_from_grid → erase from _placed_items; recompute_power();
-                               emit piece_picked_up_from_farm()
-  piece_long_pressed    → if CafeteriaDefinition: emit cafeteria_long_pressed(piece_id)
-
-game.gd handles BuildingManager signals:
-  power_changed         → _on_power_changed(): _refresh_food_hud() + kitchen_manager.sync()
-  piece_released_off_farm → route SETTLER_GRID items to settler_manager.try_place_item();
-                             route KITCHEN_GRID items to kitchen_manager.try_place_item();
-                             UNBUILT: discard; else: return to inventory
-  piece_picked_up_from_farm → kitchen_manager.close()
-  cafeteria_long_pressed → settler_manager.close(); kitchen_manager.open(piece_id)
-                            [guarded: no-op in SIMULATION]
-
-settler_manager (SettlerFoodGrid signals wired per-settler via closures):
-  inventory_item_pickup_confirmed → remove from inventory; set _held_item;
-                                    _deactivate_other_grids(g)
-  piece_placed_on_grid  → register in _settler_placed_items[i]; _reactivate_all_grids()
-  piece_picked_up_from_grid → erase from _settler_placed_items[i];
-                               set_held_discardable(true) for cross-slot drag;
-                               _deactivate_other_grids(g)
-  piece_released        → try_place_item on sibling slots; else return to inventory;
-                          _reactivate_all_grids()
-  piece_returned_to_grid → restore _settler_placed_items[i]; _reactivate_all_grids()
-  assignments_changed   → game._refresh_food_hud() (updates Matter HUD + tooltip)
-
-kitchen_manager (KitchenGrid signals wired per-cafeteria via closures):
-  inventory_item_pickup_confirmed → remove from inventory; set _held_item
-  piece_placed_on_grid  → register in _kitchen_placed_items[cid]
-  piece_picked_up_from_grid → erase from _kitchen_placed_items[cid]
-  piece_released        → return _held_item to inventory
-  piece_returned_to_grid → restore _kitchen_placed_items[cid]
-  piece_ejected         → return item to inventory (capacity reduction)
-```
 
 **Key state dicts in BuildingManager** (all keyed by `piece_id: int`):
 - `_placed_items` — piece_id → InventoryItem (survives pick-up/put-down)
