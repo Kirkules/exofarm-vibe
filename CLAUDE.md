@@ -31,6 +31,20 @@ Next up:
 
 ---
 
+## Code Map
+
+Five reference documents mapping project code structure. Read relevant section(s) before design consideration, code planning, or structural changes. Run the corresponding update command after changes. Use `/update-code-map` to regenerate all five at once.
+
+| Section | File | Update Command | Read When |
+|---------|------|----------------|-----------|
+| Class Inventory | `.claude/code_map_classes.md` | `/update-class-inventory` | Adding/renaming classes or changing public API |
+| Dependency Graph | `.claude/code_map_deps.md` | `/update-dep-graph` | Adding/changing cross-class references |
+| Virtual/Override Map | `.claude/code_map_overrides.md` | `/update-override-map` | Adding virtual methods or subclass overrides |
+| Autoload Access Map | `.claude/code_map_autoloads.md` | `/update-autoload-map` | Adding/changing GameState, EventBus, Catalog, or Settings access |
+| Input Handler Map | `.claude/code_map_input.md` | `/update-input-map` | Adding or modifying input handling in any class |
+
+---
+
 ## Signal Graph
 
 Full directed graph of all signal connections: **[`.claude/signal_graph.md`](.claude/signal_graph.md)**
@@ -193,6 +207,10 @@ GameState.settler_health.assign(food["projected_health"])
 # Wrong — silently fails, typed array is unchanged
 GameState.settler_health = food["projected_health"]
 ```
+
+**Every script file must declare `class_name`**, even if it is not referenced by other files. This is required for code map tooling to correctly identify project-defined types.
+
+**Use `git mv` to rename source files**, not plain `mv`. This ensures rename detection works correctly in the code map tracking hooks.
 
 **Other conventions:**
 - Scene scripts co-located with their `.tscn` files; pure logic in `scripts/`
