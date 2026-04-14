@@ -22,55 +22,7 @@ exists but caused irreversible climate change on Earth, making new planets neces
 
 ## Current Focus
 
-**Phase 1 complete. Currently in Phase 2 (Season Simulation).**
-
-Recently completed:
-- GridType enum (`FARM_GRID`, `KITCHEN_GRID`, `SETTLER_GRID`) on `PlaceableDefinition`;
-  crop items restricted to `KITCHEN_GRID`; meals restricted to `KITCHEN_GRID`+`SETTLER_GRID`
-- `CropProductionDefinition` inserted between `BuildingDefinition` and `GreenhouseDefinition`;
-  holds `tend_interval` and `tend_per_yield`
-- Real-time 15s settler labor animation: ColorRect sprites walk Solar Rig↔greenhouses at
-  2 grid-units/sec; `tend_per_yield` arrivals yield one crop item
-- Season progress bar (16px above grid) with elapsed-time label; SimulationOverlay removed
-- Live log overlay between HUD and progress bar: shows last 6 entries as they occur
-- Outcome log with timestamps, color-coded values, and per-entry label/value layout;
-  accessible via "log" button below Next Season; cleared at start of each simulation
-- SettlerHealth enum (FED, STARVING, DEAD); DEAD settlers skip food; starvation kills
-- Construction cost deducted before Nutrient Paste at sim start; UNBUILT/BUILT state machine
-- Cafeteria (1×2, amber); `KitchenGrid` (GameGrid subclass, 3×4) opened by long-press;
-  per-cafeteria grids; KITCHEN_GRID items route to nearest empty slot at drop CoM
-- "Skip simulation" button compresses remaining time to 0.5s for fast playtesting
-- Grid refactor complete: `GameGrid` base class; signal-driven sim locking via EventBus;
-  `KitchenGrid` replaces `KitchenPanel`; `interaction_blocked` removed
-- `game.gd` split into `BuildingManager`, `KitchenManager`, `SimulationController`;
-  `game.gd` is now a thin orchestrator
-- `SettlerManager` + `SettlerFoodGrid`: per-settler 1×1 meal-assignment slots shown as
-  a panel overlay (tap settler label to open/close); items draggable across slots;
-  `assignments_changed` signal refreshes HUD; sibling grids deactivated during any drag
-  to suppress hover bleed; `set_held_discardable(true)` on pickup enables cross-slot drag
-- `RecipeDefinition` populated: {2 Wheat}→Pasta, {2 Tomato}→Tomato Sauce,
-  {1 Pasta+1 Tomato Sauce+1 Eggplant}→3 Pasta alla Norma (MealDefinition, SETTLER_GRID)
-- `_refresh_food_hud()` helper in game.gd shared by `power_changed` and
-  `assignments_changed` so Matter HUD/tooltip updates on meal assignment changes
-- `Settler` class replaces parallel `settler_names`/`settler_health` arrays in GameState;
-  owns `Health` enum and `morale: int`
-- Per-settler morale: formula = `0 - dead_count + food_delta` (fresh each season);
-  shown inline in settler tooltip as "Alice (fed) Content (+0)"; morale breakdown
-  expandable by tapping the morale label (one settler at a time)
-- Morale affects simulation: positive morale → settler does `1 + morale` consecutive
-  tasks per trip; negative morale → skip budget of `-morale`, 50% skip chance per
-  greenhouse arrival until budget exhausted
-- `_find_nearest_available_task` / `_claim_task` / `_send_agent_to_task` in
-  `SimulationController` prevent race conditions and route settlers to closest task;
-  `settler_dispatched` released at task completion (not on Solar Rig return)
-- Outcome log refactored: scrollable via grab-to-scroll (`ScrollContainer`); full-height
-  4px ColorRect scrollbar indicator; auto-hides 2s after last scroll (Timer); dismissed by
-  tapping outside or tapping log button again; farm grid locked via `EventBus.log_overlay_opened/closed`
-  while log is open; log button hidden during simulation
-- Outcome log scroll input moved to `HudUI._input()` (fires before GUI processing) so the
-  log panel properly blocks `InventoryUI`/`BuildMenu` in the lower screen area; `gui_input`
-  on `_log_scroll` was insufficient because Godot routes GUI events only within the parent
-  `HudUI` rect (~52px), leaving the lower half unblocked
+**Phase 1 complete. Phase 2 (Season Simulation) is underway:** core sim loop, settler labor animation, morale system, cafeteria/kitchen grid, meal assignment, and outcome log are all implemented.
 
 Next up:
 - [ ] Playback speed controls (1×, 2×, 3×, 5×)
@@ -216,18 +168,6 @@ Each entry dict: `{"label": String, "value": String, "label_color": String,
 Always call `simulation_controller.add_log_entry(base)` — never append to the log directly
 (it stamps timestamp and pushes to live overlay).
 
-### _compute_food_state() return keys
-
-Lives in `game.gd`; calls `building_manager`, `kitchen_manager`, and `settler_manager` for inputs.
-Keys: `matter_prod`, `construction_cost`, `food_items` (from `settler_manager.assigned_meal_count()`),
-`paste_needed`, `paste_produced`, `projected_health` (Array[int] parallel to settler_names), `deaths`.
-Distribution: settlers with a meal assigned (`settler_manager.has_meal_assigned(i)`) are FED from
-their meal; remaining living settlers draw from Nutrient Paste; those without paste die.
-Pass `construction_cost_override >= 0` in `_end_simulation` to use the pre-transition cost
-(captured before UNBUILT→BUILT runs).
-
-`_refresh_food_hud()` is a shared helper called by both `_on_power_changed` and
-`settler_manager.assignments_changed` to keep Matter HUD/tooltip in sync.
 
 ### Power System
 
@@ -242,27 +182,7 @@ Pass `construction_cost_override >= 0` in `_end_simulation` to use the pre-trans
 
 **Always use explicit type annotations on every `var` declaration.** This is non-negotiable.
 
-```gdscript
-# Correct
-var count: int = 0
-var names: Array[String] = []
-var item: InventoryItem = null
-
-# Wrong
-var count = 0
-var names = []
-```
-
-**Use enums instead of integer sentinels** for any discrete multi-valued variable.
-
-```gdscript
-# Correct
-enum BuildState { UNBUILT, BUILT }
-var _held_build_state: BuildState = BuildState.BUILT
-
-# Wrong
-var _held_build_state: int = 0  # 0 = BUILT, 1 = UNBUILT
-```
+**Use enums instead of integer sentinels** for any discrete multi-valued variable; use named constants for any other magic numbers.
 
 **Typed Array assignment from Dictionary requires `.assign()` not `=`:**
 
@@ -279,7 +199,6 @@ GameState.settler_health = food["projected_health"]
 - Private helpers prefixed with `_`; public API has doc comments (`##`)
 - Signals named `past_tense_verb` (e.g. `piece_placed_on_grid`, `next_season_pressed`)
 - Resource subclasses use `class_name`; autoloads are singletons accessed by name
-- No magic number sentinels — prefer enums or named constants
 
 ---
 
@@ -306,11 +225,6 @@ Both paths use the Cafeteria for meal crafting.
 
 ## Known Issues and Current TODOs
 
-### Pending Features (Phase 2)
-- Playback speed controls (1×/2×/3×/5×)
-- Inventory overflow: items beyond capacity broken down into Matter at sim start
-- End-of-run score / viability report (morale contributes)
-
 ### Design Decisions Deferred
 - `KITCHEN_GRID` items (Wheat, Tomato, Eggplant): dragging them onto the farm grid
   rejects and returns to inventory. Drag-to-kitchen-panel is the only route in.
@@ -320,108 +234,57 @@ Both paths use the Cafeteria for meal crafting.
   buildings placed in season N don't participate in power until season N+1
 
 ### Behavior Notes
-- Starting buildings (Solar Rig, Matter Manipulator) placed BUILT at (3,3) and (3,4);
-  `moveable=false`; not selectable; placed via `building_manager.place_at_built()`
-- UNBUILT buildings flash at 0.5s period; discarded if dropped off-grid
+- Starting buildings (Solar Rig, Matter Manipulator) placed BUILT via `building_manager.place_at_built()`
 - Drag offset while holding: 1 grid-space left, 0.5 grid-space down from touch point
 - Matter Manipulator must be powered for Nutrient Paste to be produced
 - Construction cost captured before UNBUILT→BUILT transition in `_begin_simulation()`
   (otherwise `compute_construction_cost()` returns 0 — the buildings are already BUILT)
-- `BuildingManager` enforces moveability by type: `BuildingDefinition` pieces are moveable
-  when UNBUILT and fixed when BUILT; non-building placeables use `def.moveable`. Do NOT
-  set `moveable=false` on building definitions — it has no effect.
+- Do NOT set `moveable=false` on `BuildingDefinition` resources — it has no effect;
+  `BuildingManager` enforces moveability by type (UNBUILT=moveable, BUILT=fixed)
 - `BuildMenu`, `KitchenGrid` nodes, progress bar, and live log are all created
   programmatically — no `.tscn` counterparts; use `_ui_layer.add_child()`
-- `KitchenGrid`: long-press (0.5s) on a placed BUILT Cafeteria opens it; any new press
-  outside it closes it (`game._unhandled_input`); `planning_locked` (set by EventBus
-  `merge_grid_opened/closed`) blocks farm grid interaction while a kitchen grid is open
-- `KitchenManager._find_nearest_empty_cell(kg, screen_pos)` finds the closest active
-  empty slot to the drop CoM; used by `try_place_item()` for off-grid drops
-- `BuildState` enum lives in `BuildingManager`; `BuildingManager.BuildState.UNBUILT/BUILT`
-- Settler panel: opened by tapping the settler count label in HUD; `SettlerFoodGrid` nodes
-  on the same `_ui_layer` at z_index=101 (above the settler tooltip at z_index=100);
-  positioned via math from `_settler_tooltip.global_position + offset` (not layout queries)
 - Settler cross-slot drag: `set_held_discardable(true)` on GRID pickup; sibling grids
-  deactivated (`set_grid_active(false)`) during drag to suppress hover bleed; reactivated
-  in all `_on_piece_placed/released/returned` handlers
-- Morale formula (computed fresh each season in `_compute_food_state()`):
-  `morale = 0 - dead_count + food_delta` where `food_delta = meal.morale_modifier` if
-  settler has a meal assigned, else `-1` for Nutrient Paste; dead settlers get morale=0
-- Simulation morale effects: `tasks_limit = 1 + max(0, morale)` consecutive tasks per trip
-  from Solar Rig; `skips_remaining = max(0, -morale)` skip budget per season initialized
-  in `SimulationController.begin()`; 50% skip chance per greenhouse arrival while budget > 0
-- `_find_nearest_available_task(from_pos)` scans all unclaimed ready greenhouses+cafeterias;
-  `_claim_task(task)` sets `settler_dispatched=true` atomically; `_send_agent_to_task(agent,
-  from_pos, task)` redirects agent in place for consecutive tasks; `settler_dispatched`
-  released at task completion (not Solar Rig return)
-- Outcome log panel: `Panel` + `ScrollContainer` (PRESET_FULL_RECT, `SCROLL_MODE_SHOW_NEVER`)
-  + `_log_vbox`; fills viewport height from `offset_bottom` down; all input (drag tracking,
-  scrolling, blocking underlying controls, outside-press dismiss) handled in `HudUI._input()`
-  which fires before GUI processing — this ensures events in the log rect are consumed via
-  `set_input_as_handled()` before `InventoryUI`/`BuildMenu` see them (gui_input on a child
-  of HudUI only fires within HudUI's own ~52px rect); 4px full-panel-height `ColorRect`
-  scrollbar indicator shown on open and on scroll, auto-hidden 2s after last scroll via
-  one-shot `Timer` (`_log_scrollbar_hide_timer`); `_close_log()` helper stops timer and
-  hides scrollbar; opening emits `EventBus.log_overlay_opened` → `planning_locked = true`
-  on all GameGrid instances (same pattern as `merge_grid_opened`); closing emits
-  `EventBus.log_overlay_closed` → `planning_locked = false`; log button hidden by
-  `set_simulation_active(true)` and restored by `set_simulation_active(false)` to prevent
-  opening log during simulation (which would conflict with simulation's own lock)
+  deactivated (`set_grid_active(false)`) during drag to suppress hover bleed
+- Morale formula (fresh each season): `morale = 0 - dead_count + food_delta` where
+  `food_delta = meal.morale_modifier` if meal assigned, else `-1`; dead settlers get morale=0
+- Simulation morale effects: `tasks_limit = 1 + max(0, morale)` consecutive tasks per trip;
+  `skips_remaining = max(0, -morale)` skip budget; 50% skip chance per arrival while budget > 0
+- `settler_dispatched` is released at task completion, not on Solar Rig return
+- Log overlay input handled in `HudUI._input()` (fires before GUI processing) — necessary
+  because `gui_input` on a child of HudUI only fires within HudUI's own ~52px rect
 
 ---
 
 ## Design Choices
 
 ### Numbers Stay Small
-Human-readable quantities at all times. Basic crop: 1 unit/season. Starting Matter
-production: 5/season. End-of-run production ceiling: ~100/season. Never thousands.
+Quantities stay human-readable and directly calculable at all times. Never let numbers
+grow to a scale where players estimate by feel rather than reason exactly. Design new
+mechanics with this in mind.
 
 ### Units Unspecified
 Don't label quantities with units in UI. Let players infer real-world equivalents.
 
 ### Planning Phase Always Reversible
-All decisions during planning can be undone until "Proceed to Next Season" is confirmed.
-This is a core design guarantee — never break it.
+All in-game decisions made during a season's planning phase can be undone until
+"Proceed to Next Season" is confirmed. This is a core design guarantee — never break it.
 
 ### Inventory as Workspace
-The inventory is the off-grid holding area. No separate workspace. Items removed from
-the grid go to inventory; items placed on the grid come from inventory (or build menu).
+The inventory is the sole off-grid holding area — there is no separate workspace.
 
 ### GridType for Item Routing
 `PlaceableDefinition.GridType` enum (`FARM_GRID`, `KITCHEN_GRID`) controls which grids
 accept each item. Items are always draggable; rejection happens at drop time, not pickup.
 New grid UIs should add a new `GridType` value and enforce it at their drop handler.
 
-### Power is Binary
-Buildings are fully powered or dormant. No partial power. Players manage shortfalls by
-toggling buildings off (double-tap). No automatic rationing.
-
-### UNBUILT vs. BUILT
-Buildings placed from the build menu start UNBUILT (flashing). They transition to BUILT
-at season confirmation, incurring their `matter_cost` at that point. BUILT buildings
-are fixed (`moveable=false`) and toggleable (double-tap). UNBUILT buildings can be moved
-or discarded; if dropped off-grid they are removed, not returned to inventory.
-
 ### Sprite CoM as Authoritative Position
-The visual center of mass of a dragged sprite is its authoritative location for all
-practical purposes (drop-target detection, grid snapping, hover highlighting). Never
-use the raw tap/cursor position for these decisions. The CoM is computed as
-`_effective_cursor_screen_pos() + (avg_offset + 0.5) * CELL_SIZE` where
-`_effective_cursor_screen_pos()` already incorporates the drag offset setting.
-This keeps visual and logical position in agreement regardless of drag-offset settings.
+The visual center of mass of a dragged sprite is its authoritative position for
+drop-target detection, grid snapping, and hover highlighting. Never use the raw
+tap/cursor position for these decisions.
 
 ### Math-Based UI Positioning
-Prefer computing screen positions mathematically from known layout constants (e.g.
-`_settler_tooltip.global_position + Vector2(panel_w - slot_size, i * slot_size)`) over
-querying `Control.get_global_rect()` or `get_global_position()` on individual child
-nodes. Child Control layout cascades (VBoxContainer row placement, HBoxContainer
-distribution, etc.) may not be complete even one frame after nodes are added, making
-runtime queries unreliable. Math-based positioning is deterministic, frame-independent,
-and easier to reason about. Use `get_global_rect()` only when the target node's position
-is explicitly assigned (not layout-driven) and you need its size, or when there is no
-reasonable closed-form alternative.
+Prefer computing screen positions mathematically from known layout constants over
+querying `Control.get_global_rect()` or `get_global_position()` on child nodes.
+Layout cascades (VBox/HBox distribution) may not be complete even one frame after
+nodes are added, making runtime queries unreliable.
 
-### Piece Visuals
-- Buildings/structures: square cells
-- Crop/food items: circle cells (`CellStyle.CIRCLE` in `PieceShape`)
-- Sprites are procedurally generated (no texture files yet); art pass is Phase 5
