@@ -44,6 +44,7 @@ var _item_list: VBoxContainer
 var _current_groups: Array = []   # [{item: InventoryItem, count: int}, ...] from last _rebuild_rows
 var _group_row_nodes: Array = []  # PanelContainer per group row, parallel to _current_groups
 var _drag_gap_idx: int = -1       # highlighted insertion gap; -1 = none
+var _drop_indicator: ColorRect    # overlay line; sibling of _root_panel, z_index=1
 
 func _ready() -> void:
 	_build_ui()
@@ -72,15 +73,13 @@ func set_drag_pos(screen_pos: Vector2) -> void:
 		if screen_pos.y < row.global_position.y + row.size.y * 0.5:
 			new_gap = i
 			break
-	if new_gap != _drag_gap_idx:
-		_drag_gap_idx = new_gap
-		queue_redraw()
+	_drag_gap_idx = new_gap
+	_update_drop_indicator()
 
 ## Called by GameGrid when the held piece leaves this panel or is released.
 func clear_drag() -> void:
-	if _drag_gap_idx != -1:
-		_drag_gap_idx = -1
-		queue_redraw()
+	_drag_gap_idx = -1
+	_drop_indicator.visible = false
 
 ## Returns the first InventoryItem of the group that the current gap points before.
 ## Returns null if the gap is at the end of the list (drop after last group).
@@ -124,6 +123,15 @@ func _build_ui() -> void:
 	_item_list = VBoxContainer.new()
 	_item_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_scroll.add_child(_item_list)
+
+	# Drop indicator: sibling of _root_panel so it renders above all panel content.
+	_drop_indicator = ColorRect.new()
+	_drop_indicator.color = COLOR_DROP_LINE
+	_drop_indicator.size = Vector2(0.0, 3.0)
+	_drop_indicator.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_drop_indicator.z_index = 1
+	_drop_indicator.visible = false
+	add_child(_drop_indicator)
 
 # ---------------------------------------------------------------------------
 # State management
@@ -241,7 +249,6 @@ func _rebuild_rows() -> void:
 		var row: PanelContainer = _make_row(entry["item"], entry["count"])
 		_item_list.add_child(row)
 		_group_row_nodes.append(row)
-	queue_redraw()
 
 func _make_row(item: InventoryItem, count: int) -> PanelContainer:
 	var row: PanelContainer = PanelContainer.new()
@@ -294,8 +301,9 @@ func _make_row(item: InventoryItem, count: int) -> PanelContainer:
 # Drop-zone indicator
 # ---------------------------------------------------------------------------
 
-func _draw() -> void:
+func _update_drop_indicator() -> void:
 	if _drag_gap_idx < 0 or not _scroll.visible:
+		_drop_indicator.visible = false
 		return
 	var line_y: float
 	if _group_row_nodes.is_empty():
@@ -310,7 +318,9 @@ func _draw() -> void:
 	var scroll_top: float = _scroll.global_position.y - global_position.y
 	var scroll_bot: float = scroll_top + _scroll.size.y
 	line_y = clampf(line_y, scroll_top, scroll_bot)
-	draw_line(Vector2(0.0, line_y), Vector2(size.x, line_y), COLOR_DROP_LINE, 2.0)
+	_drop_indicator.position = Vector2(0.0, line_y - 1.0)
+	_drop_indicator.size = Vector2(size.x, 3.0)
+	_drop_indicator.visible = true
 
 func _on_item_tapped(item: InventoryItem) -> void:
 	item_requested.emit(item)
