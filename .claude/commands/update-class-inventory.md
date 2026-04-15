@@ -1,6 +1,26 @@
-Re-scan all project `.gd` files (excluding `addons/`, `tests/`) and rebuild `.claude/code_map_classes.md`.
+Update `.claude/code_map_classes.md` using pending changes tracked by hooks.
 
 ## Instructions
+
+### Fast path (pending file exists and is non-empty)
+
+1. Read `.claude/pending_class-inventory.md`.
+2. For each entry:
+   - **EDIT**: apply the change lines directly to the code map:
+     - `+func ...` → add that line to the target class's Public API list (check first — skip if already present)
+     - `-func ...` → remove that line from the target class's Public API list
+     - `+signal ...` / `-signal ...` → add/remove from Signals line
+     - `+class_name ...` / `-class_name ...` → update the class header
+     - `+extends ...` / `-extends ...` → update the "extends" in the class header
+   - **NEW**: read the new source file in full; add a new class entry in the appropriate layer section
+   - **DELETE**: remove the entire entry for that file from the code map
+   - **RENAME**: find all occurrences of the old path in the code map and replace with the new path
+   - **REREAD**: re-read only the named source file; update its class entry in full
+3. After processing all entries, truncate `.claude/pending_class-inventory.md` to empty.
+4. Update the "Last updated" date.
+5. Report: entries processed, changes applied.
+
+### Full re-scan fallback (no pending file, or explicitly requested)
 
 1. List all .gd files in `scenes/` and `scripts/`.
 2. For each file, extract:
@@ -21,5 +41,5 @@ Public API:
   method2(args)
 Signals: signal1(args), signal2
 ```
-5. Update the "Last updated" date at the top.
+5. Update the "Last updated" date.
 6. Report: total class count, any classes added or removed since last update.

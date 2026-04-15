@@ -1,0 +1,27 @@
+{
+  "source_patterns": [
+    "scenes/**/*.gd",
+    "scripts/**/*.gd"
+  ],
+  "autoloads": ["GameState", "EventBus", "Catalog", "Settings"],
+  "input_handlers": ["_input", "_unhandled_input", "_gui_input"],
+  "project_virtuals": [
+    "_on_merge_grid_closed",
+    "_draw_grid_overlays",
+    "_can_place_at_cell"
+  ],
+  "code_map_sections": {
+    "class-inventory": ".claude/code_map_classes.md",
+    "dep-graph": ".claude/code_map_deps.md",
+    "override-map": ".claude/code_map_overrides.md",
+    "autoload-map": ".claude/code_map_autoloads.md",
+    "input-map": ".claude/code_map_input.md"
+  },
+  "pending_files": {
+    "class-inventory": ".claude/pending_class-inventory.md",
+    "dep-graph": ".claude/pending_dep-graph.md",
+    "override-map": ".claude/pending_override-map.md",
+    "autoload-map": ".claude/pending_autoload-map.md",
+    "input-map": ".claude/pending_input-map.md"
+  }
+}
