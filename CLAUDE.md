@@ -35,6 +35,8 @@ Next up:
 
 Five reference documents mapping project code structure. Read relevant section(s) before design consideration, code planning, or structural changes. Run the corresponding update command after changes. Use `/update-code-map` to regenerate all five at once.
 
+**Prefer targeted reads over whole-file reads.** When looking up implementation details, use Grep to locate the relevant lines and Read only that section. Only read a whole file if the code map and targeted search are genuinely insufficient. The code map exists precisely to make whole-file reads unnecessary in most cases.
+
 | Section | File | Update Command | Read When |
 |---------|------|----------------|-----------|
 | Class Inventory | `.claude/code_map_classes.md` | `/update-class-inventory` | Adding/renaming classes or changing public API |
