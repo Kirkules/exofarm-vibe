@@ -208,7 +208,7 @@ GameState.settler_health.assign(food["projected_health"])
 GameState.settler_health = food["projected_health"]
 ```
 
-**Every script file must declare `class_name`**, even if it is not referenced by other files. This is required for code map tooling to correctly identify project-defined types.
+**Every script file must declare `class_name`**, even if it is not referenced by other files. This is required for code map tooling to correctly identify project-defined types. **Exception: autoload singletons** (`GameState`, `EventBus`, `Catalog`, `Settings`) must not declare `class_name` — Godot registers their node name as a global and a matching `class_name` causes a conflict. The hook tooling accounts for this by seeding the allowlist from the config's `autoloads` list.
 
 **Use `git mv` to rename source files**, not plain `mv`. This ensures rename detection works correctly in the code map tracking hooks.
 

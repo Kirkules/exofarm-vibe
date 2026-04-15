@@ -58,14 +58,15 @@ autoloads = c.get('autoloads', [])
 input_handlers = c.get('input_handlers', [])
 project_virtuals = c.get('project_virtuals', [])
 
-# Build known project class allowlist
+# Build known project class allowlist from class_name declarations + autoloads
+# (Autoloads intentionally omit class_name to avoid Godot singleton conflicts)
 import subprocess, fnmatch, os
 result = subprocess.run(
     ['grep', '-rh', '^class_name ', 'scenes/', 'scripts/', '--include=*.gd'],
     cwd=os.path.dirname(os.path.dirname(config_path)),
     capture_output=True, text=True
 )
-project_classes = set()
+project_classes = set(autoloads)  # seed with autoload names
 for line in result.stdout.splitlines():
     parts = line.strip().split()
     if len(parts) >= 2:

@@ -1,5 +1,4 @@
 extends Node
-class_name Settings
 
 const SAVE_PATH := "user://settings.cfg"
 
