@@ -448,9 +448,9 @@ func _try_place_or_return() -> void:
 		_held_label.visible  = false
 		_held_label_hint     = ""
 		_clear_held_origin()
+		emit_signal("piece_released", com)
 		if _inventory_control != null and _inventory_control.has_method("clear_drag"):
 			_inventory_control.clear_drag()
-		emit_signal("piece_released", com)
 		queue_redraw()
 
 
