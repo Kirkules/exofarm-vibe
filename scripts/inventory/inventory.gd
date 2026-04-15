@@ -1,29 +1,13 @@
 class_name Inventory
 extends RefCounted
 
-## General-purpose item pool with slot-based capacity.
-## Capacity is the total number of slots available (sum of building contributions).
-## Each InventoryItem may occupy more than one slot (slot_size).
-## Overflow is allowed but flagged via is_over_capacity().
+## General-purpose item pool. Items are stored in display order; groups of items
+## sharing the same data reference are always contiguous in the list.
 
 ## Emitted whenever the item list changes.
 signal changed
 
-var capacity: int
 var _items: Array[InventoryItem] = []
-
-func _init(p_capacity: int = 10) -> void:
-	capacity = p_capacity
-
-## Current slots used (sum of all item slot_sizes).
-func slots_used() -> int:
-	var total: int = 0
-	for item: InventoryItem in _items:
-		total += item.slot_size
-	return total
-
-func is_over_capacity() -> bool:
-	return slots_used() > capacity
 
 func get_items() -> Array[InventoryItem]:
 	return _items
@@ -31,7 +15,7 @@ func get_items() -> Array[InventoryItem]:
 func item_count() -> int:
 	return _items.size()
 
-## Add an item. Returns true on success (always succeeds; overflow is allowed but flagged).
+## Add an item at the end of the list.
 func add(item: InventoryItem) -> bool:
 	_items.append(item)
 	changed.emit()
@@ -46,20 +30,33 @@ func remove(item: InventoryItem) -> bool:
 	changed.emit()
 	return true
 
-## Move item to the top of the list (index 0 = highest priority).
-func send_to_top(item: InventoryItem) -> void:
-	var idx: int = _items.find(item)
-	if idx <= 0:
-		return
-	_items.remove_at(idx)
-	_items.insert(0, item)
-	changed.emit()
-
-## Move item to the bottom of the list.
-func send_to_bottom(item: InventoryItem) -> void:
-	var idx: int = _items.find(item)
-	if idx == -1 or idx == _items.size() - 1:
-		return
-	_items.remove_at(idx)
-	_items.append(item)
+## Move item (and all items sharing its data reference) to just before ref_item's group.
+## If ref_item is null, the group is moved to the end of the list.
+## If item is not yet in the list, it is added before repositioning.
+func move_group_before(item: InventoryItem, ref_item: InventoryItem) -> void:
+	if not item in _items:
+		_items.append(item)
+	# Collect all members of this group.
+	var group: Array[InventoryItem] = []
+	for i: InventoryItem in _items:
+		if i.data == item.data:
+			group.append(i)
+	# Find flat insertion index: the position of ref_item, or end-of-list if null.
+	var insert_idx: int
+	if ref_item == null:
+		insert_idx = _items.size()
+	else:
+		insert_idx = _items.find(ref_item)
+		if insert_idx == -1:
+			insert_idx = _items.size()
+	# Remove group members, adjusting insert_idx for each earlier removal.
+	for gi: InventoryItem in group:
+		var gi_idx: int = _items.find(gi)
+		if gi_idx < insert_idx:
+			insert_idx -= 1
+		_items.erase(gi)
+	insert_idx = clampi(insert_idx, 0, _items.size())
+	# Reinsert group at the computed position.
+	for i: int in group.size():
+		_items.insert(insert_idx + i, group[i])
 	changed.emit()

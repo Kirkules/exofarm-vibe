@@ -19,8 +19,8 @@ const ROW_H       := 36
 
 const COLOR_BG         := Color(0.10, 0.10, 0.12)
 const COLOR_ROW_NORMAL := Color(0.16, 0.16, 0.20)
-const COLOR_ROW_OVER   := Color(0.45, 0.15, 0.15)
 const COLOR_HEADER     := Color(0.12, 0.12, 0.16)
+const COLOR_DROP_LINE  := Color(1.0, 1.0, 1.0, 0.85)
 
 ## Emitted when the player taps an item and wants to pick it up (e.g. a piece shape).
 signal item_requested(item: InventoryItem)
@@ -40,6 +40,11 @@ var _count_label: Label        # rebuilt with header on state change; updated by
 var _scroll: ScrollContainer
 var _item_list: VBoxContainer
 
+# Drag drop-zone state
+var _current_groups: Array = []   # [{item: InventoryItem, count: int}, ...] from last _rebuild_rows
+var _group_row_nodes: Array = []  # PanelContainer per group row, parallel to _current_groups
+var _drag_gap_idx: int = -1       # highlighted insertion gap; -1 = none
+
 func _ready() -> void:
 	_build_ui()
 	_apply_state()
@@ -58,6 +63,31 @@ func set_grid_bottom(y: float) -> void:
 ## Re-apply current state so PARTIAL height recalculates after _grid_bottom changes.
 func refresh_layout() -> void:
 	_apply_state()
+
+## Called by GameGrid each frame while a piece is held and its CoM is over this panel.
+func set_drag_pos(screen_pos: Vector2) -> void:
+	var new_gap: int = _group_row_nodes.size()  # default: after all rows
+	for i: int in _group_row_nodes.size():
+		var row: Control = _group_row_nodes[i] as Control
+		if screen_pos.y < row.global_position.y + row.size.y * 0.5:
+			new_gap = i
+			break
+	if new_gap != _drag_gap_idx:
+		_drag_gap_idx = new_gap
+		queue_redraw()
+
+## Called by GameGrid when the held piece leaves this panel or is released.
+func clear_drag() -> void:
+	if _drag_gap_idx != -1:
+		_drag_gap_idx = -1
+		queue_redraw()
+
+## Returns the first InventoryItem of the group that the current gap points before.
+## Returns null if the gap is at the end of the list (drop after last group).
+func get_drop_ref_item() -> InventoryItem:
+	if _drag_gap_idx < 0 or _drag_gap_idx >= _current_groups.size():
+		return null
+	return _current_groups[_drag_gap_idx]["item"] as InventoryItem
 
 func _partial_h() -> float:
 	var available: float = get_viewport_rect().size.y - _grid_bottom - 8.0
@@ -183,21 +213,21 @@ func _refresh() -> void:
 	if not is_inside_tree():
 		return
 	if _count_label:
-		var used: int = _inventory.slots_used() if _inventory else 0
-		var cap: int  = _inventory.capacity    if _inventory else 0
-		_count_label.text = "Inventory  %d / %d" % [used, cap]
+		var count: int = _inventory.item_count() if _inventory else 0
+		_count_label.text = "Inventory  %d" % count
 	_rebuild_rows()
 
 func _rebuild_rows() -> void:
+	_group_row_nodes.clear()
 	for child: Node in _item_list.get_children():
 		child.queue_free()
 	if not _inventory:
+		_current_groups = []
 		return
 	var items: Array[InventoryItem] = _inventory.get_items()
-	var over: bool = _inventory.is_over_capacity()
 	# Group items that share the same data reference into a single row with a count.
-	var groups: Array = []       # Array of {item: InventoryItem, count: int}
-	var seen: Dictionary = {}    # data -> index in groups
+	var groups: Array = []
+	var seen: Dictionary = {}
 	for item: InventoryItem in items:
 		var key: Variant = item.data
 		if key != null and seen.has(key):
@@ -206,30 +236,22 @@ func _rebuild_rows() -> void:
 			if key != null:
 				seen[key] = groups.size()
 			groups.append({"item": item, "count": 1})
+	_current_groups = groups
 	for entry: Dictionary in groups:
-		_item_list.add_child(_make_row(entry["item"], entry["count"], over))
+		var row: PanelContainer = _make_row(entry["item"], entry["count"])
+		_item_list.add_child(row)
+		_group_row_nodes.append(row)
+	queue_redraw()
 
-func _make_row(item: InventoryItem, count: int, inventory_over_cap: bool) -> PanelContainer:
+func _make_row(item: InventoryItem, count: int) -> PanelContainer:
 	var row: PanelContainer = PanelContainer.new()
 	row.custom_minimum_size = Vector2(0, ROW_H)
 	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = COLOR_ROW_OVER if inventory_over_cap else COLOR_ROW_NORMAL
+	style.bg_color = COLOR_ROW_NORMAL
 	row.add_theme_stylebox_override("panel", style)
 
 	var hbox: HBoxContainer = HBoxContainer.new()
 	row.add_child(hbox)
-
-	var btn_up: Button = Button.new()
-	btn_up.text = "▲"
-	btn_up.custom_minimum_size = Vector2(ROW_H, ROW_H)
-	btn_up.pressed.connect(_inventory.send_to_top.bind(item))
-	hbox.add_child(btn_up)
-
-	var btn_dn: Button = Button.new()
-	btn_dn.text = "▼"
-	btn_dn.custom_minimum_size = Vector2(ROW_H, ROW_H)
-	btn_dn.pressed.connect(_inventory.send_to_bottom.bind(item))
-	hbox.add_child(btn_dn)
 
 	if item.data is PlaceableDefinition:
 		var shape: PieceShape = (item.data as PlaceableDefinition).shape
@@ -267,6 +289,28 @@ func _make_row(item: InventoryItem, count: int, inventory_over_cap: bool) -> Pan
 	hbox.add_child(lbl)
 
 	return row
+
+# ---------------------------------------------------------------------------
+# Drop-zone indicator
+# ---------------------------------------------------------------------------
+
+func _draw() -> void:
+	if _drag_gap_idx < 0 or not _scroll.visible:
+		return
+	var line_y: float
+	if _group_row_nodes.is_empty():
+		line_y = _scroll.global_position.y - global_position.y
+	elif _drag_gap_idx >= _group_row_nodes.size():
+		var last: Control = _group_row_nodes[-1] as Control
+		line_y = (last.global_position.y + last.size.y) - global_position.y
+	else:
+		var row: Control = _group_row_nodes[_drag_gap_idx] as Control
+		line_y = row.global_position.y - global_position.y
+	# Clip to the scroll area so the line never appears over the header.
+	var scroll_top: float = _scroll.global_position.y - global_position.y
+	var scroll_bot: float = scroll_top + _scroll.size.y
+	line_y = clampf(line_y, scroll_top, scroll_bot)
+	draw_line(Vector2(0.0, line_y), Vector2(size.x, line_y), COLOR_DROP_LINE, 2.0)
 
 func _on_item_tapped(item: InventoryItem) -> void:
 	item_requested.emit(item)

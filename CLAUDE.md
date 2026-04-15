@@ -26,7 +26,6 @@ exists but caused irreversible climate change on Earth, making new planets neces
 
 Next up:
 - [ ] Playback speed controls (1×, 2×, 3×, 5×)
-- [ ] Inventory overflow → broken down to Matter at sim start
 - [ ] End-of-run score / viability report (morale contributes here)
 
 ---

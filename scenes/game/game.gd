@@ -36,7 +36,7 @@ var _pasta_norma_def:     MealDefinition
 
 func _ready() -> void:
 	_create_item_defs()
-	_inventory = Inventory.new(10)
+	_inventory = Inventory.new()
 	inventory_ui.set_inventory(_inventory)
 	var grid_bottom: float = farm_grid.position.y + farm_grid.get_grid_pixel_size().y
 	inventory_ui.set_grid_bottom(grid_bottom)
@@ -186,7 +186,7 @@ func _on_piece_released_off_farm(item: InventoryItem,
 	# UNBUILT pieces (from build menu) are discarded when dropped off-grid.
 	if build_state == BuildingManager.BuildState.UNBUILT:
 		return
-	_inventory.add(item)
+	_inventory.move_group_before(item, inventory_ui.get_drop_ref_item())
 
 func _on_cafeteria_long_pressed(piece_id: int) -> void:
 	if _phase == Phase.SIMULATION:
