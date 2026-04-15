@@ -15,6 +15,7 @@ const LOG_COLOR_GAIN  := "#88ee88"  # light green — resource production
 const LOG_COLOR_LOSS  := "#ee8800"  # orange — resource consumption / warning
 const LOG_COLOR_DEATH := "#ee4444"  # red — settler death / critical event
 const LOG_COLOR_ITEM  := "#eeee88"  # yellow — inventory item gained
+const LOG_COLOR_SKIP  := "#636363"  # dim grey — skipped task
 
 ## Emitted when the simulation timer expires; game.gd runs _end_simulation().
 signal finished()
@@ -443,6 +444,12 @@ func _tick_settlers(delta: float) -> void:
 				if skips_left > 0 and randf() < 0.5:
 					_settler_skips_remaining[settler_name] = skips_left - 1
 					gh["settler_dispatched"] = false
+					add_log_entry({
+						"label":       "%s skipped tending to %s." % [settler_name, gh_def.display_name],
+						"value":       "(unhappy)",
+						"label_color": LOG_COLOR_SKIP,
+						"value_color": LOG_COLOR_SKIP,
+					})
 					var skip_next: Dictionary = Dictionary()
 					if (agent["tasks_this_trip"] as int) < (agent["tasks_limit"] as int):
 						skip_next = _find_nearest_available_task(agent["to_pos"] as Vector2)
@@ -513,7 +520,7 @@ func _on_cafeteria_craft_done(agent: Dictionary) -> void:
 		))
 	add_log_entry({
 		"label":       "%s crafted %s:" % [agent["settler_name"], recipe.output_item.display_name],
-		"value":       "+%d" % recipe.output_count,
+		"value":       "+%d %s" % [recipe.output_count, recipe.output_item.display_name],
 		"label_color": "",
 		"value_color": LOG_COLOR_ITEM,
 	})
