@@ -15,9 +15,17 @@ func get_items() -> Array[InventoryItem]:
 func item_count() -> int:
 	return _items.size()
 
-## Add an item at the end of the list.
+## Add an item, inserting it after the last existing item of the same type
+## so groups stay contiguous. Appends to end if no matching item exists.
 func add(item: InventoryItem) -> bool:
-	_items.append(item)
+	var last_idx: int = -1
+	for i: int in _items.size():
+		if (_items[i] as InventoryItem).data == item.data:
+			last_idx = i
+	if last_idx >= 0:
+		_items.insert(last_idx + 1, item)
+	else:
+		_items.append(item)
 	changed.emit()
 	return true
 
