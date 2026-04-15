@@ -272,7 +272,7 @@ func _on_piece_released(_com_screen_pos: Vector2) -> void:
 	var item: InventoryItem = _held_item
 	_held_item = null
 	if item != null:
-		_inventory.add(item)
+		_inventory.move_group_before(item, _inventory_ui.get_drop_ref_item())
 
 func _on_piece_ejected(cafeteria_id: int, piece_id: int) -> void:
 	var kg: KitchenGrid    = _kitchen_grids.get(cafeteria_id, null) as KitchenGrid

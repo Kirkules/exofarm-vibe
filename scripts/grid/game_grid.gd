@@ -212,8 +212,11 @@ func _process(delta: float) -> void:
 		elif _tap_state == TapState.LOCKED and _tap_timer >= PICKUP_HOLD_TIME:
 			_clear_tap()
 	# Notify inventory drop target of current drag position for insertion indicator.
-	if _inventory_control != null and _inventory_control.has_method("set_drag_pos"):
-		if _held_shape != null and _inventory_control.get_global_rect().has_point(_held_sprite_com()):
+	# Only update when this grid has a held piece — prevents grids without a held
+	# piece from clearing an indicator set by a different grid.
+	if _inventory_control != null and _inventory_control.has_method("set_drag_pos") \
+			and _held_shape != null:
+		if _inventory_control.get_global_rect().has_point(_held_sprite_com()):
 			_inventory_control.set_drag_pos(_held_sprite_com())
 		else:
 			_inventory_control.clear_drag()
@@ -445,6 +448,8 @@ func _try_place_or_return() -> void:
 		_held_label.visible  = false
 		_held_label_hint     = ""
 		_clear_held_origin()
+		if _inventory_control != null and _inventory_control.has_method("clear_drag"):
+			_inventory_control.clear_drag()
 		emit_signal("piece_released", com)
 		queue_redraw()
 

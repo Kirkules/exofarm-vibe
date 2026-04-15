@@ -267,7 +267,7 @@ func _on_piece_released(com_screen_pos: Vector2) -> void:
 	# Try to land on a different settler slot before returning to inventory.
 	if try_place_item(item, com_screen_pos):
 		return  # _on_piece_placed will re-activate all grids
-	_inventory.add(item)
+	_inventory.move_group_before(item, _inventory_ui.get_drop_ref_item())
 	_reactivate_all_grids()
 	assignments_changed.emit()
 
