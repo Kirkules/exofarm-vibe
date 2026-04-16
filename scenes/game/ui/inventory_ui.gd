@@ -81,6 +81,10 @@ func clear_drag() -> void:
 	_drag_gap_idx = -1
 	_drop_indicator.visible = false
 
+## True when the drop indicator is active — the user is intentionally placing into inventory.
+func has_active_drop_target() -> bool:
+	return _drag_gap_idx >= 0
+
 ## Returns the first InventoryItem of the group that the current gap points before.
 ## Returns null if the gap is at the end of the list (drop after last group).
 func get_drop_ref_item() -> InventoryItem:

@@ -20,6 +20,9 @@ var _held_item: InventoryItem = null
 ## Known recipes propagated to every KitchenGrid.
 var _known_recipes: Array[RecipeDefinition] = []
 
+## Emitted when a held item is released and returns to inventory (not placed on a grid).
+signal item_returned_to_inventory(item: InventoryItem, from_screen: Vector2)
+
 
 func setup(inventory: Inventory, inventory_ui: InventoryUI,
 		ui_layer: CanvasLayer, grid_bottom: float) -> void:
@@ -268,11 +271,13 @@ func _on_piece_picked_up(kg: KitchenGrid, cafeteria_id: int, piece_id: int, _sha
 		kg.set_held_hint(_held_item.display_name)
 	kg.on_item_removed(piece_id)
 
-func _on_piece_released(_com_screen_pos: Vector2) -> void:
+func _on_piece_released(com_screen_pos: Vector2) -> void:
 	var item: InventoryItem = _held_item
 	_held_item = null
 	if item != null:
 		_inventory.move_group_before(item, _inventory_ui.get_drop_ref_item())
+		if not _inventory_ui.has_active_drop_target():
+			item_returned_to_inventory.emit(item, com_screen_pos)
 
 func _on_piece_ejected(cafeteria_id: int, piece_id: int) -> void:
 	var kg: KitchenGrid    = _kitchen_grids.get(cafeteria_id, null) as KitchenGrid

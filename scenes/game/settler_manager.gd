@@ -15,11 +15,18 @@ var _settler_grids: Array[SettlerFoodGrid] = []
 var _settler_placed_items: Array[Dictionary] = []
 ## Currently held item (picked up from a settler food slot).
 var _held_item: InventoryItem = null
+## Grid the held item was picked up from; used for snap-back-to-slot on failed drops.
+var _held_from_grid: SettlerFoodGrid = null
 
 var _panel_open: bool = false
 
 ## Emitted whenever a meal is assigned to or removed from a settler slot.
 signal assignments_changed
+## Emitted when a held item is released and returns to inventory without an intentional drop target.
+signal item_returned_to_inventory(item: InventoryItem, from_screen: Vector2)
+## Emitted when a held item snaps back to its original settler food slot.
+## to_screen is the center of the target slot in screen space.
+signal item_snap_back_to_grid(item: InventoryItem, from_screen: Vector2, to_screen: Vector2)
 
 
 func setup(inventory: Inventory, inventory_ui: InventoryUI,
@@ -97,12 +104,46 @@ func reposition_grids() -> void:
 func close() -> void:
 	if not _panel_open:
 		return
+	_resolve_held_on_close()
 	_panel_open = false
 	_hud_ui.hide_settler_panel()
 	for g: SettlerFoodGrid in _settler_grids:
 		g.visible = false
 		g.set_grid_active(false)
 	EventBus.merge_grid_closed.emit()
+
+## Cancel any in-flight drag before the settler panel hides.
+## Returns held items to inventory without playing snap-back animations.
+func _resolve_held_on_close() -> void:
+	# Capture the held CoM before the grid clears its visual state.
+	var held_com: Vector2 = Vector2.ZERO
+	for g: SettlerFoodGrid in _settler_grids:
+		if g.has_held_piece:
+			g.cancel_held_silently()  # stores CoM in g.last_release_com before clearing
+			held_com = g.last_release_com
+			break
+	if _held_item == null:
+		return
+	var item: InventoryItem = _held_item
+	var from_grid: SettlerFoodGrid = _held_from_grid
+	_held_item = null
+	_held_from_grid = null
+	var def: PlaceableDefinition = item.data as PlaceableDefinition
+	if from_grid != null and def != null and from_grid.grid_data.get_piece_count() == 0:
+		# Grid-origin: return item to its original slot with a snap-back animation.
+		_held_item = item
+		var pid: int = from_grid.place_piece_at(def.shape, 1, 1, item.display_name)
+		_held_item = null
+		if pid != -1:
+			var slot_center: Vector2 = from_grid.position \
+				+ Vector2(SettlerFoodGrid.SLOT_SIZE, SettlerFoodGrid.SLOT_SIZE) * 0.5
+			item_snap_back_to_grid.emit(item, held_com, slot_center)
+			assignments_changed.emit()
+			return
+	# Inventory-origin (or grid unavailable): return to inventory with animation.
+	_inventory.add(item)
+	item_returned_to_inventory.emit(item, held_com)
+	assignments_changed.emit()
 
 func toggle() -> void:
 	if _panel_open:
@@ -241,9 +282,17 @@ func _on_inventory_pickup(g: SettlerFoodGrid, _idx: int, item: InventoryItem) ->
 
 func _on_piece_placed(idx: int, piece_id: int) -> void:
 	var items: Dictionary = _settler_placed_items[idx] as Dictionary
-	if _held_item:
-		items[piece_id] = _held_item
+	var placed_item: InventoryItem = _held_item
+	var is_return: bool = (_held_from_grid != null and _held_from_grid == _settler_grids[idx])
+	if placed_item:
+		items[piece_id] = placed_item
 	_held_item = null
+	_held_from_grid = null
+	if is_return and placed_item != null:
+		var g: SettlerFoodGrid = _settler_grids[idx]
+		var slot_center: Vector2 = g.position \
+			+ Vector2(SettlerFoodGrid.SLOT_SIZE, SettlerFoodGrid.SLOT_SIZE) * 0.5
+		item_snap_back_to_grid.emit(placed_item, g.last_release_com, slot_center)
 	_reactivate_all_grids()
 	assignments_changed.emit()
 
@@ -256,18 +305,38 @@ func _on_piece_picked_up(g: SettlerFoodGrid, idx: int, piece_id: int, _shape: Pi
 	# Allow cross-slot drag: emit piece_released instead of snapping back when
 	# the piece fails to land on this grid. SettlerManager routes via try_place_item.
 	g.set_held_discardable(true)
+	_held_from_grid = g
 	_deactivate_other_grids(g)
 	assignments_changed.emit()
 
 func _on_piece_released(com_screen_pos: Vector2) -> void:
 	var item: InventoryItem = _held_item
+	var from_grid: SettlerFoodGrid = _held_from_grid
 	_held_item = null
+	_held_from_grid = null
 	if item == null:
 		return
-	# Try to land on a different settler slot before returning to inventory.
+	# Try to land on a different settler slot.
 	if try_place_item(item, com_screen_pos):
 		return  # _on_piece_placed will re-activate all grids
+	# Try to return to original slot (snap-back behavior) — but not if the user
+	# intentionally dropped onto the inventory (drop indicator was active).
+	var def: PlaceableDefinition = item.data as PlaceableDefinition
+	if from_grid != null and def != null and from_grid.grid_data.get_piece_count() == 0 \
+			and not _inventory_ui.has_active_drop_target():
+		_held_item = item
+		var pid: int = from_grid.place_piece_at(def.shape, 1, 1, item.display_name)
+		if pid != -1:
+			# _on_piece_placed already cleared _held_item, reactivated grids, emitted assignments_changed
+			var slot_center: Vector2 = from_grid.position \
+				+ Vector2(SettlerFoodGrid.SLOT_SIZE, SettlerFoodGrid.SLOT_SIZE) * 0.5
+			item_snap_back_to_grid.emit(item, com_screen_pos, slot_center)
+			return
+		_held_item = null
+	# Fall through: return to inventory.
 	_inventory.move_group_before(item, _inventory_ui.get_drop_ref_item())
+	if not _inventory_ui.has_active_drop_target():
+		item_returned_to_inventory.emit(item, com_screen_pos)
 	_reactivate_all_grids()
 	assignments_changed.emit()
 
@@ -276,5 +345,6 @@ func _on_piece_returned(idx: int, piece_id: int) -> void:
 	if _held_item:
 		items[piece_id] = _held_item
 	_held_item = null
+	_held_from_grid = null
 	_reactivate_all_grids()
 	assignments_changed.emit()

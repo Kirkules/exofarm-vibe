@@ -50,6 +50,10 @@ var _held_shape: PieceShape = null
 var has_held_piece: bool:
 	get: return _held_shape != null
 
+## Screen-space CoM of the held piece at the moment it was released onto the grid.
+## Valid only immediately after piece_placed_on_grid fires; used by managers for animations.
+var last_release_com: Vector2 = Vector2.ZERO
+
 ## Where the currently held piece came from; determines behaviour on failed drop.
 enum HeldOrigin { NONE, GRID, INVENTORY }
 var _held_origin:       HeldOrigin = HeldOrigin.NONE
@@ -422,6 +426,7 @@ func _try_place_or_return() -> void:
 			var piece_id: int = grid_data.place_piece(shape_to_place, cell.x, cell.y)
 			if piece_id != -1:
 				_piece_label_hints[piece_id] = _held_label_hint
+				last_release_com = _held_sprite_com()
 				_held_shape = null
 				_held_sprite.visible = false
 				_held_label.visible  = false
@@ -459,6 +464,7 @@ func _return_held_to_grid() -> void:
 	var shape: PieceShape = _held_origin_shape
 	var cell: Vector2i    = _held_origin_cell
 	var hint: String      = _held_label_hint
+	_play_grid_snapback_anim(shape, cell)
 	_held_shape          = null
 	_held_sprite.visible = false
 	_held_label.visible  = false
@@ -481,6 +487,25 @@ func _clear_held_origin() -> void:
 	_held_origin_cell   = Vector2i(-1, -1)
 	_held_discardable   = false
 	_held_origin_shape = null
+
+func _play_grid_snapback_anim(shape: PieceShape, cell: Vector2i) -> void:
+	var bb: Rect2i = shape.get_bounding_rect()
+	var dest_local: Vector2 = Vector2(
+		(cell.y + bb.position.y - 1) * cell_size,
+		(cell.x + bb.position.x - 1) * cell_size
+	)
+	var dest_screen: Vector2 = to_global(dest_local)
+	var anim: Sprite2D = Sprite2D.new()
+	anim.centered = false
+	anim.texture = _held_sprite.texture
+	anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	anim.position = _held_sprite.position
+	anim.modulate = Color(1.0, 1.0, 1.0, 0.6)
+	_held_sprite_layer.add_child(anim)
+	var tween: Tween = create_tween()
+	tween.tween_property(anim, "position", dest_screen, 0.13)
+	tween.parallel().tween_property(anim, "modulate:a", 0.0, 0.13)
+	tween.tween_callback(anim.queue_free)
 
 # ---------------------------------------------------------------------------
 # Drop-target detection
@@ -634,6 +659,22 @@ func set_held_discardable(discardable: bool) -> void:
 ## When false, placement preview is hidden and grid drops are skipped.
 func set_held_can_place(can_place: bool) -> void:
 	_held_can_place = can_place
+	queue_redraw()
+
+
+## Silently cancel any in-progress held piece without emitting signals.
+## Use when the owning panel is being closed to avoid routing side-effects.
+func cancel_held_silently() -> void:
+	if _held_shape == null:
+		return
+	last_release_com = _held_sprite_com()
+	_held_shape = null
+	_held_sprite.visible = false
+	_held_label.visible  = false
+	_held_label_hint     = ""
+	_clear_held_origin()
+	if _inventory_control != null and _inventory_control.has_method("clear_drag"):
+		_inventory_control.clear_drag()
 	queue_redraw()
 
 

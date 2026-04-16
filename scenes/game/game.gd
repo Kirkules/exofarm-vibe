@@ -69,6 +69,9 @@ func _ready() -> void:
 	add_child(settler_manager)
 	settler_manager.setup(_inventory, inventory_ui, _ui_layer, hud_ui)
 	settler_manager.assignments_changed.connect(_refresh_food_hud)
+	settler_manager.item_returned_to_inventory.connect(_play_inventory_snapback_anim)
+	settler_manager.item_snap_back_to_grid.connect(_play_snapback_anim)
+	kitchen_manager.item_returned_to_inventory.connect(_play_inventory_snapback_anim)
 	hud_ui.settler_label_tapped.connect(func() -> void:
 		if not settler_manager.is_open():
 			kitchen_manager.close()
@@ -187,6 +190,32 @@ func _on_piece_released_off_farm(item: InventoryItem,
 	if build_state == BuildingManager.BuildState.UNBUILT:
 		return
 	_inventory.move_group_before(item, inventory_ui.get_drop_ref_item())
+	if not inventory_ui.has_active_drop_target():
+		_play_inventory_snapback_anim(item, com_screen_pos)
+
+func _play_inventory_snapback_anim(item: InventoryItem, from_screen: Vector2) -> void:
+	var inv_center: Vector2 = Vector2(
+		inventory_ui.global_position.x + inventory_ui.size.x * 0.5,
+		inventory_ui.global_position.y + InventoryUI.COLLAPSED_H * 0.5
+	)
+	_play_snapback_anim(item, from_screen, inv_center)
+
+func _play_snapback_anim(item: InventoryItem, from_screen: Vector2, to_screen: Vector2) -> void:
+	var def: PlaceableDefinition = item.data as PlaceableDefinition
+	if def == null:
+		return
+	var icon_tex: Texture2D = PieceSpriteGenerator.generate_icon(def.shape, def.shape.color)
+	var anim: Sprite2D = Sprite2D.new()
+	anim.centered = true
+	anim.texture = icon_tex
+	anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	anim.position = from_screen
+	anim.modulate = Color(1.0, 1.0, 1.0, 0.6)
+	_ui_layer.add_child(anim)
+	var tween: Tween = create_tween()
+	tween.tween_property(anim, "position", to_screen, 0.17)
+	tween.parallel().tween_property(anim, "modulate:a", 0.0, 0.17)
+	tween.tween_callback(anim.queue_free)
 
 func _on_cafeteria_long_pressed(piece_id: int) -> void:
 	if _phase == Phase.SIMULATION:
