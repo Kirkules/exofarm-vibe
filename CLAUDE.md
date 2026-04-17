@@ -65,14 +65,15 @@ Full directed graph of all signal connections: **[`.claude/signal_graph.md`](.cl
 | File | Role |
 |------|------|
 | `scenes/game/game.gd` | Thin orchestrator: owns `Phase`, `_compute_food_state()`, `_refresh_food_hud()`, `_begin/_end_simulation()`, wires managers |
+| `scripts/game/piece_input_controller.gd` | Owns all drag/input state; `pickup_confirmed`, `piece_placed`, `piece_returned`, `piece_released`, `drag_moved` signals; registers pickup sources + drop targets |
 | `scenes/game/building_manager.gd` | Farm grid interaction, placement state, power/neighbor, build states, `BuildState` enum |
 | `scenes/game/kitchen_manager.gd` | All per-cafeteria `KitchenGrid` instances, item state, open/close/sync |
 | `scenes/game/simulation_controller.gd` | Simulation timer, progress bar, live log, greenhouse/settler animation |
 | `scenes/game/settler_manager.gd` | Per-settler `SettlerFoodGrid` instances; open/close/toggle; `assignments_changed` signal; cross-slot drag |
-| `scenes/game/grid/farm_grid.gd` | Grid input, piece hold/drag/drop, sprites, overlays |
-| `scenes/game/ui/kitchen_grid.gd` | `GameGrid` subclass (3×4, 40px cells); inactive cells; `piece_ejected` signal |
-| `scenes/game/ui/settler_food_grid.gd` | `GameGrid` subclass (1×1, 40px); "paste" placeholder; reactivates on merge_grid_closed only when visible |
-| `scripts/grid/game_grid.gd` | Base grid class; signal-driven planning lock; `_on_merge_grid_closed()` virtual |
+| `scenes/game/grid/farm_grid.gd` | `GameGrid` subclass; power/effect range overlays; `try_receive_drop` enforces FARM_GRID type |
+| `scenes/game/ui/kitchen_grid.gd` | `GameGrid` subclass (3×4, 40px cells); inactive cells; recipe groups; `piece_ejected` signal |
+| `scenes/game/ui/settler_food_grid.gd` | `GameGrid` subclass (1×1, 40px); "paste" placeholder; `try_receive_drop` enforces SETTLER_GRID type |
+| `scripts/grid/game_grid.gd` | Base grid class; passive renderer; `try_receive_drop`, `lift_piece`, `setup_pic` API; `piece_lifted_from_grid` signal |
 | `scripts/grid/grid_data.gd` | Grid state (pure logic, no rendering) |
 | `scripts/grid/piece_shape.gd` | Polyomino shape + rotation; `CellStyle` enum (SQUARE/CIRCLE) |
 | `scripts/pieces/piece_sprite_generator.gd` | Generates piece textures procedurally |
@@ -142,6 +143,14 @@ offset_top=−48). Its PARTIAL height = `viewport_h − grid_bottom − 8`.
 - Polyomino shapes: list of (row, col) offsets from origin; origin = touch anchor + rotation pivot
 - 90° CW rotation: `(r, c) → (c, -r)`, then renormalize to min=(0,0)
 - `piece_id` is an int assigned by `grid_data`; used as key in all piece dictionaries
+
+**PIC (PieceInputController) pattern:**
+- `_pic` is created in `game.gd._ready()` and passed to all three managers via `setup()`
+- All grids are passive; `_pic.register_pickup_source(grid)` + `_pic.register_drop_target(grid, priority)` opt them in
+- When a panel opens (Kitchen/Settler), manager unregisters farm from PIC, registers its grids at priority 1, calls `farm_grid.set_grid_active(false)`; reverses on close
+- Two-flag drag ownership per manager: `_pending_inventory_drag` (set before `begin_inventory_drag`, cleared in `pickup_confirmed`) + `_active_inventory_drag` (set in `pickup_confirmed`, cleared when drag ends)
+- `pickup_confirmed(origin, piece_id, shape, payload)`: grid-origin has `origin=grid`, `payload=null`; inventory-origin has `origin=null`, `payload=item`
+- Call `_pic.set_held_payload(item)` and `_pic.set_held_discardable(bool)` inside `pickup_confirmed` handler for grid-origin pickups
 
 **Key state dicts in BuildingManager** (all keyed by `piece_id: int`):
 - `_placed_items` — piece_id → InventoryItem (survives pick-up/put-down)
@@ -262,8 +271,9 @@ Both paths use the Cafeteria for meal crafting.
   `BuildingManager` enforces moveability by type (UNBUILT=moveable, BUILT=fixed)
 - `BuildMenu`, `KitchenGrid` nodes, progress bar, and live log are all created
   programmatically — no `.tscn` counterparts; use `_ui_layer.add_child()`
-- Settler cross-slot drag: `set_held_discardable(true)` on GRID pickup; sibling grids
-  deactivated (`set_grid_active(false)`) during drag to suppress hover bleed
+- Settler cross-slot drag: `set_held_discardable(true)` on GRID pickup; PIC drop routing
+  handles cross-slot placement via registered drop targets; snap-back on miss (unless over
+  inventory) handled manually in `SettlerManager._on_piece_released`
 - Morale formula (fresh each season): `morale = 0 - dead_count + food_delta` where
   `food_delta = meal.morale_modifier` if meal assigned, else `-1`; dead settlers get morale=0
 - Simulation morale effects: `tasks_limit = 1 + max(0, morale)` consecutive tasks per trip;

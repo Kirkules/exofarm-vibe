@@ -17,6 +17,7 @@ var building_manager:      BuildingManager
 var kitchen_manager:       KitchenManager
 var simulation_controller: SimulationController
 var settler_manager:       SettlerManager
+var _pic:                  PieceInputController
 
 ## Panels that dismiss on an outside tap. Each entry must implement:
 ##   is_open() -> bool, open_screen_rect() -> Rect2, close() -> void.
@@ -40,18 +41,19 @@ func _ready() -> void:
 	inventory_ui.set_inventory(_inventory)
 	var grid_bottom: float = farm_grid.position.y + farm_grid.get_grid_pixel_size().y
 	inventory_ui.set_grid_bottom(grid_bottom)
-	farm_grid.set_inventory_control(inventory_ui)
 	inventory_ui.item_requested.connect(_on_item_requested)
 	inventory_ui.state_changed.connect(_on_inventory_state_changed)
 
-	var pic: PieceInputController = PieceInputController.new()
-	add_child(pic)
-	pic.register_pickup_source(farm_grid)
-	pic.register_drop_target(farm_grid, 0)
+	_pic = PieceInputController.new()
+	add_child(_pic)
+	_pic.set_inventory_control(inventory_ui)
+	_pic.register_pickup_source(farm_grid)
+	_pic.register_drop_target(farm_grid, 0)
+	farm_grid.setup_pic(_pic)
 
 	building_manager = BuildingManager.new()
 	add_child(building_manager)
-	building_manager.setup(farm_grid, _inventory)
+	building_manager.setup(farm_grid, _inventory, _pic)
 	building_manager.power_changed.connect(_on_power_changed)
 	building_manager.piece_released_off_farm.connect(_on_piece_released_off_farm)
 	building_manager.cafeteria_long_pressed.connect(_on_cafeteria_long_pressed)
@@ -59,7 +61,7 @@ func _ready() -> void:
 
 	kitchen_manager = KitchenManager.new()
 	add_child(kitchen_manager)
-	kitchen_manager.setup(_inventory, inventory_ui, _ui_layer, grid_bottom, farm_grid)
+	kitchen_manager.setup(_inventory, inventory_ui, _ui_layer, grid_bottom, farm_grid, _pic)
 
 	simulation_controller = SimulationController.new()
 	add_child(simulation_controller)
@@ -72,7 +74,7 @@ func _ready() -> void:
 
 	settler_manager = SettlerManager.new()
 	add_child(settler_manager)
-	settler_manager.setup(_inventory, inventory_ui, _ui_layer, hud_ui, farm_grid)
+	settler_manager.setup(_inventory, inventory_ui, _ui_layer, hud_ui, farm_grid, _pic)
 	settler_manager.assignments_changed.connect(_refresh_food_hud)
 	settler_manager.item_returned_to_inventory.connect(_play_inventory_snapback_anim)
 	settler_manager.item_snap_back_to_grid.connect(_play_snapback_anim)
@@ -127,7 +129,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	# Enter/space rotates the held piece clockwise.
 	if event.is_action_pressed("ui_accept"):
-		farm_grid.rotate_held_cw()
+		_pic.rotate_held_cw()
 
 
 # ---------------------------------------------------------------------------
@@ -178,19 +180,7 @@ func _on_piece_picked_up_from_farm() -> void:
 
 func _on_piece_released_off_farm(item: InventoryItem,
 		build_state: BuildingManager.BuildState, com_screen_pos: Vector2) -> void:
-	var def: PlaceableDefinition = item.data as PlaceableDefinition
-	# Route SETTLER_GRID items to the settler panel if CoM is over a settler slot.
-	if def != null and PlaceableDefinition.GridType.SETTLER_GRID in def.allowed_grids \
-			and settler_manager.is_open():
-		if settler_manager.try_place_item(item, com_screen_pos):
-			return
-	# Route KITCHEN_GRID-only items to the active kitchen grid if CoM is over it.
-	if def != null \
-			and PlaceableDefinition.GridType.KITCHEN_GRID in def.allowed_grids \
-			and not (PlaceableDefinition.GridType.FARM_GRID in def.allowed_grids) \
-			and kitchen_manager.is_open():
-		if kitchen_manager.try_place_item(item, com_screen_pos):
-			return
+	# PIC already tried all registered drop targets before emitting piece_released.
 	# UNBUILT pieces (from build menu) are discarded when dropped off-grid.
 	if build_state == BuildingManager.BuildState.UNBUILT:
 		return

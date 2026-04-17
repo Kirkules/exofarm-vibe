@@ -32,8 +32,20 @@ func _ready() -> void:
 	add_child(_paste_label)
 
 	piece_placed_on_grid.connect(func(_pid: int) -> void: _update_paste_label())
-	piece_picked_up_from_grid.connect(func(_pid: int, _s: PieceShape) -> void: _update_paste_label())
+	piece_lifted_from_grid.connect(func(_pid: int) -> void: _update_paste_label())
 	piece_returned_to_grid.connect(func(_pid: int) -> void: _update_paste_label())
+
+
+## Accept only SETTLER_GRID items.
+func try_receive_drop(cursor_screen: Vector2, shape: PieceShape,
+		payload: Variant, hint: String) -> int:
+	var item: InventoryItem = payload as InventoryItem
+	if item == null:
+		return -1
+	var def: PlaceableDefinition = item.data as PlaceableDefinition
+	if def == null or not (PlaceableDefinition.GridType.SETTLER_GRID in def.allowed_grids):
+		return -1
+	return super.try_receive_drop(cursor_screen, shape, payload, hint)
 
 
 func _update_paste_label() -> void:

@@ -85,6 +85,20 @@ func _can_place_at_cell(cell: Vector2i) -> bool:
 	return slot_idx < _capacity
 
 
+## Accept only KITCHEN_GRID items that are not also FARM_GRID (farm items stay on farm).
+func try_receive_drop(cursor_screen: Vector2, shape: PieceShape,
+		payload: Variant, hint: String) -> int:
+	var item: InventoryItem = payload as InventoryItem
+	if item == null:
+		return -1
+	var def: PlaceableDefinition = item.data as PlaceableDefinition
+	if def == null or not (PlaceableDefinition.GridType.KITCHEN_GRID in def.allowed_grids):
+		return -1
+	if PlaceableDefinition.GridType.FARM_GRID in def.allowed_grids:
+		return -1  # farm-grid items do not route to the kitchen
+	return super.try_receive_drop(cursor_screen, shape, payload, hint)
+
+
 func _draw_grid_overlays() -> void:
 	for row: int in range(1, rows + 1):
 		for col: int in range(1, cols + 1):
@@ -137,7 +151,7 @@ func on_item_placed(piece_id: int, def: PlaceableDefinition) -> void:
 	queue_redraw()
 
 ## Unregister a removed item, split the group it belonged to if it breaks adjacency.
-## Must be called by KitchenManager after piece_picked_up_from_grid / piece_ejected.
+## Must be called by KitchenManager after pickup_confirmed (grid origin) / piece_ejected.
 func on_item_removed(piece_id: int) -> void:
 	if not _piece_group_id.has(piece_id):
 		return
