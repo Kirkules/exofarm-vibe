@@ -44,8 +44,6 @@ var _hovered_cell:  Vector2i = Vector2i(-1, -1)
 var _hover_cell:    Vector2i = Vector2i(-1, -1)
 var _hover_shape:   PieceShape = null
 
-## Cell highlighted as a valid drop candidate by an external manager (cross-grid feedback).
-var _candidate_cell: Vector2i = Vector2i(-1, -1)
 
 # ---------------------------------------------------------------------------
 # Piece sprite / display tracking
@@ -70,7 +68,6 @@ var planning_locked: bool = false
 # Signals
 # ---------------------------------------------------------------------------
 signal piece_placed_on_grid(piece_id: int)
-signal piece_returned_to_grid(piece_id: int)
 ## Emitted by lift_piece() when PIC picks up a piece from this grid.
 signal piece_lifted_from_grid(piece_id: int)
 
@@ -112,23 +109,11 @@ func _draw() -> void:
 		_draw_grid_overlays()
 		if not planning_locked and _hover_shape != null:
 			_draw_placement_preview()
-	_draw_candidate_highlight()
 
 
 ## Override in subclasses to draw grid-specific overlays (power ranges, etc.).
 func _draw_grid_overlays() -> void:
 	pass
-
-
-## Draw color_valid overlay on _candidate_cell when set by an external manager.
-func _draw_candidate_highlight() -> void:
-	if _candidate_cell == Vector2i(-1, -1) or _hover_shape != null:
-		return
-	if grid_data.get_cell(_candidate_cell.x, _candidate_cell.y) != 0:
-		return
-	if not _can_place_at_cell(_candidate_cell):
-		return
-	draw_rect(_cell_rect(_candidate_cell.x, _candidate_cell.y), color_valid)
 
 
 ## Override in subclasses to block placement on specific cells (e.g. inactive slots).
@@ -326,34 +311,6 @@ func set_piece_active_visual(piece_id: int, active: bool) -> void:
 	if _piece_sprites.has(piece_id):
 		_piece_sprites[piece_id].modulate = Color(1, 1, 1, 1) if active \
 			else Color(0.35, 0.35, 0.35, 0.7)
-
-
-## Update the display name hint for a placed piece.
-func set_held_hint(hint: String) -> void:
-	# Legacy: called by some managers. Forwarded to PIC via the manager.
-	# Kept so managers calling this on the grid don't hard-error during migration.
-	pass
-
-
-## Show a valid-drop highlight at the given screen position (cross-grid feedback).
-func set_candidate_drop(screen_pos: Vector2) -> void:
-	var local_pos: Vector2 = to_local(screen_pos)
-	var col: int = int(floorf(local_pos.x / float(cell_size))) + 1
-	var row: int = int(floorf(local_pos.y / float(cell_size))) + 1
-	var new_cell: Vector2i
-	if grid_data.is_in_bounds(row, col):
-		new_cell = Vector2i(row, col)
-	else:
-		new_cell = Vector2i(-1, -1)
-	if new_cell != _candidate_cell:
-		_candidate_cell = new_cell
-		queue_redraw()
-
-
-func clear_candidate_drop() -> void:
-	if _candidate_cell != Vector2i(-1, -1):
-		_candidate_cell = Vector2i(-1, -1)
-		queue_redraw()
 
 
 ## Returns the screen-space rect of this grid.

@@ -33,7 +33,6 @@ func _ready() -> void:
 
 	piece_placed_on_grid.connect(func(_pid: int) -> void: _update_paste_label())
 	piece_lifted_from_grid.connect(func(_pid: int) -> void: _update_paste_label())
-	piece_returned_to_grid.connect(func(_pid: int) -> void: _update_paste_label())
 
 
 ## Accept only SETTLER_GRID items.

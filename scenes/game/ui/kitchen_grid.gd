@@ -129,7 +129,7 @@ func set_recipes(recipes: Array[RecipeDefinition]) -> void:
 	_known_recipes = recipes
 
 ## Register a newly placed item and flood-merge with compatible neighbors.
-## Must be called by KitchenManager after piece_placed_on_grid / piece_returned_to_grid.
+## Must be called by KitchenManager after piece_placed / piece_returned (PIC signals).
 func on_item_placed(piece_id: int, def: PlaceableDefinition) -> void:
 	var info: Dictionary = grid_data.get_piece_info(piece_id)
 	if info.is_empty():
