@@ -65,6 +65,8 @@ var _held_origin_shape: PieceShape = null
 var _cursor_pos:        Vector2  = Vector2.ZERO
 var _cursor_screen_pos: Vector2  = Vector2.ZERO
 var _hovered_cell:      Vector2i = Vector2i(-1, -1)
+## Cell highlighted as a valid drop candidate by an external manager (cross-grid feedback).
+var _candidate_cell:    Vector2i = Vector2i(-1, -1)
 
 # ---------------------------------------------------------------------------
 # Input-source tracking
@@ -235,12 +237,25 @@ func _draw() -> void:
 		_draw_grid_overlays()
 		if not planning_locked and _held_shape:
 			_draw_placement_preview()
+	_draw_candidate_highlight()
 
 
 ## Override in subclasses to draw grid-specific overlays (power ranges, etc.).
 ## Called by _draw() whenever grid_active is true, before placement preview.
 func _draw_grid_overlays() -> void:
 	pass
+
+
+## Draw color_valid overlay on _candidate_cell when set by an external manager.
+## Drawn outside grid_active so deactivated sibling grids still show cross-grid feedback.
+func _draw_candidate_highlight() -> void:
+	if _candidate_cell == Vector2i(-1, -1) or _held_shape != null:
+		return
+	if grid_data.get_cell(_candidate_cell.x, _candidate_cell.y) != 0:
+		return
+	if not _can_place_at_cell(_candidate_cell):
+		return
+	draw_rect(_cell_rect(_candidate_cell.x, _candidate_cell.y), color_valid)
 
 
 ## Override in subclasses to block placement on specific cells (e.g. inactive slots).
@@ -660,6 +675,28 @@ func set_held_discardable(discardable: bool) -> void:
 func set_held_can_place(can_place: bool) -> void:
 	_held_can_place = can_place
 	queue_redraw()
+
+
+## Show a valid-drop highlight at the given screen position (cross-grid feedback).
+## Converts to local cell coords; pass Vector2.ZERO or call clear_candidate_drop to remove.
+func set_candidate_drop(screen_pos: Vector2) -> void:
+	var cell: Vector2i = _pos_to_cell(to_local(screen_pos))
+	if cell == _candidate_cell:
+		return
+	_candidate_cell = cell
+	queue_redraw()
+
+
+func clear_candidate_drop() -> void:
+	if _candidate_cell == Vector2i(-1, -1):
+		return
+	_candidate_cell = Vector2i(-1, -1)
+	queue_redraw()
+
+
+## Screen-space CoM of the currently held piece. Returns Vector2.ZERO if nothing held.
+func get_held_com() -> Vector2:
+	return _held_sprite_com()
 
 
 ## Silently cancel any in-progress held piece without emitting signals.

@@ -37,6 +37,27 @@ func setup(inventory: Inventory, inventory_ui: InventoryUI,
 	_hud_ui       = hud_ui
 
 
+func _process(_delta: float) -> void:
+	if not _panel_open:
+		return
+	# Find whichever settler grid currently holds a dragged piece and get its CoM.
+	var com: Vector2 = Vector2.ZERO
+	var holding_grid: SettlerFoodGrid = null
+	for g: SettlerFoodGrid in _settler_grids:
+		if g.has_held_piece:
+			com = g.get_held_com()
+			holding_grid = g
+			break
+	# Highlight only the single best candidate slot (closest center to CoM).
+	var best: SettlerFoodGrid = _best_target_grid(com, holding_grid) \
+		if com != Vector2.ZERO else null
+	for g: SettlerFoodGrid in _settler_grids:
+		if g == best:
+			g.set_candidate_drop(com)
+		else:
+			g.clear_candidate_drop()
+
+
 # ---------------------------------------------------------------------------
 # Public query API
 # ---------------------------------------------------------------------------
@@ -172,19 +193,13 @@ func try_place_item(item: InventoryItem, screen_pos: Vector2) -> bool:
 	var def: PlaceableDefinition = item.data as PlaceableDefinition
 	if def == null or not (PlaceableDefinition.GridType.SETTLER_GRID in def.allowed_grids):
 		return false
-	for i: int in _settler_grids.size():
-		var g: SettlerFoodGrid = _settler_grids[i]
-		if not g.visible:
-			continue
-		if not g.get_screen_rect().has_point(screen_pos):
-			continue
-		if g.grid_data.get_piece_count() > 0:
-			return false  # slot occupied
-		_held_item = item
-		var pid: int = g.place_piece_at(def.shape, 1, 1, item.display_name)
-		_held_item = null
-		return pid != -1
-	return false
+	var target: SettlerFoodGrid = _best_target_grid(screen_pos)
+	if target == null:
+		return false
+	_held_item = item
+	var pid: int = target.place_piece_at(def.shape, 1, 1, item.display_name)
+	_held_item = null
+	return pid != -1
 
 ## Remove all assigned meals and add them back to inventory.
 ## Returns the number of meals consumed (for simulation log).
@@ -203,6 +218,25 @@ func consume_assigned_meals() -> int:
 # ---------------------------------------------------------------------------
 # Internal
 # ---------------------------------------------------------------------------
+
+## Among visible empty settler grids whose rect contains screen_pos, returns
+## the one whose center is closest to screen_pos. Returns null if none qualify.
+## Optionally excludes one grid (e.g. the one currently holding the dragged piece).
+func _best_target_grid(screen_pos: Vector2, exclude: SettlerFoodGrid = null) -> SettlerFoodGrid:
+	var best: SettlerFoodGrid = null
+	var best_dist_sq: float = INF
+	for g: SettlerFoodGrid in _settler_grids:
+		if g == exclude or not g.visible or g.grid_data.get_piece_count() > 0:
+			continue
+		var rect: Rect2 = g.get_screen_rect()
+		if not rect.has_point(screen_pos):
+			continue
+		var d: float = screen_pos.distance_squared_to(rect.get_center())
+		if d < best_dist_sq:
+			best_dist_sq = d
+			best = g
+	return best
+
 
 func _sync_grids() -> void:
 	var count: int = GameState.settlers.size()
