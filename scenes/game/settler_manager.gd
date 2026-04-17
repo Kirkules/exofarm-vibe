@@ -8,6 +8,7 @@ var _inventory:    Inventory
 var _inventory_ui: InventoryUI
 var _ui_layer:     CanvasLayer
 var _hud_ui:       HudUI
+var _farm_grid:    GameGrid
 
 ## One SettlerFoodGrid per settler (parallel to GameState.settlers).
 var _settler_grids: Array[SettlerFoodGrid] = []
@@ -30,11 +31,12 @@ signal item_snap_back_to_grid(item: InventoryItem, from_screen: Vector2, to_scre
 
 
 func setup(inventory: Inventory, inventory_ui: InventoryUI,
-		ui_layer: CanvasLayer, hud_ui: HudUI) -> void:
+		ui_layer: CanvasLayer, hud_ui: HudUI, farm_grid: GameGrid) -> void:
 	_inventory    = inventory
 	_inventory_ui = inventory_ui
 	_ui_layer     = ui_layer
 	_hud_ui       = hud_ui
+	_farm_grid    = farm_grid
 
 
 func _process(_delta: float) -> void:
@@ -131,7 +133,8 @@ func close() -> void:
 	for g: SettlerFoodGrid in _settler_grids:
 		g.visible = false
 		g.set_grid_active(false)
-	EventBus.merge_grid_closed.emit()
+	if _farm_grid != null:
+		_farm_grid.set_grid_active(true)
 
 ## Cancel any in-flight drag before the settler panel hides.
 ## Returns held items to inventory without playing snap-back animations.
@@ -277,8 +280,8 @@ func _remove_last_grid() -> void:
 
 func _position_grids() -> void:
 	# Lock farm grid (and all other grids) the same way KitchenManager does.
-	if not _settler_grids.is_empty():
-		EventBus.merge_grid_opened.emit(_settler_grids[0])
+	if _farm_grid != null:
+		_farm_grid.set_grid_active(false)
 	var rects: Array[Rect2] = _hud_ui.get_settler_slot_screen_rects()
 	for i: int in mini(_settler_grids.size(), rects.size()):
 		_settler_grids[i].position = rects[i].position

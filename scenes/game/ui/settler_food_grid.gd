@@ -36,11 +36,5 @@ func _ready() -> void:
 	piece_returned_to_grid.connect(func(_pid: int) -> void: _update_paste_label())
 
 
-## Only restore activity when the settler panel is open (grid is visible).
-func _on_merge_grid_closed() -> void:
-	if visible:
-		set_grid_active(true)
-
-
 func _update_paste_label() -> void:
 	_paste_label.visible = grid_data.get_piece_count() == 0

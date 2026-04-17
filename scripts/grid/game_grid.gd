@@ -149,6 +149,10 @@ var grid_active: bool = true
 ## overlays visible).  Used during season simulation.
 var planning_locked: bool = false
 
+## Set to true by PieceInputController when this grid is registered as a pickup
+## source.  Suppresses the built-in _input() so PIC can dispatch via receive_input().
+var _pic_managed: bool = false
+
 
 # ---------------------------------------------------------------------------
 # Signals
@@ -174,11 +178,6 @@ func _ready() -> void:
 	EventBus.simulation_ended.connect(func() -> void: set_planning_locked(false))
 	EventBus.log_overlay_opened.connect(func() -> void: set_planning_locked(true))
 	EventBus.log_overlay_closed.connect(func() -> void: set_planning_locked(false))
-	EventBus.merge_grid_opened.connect(func(grid: GameGrid) -> void:
-		if grid != self:
-			set_grid_active(false)
-	)
-	EventBus.merge_grid_closed.connect(_on_merge_grid_closed)
 
 	_held_sprite_layer = CanvasLayer.new()
 	_held_sprite_layer.layer = 100
@@ -300,6 +299,14 @@ func _draw_placement_preview() -> void:
 # ---------------------------------------------------------------------------
 
 func _input(event: InputEvent) -> void:
+	if _pic_managed:
+		return
+	receive_input(event)
+
+
+## Called by PieceInputController instead of _input() when this grid is registered.
+## Contains the full input handling logic; _input() delegates here when not PIC-managed.
+func receive_input(event: InputEvent) -> void:
 	if not grid_active or planning_locked:
 		return
 
@@ -723,11 +730,6 @@ func set_grid_active(active: bool) -> void:
 		_cancel_pending()
 		_clear_tap()
 	queue_redraw()
-
-
-## Called when EventBus.merge_grid_closed fires. Override to suppress restore (e.g. KitchenGrid).
-func _on_merge_grid_closed() -> void:
-	set_grid_active(true)
 
 
 ## Block or unblock input for simulation.

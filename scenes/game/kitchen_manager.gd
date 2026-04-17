@@ -8,6 +8,7 @@ var _inventory:    Inventory
 var _inventory_ui: InventoryUI
 var _ui_layer:     CanvasLayer
 var _grid_bottom:  float
+var _farm_grid:    GameGrid
 
 ## Maps cafeteria piece_id -> KitchenGrid.
 var _kitchen_grids: Dictionary = {}
@@ -25,11 +26,12 @@ signal item_returned_to_inventory(item: InventoryItem, from_screen: Vector2)
 
 
 func setup(inventory: Inventory, inventory_ui: InventoryUI,
-		ui_layer: CanvasLayer, grid_bottom: float) -> void:
+		ui_layer: CanvasLayer, grid_bottom: float, farm_grid: GameGrid) -> void:
 	_inventory    = inventory
 	_inventory_ui = inventory_ui
 	_ui_layer     = ui_layer
 	_grid_bottom  = grid_bottom
+	_farm_grid    = farm_grid
 
 
 # ---------------------------------------------------------------------------
@@ -100,8 +102,9 @@ func open(cafeteria_piece_id: int) -> void:
 		return
 	_active_cafeteria_id = cafeteria_piece_id
 	kg.visible = true
-	kg.set_grid_active(true)  # merge_grid_opened only deactivates others; must activate explicitly
-	EventBus.merge_grid_opened.emit(kg)
+	kg.set_grid_active(true)
+	if _farm_grid != null:
+		_farm_grid.set_grid_active(false)
 
 ## Close the currently open kitchen grid.
 func close() -> void:
@@ -111,7 +114,8 @@ func close() -> void:
 	if kg != null:
 		kg.visible = false
 	_active_cafeteria_id = -1
-	EventBus.merge_grid_closed.emit()
+	if _farm_grid != null:
+		_farm_grid.set_grid_active(true)
 
 ## Route an inventory item hold to the active kitchen grid.
 ## Returns true if the hold was accepted (caller should not route to farm grid).

@@ -44,6 +44,11 @@ func _ready() -> void:
 	inventory_ui.item_requested.connect(_on_item_requested)
 	inventory_ui.state_changed.connect(_on_inventory_state_changed)
 
+	var pic: PieceInputController = PieceInputController.new()
+	add_child(pic)
+	pic.register_pickup_source(farm_grid)
+	pic.register_drop_target(farm_grid, 0)
+
 	building_manager = BuildingManager.new()
 	add_child(building_manager)
 	building_manager.setup(farm_grid, _inventory)
@@ -54,7 +59,7 @@ func _ready() -> void:
 
 	kitchen_manager = KitchenManager.new()
 	add_child(kitchen_manager)
-	kitchen_manager.setup(_inventory, inventory_ui, _ui_layer, grid_bottom)
+	kitchen_manager.setup(_inventory, inventory_ui, _ui_layer, grid_bottom, farm_grid)
 
 	simulation_controller = SimulationController.new()
 	add_child(simulation_controller)
@@ -67,7 +72,7 @@ func _ready() -> void:
 
 	settler_manager = SettlerManager.new()
 	add_child(settler_manager)
-	settler_manager.setup(_inventory, inventory_ui, _ui_layer, hud_ui)
+	settler_manager.setup(_inventory, inventory_ui, _ui_layer, hud_ui, farm_grid)
 	settler_manager.assignments_changed.connect(_refresh_food_hud)
 	settler_manager.item_returned_to_inventory.connect(_play_inventory_snapback_anim)
 	settler_manager.item_snap_back_to_grid.connect(_play_snapback_anim)

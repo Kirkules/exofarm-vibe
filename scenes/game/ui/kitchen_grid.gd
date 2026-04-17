@@ -47,7 +47,7 @@ func _ready() -> void:
 	color_valid   = Color(0.30, 0.65, 0.30, 0.65)
 	color_invalid = Color(0.65, 0.25, 0.25, 0.65)
 	super._ready()
-	# Kitchen grids are only active when explicitly opened via merge_grid_opened.
+	# Kitchen grids start inactive; KitchenManager.open() activates them explicitly.
 	set_grid_active(false)
 
 	var header: Label = Label.new()
@@ -104,11 +104,6 @@ func _draw_grid_overlays() -> void:
 				else Color(0.20, 0.55, 0.55, 0.35)
 		for cell: Vector2i in group["cells"]:
 			draw_rect(_cell_rect(cell.x, cell.y), highlight, false, 2.0)
-
-
-## Kitchen grids are only activated via merge_grid_opened; merge_grid_closed must not restore them.
-func _on_merge_grid_closed() -> void:
-	pass
 
 
 # ---------------------------------------------------------------------------
