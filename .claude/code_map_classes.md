@@ -1,7 +1,7 @@
 # ExoFarm Class Inventory
 
 Authoritative list of all project classes (excludes `addons/`, `tests/`).
-Last updated: 2026-04-11
+Last updated: 2026-04-17
 
 ---
 
@@ -16,11 +16,37 @@ Key private methods: `_compute_food_state()`, `_refresh_food_hud()`, `_begin_sim
 
 ## Managers
 
+### PieceInputController — `scripts/game/piece_input_controller.gd` extends Node
+Owns all drag/input state and routing for piece interactions across all grids.
+Grids are passive; managers register/unregister via the registration API.
+Constants: PICKUP_DRAG_THRESHOLD_SQ, PICKUP_HOLD_TIME, DRAG_OFFSET_CELLS, DEFAULT_CELL_SIZE
+Enum: PendingType { NONE, GRID, INVENTORY }
+Public API:
+  register_pickup_source(source)
+  unregister_pickup_source(source)
+  register_drop_target(source, priority=0)
+  unregister_drop_target(source)
+  begin_inventory_drag(shape, payload, hint="")
+  set_held_payload(payload)
+  set_held_discardable(discardable)
+  set_held_hint(hint)
+  rotate_held_cw()
+  cancel_drag()
+  set_inventory_control(c)
+Signals: pickup_confirmed(origin, piece_id, shape, payload),
+         piece_placed(origin, target, piece_id, payload),
+         piece_returned(origin, piece_id, payload),
+         piece_released(origin, payload, com),
+         drag_moved(cursor_screen, shape, payload),
+         drag_ended(),
+         piece_double_tapped(origin, piece_id),
+         piece_long_pressed(origin, piece_id)
+
 ### BuildingManager — `scenes/game/building_manager.gd` extends Node
 Farm grid interaction: piece placement, build states, power/neighbor computation.
 Enum: `BuildState { UNBUILT, BUILT }`
 Public API:
-  setup(farm_grid, inventory)
+  setup(farm_grid, inventory, pic)
   placed_items() → Dictionary              ## piece_id → InventoryItem
   build_states() → Dictionary             ## piece_id → BuildState
   power_state() → PowerSystem.PowerState
@@ -43,7 +69,7 @@ Signals: power_changed(placed), piece_released_off_farm(item, build_state, com_s
 ### KitchenManager — `scenes/game/kitchen_manager.gd` extends Node
 Manages per-cafeteria KitchenGrid instances, item routing, recipe state.
 Public API:
-  setup(inventory, inventory_ui, ui_layer, grid_bottom)
+  setup(inventory, inventory_ui, ui_layer, grid_bottom, farm_grid, pic)
   is_open() → bool
   active_cafeteria_id() → int
   open_screen_rect() → Rect2
@@ -54,15 +80,15 @@ Public API:
   open(cafeteria_piece_id)
   close()
   route_inventory_hold(item) → bool
-  try_place_item(item, screen_pos) → bool
   consume_all_items()
   consume_specific_items(piece_ids)
   teardown(cafeteria_id)
+Signals: item_returned_to_inventory(item, from_screen)
 
 ### SettlerManager — `scenes/game/settler_manager.gd` extends Node
 Manages per-settler SettlerFoodGrid instances, meal assignment, cross-slot drag.
 Public API:
-  setup(inventory, inventory_ui, ui_layer, hud_ui)
+  setup(inventory, inventory_ui, ui_layer, hud_ui, farm_grid, pic)
   is_open() → bool
   open_screen_rect() → Rect2
   get_assigned_meal(settler_idx) → InventoryItem
@@ -73,9 +99,9 @@ Public API:
   close()
   toggle()
   route_inventory_hold(item) → bool
-  try_place_item(item, screen_pos) → bool
   consume_assigned_meals() → int
-Signals: assignments_changed()
+Signals: assignments_changed(), item_returned_to_inventory(item, from_screen),
+         item_snap_back_to_grid(item, from_screen, to_screen)
 
 ### SimulationController — `scenes/game/simulation_controller.gd` extends Node
 15s simulation timer, settler/greenhouse animation, live log overlay, progress bar.
@@ -137,24 +163,22 @@ Legacy stub — currently unused.
 ## Grid
 
 ### GameGrid — `scripts/grid/game_grid.gd` extends Node2D
-Base grid class: input handling, piece drag/drop/rotate, sprite management, planning lock.
-Enums: HeldOrigin, InputSource, PendingSource, TapState
-Key properties: rows, cols, cell_size, grid_data, has_held_piece, planning_locked, grid_active
+Base grid class: passive renderer. All drag/input state owned by PieceInputController.
+Key properties: rows, cols, cell_size, grid_data, grid_active, planning_locked
 Public API:
-  hold_piece(shape, hint="")
-  begin_pending_inventory_hold(item)
+  setup_pic(pic)
+  lift_piece(piece_id) → PieceShape
+  try_receive_drop(cursor_screen, shape, payload, hint) → int
   place_piece_at(shape, row, col, hint="") → int
-  rotate_held_cw()
-  cancel_hold() → PieceShape
-  set_held_hint(hint)
   remove_piece(piece_id)
+  update_cursor_hover(screen_pos)
+  clear_hover()
+  is_piece_moveable(piece_id) → bool
+  is_piece_toggleable(piece_id) → bool
   set_piece_moveable(piece_id, moveable)
   set_piece_toggleable(piece_id, toggleable)
   set_piece_flashing(piece_id, flashing)
   set_piece_active_visual(piece_id, active)
-  set_inventory_control(c)
-  set_held_discardable(discardable)
-  set_held_can_place(can_place)
   set_grid_active(active)
   set_planning_locked(locked)
   get_screen_rect() → Rect2
@@ -162,23 +186,22 @@ Public API:
 Virtual (override in subclasses — see .claude/code_map_overrides.md):
   _draw_grid_overlays()
   _can_place_at_cell(cell) → bool
-  _on_merge_grid_closed()
-Signals: piece_picked_up_from_grid(piece_id, shape), piece_placed_on_grid(piece_id),
-         piece_returned_to_grid(piece_id), inventory_item_pickup_confirmed(item),
-         piece_double_tapped(piece_id), piece_long_pressed(piece_id), piece_released(com_screen_pos)
+Signals: piece_placed_on_grid(piece_id), piece_lifted_from_grid(piece_id)
 
 ### FarmGrid — `scenes/game/grid/farm_grid.gd` extends GameGrid
-Farm grid subclass; adds power and effect range overlay drawing.
+Farm grid subclass; power/effect range overlays; enforces FARM_GRID type filter on drops.
 Public API:
+  try_receive_drop(cursor_screen, shape, payload, hint) → int
   set_power_overlay(sources)
   set_effect_overlay(sources)
   set_held_power_range(power_range)
 
 ### KitchenGrid — `scenes/game/ui/kitchen_grid.gd` extends GameGrid
-3×4 modal overlay grid for cafeteria; tracks recipe groups, handles merge/eject.
+3×4 modal overlay grid for cafeteria; tracks recipe groups, handles merge/eject; enforces KITCHEN_GRID type filter.
 Created programmatically (no .tscn); one instance per placed BUILT Cafeteria.
 Constants: KITCHEN_ROWS=4, KITCHEN_COLS=3, KITCHEN_CELL_SIZE=40, HEADER_H=32
 Public API:
+  try_receive_drop(cursor_screen, shape, payload, hint) → int
   get_full_screen_rect() → Rect2
   set_recipes(recipes)
   on_item_placed(piece_id, def)
@@ -188,8 +211,10 @@ Public API:
 Signals: piece_ejected(piece_id)
 
 ### SettlerFoodGrid — `scenes/game/ui/settler_food_grid.gd` extends GameGrid
-1×1 per-settler meal assignment slot; shows "paste" placeholder when empty.
+1×1 per-settler meal assignment slot; shows "paste" placeholder when empty; enforces SETTLER_GRID type filter.
 Constants: SLOT_SIZE=40
+Public API:
+  try_receive_drop(cursor_screen, shape, payload, hint) → int
 
 ### GridData — `scripts/grid/grid_data.gd` extends RefCounted
 Pure grid state: cell occupancy, piece placement/removal, bounds checking. No rendering.

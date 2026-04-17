@@ -1,7 +1,7 @@
 # ExoFarm Autoload Access Map
 
 Which classes access GameState, EventBus, Catalog, and Settings, and how.
-Last updated: 2026-04-11
+Last updated: 2026-04-17
 
 ---
 
@@ -34,10 +34,11 @@ Summary of which classes emit vs. connect:
 |-------|-----------|-----------|
 | SimulationController | emit | `simulation_started` |
 | Game | emit | `simulation_ended` |
-| KitchenManager | emit | `merge_grid_opened`, `merge_grid_closed` |
-| SettlerManager | emit | `merge_grid_opened`, `merge_grid_closed` |
 | HudUI | emit | `log_overlay_opened`, `log_overlay_closed` |
-| GameGrid (all instances) | connect | `simulation_started/ended`, `merge_grid_opened/closed`, `log_overlay_opened/closed` |
+| GameGrid (all instances) | connect | `simulation_started/ended`, `log_overlay_opened/closed` |
+
+Note: `merge_grid_opened/closed` are no longer emitted — KitchenManager and SettlerManager
+now call `set_grid_active(false/true)` and PIC registration directly instead of broadcasting via EventBus.
 
 ---
 

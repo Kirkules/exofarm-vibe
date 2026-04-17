@@ -1,7 +1,7 @@
 # ExoFarm Input Handler Map
 
 Which classes implement Godot input methods, what they handle, and whether they consume events.
-Last updated: 2026-04-11
+Last updated: 2026-04-17
 
 ---
 
@@ -16,21 +16,22 @@ Handles:
 Consumes: YES — calls `set_input_as_handled()` for all events within the log rect and outside-press dismiss
 Why `_input` and not `gui_input`: HudUI's own node rect is only ~52px tall; `gui_input` on a child of HudUI only fires within that rect, leaving the lower screen area (where the log panel lives) unblocked
 
-### GameGrid._input(event) — `scripts/grid/game_grid.gd`
-Priority: fires after HudUI._input; inherited by FarmGrid, KitchenGrid, SettlerFoodGrid
+### PieceInputController._input(event) — `scripts/game/piece_input_controller.gd`
+Priority: fires after HudUI._input
 Handles:
-- `InputEventMouseMotion` → update held sprite position
-- `InputEventMouseButton` press → start tap/hold pending; release → place or return piece
-- `InputEventScreenTouch` press/release → same as mouse button
+- `InputEventMouseMotion` → update held sprite position; cursor hover on registered grids
+- `InputEventMouseButton` press → hit-test registered pickup sources, start pending; release → place or snap-back or release
+- `InputEventMouseButton` right press (while holding) → rotate held piece CW
+- `InputEventScreenTouch` press/release → same as mouse button; second touch while holding → rotate CW
 - `InputEventScreenDrag` → update held sprite position (touch)
-Consumes: NO — does not call `set_input_as_handled()`; suppresses internally via `planning_locked` and `grid_active` flags
-Note: when `planning_locked = true` or `grid_active = false`, the handler exits early with no effect
+Consumes: NO — does not call `set_input_as_handled()`; guards via `grid_active` and `planning_locked` on each grid
+Note: only registered pickup sources are hit-tested; grids not registered are invisible to input
 
 ### Game._unhandled_input(event) — `scenes/game/game.gd`
 Priority: lowest (fires after all _input handlers)
 Handles:
 - `InputEventMouseButton` / `InputEventScreenTouch` press outside open KitchenGrid or settler panel → close it
-- `ui_accept` action → confirm dialog shortcut
+- `ui_accept` action → `_pic.rotate_held_cw()`
 Consumes: YES — calls `set_input_as_handled()`
 
 ---
@@ -53,16 +54,17 @@ They fire only within their own node's rect.
 ## Input Priority Order
 
 ```
-1. HudUI._input()           — consumes log-related events; blocks lower handlers from seeing them
-2. GameGrid._input()        — handles grid drag/tap; does not consume; guards via flags
-3. Game._unhandled_input()  — catches outside-press panel dismissals
+1. HudUI._input()                  — consumes log-related events; blocks lower handlers
+2. PieceInputController._input()   — handles all piece drag/tap; does not consume
+3. Game._unhandled_input()         — catches outside-press panel dismissals
 ```
 
 ---
 
 ## Notes
 
-- `planning_locked` is the primary mechanism for disabling grid input during simulation, log overlay open, and merge grid open — driven by EventBus signals (see `.claude/signal_graph.md`)
-- `grid_active = false` is a finer-grained per-instance lock used during cross-slot drag in the settler panel to suppress hover bleed on sibling grids
-- Adding a new full-screen overlay that should block grid input: emit `EventBus.merge_grid_opened` (or a new EventBus signal) to set `planning_locked = true` on all GameGrid instances
+- `planning_locked` disables piece interactions during simulation and log overlay — set via EventBus signals on all GameGrid instances (see `.claude/signal_graph.md`)
+- `grid_active = false` is used by managers to exclude a grid from input while a different panel is open (e.g. farm grid locked while Kitchen or Settler panel is open)
+- PIC registers/unregisters grids dynamically; only `grid_active = true` grids are hit-tested
+- Adding a new full-screen overlay that should block piece input: emit `EventBus.simulation_started` equivalent, or call `set_planning_locked(true)` on affected grids directly
 - Adding a new input handler: place it in `_input` if it needs to fire before GUI; use `_unhandled_input` if it should only fire when nothing else consumed the event

@@ -1,7 +1,7 @@
 # ExoFarm Virtual/Override Map
 
 Project-defined virtual methods and Godot built-in virtual overrides across all classes.
-Last updated: 2026-04-11
+Last updated: 2026-04-17
 
 ---
 
@@ -13,9 +13,9 @@ Methods declared in base classes intended for subclasses to override.
 
 | Method | Declared in | FarmGrid | KitchenGrid | SettlerFoodGrid |
 |--------|-------------|----------|-------------|----------------|
-| `_draw_grid_overlays()` | GameGrid | ✓ power + effect overlays | ✓ inactive cell shading | — |
+| `_draw_grid_overlays()` | GameGrid | ✓ power + effect overlays | ✓ inactive cell shading + recipe group highlights | — |
 | `_can_place_at_cell(cell) → bool` | GameGrid | — | ✓ active cells only | — |
-| `_on_merge_grid_closed()` | GameGrid | — | ✓ suppresses grid restore | ✓ reactivates if visible |
+| `try_receive_drop(cursor_screen, shape, payload, hint) → int` | GameGrid | ✓ enforces FARM_GRID type | ✓ enforces KITCHEN_GRID, rejects FARM_GRID | ✓ enforces SETTLER_GRID |
 
 ---
 
@@ -26,11 +26,12 @@ Methods declared in base classes intended for subclasses to override.
 | Class | `_ready` | `_process` | `_draw` | `_input` | `_unhandled_input` | `_notification` |
 |-------|----------|-----------|---------|----------|-------------------|----------------|
 | Game | ✓ wires managers | — | — | — | ✓ closes panels on outside press | — |
+| PieceInputController | ✓ builds held sprite layer | ✓ pending timer + drag_moved emit | — | ✓ all drag/tap input | — | — |
 | BuildingManager | — | — | — | — | — | — |
 | KitchenManager | — | — | — | — | — | — |
 | SettlerManager | — | — | — | — | — | — |
 | SimulationController | ✓ builds UI | ✓ ticks sim | — | — | — | — |
-| GameGrid | ✓ wires EventBus | ✓ flash timer | ✓ draws cells/sprites | ✓ all drag/tap input | — | — |
+| GameGrid | ✓ wires EventBus | ✓ flash timer | ✓ draws cells/sprites | — | — | — |
 | FarmGrid | — | — | — | — | — | — |
 | KitchenGrid | ✓ sets up grid | — | ✓ draws background/border | — | — | — |
 | SettlerFoodGrid | ✓ wires paste label | — | — | — | — | — |
@@ -46,7 +47,7 @@ Methods declared in base classes intended for subclasses to override.
 ## Notes
 
 - `FarmGrid._draw_grid_overlays()` calls two private helpers: `_draw_power_overlays()` and `_draw_effect_overlays()`
-- `KitchenGrid._on_merge_grid_closed()` intentionally suppresses the default GameGrid restore behavior (which would re-show the grid after any merge grid closes)
-- `SettlerFoodGrid._on_merge_grid_closed()` reactivates the grid only if it is currently visible — prevents ghost reactivation when the settler panel is closed
 - `GameGrid._process()` drives the flashing animation for UNBUILT pieces via a timer accumulator
+- `PieceInputController._process()` advances the pending-pickup timer and emits `drag_moved` each frame while a piece is held
 - When adding a new GameGrid subclass, check all three project virtuals and decide whether each needs an override
+- `_on_merge_grid_closed()` virtual was removed in the PIC refactor — panel open/close now uses `set_grid_active()` + PIC registration directly
