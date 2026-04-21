@@ -15,6 +15,11 @@ FILE_PATH="$(echo "$INPUT" | python3 -c "import sys, json; d=json.load(sys.stdin
 
 [ -z "$FILE_PATH" ] && exit 0
 
+# Deduplication: Claude Code fires PostToolUse twice per tool call in parallel.
+# mkdir is atomic on Unix — only one concurrent caller wins; the other exits cleanly.
+DEDUP_KEY="$(python3 -c "import hashlib; print(hashlib.md5('$FILE_PATH'.encode()).hexdigest()[:8])")_$(date +%s)"
+mkdir "/tmp/claude_hook_dedup_${DEDUP_KEY}" 2>/dev/null || exit 0
+
 # Make path relative to project root
 REL_PATH="${FILE_PATH#$PROJECT_ROOT/}"
 
@@ -95,8 +100,8 @@ for line in diff.splitlines():
 
     indented = content != content.lstrip()
 
-    # func declaration
-    m = re.match(r'^func (\w+)\(([^)]*)\)(\s*->\s*\S+)?', content.strip())
+    # func declaration (plain or static)
+    m = re.match(r'^(?:static\s+)?func (\w+)\(([^)]*)\)(\s*->\s*\S+)?', content.strip())
     if m:
         fname = m.group(1)
         args = m.group(2)
