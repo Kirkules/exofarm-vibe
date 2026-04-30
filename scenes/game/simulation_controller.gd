@@ -41,6 +41,8 @@ var _greenhouse_states: Array[Dictionary] = []
 var _cafeteria_states: Array[Dictionary] = []
 ## piece_ids of kitchen grid items consumed by completed crafting this season.
 var _crafted_ingredient_ids: Array[int] = []
+## Crop items yielded by greenhouses this season.
+var _season_crops_yielded: int = 0
 ## Active settler walk/work animations.
 var _settler_agents: Array[Dictionary] = []
 ## Per-settler skip budget for the current season (settler_name -> int).
@@ -151,6 +153,9 @@ func get_log() -> Array[Dictionary]:
 func get_crafted_ingredient_ids() -> Array[int]:
 	return _crafted_ingredient_ids
 
+func get_season_crops_yielded() -> int:
+	return _season_crops_yielded
+
 ## Begin simulation for the new season.
 ## placed_items: piece_id -> InventoryItem (post UNBUILT→BUILT transition).
 ## power_state: from BuildingManager.power_state() — pre-transition state per design.
@@ -163,6 +168,7 @@ func begin(placed_items: Dictionary, power_state: PowerSystem.PowerState,
 	_sim_log.clear()
 	_hud_ui.refresh_log([])
 	_crafted_ingredient_ids.clear()
+	_season_crops_yielded = 0
 	for child: Node in _sim_live_log_box.get_children():
 		_sim_live_log_box.remove_child(child)
 		child.queue_free()
@@ -535,6 +541,7 @@ func _tick_settlers(delta: float) -> void:
 								gh_def.output_item.slot_size,
 								gh_def.output_item,
 							))
+							_season_crops_yielded += 1
 							add_log_entry({
 								"label":       "%s:" % gh_def.display_name,
 								"value":       "+1 %s" % gh_def.output_item.display_name,

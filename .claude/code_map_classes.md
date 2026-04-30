@@ -1,7 +1,7 @@
 # ExoFarm Class Inventory
 
 Authoritative list of all project classes (excludes `addons/`, `tests/`).
-Last updated: 2026-04-28
+Last updated: 2026-04-30
 
 ---
 
@@ -111,6 +111,7 @@ Public API:
   is_running() → bool
   get_log() → Array[Dictionary]
   get_crafted_ingredient_ids() → Array[int]
+  get_season_crops_yielded() → int
   begin(placed_items, power_state, solar_rig_piece_id, cafeteria_craft_queue={})
   skip()
   add_log_entry(base)   ## stamps timestamp + pushes to live overlay — never append to log directly
@@ -285,6 +286,18 @@ Adds: output_item: PlaceableDefinition
 ### MealDefinition — `scripts/resources/meal_definition.gd` extends PlaceableDefinition
 Adds: morale_modifier: int
 
+### MissionReport — `scripts/resources/mission_report.gd` extends Resource
+Snapshot of a completed run; saved immediately to disk when a run ends.
+Enum: EndReason { COMPLETE, COLONY_LOST, ENDED_EARLY }
+Constants: MAX_SEASONS=15
+Properties: timestamp, seasons_survived, end_reason, settler_names/survived/lost_season/end_morale,
+            total_cafeteria_meals, total_paste_servings, total_matter_produced, total_crops_yielded,
+            accumulated_happiness, assessment, assessment_flavor
+Public API:
+  compute_assessment()
+  to_dict() → Dictionary
+  from_dict(d) → MissionReport  (static)
+
 ### RecipeDefinition — `scripts/resources/recipe_definition.gd` extends Resource
 Properties: ingredients: Dictionary (PlaceableDefinition→int multiset), output_item: PlaceableDefinition,
             output_count: int, labor_cost: float
@@ -327,12 +340,45 @@ Public API (static): compute(placed) → NeighborSystem.NeighborState
 
 ---
 
+## Hub
+
+### HomeScreen — `scenes/hub/home_screen.gd` extends Control
+Hub home screen; entry point of the game. Continue/New Run CTAs, nav to Settings/Catalog/History.
+
+### NewRunInterstitial — `scenes/hub/new_run_interstitial.gd` extends Control
+Pre-run popup stub showing settler names and planet name/type.
+Signals: confirmed()
+
+### CatalogScreen — `scenes/hub/catalog_screen.gd` extends Control
+Design catalog stub screen. Navigates back to HomeScreen.
+
+### RunHistoryScreen — `scenes/hub/run_history_screen.gd` extends Control
+Mission history screen; loads and lists all saved MissionReports newest-first.
+
+### SettingsScreen — `scenes/menus/settings_screen.gd` extends Control
+Settings popup (volume stubs). Set in_run=true before adding to show End Mission button.
+Properties: in_run: bool
+Signals: end_mission_requested()
+
+### MissionReportPopup — `scenes/game/ui/mission_report_popup.gd` extends Control
+End-of-run overlay (10% border). Created programmatically in game.gd._end_run().
+Shows settler roster, food/nutrition, production, assessment. Stays up until dismissed.
+Signals: return_home_pressed()
+
+---
+
 ## Autoloads
 
 ### GameState — `scripts/autoloads/game_state.gd` (singleton)
 Global game state. Properties: season: int, settlers: Array[Settler], settler_count (read-only),
-energy_capacity: int, energy: int, matter: int
-Methods: save(), load_save() (stubs — not yet implemented)
+energy_capacity: int, energy: int, matter: int, accumulated_happiness: int,
+total_cafeteria_meals: int, total_paste_servings: int, total_matter_produced: int,
+total_crops_yielded: int, settler_death_seasons: Dictionary, run_in_progress: bool
+Public API:
+  reset_for_new_run()
+  save_mission_report(report: MissionReport)
+  load_mission_reports() → Array[MissionReport]
+  save(), load_save() (stubs — not yet implemented)
 
 ### EventBus — `scripts/autoloads/event_bus.gd` (singleton)
 Global signal bus. Full connection map: `.claude/signal_graph.md`

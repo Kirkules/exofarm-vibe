@@ -8,7 +8,7 @@ enum Health { FED, STARVING, DEAD }
 
 var name:   String = ""
 var health: Health = Health.FED
-var morale: int    = 10
+var morale: int    = 0
 
 
 func _init(settler_name: String) -> void:

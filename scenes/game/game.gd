@@ -99,9 +99,18 @@ func _ready() -> void:
 	_ui_layer.add_child(_build_menu)
 	_build_menu.set_definitions(_buildable_definitions())
 
+	# Gear button — opens Settings popup (with End Mission option).
+	var gear_btn: Button = Button.new()
+	gear_btn.text               = "⚙"
+	gear_btn.custom_minimum_size = Vector2(28.0, 28.0)
+	gear_btn.position            = Vector2(270.0 - 32.0, 12.0)
+	gear_btn.pressed.connect(_on_gear_pressed)
+	_ui_layer.add_child(gear_btn)
+
 	# Ensure inventory_ui renders above all programmatically-added UILayer children.
 	_ui_layer.move_child(inventory_ui, _ui_layer.get_child_count() - 1)
 
+	GameState.run_in_progress = true
 	_place_starting_buildings()
 
 
@@ -278,6 +287,7 @@ func _end_simulation() -> void:
 				"value": "+%d Matter" % food["matter_prod"],
 				"label_color": "", "value_color": SimulationController.LOG_COLOR_GAIN})
 	GameState.matter += food["matter_prod"]
+	GameState.total_matter_produced += food["matter_prod"]
 
 	# Construction cost (already logged per-building in _begin_simulation).
 	GameState.matter = maxi(0, GameState.matter - food["construction_cost"])
@@ -289,6 +299,7 @@ func _end_simulation() -> void:
 
 	# Consume settler meal assignments.
 	var meals_consumed: int = settler_manager.consume_assigned_meals()
+	GameState.total_cafeteria_meals += meals_consumed
 	if meals_consumed > 0:
 		sim.add_log_entry({"label": "Meals consumed:",
 				"value": "-%d meal(s)" % meals_consumed,
@@ -304,6 +315,7 @@ func _end_simulation() -> void:
 				"value": "no Nutrient Paste",
 				"label_color": "", "value_color": SimulationController.LOG_COLOR_LOSS})
 	GameState.matter = maxi(0, GameState.matter - paste_produced)
+	GameState.total_paste_servings += paste_produced
 
 	# Settler deaths and morale.
 	var projected: Array    = food["projected_health"]
@@ -314,8 +326,17 @@ func _end_simulation() -> void:
 			sim.add_log_entry({"label": "%s starved to death." % s.name,
 					"value": "", "label_color": SimulationController.LOG_COLOR_DEATH,
 					"value_color": ""})
+			GameState.settler_death_seasons[s.name] = GameState.season
 		s.health = projected[i] as Settler.Health
 		s.morale = proj_morale[i] as int
+
+	var season_happiness: int = 0
+	for s: Settler in GameState.settlers:
+		if s.health != Settler.Health.DEAD:
+			season_happiness += s.morale
+	GameState.accumulated_happiness += season_happiness
+
+	GameState.total_crops_yielded += simulation_controller.get_season_crops_yielded()
 
 	GameState.season += 1
 	hud_ui.refresh_log(sim.get_log())
@@ -328,7 +349,9 @@ func _end_simulation() -> void:
 	building_manager.recompute_power()
 
 	if GameState.settler_count == 0:
-		_on_colony_lost()
+		_end_run(MissionReport.EndReason.COLONY_LOST)
+	elif GameState.season > MissionReport.MAX_SEASONS:
+		_end_run(MissionReport.EndReason.COMPLETE)
 
 
 # ---------------------------------------------------------------------------
@@ -549,12 +572,44 @@ func _buildable_definitions() -> Array[PlaceableDefinition]:
 
 
 # ---------------------------------------------------------------------------
-# Colony lost
+# Run end
 # ---------------------------------------------------------------------------
 
-func _on_colony_lost() -> void:
-	var dlg: AcceptDialog = AcceptDialog.new()
-	dlg.title       = "Colony Lost"
-	dlg.dialog_text = "All settlers have perished.\nThe colony is lost."
-	add_child(dlg)
-	dlg.popup_centered()
+func _on_gear_pressed() -> void:
+	var settings: SettingsScreen = SettingsScreen.new()
+	settings.in_run = true
+	settings.end_mission_requested.connect(func() -> void:
+		_end_run(MissionReport.EndReason.ENDED_EARLY))
+	_ui_layer.add_child(settings)
+
+
+func _end_run(reason: MissionReport.EndReason) -> void:
+	GameState.run_in_progress = false
+	var report: MissionReport = _build_mission_report(reason)
+	GameState.save_mission_report(report)
+	var popup: MissionReportPopup = MissionReportPopup.new()
+	_ui_layer.add_child(popup)
+	popup.show_report(report)
+	popup.return_home_pressed.connect(func() -> void:
+		get_tree().change_scene_to_file("res://scenes/hub/home_screen.tscn"))
+
+
+func _build_mission_report(reason: MissionReport.EndReason) -> MissionReport:
+	var report: MissionReport = MissionReport.new()
+	report.timestamp        = Time.get_unix_time_from_system() as int
+	report.seasons_survived = GameState.season - 1
+	report.end_reason       = reason
+	report.accumulated_happiness = GameState.accumulated_happiness
+	report.total_cafeteria_meals = GameState.total_cafeteria_meals
+	report.total_paste_servings  = GameState.total_paste_servings
+	report.total_matter_produced = GameState.total_matter_produced
+	report.total_crops_yielded   = GameState.total_crops_yielded
+	for s: Settler in GameState.settlers:
+		report.settler_names.append(s.name)
+		var survived: bool = s.health != Settler.Health.DEAD
+		report.settler_survived.append(survived)
+		report.settler_lost_season.append(
+			GameState.settler_death_seasons.get(s.name, -1) as int)
+		report.settler_end_morale.append(s.morale if survived else -1)
+	report.compute_assessment()
+	return report

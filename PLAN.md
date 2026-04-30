@@ -780,8 +780,7 @@ live in `scripts/`.
 - [x] Settler food consumption and starvation check (Nutrient Paste auto-queue from
   powered Matter Manipulator; shortfall → settler death; confirmation dialog; per-settler
   fed/starving tracking; colony-lost condition when all settlers die)
-- [ ] Morale calculation (fresh each season from inputs)
-- [ ] Morale bar UI with projected delta display
+- [x] Morale calculation (fresh each season from inputs); hidden happiness accumulator in GameState for end-of-run score
 - [x] Cafeteria building: merge space (KitchenGrid) + consumption area UI (SettlerFoodGrid
   per-settler meal assignment panel; meals draggable across slots; HUD reflects savings)
 - [x] Meal item crafting data: RecipeDefinition populated ({2 Wheat}→Pasta,
@@ -797,9 +796,13 @@ live in `scripts/`.
 - [ ] Run start: planet setup, fixed terrain, settler names, starting resources
 - [ ] Planet-side material deposits and extraction
 - [ ] Resource-gated design unlocking within a run
-- [ ] Critical failure detection and early run end
-- [ ] End-of-run score calculation and display
-- [ ] Earth hub stub: run history, score log, catalog view
+- [x] Critical failure detection and early run end (colony lost + season 15 + player-initiated via settings)
+- [x] End-of-run Mission Report popup (settler roster, food/nutrition, production, assessment; saved to disk immediately)
+- [x] Earth hub: home screen (continue/new run CTA, settings, catalog, history); run history screen; catalog stub; settings screen (with in-run End Mission option); new-run interstitial popup
+- [ ] In-progress run save/load: SaveData Resource subclass saved to user:// via
+  ResourceSaver; save after every meaningful planning action and on app pause
+  (NOTIFICATION_APPLICATION_PAUSED); load on app start if save exists; this establishes
+  the persistence paradigm for all future run-state additions
 
 ### Phase 4 — Meta-Progression & Content
 - [ ] New design unlocking via novel resource discovery (cross-run)
