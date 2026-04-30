@@ -1,7 +1,7 @@
 # ExoFarm Class Inventory
 
 Authoritative list of all project classes (excludes `addons/`, `tests/`).
-Last updated: 2026-04-17
+Last updated: 2026-04-28
 
 ---
 
@@ -104,7 +104,7 @@ Signals: assignments_changed(), item_returned_to_inventory(item, from_screen),
          item_snap_back_to_grid(item, from_screen, to_screen)
 
 ### SimulationController — `scenes/game/simulation_controller.gd` extends Node
-15s simulation timer, settler/greenhouse animation, live log overlay, progress bar.
+15s simulation timer, settler/greenhouse animation, live log overlay, progress bar, playback speed slider.
 Constants: SIMULATION_DURATION=15.0, LOG_COLOR_GAIN/LOSS/DEATH/ITEM
 Public API:
   setup(farm_grid, inventory, ui_layer, hud_ui)

@@ -244,7 +244,7 @@ func set_simulation_active(v: bool) -> void:
 		_matter_tooltip.visible  = false
 		hide_settler_panel()
 		_log_panel.visible       = false
-		_log_btn.visible         = false
+		_log_btn.visible = false
 		# Log overlay is hidden by simulation; grid lock handled by simulation_started signal.
 	else:
 		_log_btn.visible = true

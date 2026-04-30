@@ -46,6 +46,11 @@ var _settler_agents: Array[Dictionary] = []
 ## Per-settler skip budget for the current season (settler_name -> int).
 var _settler_skips_remaining: Dictionary = {}
 
+var _speed_container: HBoxContainer
+var _speed_spacer:	  Label
+var _speed_label:     Label
+var _speed_slider:    HSlider
+
 var _solar_rig_piece_id: int = -1
 var _running: bool = false
 
@@ -90,6 +95,41 @@ func _build_ui() -> void:
 	_sim_live_log_box.clip_contents = true
 	_sim_live_log_box.visible       = false
 	_ui_layer.add_child(_sim_live_log_box)
+
+	# Speed controls — direct UILayer child so input is not culled by HudUI's 52px rect.
+	# Added after the live log so it receives input with higher tree-order priority.
+	const SPEED_W: float = 80.0
+	const SPEED_H: float = 22.0
+	_speed_container = HBoxContainer.new()
+	_speed_container.add_theme_constant_override("separation", 4)
+	_speed_container.position = Vector2(270.0 - SPEED_W, _hud_ui.offset_bottom - 12.0)
+	_speed_container.size     = Vector2(SPEED_W, SPEED_H)
+	_speed_container.visible  = false
+	_ui_layer.add_child(_speed_container)
+
+	
+	_speed_label = Label.new()
+	_speed_label.text = "1×"
+	_speed_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_speed_label.add_theme_font_size_override("font_size", 10)
+	_speed_container.add_child(_speed_label)
+
+	_speed_slider = HSlider.new()
+	_speed_slider.min_value = 0.0
+	_speed_slider.max_value = 3.0
+	_speed_slider.step = 1.0
+	_speed_slider.tick_count = 4
+	_speed_slider.ticks_on_borders = true
+	_speed_slider.value = 0.0
+	_speed_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_speed_slider.custom_minimum_size   = Vector2(0.0, 16.0)
+	_speed_slider.value_changed.connect(_on_speed_slider_changed)
+	_speed_container.add_child(_speed_slider)
+	
+	_speed_spacer = Label.new()
+	_speed_spacer.text = ""
+	_speed_spacer.horizontal_alignment = HORIZONTAL_ALIGNMENT_FILL
+	_speed_container.add_child(_speed_spacer)
 
 	_sim_timer = Timer.new()
 	_sim_timer.one_shot = true
@@ -175,6 +215,9 @@ func begin(placed_items: Dictionary, power_state: PowerSystem.PowerState,
 	_sim_progress_bar.value  = 0.0
 	_sim_progress_label.text = "0.0 s"
 	_sim_progress_container.visible = true
+	_speed_slider.value             = 0.0
+	_speed_label.text               = "1×"
+	_speed_container.visible        = true
 	_sim_timer.start(SIMULATION_DURATION)
 	_running = true
 
@@ -186,6 +229,20 @@ func skip() -> void:
 	_sim_speed_scale = remaining / 0.5
 	_sim_timer.stop()
 	_sim_timer.start(0.5)
+
+func _on_speed_slider_changed(value: float) -> void:
+	var speeds: Array[float] = [1.0, 2.0, 3.0, 5.0]
+	var idx: int = clampi(int(value), 0, 3)
+	var scale: float = speeds[idx]
+	_speed_label.text = str(int(scale)) + "×"
+	if not _running:
+		return
+	_sim_speed_scale = scale
+	var simulated_remaining: float = maxf(0.0, SIMULATION_DURATION - _sim_elapsed)
+	if simulated_remaining <= 0.0:
+		return
+	_sim_timer.stop()
+	_sim_timer.start(simulated_remaining / scale)
 
 ## Stamp current timestamp onto base, append to log, and push to live overlay.
 func add_log_entry(base: Dictionary) -> void:
@@ -202,6 +259,7 @@ func end_cleanup() -> void:
 	_cafeteria_states.clear()
 	_sim_progress_container.visible = false
 	_sim_live_log_box.visible       = false
+	_speed_container.visible        = false
 	_running = false
 
 

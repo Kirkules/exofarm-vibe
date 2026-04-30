@@ -776,7 +776,7 @@ live in `scripts/`.
 ### Phase 2 — Season Simulation
 - [ ] Season resolution logic (crop yield, resource consumption, weather events)
 - [ ] Animated simulation playback with outcome log
-- [ ] Playback speed controls (1×, 2×, 3×, 5×)
+- [x] Playback speed controls (1×, 2×, 3×, 5×)
 - [x] Settler food consumption and starvation check (Nutrient Paste auto-queue from
   powered Matter Manipulator; shortfall → settler death; confirmation dialog; per-settler
   fed/starving tracking; colony-lost condition when all settlers die)
@@ -815,27 +815,3 @@ live in `scripts/`.
 - [ ] Balancing and playtesting
 - [ ] Main menu, settings, save/load
 
----
-
-## Open Questions
-
-- [x] Game title: **ExoFarm**
-- [x] Run length: **15 seasons** (working value; exact number and whether it varies by
-  planet to be tuned after playtesting)
-- [x] Earth hub story: FTL tech caused irreversible climate change; SEED organizes
-  advance settler missions to find a new home for humanity
-- [x] Organizing body name: **SEED** — Survival and Emigration Expedition Dispatch
-- [x] Morale (renamed from happiness): colony-wide aggregate 0–10, recalculates fresh
-  each season; affects exploration outcomes and other settler tasks; displayed as bar
-  with face emoji + number; projected delta shown during planning
-- [x] Food: Nutrient Paste (auto from Matter Manipulator), Cafeteria for meal crafting;
-  meals replace Nutrient Paste and may boost Morale or provide other effects
-- [x] Resources beyond Energy and Matter: none at the basic level. All non-basic
-  resources (planet-side materials, crop/animal outputs, rare finds, etc.) are
-  inventory items — used as crafting ingredients in merge spaces or placed into
-  building slots (analogous to meals in the Cafeteria consumption area)
-- [x] Exoplanet selection: player chooses from available planet types at the hub, with
-  an option to randomize. Late-game addition (Phase 5+): a hub mini-game for "scanning"
-  for a planet with a specific combination of properties; difficulty scales with how
-  favorable the target combination is; sometimes impossible.
-- [x] Earth hub contents: recipe browser, exoplanet catalog, run history, start run
