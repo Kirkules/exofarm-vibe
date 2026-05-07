@@ -19,6 +19,8 @@ signal next_season_pressed
 signal settler_label_tapped
 ## Emitted after a morale expansion row is toggled so SettlerManager can reposition grids.
 signal settler_panel_layout_changed
+## Emitted when the player confirms End Mission from the Settings popup.
+signal end_mission_requested
 
 var _energy_label:  Label
 var _matter_label:  RichTextLabel
@@ -48,6 +50,7 @@ var _matter_info_box:  VBoxContainer
 var _settler_tooltip:  PanelContainer
 var _tooltip_name_box: VBoxContainer
 
+var _gear_btn:                   Button
 var _log_btn:                    Button
 var _log_panel:                  Panel
 var _log_scroll:                 ScrollContainer
@@ -99,27 +102,52 @@ func _build_ui() -> void:
 	_matter_label.add_theme_font_size_override("normal_font_size", INFO_FONT_SIZE)
 	_matter_label.mouse_filter = Control.MOUSE_FILTER_STOP
 	_matter_label.gui_input.connect(_on_matter_label_input)
-	info_vbox.add_child(_matter_label)
+	
 
 	_settler_label = _make_info_label()
 	_settler_label.mouse_filter = Control.MOUSE_FILTER_STOP
 	_settler_label.gui_input.connect(_on_settler_label_input)
-	info_vbox.add_child(_settler_label)
+	
 
 	var right_vbox: VBoxContainer = VBoxContainer.new()
 	right_vbox.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	outer_hbox.add_child(right_vbox)
+	
 
 	_next_btn = Button.new()
 	_next_btn.pressed.connect(_on_next_season_button_pressed)
-	right_vbox.add_child(_next_btn)
+	
+	
+	var right_top_hbox: HBoxContainer = HBoxContainer.new()
+	right_top_hbox.size_flags_horizontal = Control.SIZE_FILL
+	
+
+	_gear_btn = Button.new()
+	_gear_btn.text = "⚙"
+	_gear_btn.custom_minimum_size = Vector2(28.0, 28.0)
+	_gear_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
+	_gear_btn.pressed.connect(_on_gear_pressed)
+	
 
 	_log_btn = Button.new()
 	_log_btn.text = "log"
 	_log_btn.custom_minimum_size = Vector2(32.0, 32.0)
 	_log_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
 	_log_btn.pressed.connect(_on_log_btn_pressed)
+	
+	# Organization of UI Elements:
+	info_vbox.add_child(_matter_label)
+	info_vbox.add_child(_settler_label)
+	outer_hbox.add_child(right_vbox)
+	
+	right_vbox.add_child(right_top_hbox)
+	
+	right_top_hbox.add_child(_gear_btn)
+	right_top_hbox.add_child(_next_btn)
 	right_vbox.add_child(_log_btn)
+	
+	
+
+	
 
 	# Tooltips — drop below the HUD bar; z_index=100 renders above inventory.
 	_energy_tooltip = _make_tooltip_panel()
@@ -590,3 +618,9 @@ func _scroll_log_to_bottom() -> void:
 
 func _on_next_season_button_pressed() -> void:
 	next_season_pressed.emit()
+
+func _on_gear_pressed() -> void:
+	var settings: SettingsScreen = SettingsScreen.new()
+	settings.in_run = true
+	settings.end_mission_requested.connect(func() -> void: end_mission_requested.emit())
+	get_parent().add_child(settings)

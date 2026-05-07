@@ -12,11 +12,14 @@ func _ready() -> void:
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
 
+	var center: CenterContainer = CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(center)
+
 	var vbox: VBoxContainer = VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 16)
-	vbox.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	vbox.size = Vector2(200.0, 0.0)
-	add_child(vbox)
+	vbox.custom_minimum_size = Vector2(200.0, 0.0)
+	center.add_child(vbox)
 
 	var title: Label = Label.new()
 	title.text                 = "Design Catalog"

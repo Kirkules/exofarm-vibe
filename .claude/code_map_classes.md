@@ -1,7 +1,7 @@
 # ExoFarm Class Inventory
 
 Authoritative list of all project classes (excludes `addons/`, `tests/`).
-Last updated: 2026-04-30
+Last updated: 2026-05-07
 
 ---
 
@@ -137,7 +137,7 @@ Public API:
   refresh_matter(projected, delta)
   refresh()
   refresh_log(entries)
-Signals: next_season_pressed(), settler_label_tapped(), settler_panel_layout_changed()
+Signals: next_season_pressed(), settler_label_tapped(), settler_panel_layout_changed(), end_mission_requested()
 
 ### InventoryUI — `scenes/game/ui/inventory_ui.gd` extends Control
 Collapsible inventory panel anchored to screen bottom.

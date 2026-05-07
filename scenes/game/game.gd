@@ -87,6 +87,8 @@ func _ready() -> void:
 	kitchen_manager.set_recipes(_recipe_definitions())
 	_dismissable_panels = [kitchen_manager, settler_manager]
 	hud_ui.next_season_pressed.connect(_on_next_season_pressed)
+	hud_ui.end_mission_requested.connect(func() -> void:
+		_end_run(MissionReport.EndReason.ENDED_EARLY))
 	hud_ui.settler_panel_layout_changed.connect(
 		func() -> void: settler_manager.call_deferred("reposition_grids"))
 
@@ -98,14 +100,6 @@ func _ready() -> void:
 	_build_menu.building_requested.connect(_on_building_requested)
 	_ui_layer.add_child(_build_menu)
 	_build_menu.set_definitions(_buildable_definitions())
-
-	# Gear button — opens Settings popup (with End Mission option).
-	var gear_btn: Button = Button.new()
-	gear_btn.text               = "⚙"
-	gear_btn.custom_minimum_size = Vector2(28.0, 28.0)
-	gear_btn.position            = Vector2(270.0 - 32.0, 12.0)
-	gear_btn.pressed.connect(_on_gear_pressed)
-	_ui_layer.add_child(gear_btn)
 
 	# Ensure inventory_ui renders above all programmatically-added UILayer children.
 	_ui_layer.move_child(inventory_ui, _ui_layer.get_child_count() - 1)
@@ -574,14 +568,6 @@ func _buildable_definitions() -> Array[PlaceableDefinition]:
 # ---------------------------------------------------------------------------
 # Run end
 # ---------------------------------------------------------------------------
-
-func _on_gear_pressed() -> void:
-	var settings: SettingsScreen = SettingsScreen.new()
-	settings.in_run = true
-	settings.end_mission_requested.connect(func() -> void:
-		_end_run(MissionReport.EndReason.ENDED_EARLY))
-	_ui_layer.add_child(settings)
-
 
 func _end_run(reason: MissionReport.EndReason) -> void:
 	GameState.run_in_progress = false
