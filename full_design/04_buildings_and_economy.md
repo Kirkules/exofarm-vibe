@@ -6,6 +6,10 @@
 - **Energy** and **Matter** — pooled, colony-wide resources. Base production is
   **zero-effort/unstaffed** (see Building Categories below), unlike ordinary staffed
   production sites.
+- **Water** — pooled, colony-wide resource, ambiguous units (e.g. "3 Water"),
+  no complicated irrigation/transport system to model (see Water below).
+  Unlike Energy/Matter, collection requires staffed buildings and a
+  prerequisite structure (Water Processing Plant) — not zero-effort.
 
 ### Building Categories
 1. **Basic Resource Production** — Energy and Matter generation; zero-effort/unstaffed.
@@ -188,38 +192,39 @@ Numbers below are a **first-pass illustrative draft**, not balanced — followin
 playtesting later, not over-engineered now. All buildings in this section:
 Repeatable: yes, Upgrade path: yes (higher tiers reduce `production_time`
 and/or raise the effort-stacking production cap), `TechAchievement` 0 at base
-tier.
+tier. **All require the same flat amount of Water per cycle** (see Water below —
+exact amount TBD, calibrated against the settler baseline of 1 Water/season).
 
 ### Grain Field
-- Staffing: Staffed | Production: no input → 1 Grain per cycle,
+- Staffing: Staffed | Production: Water → 1 Grain per cycle,
   `production_time` 3s | Production cap: 1 (base) | Construction cost: 2 Matter
 
 ### Fruit Orchard
-- Staffing: Staffed | Production: no input → 1 Fruit per cycle,
+- Staffing: Staffed | Production: Water → 1 Fruit per cycle,
   `production_time` 4s | Production cap: 1 (base) | Construction cost: 2 Matter
 
 ### Dairy Pasture
-- Staffing: Staffed | Production: no input → 1 Milk per cycle,
+- Staffing: Staffed | Production: Water → 1 Milk per cycle,
   `production_time` 5s | Production cap: 1 (base) | Construction cost: 3 Matter
 
 ### Poultry Coop
-- Staffing: Staffed | Production: no input → 1 Egg per cycle,
+- Staffing: Staffed | Production: Water → 1 Egg per cycle,
   `production_time` 3s | Production cap: 1 (base) | Construction cost: 2 Matter
 
 ### Sheep Pasture
-- Staffing: Staffed | Production: no input → 1 Wool per cycle,
+- Staffing: Staffed | Production: Water → 1 Wool per cycle,
   `production_time` 5s | Production cap: 1 (base) | Construction cost: 3 Matter
 
 ### Fiber Field
-- Staffing: Staffed | Production: no input → 1 Fiber/Cotton per cycle,
+- Staffing: Staffed | Production: Water → 1 Fiber/Cotton per cycle,
   `production_time` 3s | Production cap: 1 (base) | Construction cost: 2 Matter
 
 ### Timber Grove
-- Staffing: Staffed | Production: no input → 1 Wood per cycle,
+- Staffing: Staffed | Production: Water → 1 Wood per cycle,
   `production_time` 4s | Production cap: 1 (base) | Construction cost: 2 Matter
 
 ### Trapper's Den
-- Staffing: Staffed | Production: no input → 1 Pelt per cycle,
+- Staffing: Staffed | Production: Water → 1 Pelt per cycle,
   `production_time` 6s (slower, reflecting rarity) | Production cap: 1 (base) |
   Construction cost: 3 Matter
 
@@ -227,11 +232,13 @@ tier.
 
 ## Deposit Discovery
 
-Ore, Stone, and rare-metal deposits are hidden by default — most are
-underground, and the player must actively discover them before they can be
-mined. **All deposit locations across the grid are determined at run start**
-(world generation), independent of when the player actually discovers them —
-discovery only reveals what's already there, it never generates new deposits.
+Ore, Stone, rare-metal, and **aquifer** (see Water) deposits are hidden by
+default — most are underground, and the player must actively discover them
+before they can be mined/tapped. **All deposit locations across the grid are
+determined at run start** (world generation), independent of when the player
+actually discovers them — discovery only reveals what's already there, it
+never generates new deposits. Aquifers are binary (present/not-present) and
+single-tile, exactly like the other deposit types — no varying depths.
 
 **Three depth tiers:**
 - **Surface** — visible from run start, immediately buildable with no discovery
@@ -278,6 +285,78 @@ opportunities without needing to redo the escalation chain.
   discovered) | Staffing: Staffed | Production: no input → 1 rare metal per
   cycle, `production_time` 8s (slower, reflecting rarity) | Production cap: 1
   (base) | Construction cost: 4 Matter + 2 Stone
+
+---
+
+## Water
+
+Settlers need **1 Water per settler per season** (pooled, same consumption
+model as nutrition) — this is the calibration anchor for all other Water
+values (production rates, Farm/Production's per-cycle need) in this section.
+No sub-axes, unlike nutrition's PFCV model — Water doesn't have an equivalent
+of distinct dietary needs, so a single pooled quantity is sufficient.
+
+> **Open question:** the consequence model for a settler Water shortfall
+> (mirroring nutrition's Tier-1 bulk-shortfall → death mechanic, or something
+> different?) is not yet decided — flagged in `DESIGN_TODO.md`.
+
+**No dedicated water-storage buildings** — Water sits in the ordinary
+uncapped general inventory like other resources (see Storage), not a
+Food-Storage-style special commitment mechanic.
+
+**Water transport is deliberately unmodeled** — no pipes, irrigation, or
+distribution system to design. Collection buildings and consumption sites
+don't need spatial adjacency; the player can imagine whatever transportation
+mechanism they like, with no design commitment either way — consistent with
+Energy/Matter also never needing an explained distribution system.
+
+**All collection buildings require a Water Processing Plant to function at
+all** — see below. No separate "Raw Water" intermediate resource; the Plant's
+mere existence is a prerequisite gate, not a conversion step.
+
+### Water Processing Plant
+- A **starting building**, present from run start like Solar Array/Matter
+  Extractor — not something the player constructs. (Once a demolish-building
+  mechanic exists — not yet designed — rebuilding a demolished Processing
+  Plant via normal construction should become possible; flagged as a forward
+  dependency, not resolved now.)
+- Base tier is mechanically almost inert — no production conversion,
+  Preparedness contribution, or data-gathering of its own. Its only function
+  is being the required prerequisite that lets collection buildings actually
+  produce Water. Still occupies a real grid slot.
+- Upgrade tier unlocks **Reclamation** — a settlement-wide reduction in net
+  Water consumption, folded directly into this building rather than being a
+  separate structure or item (structurally similar to Vaccine Production's
+  one-time-unlock shape, but gated by a tech/resource prerequisite rather
+  than a data-confidence threshold — exact gate TBD).
+- `TechAchievement`: 0 (base) / higher (Reclamation tier)
+
+### Water Condenser
+- Staffing: Staffed | Production: no input → Water per cycle (rate TBD) |
+  Draws water from air/humidity. Best on Volcanic; Verdant has humidity too
+  but easier direct liquid-water access (Cistern) makes condensing
+  non-optimal there; Ice and Arid/Desert are too low-humidity to be
+  effective.
+
+### Ice Melter
+- Staffing: Staffed | Production: no input → Water per cycle (rate TBD) |
+  Melts surface ice/snow. Exclusive to Frozen planets — the direct
+  counterpart to Water Condenser's Volcanic specialization.
+
+### Cistern
+- Staffing: Staffed | Production: no input → Water per cycle (rate TBD) |
+  Passive rainfall collection. Best on planets with regular rainfall
+  (Verdant and similar) — the "finding water is easy here" mechanism for
+  hospitable planets.
+
+### Well
+- Staffing: Staffed | Production: no input → Water per cycle, **relatively
+  low rate** | Buildable on any tile.
+- Built on a tile with a **detected aquifer** (see Deposit Discovery),
+  automatically becomes a **Deep Well** — same building, higher production
+  rate, no separate build choice or upgrade action. The "deepening" is a
+  passive consequence of the tile's property, not a player decision beyond
+  choosing where to build.
 
 ---
 

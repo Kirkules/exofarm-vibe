@@ -48,6 +48,7 @@ prefix, not the anchor itself.
   - [Basic Resource Production](04_buildings_and_economy.md#basic-resource-production)
   - [Farm/Production](04_buildings_and_economy.md#farmproduction)
   - [Deposit Discovery](04_buildings_and_economy.md#deposit-discovery)
+  - [Water](04_buildings_and_economy.md#water)
   - [Scanner Station](04_buildings_and_economy.md#scanner-station)
   - [Food/Meal Conversion](04_buildings_and_economy.md#foodmeal-conversion)
   - [Robotics/Fabrication](04_buildings_and_economy.md#roboticsfabrication)

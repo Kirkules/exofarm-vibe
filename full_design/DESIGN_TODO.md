@@ -129,18 +129,19 @@ Then close out:
   does site choice vary planet-type-level parameters (hazard priors, etc.),
   or only the specific grid layout/deposit arrangement within a fixed
   planet type?
-- [ ] **Water resource** — a new basic resource, ambiguous units (e.g. "3
-  Water"), no complicated irrigation system. Needed for settler survival
-  (alongside nutrition) and for plant/animal production — **this has a real
-  retroactive impact on every already-designed Farm/Production building**,
-  all currently specified as "no resource input." Collection methods:
-  **Springs** (discoverable like ore deposits, planet-type-based frequency),
-  **Water Condenser** (draws from air/humidity — best on Volcanic; Verdant
-  has humidity too but easier direct liquid-water access makes condensing
-  non-optimal there; Ice and Arid/Desert too low-humidity to be effective),
-  **Deep Well** (sub-surface water, usable on any planet type, lower
-  production rate than specialized methods). More collection methods
-  wanted — flagged for brainstorming.
+- [x] **Water resource** — resolved (see Buildings & Economy's Water and
+  Deposit Discovery): 1 Water/settler/season pooled baseline, no PFCV-style
+  sub-axes; Farm/Production buildings all take a flat Water input per cycle;
+  aquifers folded into Deposit Discovery as a fourth deposit type; five
+  buildings (Water Condenser, Ice Melter, Cistern, Well — auto-upgrades to
+  Deep Well on an aquifer tile — and the starting Water Processing Plant,
+  which gates all collection and folds Reclamation into its upgrade tier).
+  No dedicated water-storage buildings; water transport deliberately
+  unmodeled. **Still open**: settler Water-shortfall consequence model
+  (does it mirror nutrition's Tier-1 mechanic, or differ?); exact
+  production-rate numbers (TBD, deferred to balancing like everything
+  else); Reclamation's unlock gate (tech/resource prerequisite, not yet
+  specified).
 
 ## Other Fabrication-Adjacent Gaps (found auditing while designing
 Robotics/Fabrication)
