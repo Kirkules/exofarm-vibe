@@ -44,20 +44,49 @@ design achieved in practice.
   sits on top. Full layout detail (exact panel contents/placement) is deferred until
   the core loop below is stable.
 
-### Two-Zone Grid Split
+### The Grid (Unified)
 
-The single farm grid is replaced by two separate grids, both using **uniform
-single-cell placement — no polyominoes, no rotation, no multi-slot pieces**.
-Arrangement precision is deliberately de-emphasized; the puzzle now lives in resource
-allocation (see Worker Assignment below), not spatial tessellation:
+*(originally designed as two separate grids — Base/Infrastructure and
+Farm/Production — later unified into one; see below for why)*
 
-- **Base/Infrastructure grid** — has a limited number of slots, creating real (if
-  minimal) opportunity cost in what gets built. Holds power/fabrication-type buildings
-  (nature of what replaces the old Solar Rig/Matter Manipulator role TBD), the Drone
-  Fabrication site, and similar.
-- **Farm/Production grid** — holds all crop and animal production, and all
-  planet-side mineral deposit locations (fixed terrain features are part of this grid
-  now, not a separate concept).
+A single grid holds every building, crop, animal pen, and mining site, using
+**uniform single-cell placement — no polyominoes, no rotation** (multi-slot
+buildings still exist — see Building Schema — but as fixed, non-rotatable
+footprints, not a return to arrangement puzzles). Arrangement precision is
+deliberately de-emphasized; the puzzle now lives in resource allocation (see
+Worker Assignment below), not spatial tessellation.
+
+**Any building can go on any cell**, subject only to building-specific
+placement rules already established elsewhere (e.g. a Mine requires an Ore
+deposit cell; fixed/environmental terrain is immovable) — there is no
+zone-based restriction on what can be built where.
+
+The grid has **one total size**, which is now the single lever controlling
+overall settlement density: buildings, crops, and mining sites all compete
+for the same finite pool of cells, so infrastructure investment directly
+costs farmland and vice versa — a more consequential tradeoff than the old
+two-grid split's independently-tunable scarcity. Exact size TBD, deferred to
+a balancing pass like other numeric values in this design.
+
+**Why unified, not split:** the original two-grid split existed mostly for
+conceptual clarity ("base" vs. "fields") and independently-tunable slot
+scarcity — neither of which is a hard mechanical requirement, especially once
+the design moved away from spatial-arrangement-driven difficulty entirely (no
+polyominoes, no rotation). A concrete wrinkle exposed the seam: Weather Shield
+and Row Shield are Protection-category buildings, but needed to sit on the
+Farm/Production grid specifically so their area-of-effect could reach the
+crops they protect — meaning the category↔grid mapping was already not clean.
+Unifying removes that wrinkle (a Protection structure now meaningfully covers
+whatever's nearby, farm or infrastructure alike) and removes a
+building-placement classification step that didn't map onto a real
+strategic decision.
+
+**Fixed/environmental slots.** Some cells on the grid are fixed/environmental
+rather than placeable:
+- Impassable terrain (mountains, lakes)
+- Permanent resource locations (e.g. metal ore, rare mineral deposits — see
+  Buildings & Economy's Deposit Discovery)
+- Set at run start; cannot be moved or removed
 
 ### What Got Cut
 
@@ -176,14 +205,14 @@ no manual "pick which robot" step, and no persistent busy-state to track — sin
 task always completes within the season it's started, every robot is available again
 at the start of the next planning phase. The cap this creates is simply: **at most N
 build/upgrade actions per season**, where N = robots owned — a rate limit on
-infrastructure *growth*, distinct from the Base/Infrastructure grid's slot-count cap
-on infrastructure *total*.
+infrastructure *growth*, distinct from the grid's own slot-count cap on
+infrastructure *total*.
 
 ### Small Set of Impactful Actions (Current Draft)
 
 1. **Queue a building construction or upgrade** — consumes one available construction
-   robot; targets a slot in the Base/Infrastructure grid (limited slots) or the
-   Farm/Production grid (including a revealed mineral deposit).
+   robot; targets a slot on the grid (limited slots total, including a revealed
+   mineral deposit for mining buildings).
 2. **Assign/reassign a worker (settler or drone) to a site** — the central recurring
    decision; sticky by default, so it's an occasional action, not a per-season chore.
 3. **Place/reposition a force-field or weather-protection structure.**
@@ -191,17 +220,6 @@ on infrastructure *total*.
    existing Exploration Tasks design).
 5. **Adjust food-for-consumption** (see Food & Nutrition) — sticky-defaulted to last
    season's diet, so only an action when the player wants to deviate from it.
-
----
-
-## The Grid
-
-The Farm/Production grid (see Platform & Core Loop Redesign) uses uniform
-single-cell slots. Some slots are **fixed/environmental** rather than placeable:
-
-- Impassable terrain (mountains, lakes)
-- Permanent resource locations (e.g. metal ore, rare mineral deposits)
-- Set at run start; cannot be moved or removed
 
 ---
 
@@ -225,6 +243,66 @@ Each game round = one **season** on the planet.
   Redesign
 - Playback speed controls: **1×, 2×, 3×, 5×**
 - Results feed into the next planning phase
+
+**Fixed real-time window.** A season corresponds to a fixed length of real
+time in the story-world, so the simulation window has a fixed real-time
+duration regardless of what's built — playback speed is a pure time-multiplier
+that compresses wall-clock time without changing what happens. Production
+`production_time` values and event occurrence rates are all calibrated
+against this same fixed window.
+
+**Two resolution contexts, not a single timeline:**
+- **Outside-Sim** — instantaneous, discrete resolution with no clock running
+  and no continuous production ticking. Merges what could otherwise be three
+  separate moments (right before the clock starts, right after it ends, and
+  the top of the next planning phase) into one mechanically-equivalent
+  bucket, since none of them involve real time passing. Hosts: Vaccine
+  unlock threshold checks, pooled nutrition consumption resolution, Food
+  Storage commitments becoming final, Scanner Station report resolution
+  (the mechanical `Confidence`/`MatchedRisk` update), Deposit Discovery
+  survey mechanical resolution, construction/upgrade/relocate actions
+  completing. An internal order of sub-steps still applies within this
+  bucket (not yet fully specified — TBD). Exploration task results are a
+  special case within Outside-Sim: they get a **dedicated confirmation UI**
+  at the start of the next planning phase, rather than resolving silently.
+- **Mid-Sim** — the only place real time actually passes. Continuous
+  production ticks live here, plus any discrete event with a genuine reason
+  to occupy a specific interval rather than resolving instantly — In-Simulation
+  Hazard Events are the clearest example (a storm has a start time and
+  duration, not lasting the whole season). Purely ambient visual depictions
+  of Outside-Sim-resolved activities also happen here for legibility/immersion
+  (see Art Design) — e.g. a Scanner Station's radio-wave pulse, or a survey
+  settler wandering the grid — with no coupling to the actual mechanical
+  resolution.
+
+**The log/event-feed system.** Replaces the old live-log-overlay/outcome-log
+split with a single, simpler structure:
+- **No separate always-visible overlay.** The default simulation view has no
+  forced log clutter — just ambient visuals and the progress bar. A single
+  log is opened via a button/icon (as the old outcome log was), but now it
+  can be opened **during** simulation too, live-updating in real time, not
+  just reviewed after the fact.
+- **Routine production is aggregated, not logged tick-by-tick.** One running,
+  live-updating log line **per resource type** (not per building) — e.g. a
+  single "+N Grain" line that increments and re-timestamps itself to the most
+  recent contributing tick, regardless of how many sites are producing it.
+  This avoids a dozen-plus simultaneous production sites spamming the log
+  with individual tick entries. Aggregated production lines are still fully
+  legible entries, not hidden or deprioritized — they're just consolidated.
+- **Noteworthy events get their own individual, timestamped lines**,
+  interspersed with the aggregated production lines: hazard occurrences,
+  settler deaths, vaccine unlocks, Deposit Discovery reveals, exploration
+  escalations unlocking, and similar.
+- **Transmissions stays fully separate** — the persistent, cross-season,
+  narrative-flavored channel (see Story & World's Gameplay-Story
+  Integration) serves a distinct purpose (advance warnings, flavor, Herald's-
+  voice reports) from this per-season mechanical log, and that split is
+  preserved rather than merged.
+
+> **Still open**: how multiple buildings' continuous production cycles
+> interleave *visually* (beyond the log itself — is there any per-building
+> animation, or is the log the primary way production is communicated?); the
+> internal sub-step ordering within Outside-Sim.
 
 ---
 

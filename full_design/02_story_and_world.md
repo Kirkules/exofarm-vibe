@@ -291,7 +291,9 @@ hints and advance warnings of planet-side hazards (e.g. incoming weather). This 
 point resolves the still-open "no purely ambient, untriggered randomness should end a
 run" design principle for any future weather/disaster mechanic: a transmission
 telegraphs the hazard in advance, turning what would otherwise be an ambush into a
-legible, prepare-or-don't risk.
+legible, prepare-or-don't risk. **Now concretely realized** — see Planets & Scoring's
+In-Simulation Hazard Events for the full mechanism (the one-time SEED summary
+transmission, and per-season telegraphing that scales with `Confidence(hazard)`).
 
 **Settler story presence.** Kept deliberately minimal for now: a short personnel-file
 style blurb when a settler first appears (consistent with the prestigious/competitive

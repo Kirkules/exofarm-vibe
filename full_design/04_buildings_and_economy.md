@@ -9,8 +9,8 @@
 
 ### Building Categories
 1. **Basic Resource Production** — Energy and Matter generation; zero-effort/unstaffed.
-2. **Farm/Production** — crops, animal products, and mining, staffed sites in the
-   Farm/Production grid (see Baseline Farm/Mined Resources below).
+2. **Farm/Production** — crops, animal products, and mining, staffed sites (see
+   Baseline Farm/Mined Resources below).
 3. **Food/Meal Conversion** — turns raw farm output into meals with nutrient profiles
    (see Food & Nutrition).
 4. **Robotics/Fabrication** — staffed site producing drones and additional
@@ -81,8 +81,9 @@ the following properties. Working through the catalog category-by-category (see
 - **Name** — per the naming-convention design principle (tier-appropriate
   familiarity/exoticism)
 - **Category** — one of the 7 Building Categories
-- **Grid** — Base/Infrastructure or Farm/Production. **Grid-slot count equals the
-  number of simultaneous worker assignments a building supports** — most
+- **Grid slot count** — all buildings sit on a single unified grid (see Core
+  Loop & Grid's The Grid). **Slot count equals the number of simultaneous
+  worker assignments a building supports** — most
   buildings need 1 worker and so occupy 1 slot (the common case, matching the
   single-cell redesign); a building needing multiple parallel workers (e.g. an
   Upgraded Kitchen with 2 recipe stations) occupies correspondingly more slots.
@@ -114,7 +115,12 @@ the following properties. Working through the catalog category-by-category (see
   Farm/Production, Food/Meal Conversion, Robotics/Fabrication. Inputs may be
   empty beyond passive Energy upkeep and/or staffing itself, and outputs may not
   be a trackable resource item at all (e.g. data reports for a Weather Monitoring
-  Station, or a buff/boost effect for a drone-control structure).
+  Station, or a buff/boost effect for a drone-control structure). **Alternative:
+  instant conversion** (see Ration Press) — the player selects inputs directly
+  during planning and the conversion resolves immediately, with no
+  `production_time`, no staffing, and no rate limit; ordinary planning
+  reversibility still applies (undoable like any other planning action until
+  Next Season is confirmed).
 - **Production cap** — max per-cycle output requiring multiple workers'/drones'
   effort to reach (effort-stacking, per Worker Assignment). Only meaningful for
   **staffed** sites, since it's inherently about worker effort reaching a
@@ -145,11 +151,11 @@ the following properties. Working through the catalog category-by-category (see
 Every run begins with one Solar Array and one Matter Extractor (exact starting
 count tied to wormhole mass-threshold stabilization tech — a meta-progression axis
 — see Background Story's Faster-Than-Light Travel section). Both can be built
-again (more copies) and upgraded, each consuming a Base/Infrastructure grid slot,
-preserving that grid's limited-slots opportunity cost.
+again (more copies) and upgraded, each consuming a grid slot, preserving the
+grid's limited-slots opportunity cost.
 
 ### Solar Array
-- Category: Basic Resource Production | Grid: Base/Infrastructure | Staffing:
+- Category: Basic Resource Production | Staffing:
   Unstaffed
 - Production conversion: no resource input → Energy output per season (rate
   varies by planet type)
@@ -163,7 +169,7 @@ preserving that grid's limited-slots opportunity cost.
 - Area of effect / Energy upkeep / Preparedness / Data-gathering / Storage: N/A
 
 ### Matter Extractor
-- Category: Basic Resource Production | Grid: Base/Infrastructure | Staffing:
+- Category: Basic Resource Production | Staffing:
   Unstaffed
 - Production conversion: no resource input → Matter output per season (rate
   varies by planet type)
@@ -179,10 +185,10 @@ preserving that grid's limited-slots opportunity cost.
 
 Numbers below are a **first-pass illustrative draft**, not balanced — following
 "numbers stay small," exact values are meant to be tuned empirically via
-playtesting later, not over-engineered now. All buildings in this section: Grid =
-Farm/Production, Repeatable: yes, Upgrade path: yes (higher tiers reduce
-`production_time` and/or raise the effort-stacking production cap), `TechAchievement`
-0 at base tier.
+playtesting later, not over-engineered now. All buildings in this section:
+Repeatable: yes, Upgrade path: yes (higher tiers reduce `production_time`
+and/or raise the effort-stacking production cap), `TechAchievement` 0 at base
+tier.
 
 ### Grain Field
 - Staffing: Staffed | Production: no input → 1 Grain per cycle,
@@ -223,10 +229,9 @@ Farm/Production, Repeatable: yes, Upgrade path: yes (higher tiers reduce
 
 Ore, Stone, and rare-metal deposits are hidden by default — most are
 underground, and the player must actively discover them before they can be
-mined. **All deposit locations across the Farm/Production grid are determined
-at run start** (world generation), independent of when the player actually
-discovers them — discovery only reveals what's already there, it never
-generates new deposits.
+mined. **All deposit locations across the grid are determined at run start**
+(world generation), independent of when the player actually discovers them —
+discovery only reveals what's already there, it never generates new deposits.
 
 **Three depth tiers:**
 - **Surface** — visible from run start, immediately buildable with no discovery
@@ -282,7 +287,7 @@ opportunities without needing to redo the escalation chain.
 "Deposit Scanner" concepts into one building, per the same consolidation logic
 already applied to Robotics Assembly)*
 
-- Grid: Base/Infrastructure | Construction cost: Stone + Iron + Copper
+- Construction cost: Stone + Iron + Copper
 - **Category doesn't cleanly fit any of the 7 established Building Categories**
   (data-gathering/sensing isn't quite Basic Resource Production, Farm/Production,
   or Exploration Support as currently scoped) — flagged in `DESIGN_TODO.md` as
@@ -317,7 +322,7 @@ already applied to Robotics Assembly)*
 ## Food/Meal Conversion
 
 ### Kitchen
-- Category: Food/Meal Conversion | Grid: Base/Infrastructure | Staffing: Staffed
+- Category: Food/Meal Conversion | Staffing: Staffed
 - **Deviates from the standard multi-recipe pattern**: instead of one active
   recipe with effort stacking toward a shared cap, Kitchen has **N simultaneous
   recipe slots**, each independently staffed by one worker who selects which
@@ -359,6 +364,34 @@ already applied to Robotics Assembly)*
 > real) but needs a consumption-mechanic redesign to make it fun rather than
 > just punishing.
 
+### Ration Press
+
+Produces **Rations** — the replacement for the removed Nutrient Paste
+mechanic (see Settlers & Exploration's Food & Nutrition). Rations are
+conceptually analogous to Nutrient Paste: densely packed, unappetizing,
+meant only to sustain life — but unlike Nutrient Paste, they're a genuine
+player-produced item, not an automatic settlement-wide conversion rule.
+
+- Staffing: Unstaffed — the conversion process is
+  meant to feel automatic, not labor-intensive
+- **Instant conversion** (see Building Schema): the player selects a set of
+  input food items during planning; resolves immediately, with output
+  available the **same season** — including for exploration tasks being
+  planned that same season. Repeatable within a single planning phase, no
+  cap, no cooldown. Ordinary reversibility applies: selecting inputs and
+  converting is undoable like any other planning action until Next Season is
+  confirmed.
+- Formula: `Rations = floor(min(Protein, Fat, Carbs, Vitamins across
+  selected inputs) / 2)` — a real, felt inefficiency: converting to Rations
+  costs roughly half the input's nutrition value versus consuming it fresh,
+  and any imbalance beyond the matched minimum across the four axes is
+  discarded entirely. This makes Rations valuable specifically for
+  portability (required for certain exploration tasks — see Exploration
+  Tasks' Assignment), not a strictly better choice than fresh consumption.
+- Construction cost: TBD, same as other basic-tier buildings
+- `TechAchievement`: 0 | Repeatable: yes | Upgrade path: none currently
+  proposed
+
 ---
 
 ## Robotics/Fabrication
@@ -392,7 +425,7 @@ rarely-needed unit like a construction robot at a wholly separate structure felt
 like too many commitments for something that basic, and drones are multi-use,
 sticking around once built rather than needing constant replacement — so one
 consolidated building with selectable recipes fits better)*
-- Category: Robotics/Fabrication | Grid: Base/Infrastructure | Staffing: Staffed
+- Category: Robotics/Fabrication | Staffing: Staffed
   (Settler or all-purpose drone)
 - Selectable recipes:
   - Construction Robot ← Iron + Copper (base tier)
@@ -409,13 +442,13 @@ consolidated building with selectable recipes fits better)*
   Upgrade path: yes, gates the Advanced/Specialized recipes above
 
 ### Stone Processing
-- Category: Robotics/Fabrication | Grid: Base/Infrastructure | Staffing: Staffed
+- Category: Robotics/Fabrication | Staffing: Staffed
 - Selectable recipes:
   - Concrete ← Stone
   - Silicon ← Stone
 
 ### Textile Workshop
-- Category: Robotics/Fabrication | Grid: Base/Infrastructure | Staffing: Staffed
+- Category: Robotics/Fabrication | Staffing: Staffed
 - Selectable recipes:
   - Fabric ← Wool, or Fiber/Cotton, or Pelts (any one of the three, player
     selects which this cycle consumes)
@@ -425,7 +458,7 @@ consolidated building with selectable recipes fits better)*
     food-cost-for-expeditions idea to manufactured goods
 
 ### Tinkerer's Workshop
-- Category: Robotics/Fabrication | Grid: Base/Infrastructure | Staffing: Staffed
+- Category: Robotics/Fabrication | Staffing: Staffed
   — Settler or a specialized research/data-capable drone tier (a new drone
   specialization distinct from harvester-type production drones, not yet fully
   designed — flagged for Worker Assignment later)
@@ -451,7 +484,7 @@ consolidated building with selectable recipes fits better)*
     sentience-contact chain (see Exploration Tasks' Escalation Chains)
 
 ### Carpenter's Shop
-- Category: Robotics/Fabrication | Grid: Base/Infrastructure | Staffing: Staffed
+- Category: Robotics/Fabrication | Staffing: Staffed
   (Settler or all-purpose drone — simpler craft work, no research requirement)
 - Selectable recipes:
   - Fine Furniture ← Lumber — a Luxury Good, pure flavor/`TechAchievement`
@@ -460,6 +493,127 @@ consolidated building with selectable recipes fits better)*
     Furniture
 - Left with room to grow — upgrade path can add functional recipes later
   without redesigning the building
+
+---
+
+## Protection
+
+Backs `MatchedPreparedness(Weather)` and `MatchedPreparedness(Bio-hazard)` for
+the Safeguard Coalition (see Win/Lose Conditions' SEED Factions). Also
+resolves the "Medical/Vaccine production" gap: Bio-hazard preparedness lives
+here too, not as a separate category — Protection is about protecting the
+settlement from a planetary danger generally, whether physical (weather) or
+biological.
+
+Each building's **Preparedness contribution** is expressed on the same rough
+0–1 scale as `TrueRisk` (see Exoplanet Types' Hazard Priors), so that a
+reasonable number of buildings can plausibly reach or exceed a planet's true
+risk level and hit `MatchedPreparedness`'s cap of 1. Exact numbers TBD,
+deferred to a balancing pass — following "numbers stay small," these are
+first-pass illustrative values.
+
+**Multi-slot footprints aren't only about worker capacity.** The Building
+Schema's rule that grid-slot count equals worker-assignment capacity (see
+Kitchen) has its first exception here: Row Shield below occupies 2 slots for
+a wholly different reason — its physical size determines the *shape* of
+coverage it projects, independent of staffing (it's unstaffed). A building's
+slot count can reflect either worker capacity or physical structure needs,
+whichever applies.
+
+### Weather Shield
+- Staffing: Unstaffed (a physical force field doesn't
+  need an operator to simply keep running once built)
+- **Area of effect**: a Manhattan-distance radius (illustrative: 2, matching
+  the original design's "weather bubble" precedent) covering nearby
+  Farm/Production cells — upgradeable to a larger radius
+- **Energy upkeep**: scales with the planet's ambient temperature extremity,
+  per the temperature-coupling mechanic (see Exoplanet Types) — always
+  explicitly displayed, never hidden
+- **Preparedness contribution**: Weather axis, flat amount scaling with tier
+  (illustrative: 0.3 base, 0.6 upgraded)
+- Construction cost: Concrete + Iron (base tier); upgraded tier additionally
+  requires **High-Tech Components** (from Tinkerer's Workshop), consistent
+  with shield technology needing sophisticated components
+- `TechAchievement`: 0 (base) / higher (upgraded) | Repeatable: yes (multiple
+  can be built for wider coverage) | Upgrade path: yes — larger radius, more
+  Preparedness credit
+- No data-gating on its Preparedness contribution — a physical shield works
+  regardless of whether the settlement has measured how bad the weather
+  actually is. This is an intentional asymmetry with Medical Bay below, not
+  an inconsistency: physical protection doesn't require understanding a
+  threat to block it, but a medical countermeasure specifically requires
+  characterizing the threat to exist at all.
+
+### Row Shield
+*(an alternate Weather Shield structure, not an upgrade of it — a genuinely
+different coverage shape for a different grid layout, per the design
+principle that a planet/strategy shouldn't reduce to one correct approach)*
+- Staffing: Unstaffed
+- **Footprint**: 2 vertically-adjacent tiles, a fixed non-rotatable shape
+  (see the multi-slot note above — this is about physical structure size,
+  not worker capacity)
+- **Area of effect**: both full horizontal rows the building occupies,
+  extending in both directions (left and right) across the entire grid
+  width — a linear shape, contrasted with Weather Shield's circular radius.
+  Suits a horizontally-spread layout; Weather Shield suits a compact cluster.
+- **No upgrade path** — extending coverage to additional rows isn't worth
+  building into this structure specifically, since the player can simply
+  build a second Row Shield for more rows (at some cost to placement
+  granularity, not considered worth designing around)
+- **Energy upkeep**: same temperature-coupling mechanic as Weather Shield
+- **Preparedness contribution**: Weather axis, same shape as Weather Shield's
+  base tier
+- Construction cost: strictly between Weather Shield's base cost and
+  (Weather Shield base + Advanced upgrade) combined — exact numbers TBD
+- `TechAchievement`: 0 | Repeatable: yes
+
+### Medical Bay
+- Staffing: Staffed
+- **Base tier**: provides baseline `Preparedness(Bio-hazard)` credit
+  (general medical readiness — illustrative: 0.2) — available immediately,
+  no data prerequisite.
+- **Vaccine Production tier**: a **genuine functional gate**, not just a
+  scoring nuance — only buildable once `Confidence(Bio-hazard)` (from
+  Safeguard's Beta-distribution data-gathering mechanism, see Exoplanet
+  Types) crosses a threshold (illustrative: 0.5, TBD). This directly
+  realizes the earlier-established rule that an effective, pathogen-specific
+  vaccine can't be produced without first characterizing the actual
+  pathogen. Once unlocked, provides substantially higher Preparedness credit
+  (illustrative: 0.7). This is deliberately **not** implemented as
+  `Preparedness` itself continuously scaling with `Confidence` — that would
+  double-apply the same gating the `Score(hazard)` formula's own
+  `MatchedRisk × MatchedPreparedness` term already provides. Instead it's a
+  discrete build-order gate: a tier either exists (available) or doesn't.
+  **A static one-time unlock, not a recurring production/consumption
+  item** — once unlocked, the settlement is assumed fully vaccinated against
+  that specific pathogen (vaccines are always targeted to the pathogen a
+  specific bio-survey exploration task discovered), and the building simply
+  provides its Preparedness credit from then on with no ongoing cost.
+  Unlocking a vaccine for a given pathogen also triggers a **new exploration
+  escalation** — a task to explore the specific region where that pathogen
+  was originally found, previously too dangerous, now safe (see Exploration
+  Tasks' Escalation Chains for the worked example).
+- **PPE recipe** (Personal Protective Equipment — breathing masks, hazard
+  suits, etc.): Fabric → PPE, an ordinary **recurring** staffed production
+  recipe, available from the base tier with no `Confidence`-gating (PPE is
+  generic protective gear, not pathogen-specific, unlike Vaccine
+  Production). Addresses **Atmospheric Hazard** specifically — the one
+  Weather sub-factor with no preparedness mitigation until now. Doesn't
+  compete with Vaccine Production for a "slot," since Vaccine Production is
+  a permanent tier unlock, not a recurring recipe.
+  - **Fully resolved** — see Planets & Scoring's In-Simulation Hazard Events
+    for the complete mechanism. Summary: farm-based settlers are protected by
+    a passive stock check (any PPE in general inventory, not consumed);
+    exploration-task settlers require explicitly electing to send PPE when
+    initiating the task (consumed, a real optional cost distinct from
+    mandatory prerequisites like Diplomatic Gear or Portable Scanning
+    Equipment). Exposure without PPE in either context inflicts a status
+    effect: fixed duration, halves the settler's effectiveness in all tasks,
+    and locks them out of exploration-task assignment while active.
+- Construction cost: Fabric + basic materials (base tier); Vaccine
+  Production tier additionally requires **High-Tech Components**
+- `TechAchievement`: 0 (base) / higher (Vaccine Production tier) |
+  Repeatable: yes | Upgrade path: yes, as described above
 
 ---
 
@@ -472,7 +626,7 @@ Storage**, which exists specifically to give the Sustenance Bloc's
 of surplus production.
 
 ### Food Storage
-- Grid: Base/Infrastructure | Staffing: Unstaffed (depositing food is a
+- Staffing: Unstaffed (depositing food is a
   planning-phase action, not ongoing labor)
 - Accepts food items (raw ingredients + prepared meals) deposited into it,
   reusing the existing "assign food" planning-action pattern rather than

@@ -30,8 +30,9 @@
 ### Assignment
 - During planning, the player assigns a **settler** to an exploration task
 - Assigning a settler **removes them from all farm duties** that season
-- Multiple tasks can run simultaneously if the colony has enough settlers and **food**
-  to send (food is consumed from inventory per task)
+- Multiple tasks can run simultaneously if the colony has enough settlers and
+  **Rations** to send (see Food & Nutrition) — settlers must take food with them to
+  survive while not on the farm; consumed from inventory per task
 - Placement of assignments is **fully reversible** during planning
 - **Some tasks are unmanned** (e.g. a weather balloon or camera drone), requiring no
   settler assignment at all — mostly data-collecting missions, making up some
@@ -84,8 +85,7 @@ fruit stockpiles on a Verdant planet reveals the option to seek out the habitat 
 the animal that gathers and preserves that fruit; succeeding at *that* task can lead
 to an alliance with those animals — a passive, ongoing food source requiring **no
 staffing at all**, a qualitatively different reward tier from ordinary production,
-similar in spirit to how baseline Energy/Matter/Nutrient Paste are already
-zero-effort.
+similar in spirit to how baseline Energy/Matter production is already zero-effort.
 
 **Sentience-contact chain** (worked example, since it's the point where every SEED
 faction's priorities can visibly pull against each other in a single decision — see
@@ -124,6 +124,16 @@ rarest, most story-worthy events the game can produce, and Frontier Legends
 rewards that inherently — independent of which faction's priorities the outcome
 otherwise served.
 
+**Vaccine-unlock region reveal** (third worked example): a bio-survey
+exploration task discovering a dangerous pathogen (see Buildings & Economy's
+Protection, Medical Bay) is tied to the specific region where it was found.
+Once enough `Confidence(Bio-hazard)` accumulates and Medical Bay's Vaccine
+Production tier unlocks for that pathogen, the settlement is assumed fully
+vaccinated — and that unlock guarantees a new escalation: an exploration task
+to explore the specific region the pathogen came from, previously too
+dangerous to approach, now safe. A clean example of a *building* unlock
+(rather than an exploration outcome) triggering an escalation.
+
 ### Risk Spectrum
 - Tasks range from **low-risk** to **high-risk**
 - Low- and mid-risk tasks have **no negative outcomes** — results range from nothing
@@ -138,22 +148,40 @@ otherwise served.
 ## Food & Nutrition
 
 ### Nutrient Axes
-Every food item, including Nutrient Paste, has a **Protein / Fat / Carbs / Vitamins**
+Every food item, including Rations, has a **Protein / Fat / Carbs / Vitamins**
 profile — category names, not real-world units, consistent with the units/naming
-principles (e.g. Bread: 1/1/5/0; an Apple: 0/0/1/1; Milk: 1/1/0/2; Nutrient Paste:
-1/1/1/1 per unit). Visible in any food item's info tooltip.
+principles (e.g. Bread: 1/1/5/0; an Apple: 0/0/1/1; Milk: 1/1/0/2; Rations: 1/1/1/1
+per unit, matching "1 unit = 1 season's complete nutrition for 1 settler"). Visible
+in any food item's info tooltip.
 
-### Nutrient Paste (Basic Sustenance)
-- A **zero-effort automatic safety net** — no staffing required, unlike ordinary
-  production sites. Auto-converts Matter (exact source building TBD, pending the
-  Starting Buildings redesign) into Nutrient Paste, providing 1/1/1/1 per unit.
-- Functions as the bootstrap that buys time to build real food production; its cost
-  naturally tapers as dedicated production comes online and frees Matter for other
-  uses.
-- If total available nutrition (Paste plus any meals) can't cover the settler
-  headcount at all, the shortfall causes **settler deaths** (the original mechanic,
-  unchanged) — a confirmation dialog gates confirming a season with deaths planned
-  from this shortfall.
+### Rations (Basic Sustenance)
+Replaces the old Nutrient Paste mechanic (an automatic, endlessly-regenerating
+Matter-conversion safety net) entirely — no auto-conversion exists anymore, and
+there is no building filling that old "Matter Manipulator" nutrition role.
+- Every settlement starts with a **fixed, non-replenishable quantity** of
+  pre-packaged Rations (exact starting quantity TBD, deferred to a balancing
+  pass) — densely packed, unappetizing, meant only to sustain life.
+  Conceptually analogous to the old Nutrient Paste in flavor, but a genuine
+  finite starting stockpile, not an ongoing conversion the player can always
+  fall back on.
+- **No automatic replenishment** — once the starting stock (plus anything the
+  player has manually produced, see below) is gone, there is no free fallback
+  left. This is the point: it replaces an ongoing-but-costly safety net with a
+  hard countdown, creating more natural, legible pressure to establish real
+  Kitchen/Farm food production early, rather than a Matter tax that could
+  always be paid indefinitely.
+- **Can be manually replenished** at a **Ration Press** (see Buildings &
+  Economy's Food/Meal Conversion) — an unstaffed, instant-conversion building
+  that turns fresh food ingredients into more Rations at a lossy rate
+  (`floor(min(P,F,C,V) / 2)`, with any axis imbalance beyond the matched
+  minimum discarded). This is a genuine, felt inefficiency versus consuming
+  fresh food directly — Rations are valuable specifically for portability
+  (required for certain exploration tasks — see Assignment above), not as a
+  strictly better choice than fresh consumption.
+- If total available nutrition (Rations plus any meals) can't cover the
+  settler headcount at all, the shortfall causes **settler deaths** (the
+  original mechanic, unchanged) — a confirmation dialog gates confirming a
+  season with deaths planned from this shortfall.
 
 ### Meals
 - Produced at ordinary staffed single-conversion production sites (see Platform &
@@ -175,9 +203,12 @@ principles (e.g. Bread: 1/1/5/0; an Apple: 0/0/1/1; Milk: 1/1/0/2; Nutrient Past
   1. If the food types consumed **last season** are available and sufficient on
      their own, default to using those again.
   2. If those types are available but insufficient, use them fully and cover the
-     remainder with Nutrient Paste.
-  3. If none of last season's types are available, default to Nutrient Paste
-     entirely.
+     remainder with Rations.
+  3. If none of last season's types are available, default to Rations entirely.
+  4. If Rations have run out entirely (the finite starting stock, plus
+     anything manually produced at a Ration Press, is exhausted), this
+     fallback simply provides nothing — the natural, harsher consequence of
+     removing the old auto-regenerating safety net.
 - The player can always override this default during planning; a stable diet simply
   continues itself with no action required — a sticky-default cousin to worker
   staffing.

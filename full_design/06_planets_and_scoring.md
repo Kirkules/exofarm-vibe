@@ -156,6 +156,77 @@ Factions in Win/Lose Conditions) applies it in simplified form, needing only the
 evidence-count term (no `MatchedRisk`-style mean), since some data-gathering
 factions care about reaching a confident answer regardless of what that answer is.
 
+### In-Simulation Hazard Events
+
+Until now, Weather/Bio-hazard hazards were purely things the player *surveyed
+and scored against* — this section makes them actually happen during
+simulation, with real gameplay consequences, closing the gap flagged when
+Medical Bay's PPE recipe was designed (see Buildings & Economy's Protection).
+
+**Trigger — reuse the existing hidden draw, don't add a new one.** The
+Data-gathering mechanism above already implicitly simulates "did this hazard
+condition occur in this observation window" as a hidden Bernoulli draw (that's
+literally what generates a report's success/failure). That same draw is what
+triggers an in-simulation event — a storm *report* and a storm *actually
+happening* are the same event, not two separate rolls.
+
+**Telegraphing scales continuously with `Confidence(hazard)`** — reusing the
+value already computed for scoring, not a separate building-gated tier system:
+- **Near-zero confidence** (run start, before any surveying): no per-season
+  warnings. Instead, a one-time **SEED summary transmission** at run start
+  surfaces the planet-type's *prior* values directly (narrativized, but
+  showing the actual Bayesian prior numbers or a close translation) — framed
+  in-fiction as SEED's institutional knowledge about planet-type archetypes
+  from prior missions, not this specific planet. Gives every run a baseline
+  sense of what to expect from turn one, satisfying "failure should be
+  legible" even with zero investment. Events at this stage happen with no
+  specific advance notice.
+- **Low-to-moderate confidence**: vague per-season warnings ("elevated risk
+  of severe weather this season"), short lead time — appearing right before
+  the affected season's planning phase.
+- **High confidence**: precise, reliable warnings — which sub-factor, roughly
+  how severe — with more lead time (illustrative: a season or two ahead).
+
+All delivered via the existing **Transmissions** mechanic (see Story & World's
+Gameplay-Story Integration), which was already specifically designed for this
+purpose — this section is that mechanic's concrete realization, not a new
+system layered on top of it.
+
+**Consequence severity scales with the settlement's actual preparedness gap**,
+not a separate severity roll — reusing `MatchedPreparedness(hazard)` (or the
+raw `Preparedness/TrueRisk` ratio) rather than adding a second hazard
+dimension:
+
+*Storm / Temperature Extremity* — three tiers based on preparedness coverage
+at the affected site:
+- Adequately covered (Weather Shield/Row Shield with sufficient
+  `Preparedness` relative to the hazard) → no effect
+- Under-covered → production paused for the event's duration
+- Severely under-covered (`MatchedPreparedness` near zero) → the affected
+  outdoor Farm/Production site is fully **disabled**, requiring rebuild next
+  season — an ordinary construction-robot build action targeting the
+  now-empty slot, per Platform & Core Loop Redesign's Construction
+
+*Atmospheric Hazard* — a settler-level consequence, not a building-level one:
+- Farm-based settlers: protection is a **passive stock check** — any PPE
+  sitting in general inventory covers them; not consumed, not
+  per-settler-allocated.
+- Exploration-task settlers: protection requires **explicitly electing to
+  send PPE** when initiating the task — this *is* consumed from inventory
+  (see Protection's Medical Bay for PPE production), confirming it as a real
+  optional exploration cost, not just a stock check.
+- Exposure without PPE (either context) inflicts a **status effect**: fixed
+  duration (TBD), halves the settler's effectiveness in all tasks (their
+  worker-effort contributes 0.5 instead of 1, per Worker Assignment's
+  effort-stacking mechanic), and locks them out of exploration-task
+  assignment entirely while active.
+
+> **Open thread, not resolved here:** this is the first real per-settler
+> state anywhere in the design, and directly overlaps with the still-open
+> "Frontier Legends individual-settler tracking system" (see
+> `DESIGN_TODO.md`) — both need some notion of settler identity/state that
+> doesn't exist yet. Worth designing together, in detail, rather than twice.
+
 ---
 
 ## Win / Lose Conditions
@@ -215,9 +286,10 @@ principle at the political level.
     for bio-hazard risk — not intuitively likely, even though a specific instance
     could still turn out high) updated by `Data(hazard)`. Being a probability, it's
     naturally normalized to [0,1].
-  - `MatchedPreparedness(hazard)` — built preparedness (protection/energy
-    infrastructure for Weather; medical facilities for Bio-hazards) normalized
-    against the *true* risk level, capped at 1: `min(Preparedness / TrueRisk, 1)`.
+  - `MatchedPreparedness(hazard)` — built preparedness (Weather Shield for
+    Weather; Medical Bay for Bio-hazards — see Buildings & Economy's
+    Protection category) normalized against the *true* risk level, capped at
+    1: `min(Preparedness / TrueRisk, 1)`.
   - **`Score(hazard) = Data(hazard) + MatchedRisk(hazard) × MatchedPreparedness(hazard)`**
     — pure data-gathering has a real floor value on its own (SEED wants the
     information regardless of outcome); preparedness only earns its multiplier once
@@ -275,8 +347,8 @@ principle at the political level.
       Stewardship's `EcologicalData` confidence, regardless of what it reveals
       about pathogens.
   - `DisruptionFootprint` — ratio of untouched vs. built-over native-terrain
-    (fixed/environmental) slots in the Farm/Production grid; directly computable
-    from grid state, no data-gathering needed to reveal it.
+    (fixed/environmental) slots on the grid; directly computable from grid
+    state, no data-gathering needed to reveal it.
   - `ExtractionRestraint` — penalized by total volume extracted from mined
     deposits, at the same rate regardless of deposit type (see Resources: deposits
     come in a high-yield bounded type and a lower-yield effectively-infinite type).
