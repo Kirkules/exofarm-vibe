@@ -30,6 +30,11 @@ heading *text*, not heading *level* or which file it lives in, so moving a
 section to a different file only requires updating its link's filename
 prefix, not the anchor itself.
 
+**Validating links**: run `python3 full_design/check_links.py` after any edit
+that adds, moves, or renames a section — it checks every cross-reference link
+in this directory against the actual headings in its target file and reports
+anything broken. Run this after any batch of edits, not just once at the end.
+
 ## Table of Contents
 
 - **[Design Principles](01_design_principles.md)**
@@ -40,6 +45,7 @@ prefix, not the anchor itself.
   - [Background Story & Gameplay-Story Integration](02_story_and_world.md#background-story--gameplay-story-integration)
 - **[Core Loop & Grid](03_core_loop_and_grid.md)**
   - [Platform & Core Loop Redesign (In Progress)](03_core_loop_and_grid.md#platform--core-loop-redesign-in-progress)
+  - [Farm Site Selection](03_core_loop_and_grid.md#farm-site-selection)
   - [Season Structure](03_core_loop_and_grid.md#season-structure)
   - [Technology & Progression](03_core_loop_and_grid.md#technology--progression)
 - **[Buildings & Economy](04_buildings_and_economy.md)**
@@ -48,16 +54,18 @@ prefix, not the anchor itself.
   - [Basic Resource Production](04_buildings_and_economy.md#basic-resource-production)
   - [Farm/Production](04_buildings_and_economy.md#farmproduction)
   - [Deposit Discovery](04_buildings_and_economy.md#deposit-discovery)
+  - [Fuel](04_buildings_and_economy.md#fuel)
   - [Water](04_buildings_and_economy.md#water)
   - [Scanner Station](04_buildings_and_economy.md#scanner-station)
   - [Food/Meal Conversion](04_buildings_and_economy.md#foodmeal-conversion)
-  - [Robotics/Fabrication](04_buildings_and_economy.md#roboticsfabrication)
+  - [Fabrication](04_buildings_and_economy.md#fabrication)
   - [Protection](04_buildings_and_economy.md#protection)
   - [Storage](04_buildings_and_economy.md#storage)
   - [Inventory](04_buildings_and_economy.md#inventory)
 - **[Settlers & Exploration](05_settlers_and_exploration.md)**
   - [Settlers](05_settlers_and_exploration.md#settlers)
   - [Exploration Tasks](05_settlers_and_exploration.md#exploration-tasks)
+  - [Standing Assignments](05_settlers_and_exploration.md#standing-assignments)
   - [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition)
 - **[Planets & Scoring](06_planets_and_scoring.md)**
   - [Exoplanet Types](06_planets_and_scoring.md#exoplanet-types)

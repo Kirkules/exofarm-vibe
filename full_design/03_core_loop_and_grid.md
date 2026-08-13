@@ -54,7 +54,7 @@ A single grid holds every building, crop, animal pen, and mining site, using
 buildings still exist — see Building Schema — but as fixed, non-rotatable
 footprints, not a return to arrangement puzzles). Arrangement precision is
 deliberately de-emphasized; the puzzle now lives in resource allocation (see
-Worker Assignment below), not spatial tessellation.
+Assignment below), not spatial tessellation.
 
 **Any building can go on any cell**, subject only to building-specific
 placement rules already established elsewhere (e.g. a Mine requires an Ore
@@ -65,8 +65,13 @@ The grid has **one total size**, which is now the single lever controlling
 overall settlement density: buildings, crops, and mining sites all compete
 for the same finite pool of cells, so infrastructure investment directly
 costs farmland and vice versa — a more consequential tradeoff than the old
-two-grid split's independently-tunable scarcity. Exact size TBD, deferred to
-a balancing pass like other numeric values in this design.
+two-grid split's independently-tunable scarcity. **Working target: 10×8**
+(80 cells) — landscape-shaped to match the PC platform pivot, and sized from
+a rough building/deposit density pass (see `DESIGN_TODO.md`'s resolved
+farm-site-selection entry) showing the old 8×6 mobile grid would already be
+short of a late-game building count even before accounting for deposit
+cells, while 10×8 leaves comfortable slack. Still nominally subject to
+revision in a real balancing pass, but no longer a completely open unknown.
 
 **Why unified, not split:** the original two-grid split existed mostly for
 conceptual clarity ("base" vs. "fields") and independently-tunable slot
@@ -86,7 +91,55 @@ rather than placeable:
 - Impassable terrain (mountains, lakes)
 - Permanent resource locations (e.g. metal ore, rare mineral deposits — see
   Buildings & Economy's Deposit Discovery)
+- Forest tiles (bounded Wood quantity — see Buildings & Economy's Fuel)
 - Set at run start; cannot be moved or removed
+
+### Farm Site Selection
+
+A one-time pre-run screen that determines the actual grid instance a run
+plays out on — terrain layout, fixed/environmental slots, and deposit
+seeding (see Buildings & Economy's [Deposit Discovery](04_buildings_and_economy.md#deposit-discovery))
+are all generated here, not before. It happens **after** committing to an
+expedition (the planet-type choice made via filament-scan, see Story &
+World's [Filaments and Exoplanet Discovery](02_story_and_world.md#background-story--gameplay-story-integration))
+and before Season 1 planning opens.
+
+**What varies by site vs. by planet type.** Planet-type-level values —
+Hazard Priors, the A/B/C/D strategy-dimension pressures — are fixed once the
+planet type is chosen at the filament-scan stage; site selection never
+touches them. What a specific site *does* determine is the grid instance
+itself: its terrain shape (impassable cells) and where every deposit
+(Ore/Stone/rare-metal/aquifer, at all three depth tiers) is actually seeded.
+This keeps the number of planet-level variables small while still making
+site choice a real decision.
+
+**Presentation.** A small ship sits in the foreground, orbiting the target
+planet (visible in the background); a UI panel over this scene shows **3**
+candidate sites as grid-layout thumbnails. Each thumbnail is annotated with
+its known features — terrain shape, **Surface-tier** deposit positions only
+(matching Deposit Discovery's existing rule that Surface deposits are the
+one tier visible from run start), **Forest tile** positions (see Buildings &
+Economy's Fuel — visible from run start the same way Surface deposits are,
+just not part of the hidden-deposit system at all), and the site's
+**Average Temperature** (see Planets & Scoring's In-Simulation Hazard
+Events — sampled per-site at world-gen from the planet type's
+`TrueRisk(Temp)`-parameterized distribution). Mid-depth, Deep, and aquifer
+deposits (including Fossil Fuel) are never previewed here, even though
+they're already seeded on the candidate's hidden grid — revealing them at
+this stage would undercut the discovery gameplay loop that's supposed to
+gate them.
+
+**Selection.** Picking a candidate locks in that grid instance — terrain and
+the full deposit seeding (hidden tiers included) — for the entire run.
+
+**Reroll.** The player may discard all 3 candidates and generate 3 entirely
+new ones, at a cost of **1 Ration** (see Settlers & Exploration's
+[Rations](05_settlers_and_exploration.md#rations-basic-sustenance)) —
+flavored as the additional orbital scanning taking enough time that the
+settlers eat while they wait, though not a full season's worth. Rerolling
+is uncapped other than by the player's Ration stock, so it draws on the same
+scarcity already established for Rations rather than introducing a new
+limiting resource.
 
 ### What Got Cut
 
@@ -95,7 +148,7 @@ rather than placeable:
   management overhead.
 - **General neighbor-effect synergies** — removed, with two specific exceptions that
   remain as area-of-effect systems: **force-field/weather-protection coverage**, and
-  **drone service footprints** (see Worker Assignment below).
+  **drone service footprints** (see Assignment below).
 - **Manual merge-space ingredient crafting** — no more dragging ingredients into a
   mini-grid to discover/confirm recipes. See Production Model below for what replaces
   it.
@@ -120,18 +173,41 @@ rather than placeable:
   effects (weather, fertilizer) instead of requiring a settler to walk over and tend
   it, as in the original design.
 
-### Worker Assignment (Staffing)
+### Assignment
 
-Every production site needs a worker — settler or drone — assigned to produce at all
-(with exceptions: some sites need no staffing, and some are multi-purpose combo
-buildings — e.g. a Bakery with hydroponic wheat growing in it, staffed by one worker,
-producing its own wheat *and* baking it, though the wheat-growing side runs slower
-than a dedicated wheat field). An unstaffed site otherwise produces zero output for
-the season. **Assignment is sticky by default** — a worker stays on their site across
-seasons until explicitly reassigned, so a stable layout requires no repeated
-staffing action; assignment can be revisited each planning phase but never must be.
+An **Assignment** pairs one worker — settler or drone — with a target. Every
+target is one of three kinds, and what differs between them is purely a
+property of the target, not the assignment mechanism itself, which is
+always the same: pick a worker, pick a target, done — a normal, fully
+reversible planning-phase action until Next Season is confirmed.
 
-**Worker types:**
+- **Production building** — sticky by default: a worker stays on their site
+  across seasons until explicitly reassigned, so a stable layout requires no
+  repeated action; can be revisited each planning phase but never must be.
+  Accepts settlers or drones (see Worker types below). Every production site
+  needs a worker assigned to produce at all (with exceptions: some sites
+  need no staffing, and some are multi-purpose combo buildings — e.g. a
+  Bakery with hydroponic wheat growing in it, staffed by one worker,
+  producing its own wheat *and* baking it, though the wheat-growing side
+  runs slower than a dedicated wheat field). An unstaffed site produces zero
+  output for the season.
+- **Exploration Task** (see Settlers & Exploration) — one-shot: the worker
+  is gone for the season and returns with a result. Drawn from a small,
+  periodically-refreshed pool (up to 3 at a time, every 3rd season) — a
+  side-quest, event-like, not a routine option. Settlers only (some tasks
+  are unmanned, needing no assignment at all). Risk-bearing; may require
+  Rations to sustain the settler away from the farm.
+- **Standing Assignment** (see Settlers & Exploration) — also one-shot, same
+  resolution as Exploration Tasks, but always available every season rather
+  than pool-limited, and safe (no risk spectrum, no Rations — the work
+  stays on or near the farm). Settlers only, for the same reason Exploration
+  Tasks are — this work needs a person's judgment, not just mechanical
+  labor. Covers Basic Deposit Survey, Deep Survey (see Buildings &
+  Economy's Deposit Discovery), and Clear-Cutting (see Buildings &
+  Economy's Fuel).
+
+**Worker types** (Production-building assignments specifically — Exploration
+Tasks and Standing Assignments are settler-only, per above):
 - **Settlers** are universal — assignable to any job type — but can only cover one
   grid slot (one field or one building) each.
 - **Drones** are built at a Drone Fabrication site, which is itself a staffed
@@ -179,7 +255,7 @@ unassigned workers of that type, B = total owned.
 ### Construction
 
 Every settlement starts with **one construction robot**; more can be built at a
-Robotics/Fabrication site, the same staffed-production pattern used for other drones.
+Fabrication site, the same staffed-production pattern used for other drones.
 A construction robot can, in a season, do one of three things: **build one new
 building** (any type), **upgrade one existing building**, or **relocate one existing
 built building** to a different valid, empty slot (or slots, for a multi-slot
@@ -196,6 +272,30 @@ makes "not leaving room to grow" a real, felt strategic misstep — clearing the
 and then performing the upgrade costs two robot-actions total (two seasons with one
 robot, or one season if a second robot is available to do both at once) — without
 ever permanently locking the upgrade out.
+
+**Relocation reuses the building — it doesn't re-charge its construction
+cost.** The resources spent building the original structure aren't spent
+again for the move; relocation costs only the one robot-action (a season),
+same as any other construction-robot task.
+
+**Deposit/feature-gated buildings** (Mine, Quarry, Rare Metal Extractor,
+Geothermal Generator — see Buildings & Economy's Deposit Discovery and Fuel)
+can be relocated too, but only to a different tile with
+an already-discovered, not-yet-built-on deposit/feature of the **matching
+type** — a Mine can only relocate to another discovered, unbuilt Ore
+deposit, never to an arbitrary empty tile. (Well is excluded from this
+special case — it isn't actually deposit-gated, since it's freely buildable
+on any tile and a detected aquifer just upgrades it to Deep Well
+automatically, so it already follows the ordinary relocation rule.) The
+vacated origin tile keeps its underlying deposit/feature — it reverts to an
+empty-but-still-discovered, buildable tile, not lost. Combined with
+construction cost not being re-charged, this is what makes relocating a
+deposit-gated building a genuinely useful choice rather than something
+you'd only ever demolish-and-rebuild: if a single tile turns out to hold
+more than one type of extractable resource (see `DESIGN_TODO.md`'s deposit
+overlap audit), moving an existing Mine to a different discovered Ore
+deposit frees up its original tile for a different building targeting
+whatever else was found there, without losing the Mine's sunk cost.
 
 Construction robots are **purely single-purpose** — construction/upgrade tasks only,
 never reassignable to production staffing. Assignment is **automatic**: queuing a

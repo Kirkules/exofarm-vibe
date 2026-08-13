@@ -56,6 +56,20 @@
   being measured *in* the world, it's the actual clock the player uses to read the
   UI, and seconds are a unit every player already understands without any in-fiction
   justification needed.
+
+  A third exemption covers real-world physical quantities so universally familiar
+  that *hiding* the real unit would confuse rather than simplify — the opposite
+  failure mode from the one this principle otherwise guards against. Time durations
+  (production cycles measured in seconds) are the first example; **Temperature**
+  (see Planets & Scoring's In-Simulation Hazard Events) is the same case — showing
+  "15 Temperature" instead of "15°" would force players to re-learn an arbitrary
+  scale for a quantity they already understand instinctively in Fahrenheit or
+  Celsius. Unlike Energy/Matter/Water, which have no real-world referent a typical
+  player already holds, temperature and time are quantities everyone already has
+  working intuition for — the exemption applies specifically because a made-up
+  scale would be a net loss of clarity, not a gain in immersion. Fahrenheit vs.
+  Celsius display is a player-facing settings toggle, the same way a real-world
+  unit choice would be handled in any other application.
 - **UI interaction is minimal.** Describes the entire path from a player forming an
   intent to that intent being satisfied — not just the final gesture that executes
   it. Minimize *structural* friction along that path: searching, redundant

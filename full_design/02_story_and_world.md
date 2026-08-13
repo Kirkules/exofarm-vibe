@@ -49,6 +49,54 @@ impossible.
 
 ### Backstory
 
+**Ren, the Incoming Star.** Generations before the Crash Research Era, ordinary
+astronomical survey work flagged a hypervelocity star on a trajectory that will
+eventually bring it catastrophically close to the Sun — a collision, or a near-miss
+violent enough to devastate the solar system regardless, with the exact outcome still
+narrowing after centuries of continued observation. It is centuries out, but nothing
+about it is stoppable: no technology, foreseeable or otherwise, can move a star or
+shield a solar system from one. Nobody caused it and nobody can prevent it, which gives
+it a very different emotional register from Earth's own climate trouble (see below) —
+there is no argument to have about it, no policy that could have averted it, nothing to
+regret. It simply is, and it is coming. The game deliberately keeps no explicit account
+of how many in-fiction years elapse across a player's own history of runs — Ren's
+centuries-long runway means the hub's situation stays effectively the same, imminent
+but distant, no matter how long a player keeps playing.
+
+SEED was founded generations before FTL was achieved, directly in response to Ren's
+discovery — an aspirational organization built on the belief that emigration would
+eventually become possible, long before it actually was. Some of its current leadership
+were once anti-industrial climate activists who opposed the reckless research boom that
+would later become the Crash Research Era, for reasons that had nothing to do with
+Ren; when that same era unexpectedly produced FTL, they recognized the tool SEED had
+been waiting for all along and redirected their energy from protest into building the
+way out.
+
+The star's original designation was dryly technical — an instrument or survey acronym,
+the kind of self-amused in-joke astronomers have always given their equipment, that
+happened to spell **WREN**. "The Wren" is what stuck in public use almost immediately,
+and across the centuries since, worn down by constant multilingual repetition the way
+"influenza" wore down to "the flu," it settled into a single name spoken by everyone
+alive: **Ren**. Unlike the deliberately dry, functional-only catalog designations SEED
+still uses for candidate exoplanets (see Filaments and Exoplanet Discovery, below),
+Ren's name never stayed neutral — it is the single most spoken, most personally
+significant word in human language.
+
+Much of that weight traces to an old, unrelated folk tale: across a wide swath of
+European tradition, the wren becomes "king of all birds" not through size or strength,
+but by hiding, unnoticed, on the eagle's back during a contest for who can fly highest,
+and popping up at the last possible moment to claim the win. Whether the astronomers
+who wrote the backronym had that story in mind or stumbled into it by accident, it's
+the story humanity settled on once the name did: not size or strength, but the small
+and the clever, prevailing over the vast, at the last possible moment. Religious and
+quasi-religious movements have grown up around Ren in the generations since, with no
+single dominant interpretation. One significant thread, an offshoot within Hindu
+tradition, holds Ren to be an incarnation of Shiva — destruction as the necessary
+clearing-away that makes new, untainted creation possible, with SEED's expeditions cast
+as a literal act of that renewal. It is one voice among several, not an official SEED
+position, and not something the game treats as settled fact any more than any other
+in-fiction belief.
+
 **The Crash Research Era.** Within living memory — recent enough that people alive
 today remember at least its final years — humanity underwent a short, extraordinarily
 compressed period of technological breakthrough. Four fields advanced concurrently and
@@ -58,19 +106,15 @@ three fields), force-field/shielding technology (developed to protect orbiting s
 factories from debris and sublight spacecraft from destruction by low-density
 interstellar particles at high speed), and finally, faster-than-light travel itself.
 
-The era's industrial buildout — not FTL travel itself — is what pushed Earth's climate
-past the point of recovery on any timeframe that matters to living humanity. It was
-reckless progress, driven by competition and urgency rather than care, and by the time
-FTL was achieved, the damage was done: Earth would remain habitable for perhaps a few
-more centuries, but rehabilitation was no longer viable. Finding an already-suitable
-world became the only way forward.
-
-SEED was founded *before* FTL was even achieved — an aspirational organization built on
-the belief that emigration would eventually become possible, long before it was. Some
-of its current leadership were once anti-industrial climate activists who opposed the
-very research boom that caused the crisis; when FTL emerged as an unexpected byproduct
-of that same reckless era, they redirected their energy from protest into building the
-way out.
+The era's industrial buildout made an already-serious problem worse: irreversible
+climate change had been a real, worsening crisis for generations before the era even
+began, not something the era invented from nothing. Reckless, competition-driven
+progress accelerated the damage further, and by the time FTL was achieved, few
+scientists thought full reversal was realistic any longer. Earth remains habitable, and
+mitigation efforts continue, but this is a real, ongoing, self-inflicted cost the era
+made worse — and Earth's politics still argue about it (see Seed-Ships, below). It
+isn't why SEED exists, though; that reason predates the era entirely (see Ren, the
+Incoming Star, above).
 
 Shielding technology, no longer needed to protect FTL-capable ships (which bypass the
 normal-space hazards of sublight travel entirely), found a second life in agriculture:
@@ -189,10 +233,13 @@ Back on Earth, this is also the central axis of day-to-day politics: for most pe
 life continues much as it always has — the economy still exists to keep people fed and
 housed, and to fund both SEED and a scattering of private startups attempting similar
 efforts. What dominates public debate is who gets a seat on the seed-ships bound for
-successful destinations, and what (if anything) can still be done about Earth's own
-decline — reversing the climate is all but impossible with any foreseeable technology,
-but opinion is divided between those who accept that and those who still hope to
-overcome it.
+successful destinations, and — a separate, still-unresolved argument — whether
+continuing to invest in climate mitigation is worth it, given Earth has centuries of
+habitability left regardless of how Ren eventually resolves. Full reversal is all but
+impossible with any foreseeable technology, but opinion is divided between those who
+think mitigation still matters for however long Earth remains home, and those who'd
+rather redirect those resources toward seed-ship capacity instead. The game doesn't
+take a side in this any more than it resolves what Ren actually means.
 
 **Planet Naming.** At filament-scan discovery, a candidate planet receives only a
 systematic catalog designation — functional, not evocative (a star-system ID plus
@@ -302,8 +349,8 @@ in the log/report on death. No ongoing dialogue or barks during simulation.
 
 **SEED Bulletin (hub, between runs).** A hub panel — not a voiced character — showing
 a periodic state-of-affairs summary: Earth-politics flavor (seed-ship seat allocation
-debate, climate-reversal hope vs. acceptance), possible meta-progression direction
-hints, and seed-ship development news. This is the natural home for the flagged
+debate, whether continued climate mitigation is still worth it given Ren's deadline),
+possible meta-progression direction hints, and seed-ship development news. This is the natural home for the flagged
 "a past colony receives a seed-ship" mechanic to surface, including the planet's
 community-chosen name (see "Planet Naming" above) and any associated resource
 windfall, once that mechanic is built.
@@ -323,19 +370,28 @@ World-building explored for its own coherence first, with gameplay implications
 surfacing later rather than driving the exploration (per design-process preference).
 
 **The Earth side**
-- A. ~~Mechanism of FTL travel, and why it caused climate collapse~~ — **resolved**,
-  see "The Crash Research Era" and "Faster-Than-Light Travel" above.
+- A. ~~Mechanism of FTL travel, and its relationship to Earth's climate trouble~~ —
+  **resolved**, see "The Crash Research Era" and "Faster-Than-Light Travel" above: FTL
+  is a byproduct of the same reckless research boom that worsened — not caused — an
+  already-existing, independent climate crisis.
 - B. ~~State of Earth society right now~~ — **resolved**, see "Seed-Ships" above:
   SEED is an ISS-partnership-style multilateral coalition (not a unified world
   government), the dominant program operating from Earth because an effort at this
   scale is too hard for a smaller/unilateral actor. Day-to-day life on Earth continues
   much as before; politics centers on seed-ship seat allocation and disagreement over
-  whether reversing the climate is worth continuing to pursue. A hinted rival program
-  based elsewhere in the solar system (not Earth) is intentionally parked as a future
-  hook, not developed further for now.
+  whether continuing to invest in climate mitigation is worth it, given Ren's deadline
+  applies regardless of how that argument resolves. A hinted rival program based
+  elsewhere in the solar system (not Earth) is intentionally parked as a future hook,
+  not developed further for now.
 - C. ~~Communication lag with Earth during a run~~ — **resolved**, see
   "Faster-Than-Light Travel" above (ongoing FTL comms via the collapsed-wormhole
   trace, effectively permanent).
+- K. ~~Why finding a new world is existentially urgent~~ — **resolved**, see "Ren, the
+  Incoming Star" above: a hypervelocity star, discovered generations before the Crash
+  Research Era, on an unmitigable collision-or-near-miss course with the Sun, centuries
+  out. Deliberately decoupled from Earth's climate trouble, which stays real and
+  present but secondary — SEED's founding and the expeditions' urgency were never
+  about escaping a self-inflicted crisis.
 
 **SEED as an institution**
 - D. ~~SEED's internal culture and structure~~ — **resolved**, see "SEED's Culture,

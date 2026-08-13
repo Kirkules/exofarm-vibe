@@ -28,12 +28,13 @@
 > Types) is finalized.
 
 ### Assignment
-- During planning, the player assigns a **settler** to an exploration task
-- Assigning a settler **removes them from all farm duties** that season
+Exploration Tasks are one of the three Assignment target kinds (see Core
+Loop & Grid's Assignment) — settler-only, one-shot, drawn from the pool
+above. What's specific to Exploration Tasks beyond the general Assignment
+mechanics:
 - Multiple tasks can run simultaneously if the colony has enough settlers and
   **Rations** to send (see Food & Nutrition) — settlers must take food with them to
   survive while not on the farm; consumed from inventory per task
-- Placement of assignments is **fully reversible** during planning
 - **Some tasks are unmanned** (e.g. a weather balloon or camera drone), requiring no
   settler assignment at all — mostly data-collecting missions, making up some
   fraction of available tasks. This means a player could plausibly complete an
@@ -142,6 +143,30 @@ dangerous to approach, now safe. A clean example of a *building* unlock
   source of the rarest and most desirable outcomes**
 - Planet type affects the proportion of high-risk tasks available (e.g. a volatile
   volcanic planet generates more high-risk opportunities)
+
+---
+
+## Standing Assignments
+
+The other of the three Assignment target kinds (see Core Loop & Grid's
+Assignment) — settler-only and one-shot, same resolution as Exploration
+Tasks (the settler is gone for the season and returns with a result), but
+**always available every season** rather than pool-limited, and **safe**
+(no risk spectrum, no Rations — the work stays on or near the farm, unlike
+a genuine off-site expedition). Three members:
+
+- **Basic Deposit Survey** and **Deep Survey** (see Buildings & Economy's
+  Deposit Discovery) — Basic Survey covers a player-chosen rectangle of
+  tiles and flags which of them are worth a Deep Survey; Deep Survey then
+  automatically targets every tile flagged that way so far, no rectangle
+  choice needed. Both repeatable.
+- **Clear-Cutting** (see Buildings & Economy's Fuel) — harvests Wood from a
+  discovered Forest tile.
+
+Since these aren't drawn from the Exploration Tasks pool, they don't
+participate in that system's Reinforcing/Profile-shifting/Neutral outcome
+framing (see Outcomes and the Strategy Dimensions, above) — they're
+guaranteed, mundane, on-farm work, not strategic-profile-shifting content.
 
 ---
 

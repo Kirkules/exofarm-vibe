@@ -192,20 +192,65 @@ Gameplay-Story Integration), which was already specifically designed for this
 purpose — this section is that mechanic's concrete realization, not a new
 system layered on top of it.
 
-**Consequence severity scales with the settlement's actual preparedness gap**,
-not a separate severity roll — reusing `MatchedPreparedness(hazard)` (or the
-raw `Preparedness/TrueRisk` ratio) rather than adding a second hazard
-dimension:
+**Event severity — a coarse band, shared by Storm and Temperature
+Extremity.** Alongside the occurrence trigger above, a triggered event also
+rolls one of two severity bands, **mild** or **extreme**, weighted by that
+hazard's `TrueRisk` (a worse-off planet skews toward more extreme events, not
+just more frequent ones — reusing a value already tracked rather than adding
+a new dial). This is what gives "a strong enough storm" or "the real
+temperature passing a threshold" concrete meaning below, instead of
+consequence being driven purely by the settlement's static Preparedness
+coverage as before.
 
-*Storm / Temperature Extremity* — three tiers based on preparedness coverage
-at the affected site:
+**Temperature Extremity** — average temperature and consequence, in full:
+- Every candidate farm site gets its own **Average Temperature**, sampled at
+  world-gen from a distribution parameterized by the planet type's
+  `TrueRisk(Temp)` (higher TrueRisk, wider/more extreme spread) — shown to
+  the player at Farm Site Selection (see Core Loop & Grid) as a known site
+  feature. This is a per-*site* draw, not a planet-type-level value: the
+  distribution's shape stays fixed once the planet type is chosen, only
+  where a specific candidate's sample lands within it varies — the same
+  category of variance as deposit placement, not a new hazard-prior lever.
+  All temperature is tracked against one universal human comfort target,
+  **72°F** (see Design Principles' Units Unspecified for why real
+  Fahrenheit/Celsius is used here rather than an abstracted scale, and why
+  the display unit is a settings toggle).
+- A Temperature Extremity event is a **temporary deviation** from the site's
+  Average Temperature for the event's duration — same temporariness as a
+  storm, never permanent on its own.
+- **Consequence is decided by Energy funding, not a coverage tier**: a
+  Weather Shield or Row Shield's Energy upkeep during an active event scales
+  with that event's severity band (a small idle-but-armed cost normally,
+  more during a mild event, more during an extreme one — banded, not
+  continuous, per Buildings & Economy's Basic Resources). If the settlement
+  had enough Energy in the pool to cover that cost, the shield **fully
+  maintains the comfort target** — zero effect on covered production,
+  regardless of how extreme the event got outside. If there's no shield
+  covering the site, or the cost wasn't covered that season:
+  - **Mild event** → production **slowed** for the event's duration.
+  - **Extreme event** → production **stopped** entirely for the event's
+    duration.
+  - Always temporary — resumes automatically once the event ends. Unlike
+    Storm below, Temperature Extremity never destroys anything on its own.
+
+**Storm** — preparedness-coverage tiers, same shape as before, plus a new
+top-severity consequence:
 - Adequately covered (Weather Shield/Row Shield with sufficient
   `Preparedness` relative to the hazard) → no effect
 - Under-covered → production paused for the event's duration
 - Severely under-covered (`MatchedPreparedness` near zero) → the affected
-  outdoor Farm/Production site is fully **disabled**, requiring rebuild next
-  season — an ordinary construction-robot build action targeting the
-  now-empty slot, per Platform & Core Loop Redesign's Construction
+  outdoor Farm/Production site is **destroyed** — removed from the grid
+  entirely, not merely paused — requiring an ordinary construction-robot
+  build action to reconstruct from scratch on the now-empty slot, per
+  Platform & Core Loop Redesign's Construction. (This tier already meant
+  destruction under the hood; it's stated explicitly now that the
+  distinction from "paused" actually matters.)
+- **New**: when a storm event specifically rolls **extreme** severity, every
+  *other* unprotected building on the grid (any category, not just the
+  directly-targeted Farm/Production site — "unprotected" reuses the same
+  Weather/Row Shield coverage check) independently rolls a small chance of
+  the same fate. Chance value TBD, deferred to balancing like other numeric
+  values in this design.
 
 *Atmospheric Hazard* — a settler-level consequence, not a building-level one:
 - Farm-based settlers: protection is a **passive stock check** — any PPE
@@ -250,6 +295,17 @@ it's just impossible to satisfy everyone at once. This gives the "several
 separately-visible sub-metrics" scoring principle real narrative weight instead of
 being an arbitrary abstract dial, and mirrors the "breadth of tradeoffs" difficulty
 principle at the political level.
+
+**Score bounds and units, for all five factions.** Every faction's score is
+displayed as a **percentage, 0–100%**, abstractly representing that faction's
+estimated probability of recommending a seed-ship be sent to this planet.
+Each faction's underlying formula is a sum of several `normalize()` terms
+(each independently bounded to [0,1] before combining, per "normalize before
+combining unrelated values"), so the raw sum's own maximum is just the
+number of terms (or the sum of their weights, once weights are assigned
+rather than TBD) — the displayed percentage is that raw sum divided by its
+own maximum, then multiplied by 100. One conversion rule stated once here
+rather than repeated per faction below.
 
 - **Sustenance Bloc.** Feasibility, to them, doesn't mean "is it safe for humans" —
   it means "can it support a large population at all." Sustainability is the core
@@ -346,23 +402,64 @@ principle at the political level.
       different factions' scores at once — any result from that action adds to
       Stewardship's `EcologicalData` confidence, regardless of what it reveals
       about pathogens.
-  - `DisruptionFootprint` — ratio of untouched vs. built-over native-terrain
-    (fixed/environmental) slots on the grid; directly computable from grid
-    state, no data-gathering needed to reveal it.
-  - `ExtractionRestraint` — penalized by total volume extracted from mined
-    deposits, at the same rate regardless of deposit type (see Resources: deposits
-    come in a high-yield bounded type and a lower-yield effectively-infinite type).
-    Extraction volume is a proxy for the disruptive footprint of the mining
-    infrastructure/activity itself, not for depleting a finite resource.
-  - These three are genuinely different *kinds* of quantities (a data-completeness
-    percentage, a spatial ratio, and an extraction-volume-based penalty), so each
-    is normalized to a comparable [0,1] scale before combining, per the "normalize
-    before combining unrelated values" design principle:
+  - `DisruptionFootprint` — a weighted ratio of untouched vs. disrupted
+    native-terrain (fixed/environmental) slots on the grid; directly
+    computable from grid state, no data-gathering needed to reveal it.
+    **Base disruption**: any fixed/environmental slot whose state has
+    changed from what it was at the start of Season 1 (built over,
+    harvested, extracted from, etc.) counts as disrupted — applies
+    uniformly across every fixed/environmental type (deposits, Forest
+    tiles, all of it); untouched slots don't count. **Further
+    disruption**: among disrupted slots, ones whose underlying feature
+    required active discovery (a Mid-depth or Deep tier survey reveal)
+    before being acted on contribute more than a base-disrupted slot does —
+    surfacing something genuinely hidden is worse than using something
+    already visible from Season 1 (Surface-tier deposits, Forest tiles,
+    which were never hidden and so never get this extra weight). Exact
+    weighting TBD, deferred to balancing like other numeric values in this
+    design.
+  - `ExtractionRestraint` — penalized by cumulative volume of **non-sustainable**
+    resources extracted: Ore, Copper, Stone, rare metals (both bounded and
+    effectively-infinite deposit sub-types incur it at the same rate — neither
+    mineral regenerates, "effectively infinite" only means the specific
+    deposit is large relative to a run's timescale, not that the resource
+    itself renews), Fossil Fuel, and Clear-Cutting's Wood output specifically
+    (see Buildings & Economy's Fuel — a Standing Assignment, not a
+    building). **Does not apply** to ordinary Farm/Production output
+    (Grain, Fruit, Milk, Eggs, Wool, Wood from Timber Grove, Fiber, Pelts —
+    all renewable), Well/water-collection, or Geothermal Generator's
+    heat-tapping — all ongoing and non-depleting. Tracked as a running
+    cumulative total at the point of *harvest*, not by tracing which pooled,
+    fungible unit later gets consumed — this is what lets Wood stay a single
+    resource with two sources (see Buildings & Economy's Fuel) rather than
+    needing two separately-tracked items.
+  - `EmissionsRestraint` — penalized by cumulative Energy produced via
+    Fuel-based Generator over the run (see Buildings & Economy's Fuel), a
+    genuinely separate behavior from `ExtractionRestraint` (that one cares
+    about the sustainability of the *source*; this one cares about the
+    *act of burning* regardless of source — Wood from sustainable Timber
+    Grove output is penalized here exactly the same as Wood from
+    non-sustainable Clear-Cutting output, which already paid its own,
+    separate `ExtractionRestraint` cost at the point of harvest) rather than a
+    variant of `ExtractionRestraint`. Energy from Fossil Fuel is penalized
+    at a higher per-unit rate than Energy from Wood — not linearly scaling
+    with total output, just a modestly higher flat rate per unit —
+    reflecting that fossil fuel is
+    dirtier per unit of Energy even though it returns more Energy per unit of
+    fuel. This is the mechanic's direct playable echo of Story & World's Ren,
+    the Incoming Star: Stewardship rewards a new planet's climate stewardship
+    on its own terms, independent of however Earth's own unresolved climate
+    debate turns out.
+  - These four are genuinely different *kinds* of quantities (a
+    data-completeness percentage, a spatial ratio, and two differently-shaped
+    extraction/emissions penalties), so each is normalized to a comparable
+    [0,1] scale before combining, per the "normalize before combining
+    unrelated values" design principle:
     `Stewardship = normalize(EcologicalData) + normalize(DisruptionFootprint) +
-    normalize(ExtractionRestraint)` (weights TBD)
-  - A fourth axis — rewarding informed integration of native species over
+    normalize(ExtractionRestraint) + normalize(EmissionsRestraint)` (weights TBD)
+  - A fifth axis — rewarding informed integration of native species over
     Earth-imported ones, gated by whether that species has actually been studied —
-    was considered but dropped as too mechanically complex alongside these three.
+    was considered but dropped as too mechanically complex alongside these four.
 - **Development Bloc.** Prioritizes resource access for advanced technology —
   rewards stockpiles of non-food resources (especially rare ones) and achieving
   more advanced technology tiers as evidence those resources are available. Likely
