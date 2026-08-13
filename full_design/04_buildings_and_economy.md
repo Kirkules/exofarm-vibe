@@ -32,9 +32,8 @@ numeric values in this design.
    needs a discovered Thermal Vent, and Fuel-based Generator needs a real
    Wood/Fossil Fuel supply chain and carries an ongoing Stewardship cost
    (see Fuel).
-2. **Farm/Production** — crops, animal products, mining, and forest
-   harvesting, staffed sites (see Baseline Farm/Mined Resources below and
-   Fuel).
+2. **Farm/Production** — crops, animal products, and mining, staffed sites
+   (see Baseline Farm/Mined Resources below).
 3. **Food/Meal Conversion** — turns raw farm output into meals with nutrient profiles
    (see Food & Nutrition).
 4. **Fabrication** — staffed sites producing drones, construction robots, and
@@ -50,9 +49,10 @@ numeric values in this design.
    design.
 7. **Utilities** — staffed settlement-support infrastructure that isn't
    itself farming, fabrication, storage, or protection: Water collection
-   (see Water) and Scanner Station (see Scanner Station). The thing these
-   share isn't output type, it's role — keeping the place running rather
-   than producing, protecting, or storing anything directly.
+   (see Water), Scanner Station (see Scanner Station), and Research Lab (see
+   Research Lab). The thing these share isn't output type, it's role —
+   keeping the place running rather than producing, protecting, or storing
+   anything directly.
 
 ### Baseline Farm/Mined Resources
 A small set of **generic resource categories**, common to every mission
@@ -96,6 +96,13 @@ keeping the catalog from exploding as more planet types are added:
 - **Fossil Fuel** exists solely as Fuel-based Generator's upgrade-tier input
   (see Fuel), from a hidden deposit (see Deposit Discovery) — always
   non-sustainable, no Timber-Grove-style renewable source exists for it.
+- **Fertilizer** — produced passively by livestock buildings (Dairy Pasture,
+  Poultry Coop, Sheep Pasture — not Trapping, which harvests wild animals
+  rather than raising livestock, and isn't a building at all) just by
+  existing on the farm, regardless of
+  staffing or whether they're actively producing Milk/Eggs/Wool that season.
+  Consumed automatically, once per *season* (not per production cycle), by
+  plant-crop buildings to offset the Alien Soil penalty (see Farm/Production).
 - **Mining deposits come in two types**: a **high-yield, bounded** site (finite
   total quantity, depletes with use) and a **lower-yield, effectively infinite**
   site (doesn't meaningfully deplete within a run's timescale). Both incur the same
@@ -279,6 +286,15 @@ and/or raise the effort-stacking production cap), `TechAchievement` 0 at base
 tier. **All require the same flat amount of Water per cycle** (see Water below —
 exact amount TBD, calibrated against the settler baseline of 1 Water/season).
 
+**Alien Soil.** The four plant-crop buildings (Grain Field, Fruit Orchard,
+Fiber Field, Timber Grove — not the four animal-based buildings below) carry
+a standing growth-rate penalty (illustrative -30%, TBD): Earth crops aren't
+naturally suited to a foreign planet's soil. Removed for any season Fertilizer
+is available (see Resources) — consumed automatically, no manual action
+needed, same low-friction spirit as Water's automatic draw. Permanently
+removed, with no further Fertilizer need at all, once a plant type has been
+hybridized (see Hybridization, below).
+
 ### Grain Field
 - Staffing: Staffed | Input: Water | Output: 1 Grain per cycle,
   `production_time` 3s | Production cap: 1 (base) | Construction cost: 2 Matter
@@ -307,10 +323,68 @@ exact amount TBD, calibrated against the settler baseline of 1 Water/season).
 - Staffing: Staffed | Input: Water | Output: 1 Wood per cycle,
   `production_time` 4s | Production cap: 1 (base) | Construction cost: 2 Matter
 
-### Trapper's Den
-- Staffing: Staffed | Input: Water | Output: 1 Pelt per cycle,
-  `production_time` 6s (slower, reflecting rarity) | Production cap: 1 (base) |
-  Construction cost: 3 Matter
+### Trapping
+
+Not a building — traps set on a tile for the season are just that, no
+persistent structure involved. **Trapping** is a Standing Assignment (see
+Settlers & Exploration), same shape as Clear-Cutting: assign a settler to
+any tile for the season; they return with **Pelt** (rate TBD). Fully
+repeatable indefinitely on the same tile — unlike Clear-Cutting, wildlife is
+a renewable resource, not a bounded one-time harvest, as long as the local
+habitat persists.
+
+Yield scales two ways:
+- **Planet-type biological richness** — reusing the same `TrueRisk(Bio-hazard)`
+  correlation already established for Fossil Fuel frequency, rather than a
+  new per-planet dial: Verdant (richest biosphere) yields the most, Volcanic/
+  Frozen (suppressed biological complexity) the least, Arid/Desert in
+  between.
+- **Whether the tile currently has Forest present** (see Fuel) — unforested
+  or already-clear-cut land is less habitable for prey animals, so a
+  forested tile yields more than a bare one. This creates a direct,
+  legible tension with Clear-Cutting: harvesting a Forest tile's Wood
+  permanently reduces that same tile's future trapping potential too, since
+  clear-cutting removes the habitat.
+
+No Rations, no risk — same as any Standing Assignment. Pelt stays one
+resource everywhere (see Resources), consistent with not exploding the
+catalog per planet type, though its flavor name/appearance could vary
+cosmetically by planet with zero mechanical effect, the same pattern
+already used for Kitchen's combo-meal flavor-name pools.
+
+### Hybridization
+
+An exploration discovery (Site Reveal outcome — see Settlers & Exploration)
+unlocks the ability to research **one specific plant-crop building's**
+hybridization at a Research Lab (see Utilities) — a single discovery targets
+a single building type (e.g. a Verdant find might unlock Grain Field's
+hybridization specifically, not all four plant buildings at once). Completing
+that research at the Lab **permanently changes every instance of that
+building type, existing and future, for the rest of the run** — no
+per-instance Construction Robot upgrade needed, since crop buildings replant
+every cycle anyway; there's no physical structure to retrofit, just a
+different seed to plant next time.
+
+Every hybridized building gets two distinct benefits:
+- **Universal**: permanent immunity to the Alien Soil penalty (above) — no
+  Fertilizer ever needed again for that building type. Not really a bonus
+  stacked on top so much as a direct consequence of being adapted to local
+  soil in the first place.
+- **Planet-specific signature benefit** — tied to whatever defines that
+  planet's strategic identity, so it's never arbitrary flavor:
+  - **Arid/Desert** — reduced (or zero) Water requirement (native flora
+    already solved local scarcity).
+  - **Ice / Volcanic** — immune to Temperature Extremity's slowed/stopped
+    production consequence (see Planets & Scoring's In-Simulation Hazard
+    Events) — produces exactly as if fully shielded, no Weather/Row Shield
+    funding needed for this specific building.
+  - **Verdant** — higher yield (production cap and/or faster
+    `production_time`) — an adapted species out-competing for abundant
+    resources.
+
+Exact building↔discovery pairings (which specific find unlocks which
+specific building) are content-authoring-pass detail, same as the rest of
+Exploration Tasks' unwritten flavor content.
 
 ---
 
@@ -634,6 +708,32 @@ already applied to Robotics Assembly)*
 - `TechAchievement`: 0 (base) / higher (each upgrade tier) | Repeatable: yes
   (multiple Scanner Stations can exist, though diminishing value once deposits
   are discovered) | Upgrade path: yes, as described above
+
+---
+
+## Research Lab
+
+Deliberately named and scoped generically, not after its first use case —
+this is meant to host other Basic-Science-flavored research later without
+needing a new building type each time (see `DESIGN_TODO.md`). Its own
+progression stays **resource-gated, not research-gated**, consistent with
+Technology & Progression: it doesn't introduce an abstract research-points
+currency, it's a bespoke, per-discovery unlock tied to specific exploration
+finds, same spirit as everything else in the catalog.
+
+- Category: Utilities (see Building Categories in Resources) | Staffing: Staffed
+- Input: none (beyond staffing) | Output: none in the trackable-resource
+  sense — completing a research project is a permanent rule-change to a
+  target building type, not an item (per the Building Schema's note that
+  Output may not be a trackable resource item at all).
+- Works one research project at a time; building multiple Labs allows
+  parallel projects. If more than one unlocked-but-unresearched project is
+  pending, the player selects which to work on — same multi-recipe
+  selection pattern used elsewhere (sticky, reversible). `production_time`
+  per project: TBD, some number of seasons.
+- **First use case: Hybridization** (see Farm/Production) — exploration
+  discoveries unlock specific per-building hybridization projects here.
+- Construction cost: TBD.
 
 ---
 

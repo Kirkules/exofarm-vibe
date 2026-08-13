@@ -153,7 +153,7 @@ Assignment) — settler-only and one-shot, same resolution as Exploration
 Tasks (the settler is gone for the season and returns with a result), but
 **always available every season** rather than pool-limited, and **safe**
 (no risk spectrum, no Rations — the work stays on or near the farm, unlike
-a genuine off-site expedition). Three members:
+a genuine off-site expedition). Four members:
 
 - **Basic Deposit Survey** and **Deep Survey** (see Buildings & Economy's
   Deposit Discovery) — Basic Survey covers a player-chosen rectangle of
@@ -161,7 +161,11 @@ a genuine off-site expedition). Three members:
   automatically targets every tile flagged that way so far, no rectangle
   choice needed. Both repeatable.
 - **Clear-Cutting** (see Buildings & Economy's Fuel) — harvests Wood from a
-  discovered Forest tile.
+  discovered Forest tile; bounded, depletes with use.
+- **Trapping** (see Buildings & Economy's Farm/Production) — harvests Pelt
+  from any tile, yield boosted by Forest presence and by the planet's
+  biological richness; unlike Clear-Cutting, renewable and repeatable
+  indefinitely on the same tile.
 
 Since these aren't drawn from the Exploration Tasks pool, they don't
 participate in that system's Reinforcing/Profile-shifting/Neutral outcome

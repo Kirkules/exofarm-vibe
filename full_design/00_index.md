@@ -57,6 +57,7 @@ anything broken. Run this after any batch of edits, not just once at the end.
   - [Fuel](04_buildings_and_economy.md#fuel)
   - [Water](04_buildings_and_economy.md#water)
   - [Scanner Station](04_buildings_and_economy.md#scanner-station)
+  - [Research Lab](04_buildings_and_economy.md#research-lab)
   - [Food/Meal Conversion](04_buildings_and_economy.md#foodmeal-conversion)
   - [Fabrication](04_buildings_and_economy.md#fabrication)
   - [Protection](04_buildings_and_economy.md#protection)

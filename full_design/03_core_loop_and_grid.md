@@ -203,8 +203,8 @@ reversible planning-phase action until Next Season is confirmed.
   stays on or near the farm). Settlers only, for the same reason Exploration
   Tasks are — this work needs a person's judgment, not just mechanical
   labor. Covers Basic Deposit Survey, Deep Survey (see Buildings &
-  Economy's Deposit Discovery), and Clear-Cutting (see Buildings &
-  Economy's Fuel).
+  Economy's Deposit Discovery), Clear-Cutting (see Buildings & Economy's
+  Fuel), and Trapping (see Buildings & Economy's Farm/Production).
 
 **Worker types** (Production-building assignments specifically — Exploration
 Tasks and Standing Assignments are settler-only, per above):
@@ -429,12 +429,18 @@ The player can then branch along two paths depending on the planet's character:
   building materials** (energy, ore). Crop output scales with greenhouse quality rather
   than outside conditions.
 
-- **Local Agriculture Path** — hybridize Earth crops with native planet-side flora,
-  eventually farming directly in the open. Favored on planets with a **hospitable
-  atmosphere** but **scarce building resources**. Unlocks planet-specific crops and
-  higher long-term yield potential.
+- **Local Agriculture Path** — hybridize Earth crops with native planet-side flora.
+  Favored on planets with a **hospitable atmosphere** but **scarce building
+  resources**. Concretely realized as **Hybridization** (see Buildings &
+  Economy's Farm/Production and Research Lab): an exploration discovery
+  unlocks research for one specific plant-crop building at a Research Lab;
+  completing it permanently changes that building type for the rest of the
+  run, immune to the Alien Soil growth penalty every non-hybridized plant
+  crop otherwise carries, plus a planet-specific signature benefit (reduced
+  Water need, Temperature Extremity immunity, or higher yield, depending on
+  what defines that planet's identity).
 
-Both paths converge on the Cafeteria for meal crafting; the crops produced differ but
+Both paths converge on the Kitchen for meal crafting; the crops produced differ but
 the food system is the same. The path taken affects score factors (efficiency vs.
 adaptability) and which advanced designs become accessible.
 

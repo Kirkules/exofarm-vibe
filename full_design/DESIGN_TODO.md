@@ -368,10 +368,51 @@ Robotics/Fabrication)
   is. Scanner Station's Deposit Scanning mode is unaffected by any of
   this — the rectangle/flagging pattern is specific to settler-performed
   surveys, not building-based scanning.
-- [ ] **Native-flora hybridization** — the Local Agriculture path/strategy
-  dimension B is referenced repeatedly but has no actual building/mechanic for
-  *how* hybridizing with native flora works in gameplay terms. A real content
-  gap.
+- [x] **Native-flora hybridization** — resolved (see Buildings & Economy's
+  Farm/Production, Research Lab, and Resources; Core Loop & Grid's
+  Agriculture Branching): a new general-purpose **Research Lab** building
+  (Utilities, deliberately named/scoped to host future Basic-Science
+  research beyond just this) lets the player research a specific
+  exploration-discovered hybridization for **one plant-crop building at a
+  time** (Grain Field, Fruit Orchard, Fiber Field, or Timber Grove — not
+  the animal-based buildings). Completing research permanently changes
+  every instance of that building type, no per-instance Construction Robot
+  upgrade needed, since crop buildings replant every cycle anyway. Two
+  benefits per hybridized building: **universal** immunity to a new
+  **Alien Soil** standing growth penalty (all non-hybridized plant crops
+  carry it, removed by **Fertilizer** — a new resource, passively produced
+  by livestock buildings just by existing on the farm, drawn automatically
+  once per season) that hybridized crops never need again; and a
+  **planet-specific signature benefit** tied to that planet's defining
+  hardship or opportunity — reduced Water on Arid, Temperature Extremity
+  immunity on Ice/Volcanic (direct reuse of the existing hazard-consequence
+  mechanic), higher yield on Verdant. Deliberately kept resource-gated, not
+  research-gated, consistent with the existing Technology & Progression
+  principle — no abstract research-points currency, just a bespoke
+  per-discovery unlock.
+- [x] **Livestock structures deserve a deeper design pass** — resolved for
+  the Trapper's Den piece (see Buildings & Economy's Farm/Production and
+  Settlers & Exploration's Standing Assignments); Dairy Pasture/Poultry
+  Coop/Sheep Pasture deliberately left untouched, since they're uniform
+  Earth-imported livestock with no reason to vary by planet. **Trapper's
+  Den is gone as a building** — traps set on a tile are just that, no
+  persistent structure, so it's now **Trapping**, a fourth Standing
+  Assignment: assign a settler to any tile for the season, they return with
+  Pelt (still one resource everywhere, per the existing catalog-bloat
+  principle — cosmetic flavor-name variation by planet is a cheap optional
+  touch, reusing Kitchen's combo-meal flavor-name pool pattern). Yield
+  scales with the planet's biological richness (reusing the
+  `TrueRisk(Bio-hazard)` correlation already established for Fossil Fuel,
+  rather than a new dial) and with whether the target tile currently has
+  Forest present — unforested or already-clear-cut land is less habitable
+  for prey animals. That last point creates a direct, legible tension with
+  Clear-Cutting: harvesting a Forest tile's Wood permanently reduces that
+  tile's future trapping potential too. Unlike Clear-Cutting, Trapping is
+  renewable and repeatable indefinitely on the same tile, not a bounded
+  one-time harvest. Deliberately no Bio-hazard exposure risk added for
+  trapping wild animals — that would pull in the not-yet-built per-settler
+  state system (already flagged for Frontier Legends and the Atmospheric
+  Hazard debuff), left out rather than folded in here.
 - [x] **Category naming** and **Scanner Station's Building Category** —
   resolved together (see Buildings & Economy's Building Categories):
   **"Robotics/Fabrication" renamed to "Fabrication"** (it already held Stone
