@@ -11,20 +11,55 @@
   Unlike Energy/Matter, collection requires staffed buildings and a
   prerequisite structure (Water Processing Plant) — not zero-effort.
 
-**Energy upkeep, baseline.** Every building — staffed or not, and regardless
+**Energy Pool.** Energy is not an inventory item — it never appears in the
+general inventory list alongside Wood, Stone, food, etc.; it's tracked as
+its own separate system (a dedicated meter/gauge in the UI), **orthogonal**
+to Storage's uncapped-inventory rules entirely, not a second exception to
+them. It behaves as a liquid pool with three parts:
+- **Cap (ceiling)** — sum of every Energy-producing building's capacity
+  contribution (Solar Array, Geothermal Generator, Fuel-based Generator —
+  see Basic Resource Production and Fuel) minus the sum of every building's
+  baseline Energy upkeep (below). Every Energy-producing building
+  contributes to the cap simply by **existing**, regardless of whether it's
+  currently actively producing — Fuel-based Generator's contribution comes
+  from an assumed structural battery, the same reasoning that lets any
+  Energy producer smooth out real-time mismatches between production and
+  consumption. Upkeep permanently reduces the ceiling the moment a building
+  is placed — a **build-time decision**, not a recurring withdrawal.
+- **Income** — constant-rate accumulation into the pool during Mid-Sim,
+  bounded by the cap. Solar Array and Geothermal Generator produce at a
+  genuinely constant rate; Fuel-based Generator's contribution to *income*
+  (distinct from its unconditional contribution to the *cap*, above) is
+  conditional — see its entry under Fuel for how its active window works.
+- **Draws** — discrete, reactive spending against the pool's **current
+  balance** (not the cap), which persists across the season boundary rather
+  than resetting each season. Weather Shield/Row Shield's event-driven
+  funding (see Planets & Scoring's In-Simulation Hazard Events) is the
+  original example this generalizes from; the exploration reroll cost (see
+  Settlers & Exploration's Exploration Tasks) is a second draw type, spent
+  during planning rather than mid-simulation.
+
+The Energy meter reads as a **smooth, continuous fill**, never discrete
+ticks — the same "continuous rate, not a discrete timer" principle already
+established for the Production Model, applied to Energy's own UI
+specifically.
+
+**Baseline Energy upkeep.** Every building — staffed or not, and regardless
 of category — draws a flat per-season Energy cost just for existing on the
-grid (lights, climate-neutral operation, idle machinery draw), with exactly
-one exception: **Weather Shield and Row Shield** (only these two — not the
-rest of Protection, so Medical Bay follows the ordinary flat-baseline rule
-like any other staffed building) instead carry a variable, event-driven
-Energy cost (see Planets & Scoring's In-Simulation Hazard Events). This is a
-deliberate simplicity choice: the baseline cost is fixed the moment a
-building is placed, so budgeting for it is a **build-time decision**, not
-something to re-check every season — juggling Energy in response to
-short-lived threats (via the two shield buildings) is meant to be a real,
-occasional decision; juggling it just to keep the lights on everywhere else
-is not. Exact per-building values TBD, deferred to balancing like other
-numeric values in this design.
+grid (lights, climate-neutral operation, idle machinery draw), reducing the
+pool's cap as described above, with exactly one exception: **Weather Shield
+and Row Shield** (only these two — not the rest of Protection, so Medical
+Bay follows the ordinary flat-baseline rule like any other staffed
+building) instead carry a variable, event-driven cost drawn from the pool's
+current balance during an active Temperature Extremity event, rather than a
+fixed cap reduction. This is a deliberate simplicity choice: the baseline
+cost is fixed the moment a building is placed, so budgeting for it is a
+build-time decision, not something to re-check every season — juggling
+Energy in response to short-lived threats (via the two shield buildings,
+and now exploration reroll) is meant to be a real, occasional decision;
+juggling it just to keep the lights on everywhere else is not. Exact
+per-building values TBD, deferred to balancing like other numeric values in
+this design.
 
 ### Building Categories
 1. **Basic Resource Production** — Energy and Matter generation, always
@@ -561,18 +596,24 @@ construction cost, no staffing in the sticky sense.
   on the pooled Wood itself, which is fully fungible once in inventory.
 
 ### Fuel-based Generator
-- Category: Basic Resource Production | Staffing: **Unstaffed** — the
-  control lever here isn't staffing (there's no ongoing tending once built),
-  it's *supply*: with no power-grid toggle system in this design, the
-  player's real control point is upstream, in whether they keep assigning
-  settlers to Clear-Cutting — not the Generator itself, which just burns
-  whatever Wood/Fossil Fuel is available in the pool.
-- Input: Wood | Output: Energy per cycle, drawing from the pooled
-  inventory automatically the same way Farm/Production buildings already
-  draw Water — no manual "feed the generator" action. Draws from the same
-  pooled Wood used for fabrication (Carpenter's Shop, etc.) — burning it
-  here is a real opportunity cost against those other uses, not a
-  dedicated stockpile.
+- Category: Basic Resource Production | Staffing: **Unstaffed**
+- **Contributes to the Energy Pool's cap unconditionally, simply by
+  existing** — same as Solar Array and Geothermal Generator (see Resources'
+  Energy Pool) — on the assumption it comes with its own structural
+  battery, the same reasoning that lets any Energy producer smooth out
+  real-time mismatches between production and consumption. Its contribution
+  to Energy *income*, though, is conditional on actually burning fuel (below).
+- **Planning-phase control**: the player sets this building **active or
+  inactive** for the season, plus a **fuel limit** — the maximum Wood/Fossil
+  Fuel it's allowed to consume that season. During Mid-Sim, if active, it
+  burns for a duration determined by that limit (or by however much fuel is
+  actually available, whichever binds first) against its burn efficiency —
+  it doesn't necessarily run the whole season. While actively burning, it
+  contributes an **additional** Energy income rate on top of the constant-rate
+  producers; once its fuel limit or supply is exhausted, that contribution
+  drops to zero for the remainder of the season. Draws from the same pooled
+  Wood used for fabrication (Carpenter's Shop, etc.) — burning it here is a
+  real opportunity cost against those other uses, not a dedicated stockpile.
 - Base tier burns **Wood** only, from either source — but see
   `EmissionsRestraint` below: burning is penalized regardless of whether
   the Wood came from sustainable Timber Grove output or non-sustainable
@@ -708,6 +749,14 @@ already applied to Robotics Assembly)*
 - `TechAchievement`: 0 (base) / higher (each upgrade tier) | Repeatable: yes
   (multiple Scanner Stations can exist, though diminishing value once deposits
   are discovered) | Upgrade path: yes, as described above
+- **Upgrades may also reduce the Energy cost of manually rerolling the
+  Exploration Tasks pool** (see Settlers & Exploration) — exact discount
+  per tier TBD, but the connection is real: better local sensing makes a
+  fresh sweep of the region cheaper.
+- **One upgrade tier also permanently adds +1 to the Exploration Tasks
+  pool size** (see Settlers & Exploration) — which tier TBD. A Research
+  Lab project ("Expanded Reconnaissance Doctrine," see Research Lab) is
+  the second, independent source of +1, for a maximum pool size of 5.
 
 ---
 
@@ -733,6 +782,10 @@ finds, same spirit as everything else in the catalog.
   per project: TBD, some number of seasons.
 - **First use case: Hybridization** (see Farm/Production) — exploration
   discoveries unlock specific per-building hybridization projects here.
+- **Second use case: "Expanded Reconnaissance Doctrine"** — a research
+  project permanently adding +1 to the Exploration Tasks pool size (see
+  Settlers & Exploration), always available to research (not
+  discovery-gated like Hybridization projects are).
 - Construction cost: TBD.
 
 ---
@@ -864,6 +917,11 @@ consolidated building with selectable recipes fits better)*
     Luxury Good; feeds `TechAchievement` and can serve as a prerequisite/supply
     cost for specific manned exploration tasks, generalizing the earlier
     food-cost-for-expeditions idea to manufactured goods
+  - **Large Backpack** ← Pelts — an exploration-task consumable (see
+    Settlers & Exploration's Exploration Tasks Task Catalog): brought along
+    on a Resource windfall task, it guarantees the top of that task's value
+    range. Consumed on use, same precedent PPE already established for
+    exploration-task consumables.
 
 ### Tinkerer's Workshop
 - Category: Fabrication | Staffing: Staffed
@@ -890,6 +948,11 @@ consolidated building with selectable recipes fits better)*
   - Diplomatic Gear ← (Silicon + Copper) **or** (Fabric), player selects which
     input path — a prerequisite for the **Peaceful Contact** branch of the
     sentience-contact chain (see Exploration Tasks' Escalation Chains)
+  - **Armed Expedition Kit** ← Iron + a rare metal — a prerequisite for the
+    **Aggressive/Exploitative Contact** branch of the sentience-contact
+    chain (see Exploration Tasks' Escalation Chains); deliberately named to
+    read as practical expedition equipment rather than a weapons system,
+    matching the game's cozy-pioneering tone
 
 ### Carpenter's Shop
 - Category: Fabrication | Staffing: Staffed

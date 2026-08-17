@@ -427,3 +427,63 @@ Robotics/Fabrication)
   scoring, staffing rules, or the separate (and unaffected) drone
   job-category system reads it — so the rename/regroup carries no gameplay
   or story dependency.
+- [x] **Exploration Tasks framework iteration, and a full Energy Pool
+  redesign it pulled in** — resolved (see Settlers & Exploration's
+  Exploration Tasks, and Buildings & Economy's Resources and Fuel). The
+  exploration pool is now **always available every season**, not gated to
+  the old every-3rd-season window — since the player never has to commit to
+  anything in it anyway. The whole pool (up to 3 tasks) refreshes on two
+  triggers, automatic season-start and manual reroll, except any task the
+  player has explicitly (and freely) **locked**. Manual reroll costs a flat
+  amount of **Energy** — diegetically framed as re-scanning the region, the
+  same principle already used for hub-level filament-scanning — which
+  prompted formalizing **Energy as its own system, not an inventory item
+  at all** (orthogonal to Storage's uncapped-inventory rules, not a second
+  exception to them): a liquid pool with a **cap** (sum of Energy-producer
+  capacity contributions minus total building upkeep — upkeep now
+  permanently reduces the ceiling rather than being a recurring
+  withdrawal), continuous **income** during Mid-Sim from constant-rate
+  producers, and discrete **draws** against the current balance (Weather/Row
+  Shield's existing event-driven funding, now joined by exploration reroll).
+  Fuel-based Generator contributes to the cap unconditionally (assumed
+  structural battery) but only contributes to income while actively
+  burning — it now gets its own planning-phase active/inactive toggle plus
+  a seasonal fuel limit, burning for a duration set by that limit (or fuel
+  availability) against its efficiency, replacing the earlier "control
+  lever lives upstream at Clear-Cutting" framing. The Energy meter reads as
+  a smooth continuous fill, extending the existing continuous-rate
+  Production Model principle to Energy's UI. Also **two new Outcome
+  types** added to Exploration Tasks: **Hybridization opportunity** (a Site
+  Reveal variant, formally linking exploration to the already-designed
+  Hybridization mechanic) and **Legend outcome** (rare, little/no material
+  reward, large one-time Frontier Legends value, always Neutral in the
+  Strategy Dimensions framing since its value lives outside A/B/C/D —
+  first-of-kind achievements are the first worked example; per-settler
+  personal-story-moment outcomes are a natural extension but deliberately
+  left undesigned, pending the not-yet-built per-settler tracking system).
+  **Farm-wide Upgrade outcome** (also new) is confirmed as a second,
+  exploration-specific pathway to the reward shape Water Processing
+  Plant's Reclamation tier already established, not a replacement for it.
+- [ ] **Hydroelectric Generator + River feature** — surfaced as a side note
+  during the Energy Pool redesign, not yet designed. Would need a new
+  **River** grid feature first — checked, and confirmed this was only ever
+  mentioned conceptually during the original Water design pass, never
+  actually formalized as a feature anywhere. A genuinely new piece of scope,
+  deliberately deferred rather than bundled into the Energy Pool rework.
+- [ ] **Hybridization numeric details still TBD** — surfaced while building
+  out the exploration content catalog. Exact Water-reduction amount (Arid),
+  yield-boost amount (Verdant), Research Lab `production_time` per project,
+  and the generic "broad yield improvement" magnitude for the
+  planet-independent (meteorite-fragment-unlocked) hybridization path are
+  all still unspecified — deferred to balancing like other numeric values
+  in this design, but flagged here so they don't get lost.
+- [ ] **Alien civilization classes** — needed before the sentience-contact
+  chain's two remaining reward tables can be specified (see Settlers &
+  Exploration's Escalation Chains): **Peaceful Contact**'s alliance/trade
+  escalation rewards, and **Aggressive/Exploitative Contact**'s success
+  rewards. Both plausibly depend on *which kind* of civilization was
+  actually encountered, not just which planet — implies defining a
+  taxonomy of alien civilization types before these can be written, a real
+  content gap, not just a numbers-TBD one. Everything else about the chain
+  (structure, risk tiers, costs, item requirements, success chances) is
+  already fully specified.
