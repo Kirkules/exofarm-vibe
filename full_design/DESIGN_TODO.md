@@ -477,13 +477,27 @@ Robotics/Fabrication)
   planet-independent (meteorite-fragment-unlocked) hybridization path are
   all still unspecified — deferred to balancing like other numeric values
   in this design, but flagged here so they don't get lost.
-- [ ] **Alien civilization classes** — needed before the sentience-contact
-  chain's two remaining reward tables can be specified (see Settlers &
-  Exploration's Escalation Chains): **Peaceful Contact**'s alliance/trade
-  escalation rewards, and **Aggressive/Exploitative Contact**'s success
-  rewards. Both plausibly depend on *which kind* of civilization was
-  actually encountered, not just which planet — implies defining a
-  taxonomy of alien civilization types before these can be written, a real
-  content gap, not just a numbers-TBD one. Everything else about the chain
-  (structure, risk tiers, costs, item requirements, success chances) is
-  already fully specified.
+- [x] **Alien civilization classes** — resolved (see Settlers & Exploration's
+  Escalation Chains): five axes (Technology Level, Openness, Economic
+  Stability, Ubiquity, Unity) combine into four curated classes (Verdant
+  Assembly, Hollow Kilns, Drift Caravans, Frostbound Remnant) rather than a
+  full cross-product. Biological Compatibility deliberately left as
+  per-class flavor text, not a mechanical axis. First Contact (formerly
+  the Peaceful/Aggressive branching choice) now surfaces as one pool slot
+  with three switchable approaches — Peaceful Contact, Bluff/Coercive
+  Exploitation (new), and Military Exploitation (narrowed from the old
+  Aggressive/Exploitative Contact) — and Stewardship Caucus gained a new
+  `ContactRestraint` formula term scoring how the player handled any
+  encounter. **Still open, deferred to balancing:**
+  - Exact `ContactRestraint` tier values
+  - Exact Bluff success-probability curve vs. Technology Level
+  - Exact Military success-probability curve vs. Technology Level + Unity
+  - Peaceful Contact's base alliance rewards, and its per-tier deepening
+    rewards
+  - Bluff's on-success payout amount (relative to an undeepened alliance's
+    baseline)
+  - Military Exploitation's success rewards
+  - Overwhelming Force Package's exact recipe (a first-pass placeholder is
+    written into Buildings & Economy's Fabrication)
+  - Exact legend-value-scaling formula shape (inverse of success
+    probability, magnitude TBD)

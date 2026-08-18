@@ -189,6 +189,38 @@ type's identity:
 |---|---|---|---|---|---|---|
 | Meteorite Fragment | Rare | No-risk | 8+ | 2 Rations | Mandatory: Portable High-Powered Scanning Equipment | Hybridization opportunity, planet-independent: unlocks research eligibility for all four plant buildings at once (each still an independent Research Lab project); signature benefit is a generic "broad yield improvement," not planet-specific |
 
+**Unknown Radio Signal** — planet-independent, another alternate entry point
+into the sentience-contact chain (see Escalation Chains, below), but its
+branching resolution doesn't fit the single-row format above:
+
+| Task | Rarity | Risk | Season gate | Base cost | Item |
+|---|---|---|---|---|---|
+| Unknown Radio Signal | Rare | Low-risk | 6+ | 1 Ration | Optional: Emergency Medical Kit (new, see Buildings & Economy's Protection/Medical Bay) — consumed on use |
+
+Attempting it resolves the signal's true source, illustrative weights
+biased toward the mundane (consistent with genuine sentient contact being
+an exceedingly rare wildcard everywhere else in this design):
+
+| Resolved cause | Weight | Outcome |
+|---|---|---|
+| Rare ore vein (natural EM/mineral resonance misread as a signal) | ~40% | Site Reveal: rare-metal deposit — same shape as Glinting Vein |
+| Reflected signal (terrain echoing back an altered copy of the settlement's own scans) | ~40% | Wonder-flavor Legend outcome, guaranteed — an eerie, ultimately-mundane phenomenon, same register as Crystal Caves |
+| Genuine distress signal (a living, stranded alien) | ~20% | See below |
+
+Within the distress-signal branch, whether the Emergency Medical Kit was
+brought determines what happens next:
+
+| Kit brought? | Result | Escalation |
+|---|---|---|
+| Yes | Guaranteed rescue | Immediate escalation straight to **First Contact** (see Escalation Chains) — skipping Sentience Detection and Observe from a distance entirely, since a direct rescue already *is* first contact |
+| No | ~20% rescue anyway (same immediate step-3 escalation); otherwise (~80%) the settler finds the alien too late to save | On the "too late" result: escalates into **step 1** (Sentience Detection) at a new, higher-than-any-existing-trigger tier — direct confirmed contact is stronger evidence than any of the five indirect triggers already listed, even though the alien couldn't be saved |
+
+Both outcomes carry the chain's usual elevated legend value (see
+Escalation Chains' Elevated legend value note below) and nothing more —
+Legend value tracks the clout of a discovery, not how poignant the moment
+was, so "found them too late" earns the same legend value as a clean
+rescue, not less and not a sympathy bonus either.
+
 The sentience-contact chain's own numbers are in Escalation Chains, below.
 
 ### Outcomes and the Strategy Dimensions
@@ -230,6 +262,42 @@ to an alliance with those animals — a passive, ongoing food source requiring *
 staffing at all**, a qualitatively different reward tier from ordinary production,
 similar in spirit to how baseline Energy/Matter production is already zero-effort.
 
+**Alien civilization classes.** Once Sentience Detection succeeds, the
+specific civilization encountered is rolled from a small set of curated
+archetypes — kept small and simple deliberately, since alien contact is
+meant to stay a rare, occasional thread rather than a fully-developed
+system of its own. Each class is a fixed combination of five axes:
+- **Technology Level** — Primitive / Comparable / Advanced
+- **Openness** — Closed / Guarded / Open
+- **Economic Stability** — Fragile / Stable
+- **Ubiquity** — which planet type(s) this class is eligible to appear on
+  at all: Exclusive (one type) / Common (2–3 types) / Universal (any type,
+  rare everywhere). A fixed, design-time fact per planet type, like Hazard
+  Priors — the *specific* class actually encountered is rolled, weighted
+  among the classes eligible for the current planet, the moment Sentience
+  Detection succeeds, so it's still a fresh surprise each run despite
+  Ubiquity itself being a known quantity.
+- **Unity** — how consolidated the civilization is *within* the one planet
+  where it's found, ranging from scattered, unallied tribes up to a
+  unified, planet-spanning society. Distinct from Ubiquity (which is about
+  which planet *types* it can appear on at all) — this is about its
+  presence on the one planet where it's actually found. Governs whether
+  First Contact's confrontation approaches (see below) can ever avoid
+  total failure.
+
+| Class | Ubiquity | Technology | Openness | Economy | Unity |
+|---|---|---|---|---|---|
+| Verdant Assembly | Exclusive (Verdant) | Comparable | Open | Stable | High |
+| Hollow Kilns | Exclusive (Volcanic) | Advanced | Guarded | Fragile | Moderate |
+| Drift Caravans | Common (Arid, Ice) | Primitive | Open | Fragile | Low |
+| Frostbound Remnant | Exclusive (Ice) | Advanced | Closed | Stable | High |
+
+**Biological Compatibility is deliberately not a mechanical property** —
+it's pure per-class flavor text explaining why contact carries the injury
+risk it already carries via the Risk Spectrum, not a new consequence
+layer. Keeps the system from growing a sixth axis for a distinction that
+doesn't need to change any numbers.
+
 **Sentience-contact chain** (worked example, since it's the point where every SEED
 faction's priorities can visibly pull against each other in a single decision — see
 SEED Factions in Win/Lose Conditions):
@@ -238,25 +306,56 @@ SEED Factions in Win/Lose Conditions):
 |---|---|---|---|---|---|
 | **1. Sentience Detection**, reached cold from the base pool | 8+ | 1 Ration | — | Low (~10%) | Success: `EcologicalData` + guaranteed escalation to step 2 |
 | **1. Sentience Detection**, reached via an alien-civilization-implying trigger (Abandoned Settlement, Crashed Debris Field, Ancient Irrigation Technique, Recovered Survey Data, Arid Profile-shifting — see Task Catalog) | N/A, guaranteed placement | 1 Ration | — | Moderate (~30%) for the first four triggers, High (~60%) for Recovered Survey Data specifically | Same as above |
-| **2. Observe from a distance** | N/A, guaranteed escalation | 1 Ration | — | Guaranteed | Elevated `EcologicalData` weight (a heavier increment than an ordinary biodiversity report, not a new score term) + unlocks the branching choice at step 3 |
-| **3a. Peaceful Contact** | N/A | 2 Rations | Mandatory: Diplomatic Gear | Guaranteed attempt, Low-risk | Elevated `EcologicalData` weight, same as Observe; can unlock its own further escalation into an ongoing alliance/trade relationship — same zero-staffing passive-benefit reward tier as the fruit-animal-alliance example above. **Specific rewards TBD** — see `DESIGN_TODO.md`'s Alien civilization classes item |
-| **3b. Aggressive/Exploitative Contact** | N/A | 1 Ration | Mandatory: Armed Expedition Kit (see Buildings & Economy's Fabrication) | Guaranteed attempt, **High-risk with the largest death chance in the catalog** | This is the concrete realization of the "aliens obliterating an aggressive explorer" example from the difficulty-principle discussion — a severe outcome from an explicit, knowingly-initiated high-risk choice, which the design principles explicitly allow even when it ends a run. **Specific success rewards TBD** — see `DESIGN_TODO.md`'s Alien civilization classes item |
+| **1. Sentience Detection**, reached via Unknown Radio Signal (distress signal confirmed, but rescue failed — see Task Catalog) | N/A, guaranteed placement | 1 Ration | — | Very High (~85–90%) — direct confirmed contact, stronger evidence than any other trigger | Same as above |
+| **2. Observe from a distance** | N/A, guaranteed escalation | 1 Ration | — | Guaranteed | Elevated `EcologicalData` weight (a heavier increment than an ordinary biodiversity report, not a new score term) + unlocks **First Contact** |
+
+**3. First Contact** surfaces in the pool as a **single guaranteed
+escalation slot**, not three separate entries — its own UI lets the player
+switch between three approaches before committing a settler, each pulling
+its own cost and item:
+
+| Approach | Base cost | Item | Success chance | Outcome |
+|---|---|---|---|---|
+| **3a. Peaceful Contact** | 2 Rations | Mandatory: Diplomatic Gear | Guaranteed attempt, Low-risk | Elevated `EcologicalData` weight, same as Observe; can unlock its own further escalation into an ongoing, deepening alliance/trade relationship (see below) — same zero-staffing passive-benefit reward tier as the fruit-animal-alliance example above. **Specific rewards TBD** — see `DESIGN_TODO.md` |
+| **3b. Bluff/Coercive Exploitation** | 2 Rations | Mandatory: Diplomatic Gear | Attemptable against any class. High-risk. Success scales **inversely with Technology Level alone** — an advanced civilization has more information about what's actually possible, not more information about the settlers' specific claims, so it's harder to fool regardless of Openness or Unity. Rarely succeeds, but more often than 3c | On success: a one-time payout slightly better than an undeepened alliance's baseline — no ongoing relationship, since nothing was actually built. **Exact odds/rewards TBD** — see `DESIGN_TODO.md` |
+| **3c. Military Exploitation** | 1 Ration | Mandatory: Armed Expedition Kit **and** Overwhelming Force Package (new — see Buildings & Economy's Fabrication) | Attemptable against any class. High-risk, **the largest death chance in the catalog**. Success scales against **both Technology Level and Unity together**, more steeply than 3b — only a Primitive-tech, low-Unity class has any appreciable chance; everywhere else the chance is real but vanishingly small | This is the concrete realization of the "aliens obliterating an aggressive explorer" example from the difficulty-principle discussion — a severe outcome from an explicit, knowingly-initiated high-risk choice, which the design principles explicitly allow even when it ends a run. A few settlers should essentially never be able to force anything from an entire civilization without a real technological edge. **Exact odds/rewards TBD** — see `DESIGN_TODO.md` |
 
 Step 1 gives every alien-civilization-implying trigger a real, concrete
 target rather than inventing a separate chain per trigger — this is
 literally what "starting the sentience-contact chain" means whenever one of
 those five is discovered.
 
+**Direct entry to First Contact.** A successful rescue during Unknown Radio
+Signal (see Task Catalog) skips straight to First Contact, bypassing
+Sentience Detection and Observe from a distance entirely — a direct rescue
+already constitutes first contact. All three approaches are still
+available at that point; a rescue doesn't force the player into Peaceful
+Contact specifically.
+
+**Deepening an alliance.** Peaceful Contact's alliance/trade relationship
+isn't a one-time payout — it deepens through follow-up exploration tasks,
+each requiring Diplomatic Gear, using the same guaranteed-escalation-slot
+shape as everything else in this section. Exact tier count and per-tier
+rewards TBD, same as Peaceful Contact's base rewards.
+
 **Elevated legend value.** Every task in this chain — the initial
-detection, Observe from a distance, and either contact branch — carries an
-elevated, design-authored legend-value (see Frontier Legends in Win/Lose
-Conditions) relative to ordinary exploration tasks, **regardless of whether
-the encounter was peaceful or aggressive**. First contact with intelligent
-life is one of the rarest, most story-worthy events the game can produce,
-and Frontier Legends rewards that inherently — independent of which
-faction's priorities the outcome otherwise served. This stacks with (is
-separate from) the general injury/death Legends bonus described in Risk
-Spectrum, below, if Aggressive/Exploitative Contact goes badly.
+detection, Observe from a distance, and First Contact regardless of which
+approach is chosen — carries an elevated, design-authored legend-value
+(see Frontier Legends in Win/Lose Conditions) relative to ordinary
+exploration tasks, independent of which faction's priorities the outcome
+otherwise served. First contact with intelligent life is one of the
+rarest, most story-worthy events the game can produce, and Frontier
+Legends rewards that inherently. **Scales inversely with the actual
+success probability of whichever roll produced the outcome** — a rare
+success (a Low-tier Sentience Detection roll, or a successful Bluff/
+Military attempt against a well-defended class) earns more legend value
+than a near-certain one. This is a general rule keyed to the roll's actual
+probability, not a lookup table keyed to civilization properties directly
+— keeps the formula simple even as class-specific odds vary. (Peaceful
+Contact's own guaranteed attempt has no probability to scale by, so it
+keeps its flat elevated value.) This stacks with (is separate from) the
+general injury/death Legends bonus described in Risk Spectrum, below, if
+Bluff or Military Exploitation goes badly.
 
 **Vaccine-unlock region reveal** (third worked example): a bio-survey
 exploration task discovering a dangerous pathogen (see Buildings & Economy's

@@ -946,13 +946,22 @@ consolidated building with selectable recipes fits better)*
     (Volcanic, Frozen), distinct from `MatchedPreparedness` (which is about the
     settlement's structures, not what an individual expedition carries)
   - Diplomatic Gear ← (Silicon + Copper) **or** (Fabric), player selects which
-    input path — a prerequisite for the **Peaceful Contact** branch of the
-    sentience-contact chain (see Exploration Tasks' Escalation Chains)
-  - **Armed Expedition Kit** ← Iron + a rare metal — a prerequisite for the
-    **Aggressive/Exploitative Contact** branch of the sentience-contact
-    chain (see Exploration Tasks' Escalation Chains); deliberately named to
-    read as practical expedition equipment rather than a weapons system,
-    matching the game's cozy-pioneering tone
+    input path — a prerequisite for the **Peaceful Contact** and
+    **Bluff/Coercive Exploitation** approaches at First Contact (see
+    Exploration Tasks' Escalation Chains)
+  - **Armed Expedition Kit** ← Iron + a rare metal — one of two
+    prerequisites (alongside Overwhelming Force Package, below) for the
+    **Military Exploitation** approach at First Contact (see Exploration
+    Tasks' Escalation Chains); deliberately named to read as practical
+    expedition equipment rather than a weapons system, matching the game's
+    cozy-pioneering tone
+  - **Overwhelming Force Package** (new) ← High-Tech Components + a rare
+    metal — the other Military Exploitation prerequisite; represents a
+    genuine technological edge, not just more Armed Expedition Kits,
+    consistent with the design intent that a few settlers should
+    essentially never be able to force anything from an entire
+    civilization without one. Exact recipe a first-pass placeholder — see
+    `DESIGN_TODO.md`
 
 ### Carpenter's Shop
 - Category: Fabrication | Staffing: Staffed
@@ -1097,6 +1106,13 @@ principle that a planet/strategy shouldn't reduce to one correct approach)*
     Equipment). Exposure without PPE in either context inflicts a status
     effect: fixed duration, halves the settler's effectiveness in all tasks,
     and locks them out of exploration-task assignment while active.
+- **Emergency Medical Kit recipe** (new): Fabric + High-Tech Components →
+  Emergency Medical Kit, an ordinary **recurring** staffed production
+  recipe alongside PPE, no `Confidence`-gating (generic rescue/trauma
+  gear, not pathogen-specific). Consumed on use; brought optionally on the
+  Unknown Radio Signal exploration task (see Settlers & Exploration's Task
+  Catalog) to guarantee a successful rescue if the signal turns out to be
+  a genuine distress call.
 - Construction cost: Fabric + basic materials (base tier); Vaccine
   Production tier additionally requires **High-Tech Components**
 - `TechAchievement`: 0 (base) / higher (Vaccine Production tier) |

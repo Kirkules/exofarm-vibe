@@ -286,6 +286,11 @@ top-severity consequence:
   Gameplay-Story Integration) — it's an estimate of the likelihood that a full-scale,
   long-term human civilization could be established on that planet, used to decide
   whether/who a future seed-ship gets sent there.
+- **Content scope**: the viability report explains each SEED Faction's score plus a
+  broad-strokes summary across all five — it does not carry per-encounter narrative
+  flourishes (e.g. no special write-up keyed to which alien civilization class was
+  or wasn't encountered). Any story-worthy moments a run produced live in Frontier
+  Legends' own scoring, not in bespoke report text.
 
 ### SEED Factions
 The sub-metrics are backed in-fiction by political factions within SEED, each caring
@@ -450,13 +455,28 @@ rather than repeated per faction below.
     the Incoming Star: Stewardship rewards a new planet's climate stewardship
     on its own terms, independent of however Earth's own unresolved climate
     debate turns out.
-  - These four are genuinely different *kinds* of quantities (a
-    data-completeness percentage, a spatial ratio, and two differently-shaped
-    extraction/emissions penalties), so each is normalized to a comparable
-    [0,1] scale before combining, per the "normalize before combining
-    unrelated values" design principle:
+  - `ContactRestraint` — how the player handled any alien civilization
+    encountered this run (see Settlers & Exploration's Escalation Chains
+    for the full sentience-contact chain and its civilization classes). A
+    single discrete per-run value, not a cumulative sum like the other
+    three axes, since a run has at most one such encounter: highest value
+    for a successful alliance; a small reward for detecting a civilization
+    and choosing to leave it uncontacted (or never detecting one at all —
+    both represent zero disruption inflicted on a civilization, so they're
+    treated the same); a small penalty for contact that never resolves
+    into alliance, whether attempted-and-failed or simply never pursued
+    past initial contact; a large penalty for choosing Bluff/Coercive or
+    Military Exploitation at First Contact, applied for making that choice
+    regardless of whether the attempt itself succeeds. Exact tier values
+    TBD, deferred to balancing like other numeric values in this design.
+  - These five are genuinely different *kinds* of quantities (a
+    data-completeness percentage, a spatial ratio, two differently-shaped
+    extraction/emissions penalties, and a discrete per-run tier), so each
+    is normalized to a comparable [0,1] scale before combining, per the
+    "normalize before combining unrelated values" design principle:
     `Stewardship = normalize(EcologicalData) + normalize(DisruptionFootprint) +
-    normalize(ExtractionRestraint) + normalize(EmissionsRestraint)` (weights TBD)
+    normalize(ExtractionRestraint) + normalize(EmissionsRestraint) +
+    normalize(ContactRestraint)` (weights TBD)
   - A fifth axis — rewarding informed integration of native species over
     Earth-imported ones, gated by whether that species has actually been studied —
     was considered but dropped as too mechanically complex alongside these four.
@@ -487,8 +507,13 @@ rather than repeated per faction below.
     "normalize before combining unrelated values" design principle:
     `Development = normalize(ResourceStockpile) + normalize(TechAchievement) +
     normalize(ResourceIncome)`
-- **Frontier Legends.** Wants exciting stories — specific hard-to-complete
-  exploration sites, a standout settler who's completed a lot of exploration tasks.
+- **Frontier Legends.** Named, informally but almost universally, after
+  Captain Naveen Kiran (see Story & World's The Kiran Incident) — the first
+  human being to ever set foot on another world, stranded there by
+  accident, who spent her remaining years transmitting data back rather
+  than treating her situation as merely a tragedy. Wants exciting stories
+  in that same spirit — specific hard-to-complete exploration sites, a
+  standout settler who's completed a lot of exploration tasks.
   Not just an institutional PR angle (though it is pragmatically that too, given
   SEED's need for continued public/political support) — the faction's own members
   want to see *themselves* as among the legends, not just chase good press. Gives
@@ -498,7 +523,10 @@ rather than repeated per faction below.
 
   **Mechanically defined.** Each notably difficult/named exploration site has a
   static, design-authored "legend value," earned by completing it (mirrors
-  `TechAchievement`'s pattern from Development Bloc). Every settler accumulates
+  `TechAchievement`'s pattern from Development Bloc) — with one exception: the
+  sentience-contact chain's legend value scales inversely with the actual success
+  probability of whichever roll produced the outcome, rather than being a flat
+  static value (see Settlers & Exploration's Escalation Chains). Every settler accumulates
   their own personal sum of legend-values from sites *they* personally completed —
   both faction metrics are just different aggregations over that same one dataset:
   - `HardSiteAchievement` — **sum across settlers** of their individual sums.

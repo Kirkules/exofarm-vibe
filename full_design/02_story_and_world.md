@@ -153,7 +153,8 @@ specific pair of regions again is dangerous or impossible — as far as anyone k
 permanently. This lockout is specific to that exact pair: a new wormhole is entirely
 unaffected as long as it isn't the same two regions (Earth can freely open a fresh link
 to a different destination, or a third region can link to either side of an
-already-collapsed pair).
+already-collapsed pair). See The Kiran Incident, below, for how this was first
+discovered.
 
 Communication signals (information/energy, effectively massless) don't count
 meaningfully against the mass threshold, and a collapsed wormhole leaves behind a
@@ -201,6 +202,50 @@ This gives the Phase 5+ hub scanning minigame a concrete in-fiction basis: it
 dramatizes choosing which limited filament slots are worth the energy to search, with
 more favorable or distant targets presumably costing more to detect or being harder to
 lock onto.
+
+**The Kiran Incident.** The very first filament ever upgraded into a full
+transit-capable wormhole was not, strictly speaking, planned to end well.
+The *Halcyon Survey* — a mid-size crewed science vessel outfitted with the
+era's full suite of measurement instruments — was commissioned to observe
+and record the landmark first transit, captained by Naveen Kiran. As the
+wormhole opened, the ship was drawn in by a gravitational pull stronger
+than anticipated; smaller, higher-thrust escape pods could break away in
+time, but the science vessel itself could not. Kiran ordered her crew to
+evacuate and remained aboard alone, taking last measurements as the ship
+continued toward the threshold. She lost her own window to escape, and the
+*Halcyon Survey* — with her aboard — was pulled through as the wormhole
+collapsed behind it.
+
+From Sol's side, this looked like a straightforward, catastrophic loss:
+ship and captain gone, wormhole collapsed. Then, days later, ordinary FTL
+communications arrived from the direction of the collapsed wormhole's ring
+structure. This is how humanity first discovered that a collapsed wormhole
+leaves behind a lingering, communication-capable trace — the filament,
+re-stabilized in its permanent post-transit form.
+
+Sol's engineers spent months trying to re-open a direct transit connection
+to reach her, and failed — this is how humanity first learned that a
+collapsed pair can never be directly reconnected: the very filament now
+carrying her voice back was precisely what stood in the way of forming a
+new transit wormhole along that same path. Once Kiran accepted she wasn't
+coming home, she turned the connection into a research asset instead of a
+lifeline, spending her remaining time helping Sol characterize the system
+she was stranded in — and eventually crash-landed the *Halcyon Survey*, its
+scientific payload substantially salvaged, on the system's single verdant
+world.
+
+She survived there for several years, sending back an extraordinary volume
+of data: atmospheric and weather readings, biological samples, and hours of
+footage — herself climbing mountains and descending into cave systems,
+small native creatures studied up close, larger ones observed from a
+cautious distance. She died of an infection contracted on the planet, still
+transmitting to the end. Her system remains permanently unreachable, per
+the same lockout rule her death first proved — no expedition has ever
+followed her, or ever will.
+
+Naveen Kiran is, by any reasonable account, the first human being to ever
+set foot on another world. See Win/Lose Conditions' SEED Factions for how
+her name lives on.
 
 **Seed-Ships.** Following a successful expedition, if a planet's viability is high
 enough, SEED may eventually dispatch a "seed-ship" toward it — not a wormhole transit
