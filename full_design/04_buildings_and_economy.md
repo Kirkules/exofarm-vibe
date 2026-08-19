@@ -362,11 +362,13 @@ hybridized (see Hybridization, below).
 
 Not a building — traps set on a tile for the season are just that, no
 persistent structure involved. **Trapping** is a Standing Assignment (see
-Settlers & Exploration), same shape as Clear-Cutting: assign a settler to
-any tile for the season; they return with **Pelt** (rate TBD). Fully
-repeatable indefinitely on the same tile — unlike Clear-Cutting, wildlife is
-a renewable resource, not a bounded one-time harvest, as long as the local
-habitat persists.
+Settlers & Exploration), production-speed-based like a building rather than
+a single lump-sum result: assign a settler to one tile, and they yield
+**Pelt** through repeating production cycles across the season's Mid-Sim
+window (rate TBD) — eligible for Storied's production-speed bonus the same
+way a Production building assignment is. Fully repeatable indefinitely on
+the same tile — unlike Clear-Cutting, wildlife is a renewable resource, not
+a bounded one-time harvest, as long as the local habitat persists.
 
 Yield scales two ways:
 - **Planet-type biological richness** — reusing the same `TrueRisk(Bio-hazard)`
@@ -577,16 +579,21 @@ Resources) — one resource, two sources with different sustainability
 profiles, not two separate items.
 
 ### Clear-Cutting
-Not a building — a **Standing Assignment** (see Settlers & Exploration),
-same category as Basic Deposit Survey and Deep Survey. No grid slot, no
-construction cost, no staffing in the sticky sense.
-- Assign a settler to a discovered Forest tile; they're gone for the season
-  (same resolution as any Standing Assignment or Exploration Task) and
-  return with **Wood** — a portion of the tile's bounded total (rate TBD),
-  not the whole thing at once. Reassign a settler there again in a later
-  season to keep drawing it down until exhausted, at which point the tile
-  is bare and no longer assignable — same end state as any depleted bounded
-  deposit.
+Not a building — a **Standing Assignment** (see Settlers & Exploration). No
+grid slot, no construction cost, no staffing in the sticky sense.
+- Production-speed-based, like a building, rather than a single lump-sum
+  result: the player selects any number of individual Forest tiles for one
+  assignment (drag-click marks every eligible tile within a rectangle and
+  can only mark, never unmark; single-tile click toggles mark/unmark on one
+  tile at a time), and the assigned settler works through them during
+  Mid-Sim. How many get fully cleared by season end depends on the
+  settler's speed (rate TBD) — eligible for Storied's production-speed
+  bonus the same way a Production building assignment is. Each cleared
+  tile yields **Wood** — a portion of that tile's bounded total, not the
+  whole thing at once — and any tiles not finished by season end carry
+  over if reassigned next season, continuing to draw the same tiles down
+  until each is exhausted, at which point it's bare and no longer
+  assignable — same end state as any depleted bounded deposit.
 - Balancing target, not a hard rule: a season or two of assignments should
   bank enough Wood to run a base-tier Fuel-based Generator for a season or
   two before the next round of Clear-Cutting is needed.
@@ -941,10 +948,18 @@ consolidated building with selectable recipes fits better)*
     more-frequent Safeguard or Stewardship data-gathering missions (weather
     balloon, atmospheric probe, bio-survey, sentience-detection)
 - Selectable recipes (**requires further-Upgraded Tinkerer's Workshop**):
-  - Temperature-Resistant Gear ← Fabric/Leather + a rare metal — a prerequisite
-    or risk-reducer for exploration tasks on hazardous-temperature planets
-    (Volcanic, Frozen), distinct from `MatchedPreparedness` (which is about the
-    settlement's structures, not what an individual expedition carries)
+  - Temperature-Resistant Gear ← Fabric/Leather + a rare metal — **one
+    universal item covering both hot and cold** (no separate variants),
+    distinct from `MatchedPreparedness` (which is about the settlement's
+    structures, not what an individual carries). Exploration-task settlers
+    still explicitly elect to bring it (consumed); farm-based settlers are
+    covered by a **passive stock check** — any Gear sitting in general
+    inventory covers everyone on the farm against Temperature Extremity, not
+    consumed, not per-settler-allocated — the same pattern PPE already
+    established for Atmospheric Hazard (see Protection's Medical Bay). Any
+    passive-stock-check item like this one should show a visible "in use"
+    indicator during season simulation when it's actively covering someone —
+    a UI/Art Design note, not a mechanic.
   - Diplomatic Gear ← (Silicon + Copper) **or** (Fabric), player selects which
     input path — a prerequisite for the **Peaceful Contact** and
     **Bluff/Coercive Exploitation** approaches at First Contact (see

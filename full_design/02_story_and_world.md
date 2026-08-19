@@ -392,6 +392,17 @@ style blurb when a settler first appears (consistent with the prestigious/compet
 selection process established in Background Story), and a single acknowledgment line
 in the log/report on death. No ongoing dialogue or barks during simulation.
 
+**Narrative-Only Flavor.** A running list of settler-related content that is
+pure fiction with zero mechanical effect, kept separate from anything in
+Settlers & Exploration's Settler State so it's never mistaken for a system
+that needs balancing:
+- The personnel-file blurb and death-acknowledgment line above.
+- **Relationships** — settlers may form an exclusive-pair romantic
+  relationship with each other, arbitrarily/randomly from the player's
+  perspective, surfaced via a Transmission noting two settlers have paired
+  up. No gameplay effect (children/pregnancy/family mechanics were
+  considered and explicitly cut — see `DESIGN_TODO.md`).
+
 **SEED Bulletin (hub, between runs).** A hub panel — not a voiced character — showing
 a periodic state-of-affairs summary: Earth-politics flavor (seed-ship seat allocation
 debate, whether continued climate mitigation is still worth it given Ren's deadline),

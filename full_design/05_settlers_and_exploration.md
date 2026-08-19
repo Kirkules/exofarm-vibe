@@ -3,12 +3,131 @@
 ## Settlers
 
 - A small group of **human settlers** (3–4 at run start)
-- Named individuals, but **no individual gameplay mechanics** — no personal traits or
-  individual favorites affecting gameplay
-- Settlers may have **children** over the run (5–10 year timescale per run), who are
-  additional mouths to feed
+- Named individuals, with real per-settler state (see Settler State, below) —
+  no longer "no individual gameplay mechanics" now that Frontier Legends,
+  injuries, and Atmospheric/Temperature hazards all need it. Settlers may form
+  an exclusive-pair romantic relationship, arbitrarily/randomly, surfaced to
+  the player via a Transmission — **pure narrative flavor with no mechanical
+  effect** (see Story & World's Narrative-Only Flavor).
 - Settlers must be **fed** each season; starvation is a critical failure condition (see
   Food & Nutrition)
+
+### Settler State
+
+Each settler carries:
+- `current_assignment` — what they're doing this season: a Production
+  building, Standing Assignment, Exploration Task, or idle. Lives on the
+  settler, but *sticky*/*locked* behavior is a property of the assignment
+  target, not something the settler itself knows:
+  - **Production building** — remembers its last-assigned settler and
+    defaults `current_assignment` to them at the start of each planning
+    phase; just a default, freely changeable.
+  - **Exploration Task, incomplete/multi-season** — remembers its assigned
+    settler and *forces* `current_assignment` back to them every season
+    until the task resolves; locked, cannot be reassigned during planning.
+  - **Exploration Task, completed** — no longer occupies a pool slot,
+    nothing to default from; the settler comes out unassigned.
+  - **Standing Assignment** — stays one-shot, no stickiness, unaffected.
+- `status_effect` — a list of concurrently-possible entries (not a single
+  field): Injury (see below), Atmospheric Hazard, Temperature Extremity
+  (slowed), and Storied.
+- `legend_value` — a list of completed sites/achievements, not just a
+  scalar; the Frontier Legends formula (see Win/Lose Conditions) sums it,
+  and the list itself feeds personnel-file/end-of-run report display.
+
+### Injuries
+
+Designed independently of *where* a settler gets hurt (exploration,
+Atmospheric Hazard, Temperature Extremity) — this taxonomy is shared by all
+of them, referenced rather than repeated wherever injury/death is mentioned
+elsewhere in this design. Two categories:
+
+- **Semi-permanent (SP)** — broken bones, sprains, moderate burns,
+  concussions. No standalone debuff number of its own — its entire
+  mechanical expression *is* the eligibility and delay rules below;
+  inventing an additional debuff on top would be functionally irrelevant,
+  since it would disappear the moment it could matter. Heals automatically:
+  each SP injury takes a **quarter-season** to heal. Without a Medical Bay,
+  multiple SP injuries heal **serially** (one quarter-season each, in
+  sequence); with a Medical Bay, they heal **simultaneously** — same
+  quarter-season per injury, but in parallel, so Medical Bay's entire value
+  is collapsing N×(quarter-season) down to one quarter-season when a
+  settler has more than one SP injury at once. (With exactly one SP injury,
+  Medical Bay makes no difference.)
+  - **Exploration eligibility**: ineligible for Low-risk or High-risk
+    exploration tasks; eligible for No-risk tasks, with a small penalty to
+    success chance — applying only to No-risk tasks that already have a
+    probabilistic success chance (Achievement-flavor), never to
+    guaranteed-if-attempted ones.
+  - **On-site assignment**: a settler assigned to a Production building or
+    Standing Assignment has their actual work delayed until they've
+    recovered — the recovery period occupies the first portion of that
+    season's Mid-Sim window, with normal work resuming for the remainder.
+- **Permanent** — loss of a limb or eye, brain damage, severe burns. Carries
+  a real ongoing debuff, since it never resolves. Four types, each affecting
+  a different aspect of assignment rather than sharing one number. Two
+  reusable task groupings do most of the work here:
+  - **Outdoor/Fieldwork**: every Exploration Task, all Farm/Production
+    buildings, all mining (Mine, Quarry, Rare Metal Extractor),
+    Clear-Cutting, Trapping, Basic Deposit Survey, Deep Survey.
+  - **Manual Labor**: Outdoor/Fieldwork above, plus Kitchen, Robotics
+    Assembly, Stone Processing, Carpenter's Shop. Everything **not** in
+    this set (Research Lab, Medical Bay, Scanner Station, Tinkerer's
+    Workshop) is "non-manual."
+
+  With those two groupings:
+  - **Loss of a leg** — bars Outdoor/Fieldwork entirely; everything
+    non-Outdoor (Kitchen, Research Lab, all four Fabrication buildings,
+    Medical Bay, Scanner Station, Water buildings) stays open.
+  - **Loss of an arm** — bars nothing, but cuts work speed to 50% on every
+    assignment except the non-manual set (Research Lab, Medical Bay,
+    Scanner Station, Tinkerer's Workshop), and separately reduces success
+    chance on *any* probabilistic exploration outcome regardless of risk
+    tier — broader than SP injury's No-risk-only penalty.
+  - **Brain damage** — bars the non-manual set entirely (only Manual Labor
+    tasks stay eligible). Within exploration specifically, reuses risk
+    tier as a complexity proxy rather than a separate taxonomy: Low-risk
+    and High-risk tasks count as "too complicated" and are barred, No-risk
+    tasks stay eligible — the same shape SP injury already uses for
+    exploration.
+  - **Severe burns** — bars nothing, cuts work speed to 75% on Manual
+    Labor tasks specifically — narrower in scope than Arm Loss, but a
+    smaller cut.
+- **Risk tier gates severity directly**: Low-risk task failure can only
+  produce SP injury or nothing — never permanent injury, never death.
+  High-risk task failure can produce any of {nothing but no reward, SP
+  injury, permanent injury, death}.
+- **Negative outcomes only trigger on task failure**, for tasks with a real
+  success/failure split (Achievement-flavor Legend outcomes, First
+  Contact's Bluff/Military branches): on failure, roll a negative-outcome
+  type from {nothing but no reward, SP injury} for Low-risk tasks, or
+  {nothing but no reward, SP injury, permanent injury, death} for
+  High-risk tasks. This does **not** apply to the separate
+  guaranteed-success-with-independent-risk shape (Site Reveals,
+  Hybridization opportunities, most Planet exclusives — see Risk
+  Spectrum) — those tasks have no failure state to gate on, and keep
+  their existing independent roll unchanged.
+
+### Storied
+
+A positive `status_effect`: once a settler's `legend_value` sum crosses a
+threshold (TBD, deferred to balancing), they permanently gain:
+- **+15% production speed** on Production-building assignments, and on
+  Trapping/Clear-Cutting now that both are production-speed-based (see
+  Standing Assignments, below).
+- **+1 to the upper bound** of any exploration-task outcome with a numeric
+  quantity range, regardless of which outcome category it's filed under.
+- **A relative success-chance boost** on any probabilistic exploration
+  outcome: `p_new = p + 0.25(1 - p)`.
+- **A relative reduction to bad-outcome probability** on any risky task:
+  `r_new = 0.75 × r_old` — a distinct, simpler formula from the
+  success-chance boost above, applied to the negative-outcome rolls
+  described in Injuries.
+
+Diegetically: an experienced, renowned settler is just genuinely better at
+their job — low mechanical overhead (one threshold check, a handful of flat
+modifiers), self-limiting rather than unbalancing, since Legend outcomes are
+already rare by design.
 
 ---
 
@@ -376,26 +495,24 @@ axis (see Outcomes and the Strategy Dimensions, above):
 - **Low-risk** — can lead to injury, cannot lead to death.
 - **High-risk** — can lead to injury or death.
 
-Both consequence types reuse existing mechanics rather than inventing new
-ones:
-- **Injury** — the settler gets the same status-effect debuff Atmospheric
-  Hazard exposure already uses (fixed duration, halved effectiveness,
-  locked out of exploration assignment while active).
-- **Death** — the settler is permanently removed from the roster, the same
-  mechanic starvation-death already uses.
-
-Neither needs the not-yet-built per-settler tracking system — that system
-is about tracking achievements/history, not whether a settler currently
-exists, which the roster already handles today.
+Injury and death consequences, and the full taxonomy of injury types, are
+specified once in Settlers' Injuries subsection (above) rather than here,
+since they're shared across every source of harm (exploration, Atmospheric
+Hazard, Temperature Extremity), not exploration-specific. Death is the
+settler's permanent removal from the roster, the same mechanic
+starvation-death already uses.
 
 **Guaranteed-success tasks with a risk tag** (Site Reveals, Hybridization
 opportunities — anything that isn't an Achievement-flavor Legend outcome)
-handle risk differently from Achievement outcomes: the find itself is
-never in doubt, but the risk tier still applies as an **independent roll**
-alongside it — the settler *will* discover the vein, but the dangerous
-environment they found it in (an active volcanic zone, a deep cave) can
-still injure or kill them regardless of the task's own success. When that
-happens, the settler earns a **Frontier Legends bonus** — large for injury,
+handle risk differently from Achievement outcomes, and differently from
+the failure-gated negative-outcome pool described in Injuries: the find
+itself is never in doubt, but the risk tier still applies as an
+**independent roll** alongside it — the settler *will* discover the vein,
+but the dangerous environment they found it in (an active volcanic zone, a
+deep cave) can still injure or kill them regardless of the task's own
+success. There's no "failure" state to gate on here, so this keeps its own
+independent roll rather than folding into the failure-triggered pool. When
+that happens, the settler earns a **Frontier Legends bonus** — large for injury,
 moderate for death — for every task of this shape, not just
 Profile-shifting-flavored ones: a settler who's hurt or lost expanding the
 settlement's strategic options has done something legend-worthy regardless
@@ -417,23 +534,35 @@ available (e.g. a volatile volcanic planet generates more of them).
 ## Standing Assignments
 
 The other of the three Assignment target kinds (see Core Loop & Grid's
-Assignment) — settler-only and one-shot, same resolution as Exploration
-Tasks (the settler is gone for the season and returns with a result), but
-**always available every season** rather than pool-limited, and **safe**
-(no risk spectrum, no Rations — the work stays on or near the farm, unlike
-a genuine off-site expedition). Four members:
+Assignment) — settler-only, drawn fresh each season rather than
+pool-limited, and **safe** (no risk spectrum, no Rations — the work stays
+on or near the farm, unlike a genuine off-site expedition). Four members:
 
 - **Basic Deposit Survey** and **Deep Survey** (see Buildings & Economy's
   Deposit Discovery) — Basic Survey covers a player-chosen rectangle of
   tiles and flags which of them are worth a Deep Survey; Deep Survey then
   automatically targets every tile flagged that way so far, no rectangle
-  choice needed. Both repeatable.
-- **Clear-Cutting** (see Buildings & Economy's Fuel) — harvests Wood from a
-  discovered Forest tile; bounded, depletes with use.
-- **Trapping** (see Buildings & Economy's Farm/Production) — harvests Pelt
-  from any tile, yield boosted by Forest presence and by the planet's
-  biological richness; unlike Clear-Cutting, renewable and repeatable
+  choice needed. Both repeatable, one-shot per assignment (the settler is
+  gone for the season and returns with a result) — the same resolution
+  shape Exploration Tasks use.
+- **Clear-Cutting** (see Buildings & Economy's Fuel) — production-speed-based,
+  like a building: the player selects any number of individual Forest tiles
+  (drag-click marks every eligible tile within a rectangle and can only
+  mark, never unmark; single-tile click toggles mark/unmark on one tile at
+  a time), and the assigned settler works through them during Mid-Sim — how
+  many get fully cleared by season end depends on their speed, with any
+  unfinished tiles carrying over if reassigned next season. Each tile's
+  Wood is bounded and depletes with use.
+- **Trapping** (see Buildings & Economy's Farm/Production) — also
+  production-speed-based: targets one tile, yielding Pelt through repeating
+  production cycles across the season's Mid-Sim window rather than a
+  single lump-sum result, boosted by Forest presence and the planet's
+  biological richness. Unlike Clear-Cutting, renewable and repeatable
   indefinitely on the same tile.
+
+Trapping and Clear-Cutting's speed-based shape makes them eligible for
+Storied's production-speed bonus (see Settlers) the same way a Production
+building assignment is.
 
 Since these aren't drawn from the Exploration Tasks pool, they don't
 participate in that system's Reinforcing/Profile-shifting/Neutral outcome
@@ -478,7 +607,11 @@ there is no building filling that old "Matter Manipulator" nutrition role.
 - If total available nutrition (Rations plus any meals) can't cover the
   settler headcount at all, the shortfall causes **settler deaths** (the
   original mechanic, unchanged) — a confirmation dialog gates confirming a
-  season with deaths planned from this shortfall.
+  season with deaths planned from this shortfall. **Who dies is drawn
+  uniformly at random** ("drawing lots") from everyone needing to be fed at
+  the settlement that season, excluding any settler currently on an
+  Exploration Task — their Rations were already committed at assignment
+  time, separate from this pooled at-home check.
 
 ### Meals
 - Produced at ordinary staffed single-conversion production sites (see Platform &

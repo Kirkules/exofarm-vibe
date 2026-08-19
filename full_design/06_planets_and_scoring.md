@@ -232,6 +232,29 @@ coverage as before.
     duration.
   - Always temporary — resumes automatically once the event ends. Unlike
     Storm below, Temperature Extremity never destroys anything on its own.
+- **Settler-level consequence, driven by the same event-severity roll as
+  the production consequence above** — every entity at an unprotected site
+  shares one severity roll, not a separate roll per entity type. All
+  temperature is tracked against one universal **72°F** target for every
+  entity (settlers and crops alike) — no per-crop optimal-temperature
+  variation; the only tolerance lever for crops is the existing
+  Hybridization mechanic's Ice/Volcanic immunity (see Buildings &
+  Economy's Farm/Production), which stays unchanged. For an unprotected
+  settler at the site:
+  - **Mild event** → a `status_effect` entry (see Settlers & Exploration's
+    Settler State) that slows the settler's work. Fully dynamic, not a
+    fixed duration: present exactly when the settler is at an unprotected
+    site *and* the current in-sim temperature — which fluctuates through
+    Mid-Sim — is outside the 72°F comfort range, clearing the instant
+    either condition stops holding.
+  - **Extreme event** → a probability roll (chance TBD) on death, the same
+    roster-removal mechanic used everywhere else a settler can die.
+  - Protection is shared with the production-side consequence: a funded
+    Weather/Row Shield covers both crops and any settler working that
+    site via one shared coverage check. Settlers additionally have a
+    personal option production sites don't: Temperature-Resistant Gear
+    (see Buildings & Economy's Fabrication), covering farm-based settlers
+    via a passive stock check the same way PPE covers Atmospheric Hazard.
 
 **Storm** — preparedness-coverage tiers, same shape as before, plus a new
 top-severity consequence:
@@ -260,17 +283,16 @@ top-severity consequence:
   send PPE** when initiating the task — this *is* consumed from inventory
   (see Protection's Medical Bay for PPE production), confirming it as a real
   optional exploration cost, not just a stock check.
-- Exposure without PPE (either context) inflicts a **status effect**: fixed
-  duration (TBD), halves the settler's effectiveness in all tasks (their
-  worker-effort contributes 0.5 instead of 1, per Worker Assignment's
-  effort-stacking mechanic), and locks them out of exploration-task
-  assignment entirely while active.
+- Exposure without PPE (either context) inflicts a **status effect** (see
+  Settlers & Exploration's Settler State): triggers on exposure, persists
+  for roughly 3 seconds of Mid-Sim time afterward, halves the settler's
+  effectiveness in all tasks (their worker-effort contributes 0.5 instead
+  of 1, per Worker Assignment's effort-stacking mechanic), and locks them
+  out of exploration-task assignment entirely while active.
 
-> **Open thread, not resolved here:** this is the first real per-settler
-> state anywhere in the design, and directly overlaps with the still-open
-> "Frontier Legends individual-settler tracking system" (see
-> `DESIGN_TODO.md`) — both need some notion of settler identity/state that
-> doesn't exist yet. Worth designing together, in detail, rather than twice.
+> **Resolved**: the per-settler tracking system this needed is now fully
+> designed — see Settlers & Exploration's Settler State, Injuries, and
+> Storied subsections.
 
 ---
 

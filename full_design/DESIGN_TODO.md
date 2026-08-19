@@ -25,9 +25,19 @@ tracks what's needed *underneath* them.
   - [ ] Rarity weights per resource (not yet assigned)
   - [ ] Real buildings/items catalog carrying `TechAchievement` values
 - [x] **Frontier Legends** — formula done
-  - [ ] Individual-settler tracking system (doesn't exist at all yet — now
-    also needed by the Atmospheric Hazard status-effect debuff, see
-    In-Simulation Hazard Events; design both together, not twice)
+  - [x] Individual-settler tracking system — resolved (see Settlers &
+    Exploration's Settler State, Injuries, and Storied subsections):
+    `current_assignment` (with sticky/locked default-population living on
+    the assignment target, not the settler), a `status_effect` list
+    (Injury, Atmospheric Hazard, Temperature Extremity, Storied), and a
+    `legend_value` list. Also resolves the Atmospheric Hazard status-effect
+    debuff's dependency, as flagged. A full injury taxonomy (semi-permanent
+    vs. four permanent types, each with its own eligibility/speed rules)
+    and the Storied positive status_effect were designed alongside it.
+    Along the way, a settler relationship/pregnancy/child system was
+    designed in detail, then explicitly cut as too complex and too far
+    from the game's intended tone — relationships alone survive, as pure
+    narrative flavor (see Story & World's Narrative-Only Flavor).
   - [ ] Catalog of named "hard sites" with legend-values
 
 ## Proposed Approach
@@ -90,8 +100,19 @@ Development's `TechAchievement` carrier all live there). Work through it by
 Then close out:
 - [ ] Development Bloc rarity weights
 - [ ] `TechAchievement` values across the catalog
-- [ ] Frontier Legends individual-settler tracking system
 - [ ] Frontier Legends hard-sites catalog
+- [ ] **Drone specification pass** — surfaced while designing Temperature
+  Extremity's settler consequence: there's no existing drone battery/energy
+  model anywhere in this design at all, so "battery drain scales with
+  temperature deviation" (the drone-specific Temperature Extremity
+  response, as opposed to settlers' slow-then-life-threatening shape)
+  can't be written until a real drone energy system exists. Also open:
+  whether advanced drone tiers get better temperature tolerance as an
+  upgrade axis.
+- [ ] Remaining numeric TBDs from the Settler State / Injuries / Storied
+  design pass: Storied's `legend_value` threshold; the Temperature
+  Extremity settler death-probability on extreme exposure; Trapping's and
+  Clear-Cutting's per-settler speed rates.
 
 ## Core Loop / Structural Gaps
 
