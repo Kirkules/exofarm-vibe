@@ -38,6 +38,27 @@ tracks what's needed *underneath* them.
     designed in detail, then explicitly cut as too complex and too far
     from the game's intended tone — relationships alone survive, as pure
     narrative flavor (see Story & World's Narrative-Only Flavor).
+  - [x] Settler differentiation (Experience & Aptitude) — resolved (see
+    Settlers & Exploration's Experience and Aptitude subsections):
+    Experience is a per-task-group stack (0–3, +15% speed each) earned
+    through play, permanent, no decay; Aptitude is an innate, per-bucket
+    level (−3 to +3) fixed at Crew Selection, using coarser groupings that
+    never cross an Experience group's boundary. A new **Smelter** building
+    (Ore → Iron/Copper, see Buildings & Economy's Fabrication) surfaced
+    while defining Aptitude's Mining-adjacent bucket. Exploration Aptitude
+    has its own tiered, cumulative effect shape distinct from the other
+    five buckets, stacking additively (not sequentially) with Storied.
+  - [x] **Crew Selection phase and its balancing system** — resolved (see
+    Core Loop & Grid's new Crew Selection section): a one-time pre-run
+    screen before Farm Site Selection, free/uncapped whole-crew reroll.
+    Balancing happens **per-settler**, not per-crew, via three weighted
+    archetypes (Average 70% / Jack-of-several-trades 20% / Savant 10%),
+    each constraining a settler's six Aptitude-bucket levels to a
+    comparable total-value band — this specifically closes the exploit
+    where a crew-level-only balance could let a player concentrate every
+    negative where it's easiest to ignore while keeping every positive.
+    Exact ordering relative to the expedition-commitment/filament-scan
+    step is still unspecified, flagged in place rather than here.
   - [ ] Catalog of named "hard sites" with legend-values
 
 ## Proposed Approach

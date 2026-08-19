@@ -915,6 +915,19 @@ consolidated building with selectable recipes fits better)*
   - Concrete ← Stone
   - Silicon ← Stone
 
+### Smelter
+- Category: Fabrication | Staffing: Staffed
+- New (surfaced while designing Settlers & Exploration's Aptitude
+  buckets): refines raw **Ore** into usable metal, the same role Stone
+  Processing plays for Stone — Iron and Copper were previously just used
+  as inputs everywhere with no processing step of their own; this adds
+  one.
+- Selectable recipes:
+  - Iron ← Ore
+  - Copper ← Ore
+- Exact ratios TBD, deferred to balancing like other numeric values in
+  this design.
+
 ### Textile Workshop
 - Category: Fabrication | Staffing: Staffed
 - Selectable recipes:

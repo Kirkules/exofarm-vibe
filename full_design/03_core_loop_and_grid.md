@@ -94,6 +94,53 @@ rather than placeable:
 - Forest tiles (bounded Wood quantity — see Buildings & Economy's Fuel)
 - Set at run start; cannot be moved or removed
 
+### Crew Selection
+
+A one-time pre-run screen, before Farm Site Selection, where the player
+settles on their starting crew (3–4 settlers). Exact ordering relative to
+the expedition-commitment/filament-scan step below is TBD — this section
+only fixes that it precedes Farm Site Selection.
+
+**What it determines.** Each candidate crew is a full set of settlers with
+independently-rolled Aptitude profiles (see Settlers & Exploration's
+[Aptitude](05_settlers_and_exploration.md#aptitude)) — names and everything
+else about a settler are otherwise uninvolved in this screen. Selecting a
+crew locks in every settler's Aptitude levels, across all six buckets, for
+the entire run; Aptitude never changes afterward.
+
+**Archetypes.** Each settler in a candidate crew is independently assigned
+one of three archetypes, weighted **Average 70% / Jack-of-several-trades
+20% / Savant 10%**:
+- **Average** — every bucket's level falls within [−1, +1], and the total
+  across all six buckets also falls within [−1, +1]. Low variance, safe,
+  no guaranteed extremes either direction.
+- **Jack-of-several-trades** — 2–3 buckets at +2 (no bucket exceeds +2 for
+  this archetype), with the remaining buckets carrying whatever mix of −1s
+  and −2s is needed to land the total between −2 and 0, centered on −1.
+  Moderate specialization at a moderate cost.
+- **Savant** — at least one bucket at +3, at least one bucket at −3, every
+  other bucket unconstrained, with the total across all six always summing
+  to exactly −3. The highest ceiling in the game, at the steepest built-in
+  cost.
+
+This keeps crew balance **per-settler** rather than per-crew — a crew of
+independently-rolled settlers can't be gamed by concentrating every
+settler's downside where it's easiest to ignore (e.g. one settler eating
+every negative bucket while never being assigned there, leaving every
+other settler's upside free). A full-Savant crew is possible
+(0.1³ ≈ 0.1% for a 3-settler crew) but very rare, matching the intent that
+an optimal roll should be a real, felt outlier, not something worth
+grinding for.
+
+**Presentation.** Shows the full candidate crew — names and Aptitude
+profiles as plain-language readouts per bucket (e.g. "+30% Mining speed"),
+never raw levels or formulas — see Settlers & Exploration's Aptitude.
+
+**Reroll.** The player may discard the entire shown crew and generate a
+new one. Unlike Farm Site Selection's reroll below, this one is **free and
+uncapped** — no Ration cost, no limit — since it's the very first decision
+of a run, before there's anything in inventory to spend.
+
 ### Farm Site Selection
 
 A one-time pre-run screen that determines the actual grid instance a run

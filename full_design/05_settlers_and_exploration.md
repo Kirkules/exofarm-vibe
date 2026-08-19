@@ -34,6 +34,10 @@ Each settler carries:
 - `legend_value` — a list of completed sites/achievements, not just a
   scalar; the Frontier Legends formula (see Win/Lose Conditions) sums it,
   and the list itself feeds personnel-file/end-of-run report display.
+- `experience` — a per-task-group stack count (0–3), earned through play
+  (see Experience, below).
+- `aptitude` — a per-bucket level (−3 to +3), innate and fixed at Crew
+  Selection, never changing over a run (see Aptitude, below).
 
 ### Injuries
 
@@ -127,7 +131,103 @@ threshold (TBD, deferred to balancing), they permanently gain:
 Diegetically: an experienced, renowned settler is just genuinely better at
 their job — low mechanical overhead (one threshold check, a handful of flat
 modifiers), self-limiting rather than unbalancing, since Legend outcomes are
-already rare by design.
+already rare by design. Tooltip stays plain-language, same as Experience
+and Aptitude below — "reduced injury chance," "improved chance of
+success," "up to 1 more item from Exploration," never the underlying
+formula.
+
+### Experience
+
+A stacking permanent buff, per settler, per **task group** — earned
+through play, unlike Aptitude below. Applies only to non-exploration
+assignable tasks (Production buildings and Standing Assignments);
+Exploration Tasks never build or benefit from Experience.
+
+**Groups** (fixed, not player-adjustable) — a settler tracks one stack
+count per group, and that count's bonus applies uniformly across every
+task within it, not just wherever it was earned:
+- **Farming** — Grain Field, Fruit Orchard, Dairy Pasture, Poultry Coop,
+  Sheep Pasture, Fiber Field, Timber Grove.
+- **Mining** — Mine, Quarry, Rare Metal Extractor.
+- **Kitchen**, **Trapping**, and **Clear-Cutting** — each its own group.
+- **Surveys** — Basic Deposit Survey and Deep Survey, shared with each
+  other only.
+- **Each Fabrication building separately** — Robotics Assembly, Stone
+  Processing, Smelter (see Buildings & Economy's Fabrication), Textile
+  Workshop, Carpenter's Shop, Tinkerer's Workshop.
+- **Each Research/Utilities building separately** — Research Lab, Medical
+  Bay, Scanner Station.
+
+**Gaining stacks**: a settler assigned to a task in a group gains one
+stack for that group per season, provided they actually perform *any*
+work in that group during the season — a season shortened by an
+injury-recovery delay still counts, as long as some work happens
+afterward; a season where somehow no work happens at all (e.g. a
+mid-season death) does not. Stacks are **permanent** — no decay from time
+away or reassignment.
+
+**Effect**: +15% production speed per stack, up to 3 stacks (+45% max).
+Tooltip shows a plain-language readout ("+30% Farming speed"), never the
+underlying formula.
+
+### Aptitude
+
+A per-settler, per-bucket profile — analogous to Experience in shape (same
+±15%-per-level production-speed effect, same three-level range), but
+**innate rather than earned**: fixed once at Crew Selection (see Core Loop
+& Grid's Crew Selection for the archetype/reroll system that generates
+these), never changing over the course of a run. Levels run **−3 to +3**,
+zero meaning no aptitude either way.
+
+**Buckets** — coarser than Experience's groups, and never crossing an
+Experience group's boundary (each Experience group belongs to exactly one
+bucket):
+- Farming, Trapping, Clear-Cutting
+- Mining, Stone Processing, Smelter
+- Textile Workshop, Carpenter's Shop, Kitchen
+- Robotics Assembly, Tinkerer's Workshop, Medical Bay, Research Lab
+- Scanner Station, Surveys
+- **Exploration** — Aptitude-only; no corresponding Experience group
+  exists for it.
+
+**Effect, the first five buckets**: ±15% production speed per level, same
+additive stacking shape as Experience (up to ±45% at level 3), applied
+uniformly across every task in the bucket — stacks additively with
+whatever Experience a settler has separately earned at the specific
+building they're working (Experience and Aptitude are independent numbers
+that both contribute to the same speed total). Tooltip: plain-language
+("+30% Mining speed"), no formula.
+
+**Effect, the Exploration bucket** — a different shape from the other
+five: each level unlocks an *additional* effect rather than repeating the
+same one, and the negative direction mirrors each formula rather than
+just inverting a sign:
+
+| Level | Effect |
+|---|---|
+| +1 | Bad-outcome/injury chance reduced, full Storied magnitude (`r_new = 0.75 × r_old`) |
+| +2 | Keeps +1, adds success-chance increase, full Storied magnitude (`p_new = p + 0.25(1-p)`) |
+| +3 | Keeps +1 and +2, adds +1 to resource-outcome maximums |
+| −1 | Bad-outcome/injury chance *increased* instead (`r_new = min(1.25 × r_old, 1.0)`) |
+| −2 | Keeps −1, adds success-chance *decrease* instead (`p_new = 0.75 × p`) |
+| −3 | Keeps −1 and −2, *subtracts* 1 from resource-outcome maximums instead |
+
+Applies to every exploration outcome, including the previously-"guaranteed"
+ones (Site Reveals, Hybridization opportunities, most Planet exclusives —
+see Risk Spectrum) — those are now framed as having a base 100% success
+rate that this can scale down, same as any other probabilistic outcome.
+Their separate independent risk roll for injury/death (see Risk Spectrum)
+stays completely unaffected by this success/fail outcome either way — the
+two systems don't interact.
+
+Stacks with **Storied** additively, not sequentially: the two sources'
+relative percentages sum before being applied once (`p_new = p +
+0.50(1-p)` if both are active, not `p` run through the formula twice) —
+this avoids the compounding oddity of applying the same relative formula
+in sequence. The flat +1/−1 outcome-maximum effect just adds normally with
+Storied's own +1. Tooltip stays plain-language here too — "reduced injury
+chance," "improved chance of success," "up to 1 more item from
+Exploration" (or the negative-direction equivalents), never the formulas.
 
 ---
 
@@ -505,14 +605,16 @@ starvation-death already uses.
 **Guaranteed-success tasks with a risk tag** (Site Reveals, Hybridization
 opportunities — anything that isn't an Achievement-flavor Legend outcome)
 handle risk differently from Achievement outcomes, and differently from
-the failure-gated negative-outcome pool described in Injuries: the find
-itself is never in doubt, but the risk tier still applies as an
-**independent roll** alongside it — the settler *will* discover the vein,
-but the dangerous environment they found it in (an active volcanic zone, a
-deep cave) can still injure or kill them regardless of the task's own
-success. There's no "failure" state to gate on here, so this keeps its own
-independent roll rather than folding into the failure-triggered pool. When
-that happens, the settler earns a **Frontier Legends bonus** — large for injury,
+the failure-gated negative-outcome pool described in Injuries: they carry
+a base **100% success rate** — only reducible by negative Exploration
+Aptitude (see Settlers' Aptitude), otherwise as good as guaranteed — but
+the risk tier still applies as a fully separate **independent roll**
+alongside it — the settler *will almost always* discover the vein, but the
+dangerous environment they found it in (an active volcanic zone, a deep
+cave) can still injure or kill them regardless of whether the discovery
+itself succeeded. The two rolls never interact — a negative-Aptitude
+settler failing the discovery doesn't change their odds on the danger
+roll, and vice versa. When that happens, the settler earns a **Frontier Legends bonus** — large for injury,
 moderate for death — for every task of this shape, not just
 Profile-shifting-flavored ones: a settler who's hurt or lost expanding the
 settlement's strategic options has done something legend-worthy regardless

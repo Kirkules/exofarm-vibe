@@ -45,6 +45,7 @@ anything broken. Run this after any batch of edits, not just once at the end.
   - [Background Story & Gameplay-Story Integration](02_story_and_world.md#background-story--gameplay-story-integration)
 - **[Core Loop & Grid](03_core_loop_and_grid.md)**
   - [Platform & Core Loop Redesign (In Progress)](03_core_loop_and_grid.md#platform--core-loop-redesign-in-progress)
+  - [Crew Selection](03_core_loop_and_grid.md#crew-selection)
   - [Farm Site Selection](03_core_loop_and_grid.md#farm-site-selection)
   - [Season Structure](03_core_loop_and_grid.md#season-structure)
   - [Technology & Progression](03_core_loop_and_grid.md#technology--progression)
