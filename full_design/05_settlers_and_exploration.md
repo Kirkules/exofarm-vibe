@@ -286,12 +286,13 @@ mechanics:
   hard prerequisite the task can't be attempted without at all (Deep Survey's
   Portable High-Powered Scanning Equipment requirement is the existing
   precedent for this). Full task-by-task costs are in the catalog below.
-- **Some tasks are unmanned** (e.g. a weather balloon or camera drone), requiring no
-  settler assignment at all — mostly data-collecting missions, making up some
-  fraction of available tasks. This means a player could plausibly complete an
-  entire run without ever sending a settler out; the Frontier Legends SEED faction
-  (see Win/Lose Conditions) specifically rewards choosing *not* to rely purely on
-  the safer unmanned option.
+- **Every exploration task requires a settler** — drones are barred from
+  Exploration entirely, regardless of tier (see Buildings & Economy's
+  Robotics Assembly), so there's no unmanned route through this pool. A
+  player can still choose never to send anyone out at all, simply by never
+  accepting a task; the Frontier Legends SEED faction (see Win/Lose
+  Conditions) specifically rewards choosing to risk real settlers rather
+  than avoiding exploration altogether.
 
 ### Outcomes
 Four categories of positive result:
@@ -636,31 +637,37 @@ available (e.g. a volatile volcanic planet generates more of them).
 ## Standing Assignments
 
 The other of the three Assignment target kinds (see Core Loop & Grid's
-Assignment) — settler-only, drawn fresh each season rather than
-pool-limited, and **safe** (no risk spectrum, no Rations — the work stays
-on or near the farm, unlike a genuine off-site expedition). Four members:
+Assignment) — drawn fresh each season rather than pool-limited, and
+**safe** (no risk spectrum, no Rations — the work stays on or near the
+farm, unlike a genuine off-site expedition). Worker-type eligibility
+varies per assignment, unlike Exploration Tasks (settler-only, full stop)
+— see Buildings & Economy's Robotics Assembly for the full drone
+taxonomy. Four members:
 
 - **Basic Deposit Survey** and **Deep Survey** (see Buildings & Economy's
   Deposit Discovery) — Basic Survey covers a player-chosen rectangle of
   tiles and flags which of them are worth a Deep Survey; Deep Survey then
   automatically targets every tile flagged that way so far, no rectangle
-  choice needed. Both repeatable, one-shot per assignment (the settler is
+  choice needed. Both repeatable, one-shot per assignment (the worker is
   gone for the season and returns with a result) — the same resolution
-  shape Exploration Tasks use.
+  shape Exploration Tasks use. Open to Settlers and Advanced All-Purpose
+  Drones (not Basic).
 - **Clear-Cutting** (see Buildings & Economy's Fuel) — production-speed-based,
   like a building: the player selects any number of individual Forest tiles
   (drag-click marks every eligible tile within a rectangle and can only
   mark, never unmark; single-tile click toggles mark/unmark on one tile at
-  a time), and the assigned settler works through them during Mid-Sim — how
+  a time), and the assigned worker works through them during Mid-Sim — how
   many get fully cleared by season end depends on their speed, with any
   unfinished tiles carrying over if reassigned next season. Each tile's
-  Wood is bounded and depletes with use.
+  Wood is bounded and depletes with use. Open to Settlers and any
+  All-Purpose Drone, Basic included.
 - **Trapping** (see Buildings & Economy's Farm/Production) — also
   production-speed-based: targets one tile, yielding Pelt through repeating
   production cycles across the season's Mid-Sim window rather than a
   single lump-sum result, boosted by Forest presence and the planet's
   biological richness. Unlike Clear-Cutting, renewable and repeatable
-  indefinitely on the same tile.
+  indefinitely on the same tile. Open to Settlers and Advanced All-Purpose
+  Drones (not Basic).
 
 Trapping and Clear-Cutting's speed-based shape makes them eligible for
 Storied's production-speed bonus (see Settlers) the same way a Production

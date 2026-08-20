@@ -138,11 +138,11 @@ statistics library needed at runtime:
 
 | Sub-factor | Data source | Success | Failure | Player sees |
 |---|---|---|---|---|
-| Storm Severity/Frequency | Scanner Station's Weather Sensing mode (see Farm/Production; staffed at base tier, one reading/season active) or weather balloon (unmanned exploration task) | Storm event detected in the window | Calm conditions | *"Storm activity detected"* / *"Conditions calm."* |
+| Storm Severity/Frequency | Scanner Station's Weather Sensing mode (see Farm/Production; staffed at base tier, one reading/season active) or a weather balloon (exploration task) | Storm event detected in the window | Calm conditions | *"Storm activity detected"* / *"Conditions calm."* |
 | Temperature Extremity | Same Scanner Station Weather Sensing mode, or a dedicated probe | Window registered a temperature swing extreme enough to threaten human safety | Temperatures stayed within safe range | *"Extreme temperature swing recorded"* / *"Temperatures within safe range."* |
-| Atmospheric Hazard | Atmospheric sampling (unmanned exploration task/probe) | Sample contained toxic/corrosive compounds above a safe threshold | Clean sample | *"Atmospheric sample: hazardous compounds detected"* / *"Atmospheric sample: clean."* |
-| Pathogen Threat | Bio-survey exploration task (manned or unmanned) or Medical/Research facility | Sampled organism/environment tested positive for a dangerous pathogen | Clean sample | *"Pathogen detected in sample"* / *"No pathogens detected."* |
-| Toxic/Parasitic Organism Threat | Exploration tasks encountering wildlife (inherently manned — direct contact risk, not remote sampling) | Encountered organism proved dangerous (venomous/toxic) | Organisms encountered were benign | *"Dangerous organism encountered"* / *"Wildlife encountered was benign."* |
+| Atmospheric Hazard | Atmospheric sampling (exploration task) | Sample contained toxic/corrosive compounds above a safe threshold | Clean sample | *"Atmospheric sample: hazardous compounds detected"* / *"Atmospheric sample: clean."* |
+| Pathogen Threat | Bio-survey exploration task or Medical/Research facility | Sampled organism/environment tested positive for a dangerous pathogen | Clean sample | *"Pathogen detected in sample"* / *"No pathogens detected."* |
+| Toxic/Parasitic Organism Threat | Exploration tasks encountering wildlife | Encountered organism proved dangerous (venomous/toxic) | Organisms encountered were benign | *"Dangerous organism encountered"* / *"Wildlife encountered was benign."* |
 
 Individual reports appear as short log entries (fits the Transmissions record or
 simulation log, consistent with existing UI patterns). The derived
@@ -360,7 +360,7 @@ rather than repeated per faction below.
     "normalize before combining unrelated values" design principle. How much of the
     possible data on that hazard has been collected — different efforts contribute
     different amounts (early weather-monitoring structures accumulating data points
-    over time, exploration data-gathering missions — manned or unmanned, e.g. a
+    over time, settler-crewed exploration data-gathering missions, e.g. a
     weather balloon). 100%/1.0 means as confident as possible in the picture
     gathered.
   - `MatchedRisk(hazard)` — a Bayesian "sureness" that this hazard is actually
@@ -564,10 +564,11 @@ rather than repeated per faction below.
     combining unrelated values" design principle:
     `FrontierLegends = normalize(HardSiteAchievement) +
     normalize(StandoutSettlerRecord)`
-  - Since some exploration tasks are unmanned (see Exploration Tasks), a player who
-    never sends a settler out keeps `StandoutSettlerRecord` at zero — this faction
-    specifically rewards choosing to risk real settlers rather than always
-    defaulting to the safer unmanned option.
+  - Exploration is settler-only, full stop (see Settlers & Exploration's
+    Exploration Tasks) — but a player can still choose to never accept any
+    exploration task at all, keeping `StandoutSettlerRecord` at zero. This
+    faction specifically rewards choosing to risk real settlers rather than
+    avoiding exploration altogether.
 
 All five SEED Factions now have real formulas.
 

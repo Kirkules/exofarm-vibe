@@ -198,6 +198,22 @@ the following properties. Working through the catalog category-by-category (see
   about whether a building consumes or produces anything (Solar Array:
   unstaffed, has Output, no Input; Weather Shield: unstaffed, no Input/Output
   at all, just Energy upkeep and Area of effect; Kitchen: staffed, has both).
+- **Indoor or Outdoor** — for staffed buildings, whether a worker there is
+  physically sheltered. Reuses the **Outdoor/Fieldwork** grouping already
+  defined in Settlers & Exploration's Injuries (every Farm/Production
+  building, all mining, Clear-Cutting, Trapping, Basic/Deep Survey — plus
+  Exploration Tasks, which aren't buildings but follow the same rule) as
+  Outdoor; everything else staffed (Kitchen, all Fabrication buildings,
+  Research Lab, Medical Bay, Scanner Station, Water buildings) is Indoor.
+  An Indoor building shields its worker (settler or drone) from Atmospheric
+  Hazard and Temperature Extremity for free, but **only while powered** —
+  an unpowered Indoor building is treated as Outdoor. This is a separate,
+  free-by-default protection channel alongside Weather/Row Shield, which
+  remains how Outdoor sites/crops/workers get protected (funded shield
+  coverage protects both the structure/crops *and* any outdoor worker on a
+  shielded tile). If a building is destroyed mid-Mid-Sim, its worker is
+  freed and returns to the roster immediately, losing whatever Indoor
+  protection they had at that instant.
 - **Construction cost** — resources required to build (Energy/Matter for basic
   designs, additional planet-side materials for advanced ones, per Technology &
   Progression); consumed when a construction robot begins the build
@@ -229,9 +245,7 @@ doesn't need a name for each shape.
   **staffed** sites, since it's inherently about worker effort reaching a
   ceiling — unstaffed buildings just produce a flat per-tier rate.
 - **Area of effect** — coverage radius/shape for Protection buildings
-  specifically. **Not the same as worker/drone service footprint** — that belongs
-  to the *worker*, not the building (see Worker Assignment); both are spatial
-  coverage systems but attach to different entities.
+  specifically.
 - **Energy upkeep** — passive per-season Energy cost, usually 0; nonzero
   primarily via the Protection/temperature-coupling mechanic (see Exoplanet
   Types) — always explicitly displayed when nonzero, never hidden.
@@ -900,14 +914,76 @@ consolidated building with selectable recipes fits better)*
   - All-Purpose Drone (Basic) ← Iron + Copper (base tier)
   - All-Purpose Drone (Advanced) ← Iron + Copper + Silicon (**requires Upgraded
     Robotics Assembly**)
-  - Specialized Drone (one recipe per job category — Grain/Fruit/Food,
-    Lumber/Cotton, animal products, etc.) ← Iron + Copper + a category-flavored
-    input (**requires Upgraded Robotics Assembly AND at least one existing
-    production structure of the matching job category already built** — no
-    point fabricating a Grain/Fruit harvester drone before any such farm plot
-    exists)
+  - Specialized Drone (one recipe per Experience group — see Settlers &
+    Exploration's Experience for the full list) ← Iron + Copper + a
+    category-flavored input (**requires Upgraded Robotics Assembly AND at
+    least one existing production structure of the matching group already
+    built** — no point fabricating a Farming-specialized drone before any
+    farm plot exists). Never available for Research Lab, since Research is
+    settler-only regardless of drone tier.
+  - **Hardening upgrade** (temperature-resistant battery) — takes an
+    existing drone as an assigned *resource* to the task (it's tied up,
+    unavailable for its normal assignment, for the task's duration) while a
+    *different* worker performs the upgrade; the same drone comes out the
+    other side hardened, its identity and current battery charge carried
+    through rather than being consumed and replaced by a fresh unit.
 - `TechAchievement`: 0 (base tier) / higher (upgraded tier) | Repeatable: yes |
   Upgrade path: yes, gates the Advanced/Specialized recipes above
+
+**Drones are persistent, assignable units** — settler-lite roster entries,
+not consumable items once built. Every drone is assigned to exactly one
+site at a time, the same as a settler (no multi-cell service footprint).
+
+**Effort** (see Core Loop & Grid's Assignment for the general mechanic — a
+per-worker multiplier on a task's base production rate, where 1.0 matches
+an unmodified settler):
+
+| Drone type | Effort |
+|---|---|
+| All-Purpose (Basic) | 0.5 |
+| All-Purpose (Advanced) | 1.0 |
+| Specialized (Basic) | 1.5 |
+| Specialized (Advanced) | 2.0 |
+
+**Task eligibility:**
+- **All-Purpose (Basic)** — basic production, Farming, Mining, Clear-Cutting,
+  and assembly-style tasks at most production buildings. **Not** eligible
+  for High-Tech Components, Research, Scanning, Surveys, Exploration, or
+  Trapping.
+- **All-Purpose (Advanced)** — everything Basic can do, plus High-Tech
+  Components, Surveys, Scanning, Trapping, and Medical Bay's Vaccine/PPE
+  production. **Only** barred from Exploration and Research (Research
+  Lab's research work, and Medical Bay's medical research specifically) —
+  those stay settler-only regardless of drone tier.
+- **Specialized** — restricted to exactly one Experience group (see
+  Settlers & Exploration's Experience), at a much higher Effort than even
+  Advanced All-Purpose, but never Exploration or Research under any
+  circumstances, same as the other two tiers.
+
+**Battery**: every drone has an internal battery — a tracked value with a
+per-drone maximum (better on higher tiers). It **resets to full for free at
+the start of every season**, no cross-season tracking. Performing an
+assigned task drains it over the course of Mid-Sim; if it hits zero, the
+drone **briefly recharges** (~3 seconds of Mid-Sim time, roughly a fifth of
+a season, possibly varying by drone type), drawing a small amount from the
+settlement's Energy Pool — fully automatic, no player decision, the same
+"background check against reserved Energy" pattern already established for
+Weather/Row Shield funding. While recharging, the drone contributes zero
+Effort. Higher-tier drones have big enough batteries that they may never
+need to recharge in a normal season. If the settlement doesn't have enough
+Energy to complete a recharge, it pauses at whatever percentage it reached
+and resumes once available Energy reaches **twice** the amount still
+needed — a buffer against flickering on and immediately back off. No
+battery replacement is ever needed; this is permanent hardware, just
+periodically drained and refilled. Draining is faster the further
+temperature strays from the 72°F comfort target (see Planets & Scoring's
+In-Simulation Hazard Events), **except for hardened drones** (see the
+Hardening upgrade recipe above), which don't suffer this penalty.
+
+**Destruction**: any worker, settler or drone, is freed and returns to the
+roster when their building is destroyed. If this happens mid-Mid-Sim, they
+also immediately lose whatever Indoor protection they had (see Building
+Schema) and become exposed to any hazard active at that moment.
 
 ### Stone Processing
 - Category: Fabrication | Staffing: Staffed
@@ -945,9 +1021,9 @@ consolidated building with selectable recipes fits better)*
 
 ### Tinkerer's Workshop
 - Category: Fabrication | Staffing: Staffed
-  — Settler or a specialized research/data-capable drone tier (a new drone
-  specialization distinct from harvester-type production drones, not yet fully
-  designed — flagged for Worker Assignment later)
+  — Settler, Advanced All-Purpose Drone, or a Tinkerer's-Workshop-Specialized
+  Drone (see Robotics Assembly) — not Basic All-Purpose, since High-Tech
+  Components requires Advanced-tier eligibility
 - Selectable recipes (base tier):
   - High-Tech Components ← Copper + Silicon + Iron — used as a construction-cost
     input for Protection-tier shield structures and other advanced buildings,
@@ -1083,7 +1159,10 @@ principle that a planet/strategy shouldn't reduce to one correct approach)*
 - `TechAchievement`: 0 | Repeatable: yes
 
 ### Medical Bay
-- Staffing: Staffed
+- Staffing: Staffed — Settler, Advanced All-Purpose Drone, or a
+  Medical-Bay-Specialized Drone (see Robotics Assembly) for PPE and Vaccine
+  Production; medical research specifically stays settler-only, the same
+  rule as Research Lab
 - **Base tier**: provides baseline `Preparedness(Bio-hazard)` credit
   (general medical readiness — illustrative: 0.2) — available immediately,
   no data prerequisite.

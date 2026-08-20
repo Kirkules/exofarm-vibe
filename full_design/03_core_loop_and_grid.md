@@ -193,9 +193,13 @@ limiting resource.
 - **The power grid system, entirely** — no broadcast range, no networks, no shared
   pools, no batteries, no on/off toggling. Removed as a whole layer of low-impact
   management overhead.
-- **General neighbor-effect synergies** — removed, with two specific exceptions that
-  remain as area-of-effect systems: **force-field/weather-protection coverage**, and
-  **drone service footprints** (see Assignment below).
+- **General neighbor-effect synergies** — removed, with one specific exception that
+  remains as an area-of-effect system: **force-field/weather-protection coverage**.
+  (An earlier draft of this cut also carved out a **drone service footprint**
+  exception — a Specialized Drone servicing a multi-cell area — but that idea
+  was superseded once drones got a full Effort/eligibility system of their own;
+  see Buildings & Economy's Robotics Assembly. Every worker, settler or drone,
+  is assigned to exactly one site.)
 - **Manual merge-space ingredient crafting** — no more dragging ingredients into a
   mini-grid to discover/confirm recipes. See Production Model below for what replaces
   it.
@@ -238,46 +242,44 @@ reversible planning-phase action until Next Season is confirmed.
   producing its own wheat *and* baking it, though the wheat-growing side
   runs slower than a dedicated wheat field). An unstaffed site produces zero
   output for the season.
-- **Exploration Task** (see Settlers & Exploration) — one-shot: the worker
-  is gone for the season and returns with a result. Drawn from a small,
-  periodically-refreshed pool (up to 3 at a time, every 3rd season) — a
-  side-quest, event-like, not a routine option. Settlers only (some tasks
-  are unmanned, needing no assignment at all). Risk-bearing; may require
-  Rations to sustain the settler away from the farm.
+- **Exploration Task** (see Settlers & Exploration) — one-shot: the settler
+  is gone for the season and returns with a result. Drawn from a small
+  pool, always available (not gated to a periodic window), refreshed on
+  season-start and manual reroll — a side-quest, event-like, not a routine
+  option. **Settler-only, full stop** — no drone of any tier is ever
+  eligible (see Buildings & Economy's Robotics Assembly). Risk-bearing;
+  may require Rations to sustain the settler away from the farm.
 - **Standing Assignment** (see Settlers & Exploration) — also one-shot, same
   resolution as Exploration Tasks, but always available every season rather
   than pool-limited, and safe (no risk spectrum, no Rations — the work
-  stays on or near the farm). Settlers only, for the same reason Exploration
-  Tasks are — this work needs a person's judgment, not just mechanical
-  labor. Covers Basic Deposit Survey, Deep Survey (see Buildings &
-  Economy's Deposit Discovery), Clear-Cutting (see Buildings & Economy's
-  Fuel), and Trapping (see Buildings & Economy's Farm/Production).
+  stays on or near the farm). Covers Basic Deposit Survey, Deep Survey (see
+  Buildings & Economy's Deposit Discovery), Clear-Cutting (see Buildings &
+  Economy's Fuel), and Trapping (see Buildings & Economy's Farm/Production)
+  — worker-type eligibility varies per assignment, not uniformly
+  settler-only (see Settlers & Exploration's Standing Assignments).
 
 **Worker types** (Production-building assignments specifically — Exploration
-Tasks and Standing Assignments are settler-only, per above):
-- **Settlers** are universal — assignable to any job type — but can only cover one
-  grid slot (one field or one building) each.
-- **Drones** are built at a Drone Fabrication site, which is itself a staffed
-  production site (a real early-game bootstrapping decision: dedicating a scarce
-  settler to drone production instead of food, for a later payoff). Drones can be
-  **all-purpose** (universal like a settler, but lower efficiency at the basic tier;
-  advanced all-purpose drones match a settler's efficiency exactly) or **specialized**
-  (restricted to a job category — e.g. Grain/Fruit/Food vs. Lumber/Cotton vs. animal
-  products — with bonuses for that category).
-- **Specialized drones can service a multi-cell footprint** rather than being limited
-  to one slot — e.g. a harvester drone servicing every matching-category site within
-  a 2×2 area. Footprint size scales with drone tier/upgrade, with scaling balanced
-  per drone type. Within a footprint, only matching-category sites are serviced;
-  non-matching or empty cells are simply unserviced — clustering same-category
-  production together is a pure efficiency optimization, not a requirement. Footprints
-  represent *reach*, not physical occupation, so they can overlap freely.
-- **Effort stacks toward a per-site production cap.** A site has a maximum per-cycle
-  output (scaling with its tier/upgrades); each worker (or each unit of overlapping
-  drone coverage) contributes one unit of effort toward that cap. A single
-  settler-level worker might only realize half an advanced site's potential output,
-  requiring a second worker (another settler, or overlapping drone coverage) to reach
-  the cap — creating a spread-thin-vs-concentrate tradeoff on top of the basic
-  staffing decision.
+Tasks and Research are settler-only, full stop; see Settlers & Exploration
+and Buildings & Economy's Robotics Assembly for why):
+- **Settlers** are universal — assignable to any job type Injuries/Aptitude
+  don't bar them from — but can only cover one grid slot (one field or one
+  building) each, contributing **1.0 Effort** as their unmodified baseline
+  (see Settlers & Exploration's Aptitude and Experience for modifiers).
+- **Drones** are built at Robotics Assembly, a staffed production site (a
+  real early-game bootstrapping decision: dedicating a scarce settler to
+  drone production instead of food, for a later payoff). Every drone is
+  assigned to exactly one site, the same as a settler — no multi-cell
+  service footprint. The full drone taxonomy (Basic/Advanced All-Purpose,
+  Basic/Advanced Specialized, their Effort values, task eligibility, and
+  battery system) lives in Buildings & Economy's Robotics Assembly rather
+  than here.
+- **Effort stacks toward a per-site production cap.** A site has a maximum
+  per-cycle output (scaling with its tier/upgrades); each worker contributes
+  their own Effort value toward that cap — 1.0 for an unmodified settler,
+  varying by tier for drones (see Robotics Assembly). A single worker might
+  only realize part of an advanced site's potential output, requiring a
+  second worker to reach the cap — creating a spread-thin-vs-concentrate
+  tradeoff on top of the basic staffing decision.
 - Left open: whether some special worker type could break the "one worker, one slot"
   default (settlers) or otherwise behave outside these rules.
 
@@ -292,8 +294,7 @@ unassigned workers of that type, B = total owned.
 
 - **Hovering** an avatar outlines it and simultaneously outlines every building/site
   currently serviced by workers of that type — a direct visual answer to "where is
-  this worker type deployed right now," which matters for optimizing specialized
-  drone footprint clustering.
+  this worker type deployed right now."
 - **The roster is also an assignment entry point**, not just informational: dragging
   an avatar with unassigned workers (A > 0) begins the same assign-to-site flow as
   picking up a worker directly, fusing "notice an idle worker" and "assign it" into
@@ -301,8 +302,8 @@ unassigned workers of that type, B = total owned.
 
 ### Construction
 
-Every settlement starts with **one construction robot**; more can be built at a
-Fabrication site, the same staffed-production pattern used for other drones.
+Every settlement starts with **one construction robot**; more can be built at
+Robotics Assembly, the same staffed-production pattern used for other drones.
 A construction robot can, in a season, do one of three things: **build one new
 building** (any type), **upgrade one existing building**, or **relocate one existing
 built building** to a different valid, empty slot (or slots, for a multi-slot

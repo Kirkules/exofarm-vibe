@@ -122,14 +122,26 @@ Then close out:
 - [ ] Development Bloc rarity weights
 - [ ] `TechAchievement` values across the catalog
 - [ ] Frontier Legends hard-sites catalog
-- [ ] **Drone specification pass** — surfaced while designing Temperature
-  Extremity's settler consequence: there's no existing drone battery/energy
-  model anywhere in this design at all, so "battery drain scales with
-  temperature deviation" (the drone-specific Temperature Extremity
-  response, as opposed to settlers' slow-then-life-threatening shape)
-  can't be written until a real drone energy system exists. Also open:
-  whether advanced drone tiers get better temperature tolerance as an
-  upgrade axis.
+- [x] **Drone specification pass** — resolved (see Buildings & Economy's
+  Robotics Assembly, Building Schema's new Indoor/Outdoor property, and
+  Core Loop & Grid's Assignment): drones are persistent single-assignment
+  units with an Effort ladder (All-Purpose Basic 0.5 / Advanced 1.0,
+  Specialized Basic 1.5 / Advanced 2.0), task eligibility that widens by
+  tier but never covers Exploration or Research, and a per-drone battery
+  that resets free each season, drains faster under Temperature Extremity
+  unless hardened, and auto-recharges off the Energy Pool. New **Indoor
+  vs. Outdoor** building property (reusing Injuries' Outdoor/Fieldwork
+  grouping) gives Indoor-and-powered buildings free hazard shielding,
+  separate from Weather/Row Shield's Outdoor coverage. Surfaced and fixed
+  two stale pre-existing mechanics along the way: Specialized Drones'
+  multi-cell service footprint (removed — every worker is single-site now)
+  and Exploration Tasks' "some tasks are unmanned" framing (removed —
+  Exploration is settler-only, full stop; corrected everywhere it was
+  referenced across Planets & Scoring too).
+- [ ] **Production building UI** — not yet designed at all; how a player
+  actually sees/interacts with a staffed site's assignment, Effort,
+  Experience/Aptitude readouts, and (for drones) battery state during
+  play.
 - [ ] Remaining numeric TBDs from the Settler State / Injuries / Storied
   design pass: Storied's `legend_value` threshold; the Temperature
   Extremity settler death-probability on extreme exposure; Trapping's and
