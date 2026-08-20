@@ -2,9 +2,9 @@
 
 ## Design Principles
 
-> Open question: difficulty philosophy is now covered (see "failure should always be
+> Open question: difficulty philosophy is now covered (see ["failure should always be
 > legible," "difficulty comes from breadth of tradeoffs," and "forgiving of
-> individual mistakes, punishing of sustained neglect" below). Still unexplored:
+> individual mistakes, punishing of sustained neglect"](01_design_principles.md#design-principles) below). Still unexplored:
 > **replayability** (candidates floated: variety from different planet scenarios
 > rather than reshuffled numbers; meta-progression expanding the strategy space
 > rather than just raising the floor; end-of-run reports that seed the next run's
@@ -12,7 +12,7 @@
 > failure get framed narratively as a valuable discovery for SEED rather than a
 > punitive "game over"?), and **interruptibility** (an explicit guarantee that the
 > game is safely pausable at any moment with no meaningful progress loss, formalizing
-> what the save-trigger behavior in Backend & Data Persistence already does in
+> what the save-trigger behavior in [Backend & Data Persistence](07_production_and_technical.md#backend--data-persistence) already does in
 > practice).
 
 - **Numbers stay small.** Describes how the finished game should feel to play — not a
@@ -61,7 +61,7 @@
   that *hiding* the real unit would confuse rather than simplify — the opposite
   failure mode from the one this principle otherwise guards against. Time durations
   (production cycles measured in seconds) are the first example; **Temperature**
-  (see Planets & Scoring's In-Simulation Hazard Events) is the same case — showing
+  (see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)) is the same case — showing
   "15 Temperature" instead of "15°" would force players to re-learn an arbitrary
   scale for a quantity they already understand instinctively in Fahrenheit or
   Celsius. Unlike Energy/Matter/Water, which have no real-world referent a typical
@@ -264,7 +264,7 @@
   tradeoff-driven challenge this principle wants.
 
   Fine-motor gesture thresholds (double-tap timing, drag-vs-tap distance) are
-  entirely the domain of the accessibility principles above (the global
+  entirely the domain of the [accessibility principles](01_design_principles.md#design-principles) above (the global
   dexterity-timing scale) — this principle doesn't touch that territory at all, and
   there's no tension between the two.
 
@@ -324,7 +324,7 @@
   specifically when combining across categories — e.g. a raw resource stockpile
   total, a count of achievement points, and an average income rate are three
   different *kinds* of numbers with no inherent shared scale, so each must be
-  normalized before being added into a single score (see SEED Factions' Development
+  normalized before being added into a single score (see [SEED Factions](06_planets_and_scoring.md#seed-factions)' Development
   Bloc in Win/Lose Conditions for a worked example).
 - **Design docs describe the current design, not its history.** Content in the
   numbered design files (Story & World through Roadmap) should read as if the

@@ -130,7 +130,7 @@ statistics library needed at runtime:
   equally, regardless of which way it leans or what the hidden true value is.
   `Confidence(hazard)` is what actually feeds the `Data(hazard)` term in
   `Score(hazard) = Data(hazard) + MatchedRisk(hazard) × MatchedPreparedness(hazard)`
-  from SEED Factions below — i.e. `Data(hazard)` **is** `Confidence(hazard)`.
+  from [SEED Factions](06_planets_and_scoring.md#seed-factions) below — i.e. `Data(hazard)` **is** `Confidence(hazard)`.
 - **Implementation footprint**: just two running counters per sub-factor (ten total
   across all five). No distribution objects, no sampling.
 
@@ -138,7 +138,7 @@ statistics library needed at runtime:
 
 | Sub-factor | Data source | Success | Failure | Player sees |
 |---|---|---|---|---|
-| Storm Severity/Frequency | Scanner Station's Weather Sensing mode (see Farm/Production; staffed at base tier, one reading/season active) or a weather balloon (exploration task) | Storm event detected in the window | Calm conditions | *"Storm activity detected"* / *"Conditions calm."* |
+| Storm Severity/Frequency | Scanner Station's Weather Sensing mode (see [Farm/Production](04_buildings_and_economy.md#farmproduction); staffed at base tier, one reading/season active) or a weather balloon (exploration task) | Storm event detected in the window | Calm conditions | *"Storm activity detected"* / *"Conditions calm."* |
 | Temperature Extremity | Same Scanner Station Weather Sensing mode, or a dedicated probe | Window registered a temperature swing extreme enough to threaten human safety | Temperatures stayed within safe range | *"Extreme temperature swing recorded"* / *"Temperatures within safe range."* |
 | Atmospheric Hazard | Atmospheric sampling (exploration task) | Sample contained toxic/corrosive compounds above a safe threshold | Clean sample | *"Atmospheric sample: hazardous compounds detected"* / *"Atmospheric sample: clean."* |
 | Pathogen Threat | Bio-survey exploration task or Medical/Research facility | Sampled organism/environment tested positive for a dangerous pathogen | Clean sample | *"Pathogen detected in sample"* / *"No pathogens detected."* |
@@ -161,7 +161,7 @@ factions care about reaching a confident answer regardless of what that answer i
 Until now, Weather/Bio-hazard hazards were purely things the player *surveyed
 and scored against* — this section makes them actually happen during
 simulation, with real gameplay consequences, closing the gap flagged when
-Medical Bay's PPE recipe was designed (see Buildings & Economy's Protection).
+Medical Bay's PPE recipe was designed (see Buildings & Economy's [Protection](04_buildings_and_economy.md#protection)).
 
 **Trigger — reuse the existing hidden draw, don't add a new one.** The
 Data-gathering mechanism above already implicitly simulates "did this hazard
@@ -188,7 +188,7 @@ value already computed for scoring, not a separate building-gated tier system:
   how severe — with more lead time (illustrative: a season or two ahead).
 
 All delivered via the existing **Transmissions** mechanic (see Story & World's
-Gameplay-Story Integration), which was already specifically designed for this
+[Gameplay-Story Integration](02_story_and_world.md#gameplay-story-integration)), which was already specifically designed for this
 purpose — this section is that mechanic's concrete realization, not a new
 system layered on top of it.
 
@@ -239,10 +239,10 @@ coverage as before.
   entity (settlers and crops alike) — no per-crop optimal-temperature
   variation; the only tolerance lever for crops is the existing
   Hybridization mechanic's Ice/Volcanic immunity (see Buildings &
-  Economy's Farm/Production), which stays unchanged. For an unprotected
+  Economy's [Farm/Production](04_buildings_and_economy.md#farmproduction)), which stays unchanged. For an unprotected
   settler at the site:
-  - **Mild event** → a `status_effect` entry (see Settlers & Exploration's
-    Settler State) that slows the settler's work. Fully dynamic, not a
+  - **Mild event** → a `status_effect` entry (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's
+    [Settler State](05_settlers_and_exploration.md#settler-state)) that slows the settler's work. Fully dynamic, not a
     fixed duration: present exactly when the settler is at an unprotected
     site *and* the current in-sim temperature — which fluctuates through
     Mid-Sim — is outside the 72°F comfort range, clearing the instant
@@ -253,7 +253,7 @@ coverage as before.
     Weather/Row Shield covers both crops and any settler working that
     site via one shared coverage check. Settlers additionally have a
     personal option production sites don't: Temperature-Resistant Gear
-    (see Buildings & Economy's Fabrication), covering farm-based settlers
+    (see Buildings & Economy's [Fabrication](04_buildings_and_economy.md#fabrication)), covering farm-based settlers
     via a passive stock check the same way PPE covers Atmospheric Hazard.
 
 **Storm** — preparedness-coverage tiers, same shape as before, plus a new
@@ -281,18 +281,18 @@ top-severity consequence:
   per-settler-allocated.
 - Exploration-task settlers: protection requires **explicitly electing to
   send PPE** when initiating the task — this *is* consumed from inventory
-  (see Protection's Medical Bay for PPE production), confirming it as a real
+  (see [Protection](04_buildings_and_economy.md#protection)'s [Medical Bay](04_buildings_and_economy.md#medical-bay) for PPE production), confirming it as a real
   optional exploration cost, not just a stock check.
 - Exposure without PPE (either context) inflicts a **status effect** (see
-  Settlers & Exploration's Settler State): triggers on exposure, persists
+  [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Settler State](05_settlers_and_exploration.md#settler-state)): triggers on exposure, persists
   for roughly 3 seconds of Mid-Sim time afterward, halves the settler's
   effectiveness in all tasks (their worker-effort contributes 0.5 instead
   of 1, per Worker Assignment's effort-stacking mechanic), and locks them
   out of exploration-task assignment entirely while active.
 
 > **Resolved**: the per-settler tracking system this needed is now fully
-> designed — see Settlers & Exploration's Settler State, Injuries, and
-> Storied subsections.
+> designed — see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Settler State](05_settlers_and_exploration.md#settler-state), [Injuries](05_settlers_and_exploration.md#injuries), and
+> [Storied](05_settlers_and_exploration.md#storied) subsections.
 
 ---
 
@@ -305,7 +305,7 @@ top-severity consequence:
   against hiding information behind one figure
 - Score = "viability report" — how good could life be here for a larger colony?
 - The *fictional meaning* is defined (see "Seed-Ships" in Background Story &
-  Gameplay-Story Integration) — it's an estimate of the likelihood that a full-scale,
+  [Gameplay-Story Integration](02_story_and_world.md#gameplay-story-integration)) — it's an estimate of the likelihood that a full-scale,
   long-term human civilization could be established on that planet, used to decide
   whether/who a future seed-ship gets sent there.
 - **Content scope**: the viability report explains each SEED Faction's score plus a
@@ -336,11 +336,11 @@ rather than repeated per faction below.
 
 - **Sustenance Bloc.** Feasibility, to them, doesn't mean "is it safe for humans" —
   it means "can it support a large population at all." Sustainability is the core
-  value. Backs the **Food Security** sub-metric (see Food & Nutrition):
+  value. Backs the **Food Security** sub-metric (see [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition)):
   `FoodSecurity = normalize(NutritionStockpile) + normalize(NutritionIncome)` —
   `NutritionStockpile` is `sum of sqrt(stockpiled amount)` across the four nutrient
   axes, counting only food actually committed to a Food Storage building (see
-  Storage) — uncommitted food in general inventory contributes nothing;
+  [Storage](04_buildings_and_economy.md#storage)) — uncommitted food in general inventory contributes nothing;
   `NutritionIncome` mirrors Development Bloc's `ResourceIncome` — a linear
   average production rate over the run's last 5 seasons, across the same four
   axes, unaffected by storage status since it measures productive capacity
@@ -371,7 +371,7 @@ rather than repeated per faction below.
     naturally normalized to [0,1].
   - `MatchedPreparedness(hazard)` — built preparedness (Weather Shield for
     Weather; Medical Bay for Bio-hazards — see Buildings & Economy's
-    Protection category) normalized against the *true* risk level, capped at
+    [Protection](04_buildings_and_economy.md#protection) category) normalized against the *true* risk level, capped at
     1: `min(Preparedness / TrueRisk, 1)`.
   - **`Score(hazard) = Data(hazard) + MatchedRisk(hazard) × MatchedPreparedness(hazard)`**
     — pure data-gathering has a real floor value on its own (SEED wants the
@@ -418,7 +418,7 @@ rather than repeated per faction below.
       tools, signals, or other evidence of organized intelligence). Report:
       *"Signs of organized intelligence found"* / *"No signs of organized
       intelligence found."* Finding evidence of organized intelligence launches
-      the full **sentience-contact chain** (see Exploration Tasks' Escalation
+      the full **sentience-contact chain** (see [Exploration Tasks](05_settlers_and_exploration.md#exploration-tasks)' Escalation
       Chains for the complete worked example — Observe from a distance, then a
       branching peaceful/aggressive contact choice), which contributes
       significantly elevated `EcologicalData` weight and elevated Frontier
@@ -451,17 +451,17 @@ rather than repeated per faction below.
     mineral regenerates, "effectively infinite" only means the specific
     deposit is large relative to a run's timescale, not that the resource
     itself renews), Fossil Fuel, and Clear-Cutting's Wood output specifically
-    (see Buildings & Economy's Fuel — a Standing Assignment, not a
+    (see Buildings & Economy's [Fuel](04_buildings_and_economy.md#fuel) — a Standing Assignment, not a
     building). **Does not apply** to ordinary Farm/Production output
     (Grain, Fruit, Milk, Eggs, Wool, Wood from Timber Grove, Fiber, Pelts —
     all renewable), Well/water-collection, or Geothermal Generator's
     heat-tapping — all ongoing and non-depleting. Tracked as a running
     cumulative total at the point of *harvest*, not by tracing which pooled,
     fungible unit later gets consumed — this is what lets Wood stay a single
-    resource with two sources (see Buildings & Economy's Fuel) rather than
+    resource with two sources (see Buildings & Economy's [Fuel](04_buildings_and_economy.md#fuel)) rather than
     needing two separately-tracked items.
   - `EmissionsRestraint` — penalized by cumulative Energy produced via
-    Fuel-based Generator over the run (see Buildings & Economy's Fuel), a
+    Fuel-based Generator over the run (see Buildings & Economy's [Fuel](04_buildings_and_economy.md#fuel)), a
     genuinely separate behavior from `ExtractionRestraint` (that one cares
     about the sustainability of the *source*; this one cares about the
     *act of burning* regardless of source — Wood from sustainable Timber
@@ -478,7 +478,7 @@ rather than repeated per faction below.
     on its own terms, independent of however Earth's own unresolved climate
     debate turns out.
   - `ContactRestraint` — how the player handled any alien civilization
-    encountered this run (see Settlers & Exploration's Escalation Chains
+    encountered this run (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Escalation Chains](05_settlers_and_exploration.md#escalation-chains)
     for the full sentience-contact chain and its civilization classes). A
     single discrete per-run value, not a cumulative sum like the other
     three axes, since a run has at most one such encounter: highest value
@@ -547,7 +547,7 @@ rather than repeated per faction below.
   `TechAchievement`'s pattern from Development Bloc) — with one exception: the
   sentience-contact chain's legend value scales inversely with the actual success
   probability of whichever roll produced the outcome, rather than being a flat
-  static value (see Settlers & Exploration's Escalation Chains). Every settler accumulates
+  static value (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Escalation Chains](05_settlers_and_exploration.md#escalation-chains)). Every settler accumulates
   their own personal sum of legend-values from sites *they* personally completed —
   both faction metrics are just different aggregations over that same one dataset:
   - `HardSiteAchievement` — **sum across settlers** of their individual sums.
@@ -563,8 +563,8 @@ rather than repeated per faction below.
     combining unrelated values" design principle:
     `FrontierLegends = normalize(HardSiteAchievement) +
     normalize(StandoutSettlerRecord)`
-  - Exploration is settler-only, full stop (see Settlers & Exploration's
-    Exploration Tasks) — but a player can still choose to never accept any
+  - Exploration is settler-only, full stop (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's
+    [Exploration Tasks](05_settlers_and_exploration.md#exploration-tasks)) — but a player can still choose to never accept any
     exploration task at all, keeping `StandoutSettlerRecord` at zero. This
     faction specifically rewards choosing to risk real settlers rather than
     avoiding exploration altogether.

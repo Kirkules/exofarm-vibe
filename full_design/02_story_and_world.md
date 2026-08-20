@@ -78,7 +78,7 @@ happened to spell **WREN**. "The Wren" is what stuck in public use almost immedi
 and across the centuries since, worn down by constant multilingual repetition the way
 "influenza" wore down to "the flu," it settled into a single name spoken by everyone
 alive: **Ren**. Unlike the deliberately dry, functional-only catalog designations SEED
-still uses for candidate exoplanets (see Filaments and Exoplanet Discovery, below),
+still uses for candidate exoplanets (see [Filaments and Exoplanet Discovery](02_story_and_world.md#backstory), below),
 Ren's name never stayed neutral — it is the single most spoken, most personally
 significant word in human language.
 
@@ -112,9 +112,9 @@ began, not something the era invented from nothing. Reckless, competition-driven
 progress accelerated the damage further, and by the time FTL was achieved, few
 scientists thought full reversal was realistic any longer. Earth remains habitable, and
 mitigation efforts continue, but this is a real, ongoing, self-inflicted cost the era
-made worse — and Earth's politics still argue about it (see Seed-Ships, below). It
-isn't why SEED exists, though; that reason predates the era entirely (see Ren, the
-Incoming Star, above).
+made worse — and Earth's politics still argue about it (see [Seed-Ships](02_story_and_world.md#backstory), below). It
+isn't why SEED exists, though; that reason predates the era entirely (see [Ren, the
+Incoming Star](02_story_and_world.md#backstory), above).
 
 Shielding technology, no longer needed to protect FTL-capable ships (which bypass the
 normal-space hazards of sublight travel entirely), found a second life in agriculture:
@@ -133,7 +133,7 @@ them.
 
 Passing a sufficient amount of mass through a wormhole destabilizes and collapses it.
 The exact threshold is a function of stabilization technology — better stabilization
-(a meta-progression axis to note for later; see Technology & Progression) raises how
+(a meta-progression axis to note for later; see [Technology & Progression](03_core_loop_and_grid.md#technology--progression)) raises how
 much mass can pass through before collapse, which is why a run's starting expedition
 footprint is small: it's constrained by the mass threshold current stabilization tech
 allows, not merely by cost.
@@ -145,7 +145,7 @@ population and its life-support infrastructure would require energy beyond anyth
 producible (more than a star outputs), so wormhole mass-transit at that scale isn't a
 matter of "not invented yet" — it's foreclosed for any foreseeable technology. This is
 why large-scale human migration and wormhole-based scouting remain two permanently
-distinct systems (see "Seed-Ships" below), rather than something future meta-progression
+distinct systems (see "[Seed-Ships](02_story_and_world.md#backstory)" below), rather than something future meta-progression
 could ever unify.
 
 Once a wormhole collapses, re-establishing a *direct* connection between that same
@@ -153,7 +153,7 @@ specific pair of regions again is dangerous or impossible — as far as anyone k
 permanently. This lockout is specific to that exact pair: a new wormhole is entirely
 unaffected as long as it isn't the same two regions (Earth can freely open a fresh link
 to a different destination, or a third region can link to either side of an
-already-collapsed pair). See The Kiran Incident, below, for how this was first
+already-collapsed pair). See [The Kiran Incident](02_story_and_world.md#backstory), below, for how this was first
 discovered.
 
 Communication signals (information/energy, effectively massless) don't count
@@ -384,7 +384,7 @@ point resolves the still-open "no purely ambient, untriggered randomness should 
 run" design principle for any future weather/disaster mechanic: a transmission
 telegraphs the hazard in advance, turning what would otherwise be an ambush into a
 legible, prepare-or-don't risk. **Now concretely realized** — see Planets & Scoring's
-In-Simulation Hazard Events for the full mechanism (the one-time SEED summary
+[In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events) for the full mechanism (the one-time SEED summary
 transmission, and per-season telegraphing that scales with `Confidence(hazard)`).
 
 **Settler story presence.** Kept deliberately minimal for now: a short personnel-file
@@ -408,7 +408,7 @@ a periodic state-of-affairs summary: Earth-politics flavor (seed-ship seat alloc
 debate, whether continued climate mitigation is still worth it given Ren's deadline),
 possible meta-progression direction hints, and seed-ship development news. This is the natural home for the flagged
 "a past colony receives a seed-ship" mechanic to surface, including the planet's
-community-chosen name (see "Planet Naming" above) and any associated resource
+community-chosen name (see "[Planet Naming](02_story_and_world.md#backstory)" above) and any associated resource
 windfall, once that mechanic is built.
 
 **Per-planet "why this planet" hook.** A "known conditions" flavor blurb generated per
@@ -427,10 +427,10 @@ surfacing later rather than driving the exploration (per design-process preferen
 
 **The Earth side**
 - A. ~~Mechanism of FTL travel, and its relationship to Earth's climate trouble~~ —
-  **resolved**, see "The Crash Research Era" and "Faster-Than-Light Travel" above: FTL
+  **resolved**, see "[The Crash Research Era](02_story_and_world.md#backstory)" and "[Faster-Than-Light Travel](02_story_and_world.md#backstory)" above: FTL
   is a byproduct of the same reckless research boom that worsened — not caused — an
   already-existing, independent climate crisis.
-- B. ~~State of Earth society right now~~ — **resolved**, see "Seed-Ships" above:
+- B. ~~State of Earth society right now~~ — **resolved**, see "[Seed-Ships](02_story_and_world.md#backstory)" above:
   SEED is an ISS-partnership-style multilateral coalition (not a unified world
   government), the dominant program operating from Earth because an effort at this
   scale is too hard for a smaller/unilateral actor. Day-to-day life on Earth continues
@@ -440,27 +440,27 @@ surfacing later rather than driving the exploration (per design-process preferen
   elsewhere in the solar system (not Earth) is intentionally parked as a future hook,
   not developed further for now.
 - C. ~~Communication lag with Earth during a run~~ — **resolved**, see
-  "Faster-Than-Light Travel" above (ongoing FTL comms via the collapsed-wormhole
+  "[Faster-Than-Light Travel](02_story_and_world.md#backstory)" above (ongoing FTL comms via the collapsed-wormhole
   trace, effectively permanent).
-- K. ~~Why finding a new world is existentially urgent~~ — **resolved**, see "Ren, the
-  Incoming Star" above: a hypervelocity star, discovered generations before the Crash
+- K. ~~Why finding a new world is existentially urgent~~ — **resolved**, see "[Ren, the
+  Incoming Star](02_story_and_world.md#backstory)" above: a hypervelocity star, discovered generations before the Crash
   Research Era, on an unmitigable collision-or-near-miss course with the Sun, centuries
   out. Deliberately decoupled from Earth's climate trouble, which stays real and
   present but secondary — SEED's founding and the expeditions' urgency were never
   about escaping a self-inflicted crisis.
 
 **SEED as an institution**
-- D. ~~SEED's internal culture and structure~~ — **resolved**, see "SEED's Culture,
-  and the Player's Role" above: bureaucratic institutional shell, scrappy
+- D. ~~SEED's internal culture and structure~~ — **resolved**, see "[SEED's Culture,
+  and the Player's Role](02_story_and_world.md#backstory)" above: bureaucratic institutional shell, scrappy
   mission-first culture in the dispatching arm; concurrent expedition count left
   deliberately soft/unresolved. This is also where the player-AI orchestrator reveal
   lives — the player's role, the humanoid avatar, and why the game's viewpoint is
   detached/season-scale rather than first-person.
-- E. ~~What "success" leads to~~ — **resolved**, see "Seed-Ships" above: a high
+- E. ~~What "success" leads to~~ — **resolved**, see "[Seed-Ships](02_story_and_world.md#backstory)" above: a high
   viability report is what a future seed-ship's destination gets chosen from; the
   actual voyage/outcome happens off-screen from the player's perspective.
 - F. **What "failure" means in-fiction** — **substantially addressed**, see
-  "Seed-Ships" above: a critical-failure run isn't a wasted data point, just a
+  "[Seed-Ships](02_story_and_world.md#backstory)" above: a critical-failure run isn't a wasted data point, just a
   lower-confidence (or near-zero, for total colony loss) result that factors into who
   would accept that destination. Still open: how SEED's internal culture *feels*
   about a loss at the human/institutional level, separate from the data-point framing
@@ -470,7 +470,7 @@ surfacing later rather than driving the exploration (per design-process preferen
 
 **The planets and life on them**
 - G. ~~Origin of native flora/fauna, and whether sentient life ever appears~~ —
-  **resolved**, see "Life on Other Worlds" above: non-sentient flora/fauna are
+  **resolved**, see "[Life on Other Worlds](02_story_and_world.md#backstory)" above: non-sentient flora/fauna are
   common; genuine sentient life is an exceedingly rare wildcard, not a standing
   gameplay pillar.
 - H. ~~How planets get selected/discovered~~ — **resolved**, see "Filaments and
@@ -478,8 +478,8 @@ surfacing later rather than driving the exploration (per design-process preferen
   discovery mechanism and the in-fiction basis for the Phase 5+ scanning minigame.
 
 **The settlers themselves**
-- I. **Who becomes a settler, and why** — **substantially addressed**, see "SEED's
-  Culture, and the Player's Role" above: settler selection is prestigious and highly
+- I. **Who becomes a settler, and why** — **substantially addressed**, see "[SEED's
+  Culture, and the Player's Role](02_story_and_world.md#backstory)" above: settler selection is prestigious and highly
   competitive (astronaut-or-better status), reinforcing "pioneering optimism, not
   desperate survival." Still open: any individual settler backstory/motivation
   detail beyond this general framing.

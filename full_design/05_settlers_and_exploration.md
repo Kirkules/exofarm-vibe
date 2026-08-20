@@ -3,14 +3,14 @@
 ## Settlers
 
 - A small group of **human settlers** (3–4 at run start)
-- Named individuals, with real per-settler state (see Settler State, below) —
+- Named individuals, with real per-settler state (see [Settler State](05_settlers_and_exploration.md#settler-state), below) —
   no longer "no individual gameplay mechanics" now that Frontier Legends,
   injuries, and Atmospheric/Temperature hazards all need it. Settlers may form
   an exclusive-pair romantic relationship, arbitrarily/randomly, surfaced to
   the player via a Transmission — **pure narrative flavor with no mechanical
   effect** (see Story & World's Narrative-Only Flavor).
 - Settlers must be **fed** each season; starvation is a critical failure condition (see
-  Food & Nutrition)
+  [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition))
 
 ### Settler State
 
@@ -35,9 +35,9 @@ Each settler carries:
   scalar; the Frontier Legends formula (see Win/Lose Conditions) sums it,
   and the list itself feeds personnel-file/end-of-run report display.
 - `experience` — a per-task-group stack count (0–3), earned through play
-  (see Experience, below).
+  (see [Experience](05_settlers_and_exploration.md#experience), below).
 - `aptitude` — a per-bucket level (−3 to +3), innate and fixed at Crew
-  Selection, never changing over a run (see Aptitude, below).
+  Selection, never changing over a run (see [Aptitude](05_settlers_and_exploration.md#aptitude), below).
 
 ### Injuries
 
@@ -118,7 +118,7 @@ A positive `status_effect`: once a settler's `legend_value` sum crosses a
 threshold (TBD, deferred to balancing), they permanently gain:
 - **+15% production speed** on Production-building assignments, and on
   Trapping/Clear-Cutting now that both are production-speed-based (see
-  Standing Assignments, below).
+  [Standing Assignments](05_settlers_and_exploration.md#standing-assignments), below).
 - **+1 to the upper bound** of any exploration-task outcome with a numeric
   quantity range, regardless of which outcome category it's filed under.
 - **A relative success-chance boost** on any probabilistic exploration
@@ -131,15 +131,15 @@ threshold (TBD, deferred to balancing), they permanently gain:
 Diegetically: an experienced, renowned settler is just genuinely better at
 their job — low mechanical overhead (one threshold check, a handful of flat
 modifiers), self-limiting rather than unbalancing, since Legend outcomes are
-already rare by design. Tooltip stays plain-language, same as Experience
-and Aptitude below — "reduced injury chance," "improved chance of
+already rare by design. Tooltip stays plain-language, same as [Experience](05_settlers_and_exploration.md#experience)
+and [Aptitude](05_settlers_and_exploration.md#aptitude) below — "reduced injury chance," "improved chance of
 success," "up to 1 more item from Exploration," never the underlying
 formula.
 
 ### Experience
 
 A stacking permanent buff, per settler, per **task group** — earned
-through play, unlike Aptitude below. Applies only to non-exploration
+through play, unlike [Aptitude](05_settlers_and_exploration.md#aptitude) below. Applies only to non-exploration
 assignable tasks (Production buildings and Standing Assignments);
 Exploration Tasks never build or benefit from Experience.
 
@@ -153,7 +153,7 @@ task within it, not just wherever it was earned:
 - **Surveys** — Basic Deposit Survey and Deep Survey, shared with each
   other only.
 - **Each Fabrication building separately** — Robotics Assembly, Stone
-  Processing, Smelter (see Buildings & Economy's Fabrication), Textile
+  Processing, Smelter (see Buildings & Economy's [Fabrication](04_buildings_and_economy.md#fabrication)), Textile
   Workshop, Carpenter's Shop, Tinkerer's Workshop.
 - **Each Research/Utilities building separately** — Research Lab, Medical
   Bay, Scanner Station.
@@ -175,7 +175,7 @@ underlying formula.
 A per-settler, per-bucket profile — analogous to Experience in shape (same
 ±15%-per-level production-speed effect, same three-level range), but
 **innate rather than earned**: fixed once at Crew Selection (see Core Loop
-& Grid's Crew Selection for the archetype/reroll system that generates
+& Grid's [Crew Selection](03_core_loop_and_grid.md#crew-selection) for the archetype/reroll system that generates
 these), never changing over the course of a run. Levels run **−3 to +3**,
 zero meaning no aptitude either way.
 
@@ -214,9 +214,9 @@ just inverting a sign:
 
 Applies to every exploration outcome, including the previously-"guaranteed"
 ones (Site Reveals, Hybridization opportunities, most Planet exclusives —
-see Risk Spectrum) — those are now framed as having a base 100% success
+see [Risk Spectrum](05_settlers_and_exploration.md#risk-spectrum)) — those are now framed as having a base 100% success
 rate that this can scale down, same as any other probabilistic outcome.
-Their separate independent risk roll for injury/death (see Risk Spectrum)
+Their separate independent risk roll for injury/death (see [Risk Spectrum](05_settlers_and_exploration.md#risk-spectrum))
 stays completely unaffected by this success/fail outcome either way — the
 two systems don't interact.
 
@@ -248,7 +248,7 @@ Exploration" (or the negative-direction equivalents), never the formulas.
   unlocked or resolve, the in-progress case simply being automatic rather
   than something the player has to toggle on.
 - **Manual reroll costs Energy** — a flat amount (TBD), drawn from the
-  Energy Pool's current balance (see Resources), not its cap — framed as
+  Energy Pool's current balance (see [Resources](04_buildings_and_economy.md#resources)), not its cap — framed as
   tasking local sensors/drones with a fresh sweep of the surrounding
   region, the same principle already used at the hub level for
   filament-scanning. Scanner Station upgrades may reduce this cost.
@@ -270,12 +270,12 @@ Loop & Grid's Assignment) — settler-only, one-shot, drawn from the pool
 above. What's specific to Exploration Tasks beyond the general Assignment
 mechanics:
 - Multiple tasks can run simultaneously if the colony has enough settlers and
-  **Rations** to send (see Food & Nutrition). Unlike at-home settlers (who
+  **Rations** to send (see [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition)). Unlike at-home settlers (who
   can be fed by any food type — Meals, raw crops, or Rations), an exploring
   settler's cost is a **strict Rations requirement** — no substituting fresh
   food, since it has to travel with them. Mechanically, the moment a
   settler is assigned to a task, they're removed from the settlement's
-  pooled nutrition headcount for that season (see Food & Nutrition's
+  pooled nutrition headcount for that season (see [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition)'s
   Consumption), and their sustenance instead becomes that task's Ration
   cost, consumed at season-simulation-start alongside any other consumable
   the task requires (below).
@@ -288,7 +288,7 @@ mechanics:
   precedent for this). Full task-by-task costs are in the catalog below.
 - **Every exploration task requires a settler** — drones are barred from
   Exploration entirely, regardless of tier (see Buildings & Economy's
-  Robotics Assembly), so there's no unmanned route through this pool. A
+  [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly)), so there's no unmanned route through this pool. A
   player can still choose never to send anyone out at all, simply by never
   accepting a task; the Frontier Legends SEED faction (see Win/Lose
   Conditions) specifically rewards choosing to risk real settlers rather
@@ -301,7 +301,7 @@ Four categories of positive result:
 - **Site reveal** — a feature on the farm grid is transformed into a new accessible
   site; e.g. a mountain region becomes an exposed ore deposit, a cave system, or a
   volcanic vent; the revealed site persists for the rest of the run.
-  **Hybridization opportunities** (see Buildings & Economy's Farm/Production)
+  **Hybridization opportunities** (see Buildings & Economy's [Farm/Production](04_buildings_and_economy.md#farmproduction))
   are a Site Reveal variant — what's unlocked is a Research Lab project
   rather than a grid feature.
 - **Legend outcome** — rare, little or no material reward, but a large
@@ -331,8 +331,8 @@ Legend and Farm-wide Upgrade outcomes rarer still.
 
 First-pass content, numbers illustrative and TBD-balanced like everything
 else in this design. Every task's "seasons to complete" equals its Ration
-cost (see Assignment, above). **Large Backpack** (new: a Pelt-derived
-Textile Workshop item, see Buildings & Economy's Fabrication) and
+cost (see [Assignment](05_settlers_and_exploration.md#assignment), above). **Large Backpack** (new: a Pelt-derived
+Textile Workshop item, see Buildings & Economy's [Fabrication](04_buildings_and_economy.md#fabrication)) and
 **Portable High-Powered Scanning Equipment** (existing, Tinkerer's
 Workshop) are both consumed on use, same precedent PPE already established
 for exploration-task consumables.
@@ -343,7 +343,7 @@ for exploration-task consumables.
 |---|---|---|---|---|---|---|
 | Wild Orchard Grove (Food-cache flavor) | Common | No-risk | 1+ | 1 Ration | Optional: Large Backpack → top of range | 2–5 Fruit and/or Grain |
 | Predator's Larder (Food-cache flavor) | Common | No-risk | 1+ | 1 Ration | Optional: Large Backpack → top of range | 2–5 Milk and/or Egg |
-| Abandoned Settlement (Food-cache flavor) | Uncommon | No-risk | 3+ | 1 Ration | Optional: Large Backpack → top of range | 2–4 Rations (preserved food) + alien-civilization escalation chance (see Escalation Chains) |
+| Abandoned Settlement (Food-cache flavor) | Uncommon | No-risk | 3+ | 1 Ration | Optional: Large Backpack → top of range | 2–4 Rations (preserved food) + alien-civilization escalation chance (see [Escalation Chains](05_settlers_and_exploration.md#escalation-chains)) |
 | Exposed Mineral Outcrop (Non-food flavor) | Common | No-risk | 1+ | 1 Ration | Optional: Large Backpack → top of range | 3–6 Iron Ore and/or Copper Ore (mixed) |
 | Unusual Rock Formation (Non-food flavor) | Common | No-risk | 1+ | 1 Ration | Optional: Large Backpack → top of range | 3–6 Stone |
 | Crashed Debris Field (Non-food flavor) | Uncommon | No-risk | 3+ | 1 Ration | Optional: Portable High-Powered Scanning Equipment → *also* yields High-Tech Components | 2–4 rare metal (always guaranteed) + 1–2 High-Tech Components if scanner brought + alien-civilization escalation chance |
@@ -387,7 +387,7 @@ tier — all four Hybridization-granting exclusives are Rare regardless of
 risk, since Hybridization is inherently a significant, permanent unlock;
 the two plain Site-Reveal/Windfall exclusives sit a notch below at
 Uncommon. Every Low/High-risk entry here is a guaranteed-success task with
-an independent risk roll (see Risk Spectrum, above) — the find itself
+an independent risk roll (see [Risk Spectrum](05_settlers_and_exploration.md#risk-spectrum), above) — the find itself
 never fails, but the dangerous environment can still injure or kill the
 settler, which also earns them a Frontier Legends bonus when it happens:
 
@@ -398,7 +398,7 @@ settler, which also earns them a Frontier Legends bonus when it happens:
 | Volcanic Reinforcing | Rare | High-risk | 6+ | 1 Ration | Mandatory: Temperature-Resistant Gear | Site Reveal: rare-metal deposit, shielding-grade flavor (guaranteed) |
 | Volcanic Profile-shifting | Rare | Low-risk | 6+ | 1 Ration | Mandatory: Temperature-Resistant Gear | Hybridization opportunity (lava-tube fungi) |
 | Arid Reinforcing | Uncommon | Low-risk | 3+ | 1 Ration | — | Site Reveal: Aquifer (guaranteed) |
-| Arid Profile-shifting | Rare | No-risk | 6+ | 2 Rations | — | Hybridization opportunity (dormant seed bank) + Moderate alien-civilization escalation chance (see Escalation Chains) |
+| Arid Profile-shifting | Rare | No-risk | 6+ | 2 Rations | — | Hybridization opportunity (dormant seed bank) + Moderate alien-civilization escalation chance (see [Escalation Chains](05_settlers_and_exploration.md#escalation-chains)) |
 | Ice Reinforcing | Uncommon | Low-risk | 3+ | 1 Ration | Optional: Large Backpack → top of range | 2–4 rare metal (insulation flavor) |
 | Ice Profile-shifting | Rare | Low-risk | 6+ | 1 Ration | — | Hybridization opportunity (warmth-pocket flora) |
 
@@ -410,12 +410,12 @@ type's identity:
 | Meteorite Fragment | Rare | No-risk | 8+ | 2 Rations | Mandatory: Portable High-Powered Scanning Equipment | Hybridization opportunity, planet-independent: unlocks research eligibility for all four plant buildings at once (each still an independent Research Lab project); signature benefit is a generic "broad yield improvement," not planet-specific |
 
 **Unknown Radio Signal** — planet-independent, another alternate entry point
-into the sentience-contact chain (see Escalation Chains, below), but its
+into the sentience-contact chain (see [Escalation Chains](05_settlers_and_exploration.md#escalation-chains), below), but its
 branching resolution doesn't fit the single-row format above:
 
 | Task | Rarity | Risk | Season gate | Base cost | Item |
 |---|---|---|---|---|---|
-| Unknown Radio Signal | Rare | Low-risk | 6+ | 1 Ration | Optional: Emergency Medical Kit (new, see Buildings & Economy's Protection/Medical Bay) — consumed on use |
+| Unknown Radio Signal | Rare | Low-risk | 6+ | 1 Ration | Optional: Emergency Medical Kit (new, see Buildings & Economy's [Protection](04_buildings_and_economy.md#protection)/[Medical Bay](04_buildings_and_economy.md#medical-bay)) — consumed on use |
 
 Attempting it resolves the signal's true source, illustrative weights
 biased toward the mundane (consistent with genuine sentient contact being
@@ -432,20 +432,20 @@ brought determines what happens next:
 
 | Kit brought? | Result | Escalation |
 |---|---|---|
-| Yes | Guaranteed rescue | Immediate escalation straight to **First Contact** (see Escalation Chains) — skipping Sentience Detection and Observe from a distance entirely, since a direct rescue already *is* first contact |
+| Yes | Guaranteed rescue | Immediate escalation straight to **First Contact** (see [Escalation Chains](05_settlers_and_exploration.md#escalation-chains)) — skipping Sentience Detection and Observe from a distance entirely, since a direct rescue already *is* first contact |
 | No | ~20% rescue anyway (same immediate step-3 escalation); otherwise (~80%) the settler finds the alien too late to save | On the "too late" result: escalates into **step 1** (Sentience Detection) at a new, higher-than-any-existing-trigger tier — direct confirmed contact is stronger evidence than any of the five indirect triggers already listed, even though the alien couldn't be saved |
 
 Both outcomes carry the chain's usual elevated legend value (see
-Escalation Chains' Elevated legend value note below) and nothing more —
+[Escalation Chains](05_settlers_and_exploration.md#escalation-chains)' Elevated legend value note below) and nothing more —
 Legend value tracks the clout of a discovery, not how poignant the moment
 was, so "found them too late" earns the same legend value as a clean
 rescue, not less and not a sympathy bonus either.
 
-The sentience-contact chain's own numbers are in Escalation Chains, below.
+The sentience-contact chain's own numbers are in [Escalation Chains](05_settlers_and_exploration.md#escalation-chains), below.
 
 ### Outcomes and the Strategy Dimensions
 Every exploration outcome falls into one of three flavors relative to the four
-strategy dimensions (A/B/C/D — see Exoplanet Types):
+strategy dimensions (A/B/C/D — see [Exoplanet Types](06_planets_and_scoring.md#exoplanet-types)):
 - **Profile-shifting** — unlocks or reveals something that opens up a dimension the
   current planet doesn't naturally favor (e.g. a rare mineral vein on an
   otherwise metal-poor Verdant planet, shifting toward A/D). This is exploration's
@@ -453,7 +453,7 @@ strategy dimensions (A/B/C/D — see Exoplanet Types):
   away from its planet's default. **Not inherently tied to risk tier** — a
   Profile-shifting outcome can be No-risk just as easily as High-risk; risk
   and reward rarity are independent axes except where a specific task is
-  deliberately designed otherwise (see Risk Spectrum, below).
+  deliberately designed otherwise (see [Risk Spectrum](05_settlers_and_exploration.md#risk-spectrum), below).
 - **Reinforcing** — deepens a dimension the planet already favors (e.g. an
   exceptionally potent shielding-material vein on Volcanic, deepening A).
 - **Neutral** — generic value with no strategic lean at all (a stockpile of
@@ -520,13 +520,13 @@ doesn't need to change any numbers.
 
 **Sentience-contact chain** (worked example, since it's the point where every SEED
 faction's priorities can visibly pull against each other in a single decision — see
-SEED Factions in Win/Lose Conditions):
+[SEED Factions](06_planets_and_scoring.md#seed-factions) in Win/Lose Conditions):
 
 | Step | Season gate | Base cost | Item | Success chance | Outcome |
 |---|---|---|---|---|---|
 | **1. Sentience Detection**, reached cold from the base pool | 8+ | 1 Ration | — | Low (~10%) | Success: `EcologicalData` + guaranteed escalation to step 2 |
-| **1. Sentience Detection**, reached via an alien-civilization-implying trigger (Abandoned Settlement, Crashed Debris Field, Ancient Irrigation Technique, Recovered Survey Data, Arid Profile-shifting — see Task Catalog) | N/A, guaranteed placement | 1 Ration | — | Moderate (~30%) for the first four triggers, High (~60%) for Recovered Survey Data specifically | Same as above |
-| **1. Sentience Detection**, reached via Unknown Radio Signal (distress signal confirmed, but rescue failed — see Task Catalog) | N/A, guaranteed placement | 1 Ration | — | Very High (~85–90%) — direct confirmed contact, stronger evidence than any other trigger | Same as above |
+| **1. Sentience Detection**, reached via an alien-civilization-implying trigger (Abandoned Settlement, Crashed Debris Field, Ancient Irrigation Technique, Recovered Survey Data, Arid Profile-shifting — see [Task Catalog](05_settlers_and_exploration.md#task-catalog)) | N/A, guaranteed placement | 1 Ration | — | Moderate (~30%) for the first four triggers, High (~60%) for Recovered Survey Data specifically | Same as above |
+| **1. Sentience Detection**, reached via Unknown Radio Signal (distress signal confirmed, but rescue failed — see [Task Catalog](05_settlers_and_exploration.md#task-catalog)) | N/A, guaranteed placement | 1 Ration | — | Very High (~85–90%) — direct confirmed contact, stronger evidence than any other trigger | Same as above |
 | **2. Observe from a distance** | N/A, guaranteed escalation | 1 Ration | — | Guaranteed | Elevated `EcologicalData` weight (a heavier increment than an ordinary biodiversity report, not a new score term) + unlocks **First Contact** |
 
 **3. First Contact** surfaces in the pool as a **single guaranteed
@@ -538,7 +538,7 @@ its own cost and item:
 |---|---|---|---|---|
 | **3a. Peaceful Contact** | 2 Rations | Mandatory: Diplomatic Gear | Guaranteed attempt, Low-risk | Elevated `EcologicalData` weight, same as Observe; can unlock its own further escalation into an ongoing, deepening alliance/trade relationship (see below) — same zero-staffing passive-benefit reward tier as the fruit-animal-alliance example above. **Specific rewards TBD** — see `DESIGN_TODO.md` |
 | **3b. Bluff/Coercive Exploitation** | 2 Rations | Mandatory: Diplomatic Gear | Attemptable against any class. High-risk. Success scales **inversely with Technology Level alone** — an advanced civilization has more information about what's actually possible, not more information about the settlers' specific claims, so it's harder to fool regardless of Openness or Unity. Rarely succeeds, but more often than 3c | On success: a one-time payout slightly better than an undeepened alliance's baseline — no ongoing relationship, since nothing was actually built. **Exact odds/rewards TBD** — see `DESIGN_TODO.md` |
-| **3c. Military Exploitation** | 1 Ration | Mandatory: Armed Expedition Kit **and** Overwhelming Force Package (new — see Buildings & Economy's Fabrication) | Attemptable against any class. High-risk, **the largest death chance in the catalog**. Success scales against **both Technology Level and Unity together**, more steeply than 3b — only a Primitive-tech, low-Unity class has any appreciable chance; everywhere else the chance is real but vanishingly small | This is the concrete realization of the "aliens obliterating an aggressive explorer" example from the difficulty-principle discussion — a severe outcome from an explicit, knowingly-initiated high-risk choice, which the design principles explicitly allow even when it ends a run. A few settlers should essentially never be able to force anything from an entire civilization without a real technological edge. **Exact odds/rewards TBD** — see `DESIGN_TODO.md` |
+| **3c. Military Exploitation** | 1 Ration | Mandatory: Armed Expedition Kit **and** Overwhelming Force Package (new — see Buildings & Economy's [Fabrication](04_buildings_and_economy.md#fabrication)) | Attemptable against any class. High-risk, **the largest death chance in the catalog**. Success scales against **both Technology Level and Unity together**, more steeply than 3b — only a Primitive-tech, low-Unity class has any appreciable chance; everywhere else the chance is real but vanishingly small | This is the concrete realization of the "aliens obliterating an aggressive explorer" example from the difficulty-principle discussion — a severe outcome from an explicit, knowingly-initiated high-risk choice, which the design principles explicitly allow even when it ends a run. A few settlers should essentially never be able to force anything from an entire civilization without a real technological edge. **Exact odds/rewards TBD** — see `DESIGN_TODO.md` |
 
 Step 1 gives every alien-civilization-implying trigger a real, concrete
 target rather than inventing a separate chain per trigger — this is
@@ -546,7 +546,7 @@ literally what "starting the sentience-contact chain" means whenever one of
 those five is discovered.
 
 **Direct entry to First Contact.** A successful rescue during Unknown Radio
-Signal (see Task Catalog) skips straight to First Contact, bypassing
+Signal (see [Task Catalog](05_settlers_and_exploration.md#task-catalog)) skips straight to First Contact, bypassing
 Sentience Detection and Observe from a distance entirely — a direct rescue
 already constitutes first contact. All three approaches are still
 available at that point; a rescue doesn't force the player into Peaceful
@@ -574,12 +574,12 @@ probability, not a lookup table keyed to civilization properties directly
 — keeps the formula simple even as class-specific odds vary. (Peaceful
 Contact's own guaranteed attempt has no probability to scale by, so it
 keeps its flat elevated value.) This stacks with (is separate from) the
-general injury/death Legends bonus described in Risk Spectrum, below, if
+general injury/death Legends bonus described in [Risk Spectrum](05_settlers_and_exploration.md#risk-spectrum), below, if
 Bluff or Military Exploitation goes badly.
 
 **Vaccine-unlock region reveal** (third worked example): a bio-survey
 exploration task discovering a dangerous pathogen (see Buildings & Economy's
-Protection, Medical Bay) is tied to the specific region where it was found.
+[Protection](04_buildings_and_economy.md#protection), [Medical Bay](04_buildings_and_economy.md#medical-bay)) is tied to the specific region where it was found.
 Once enough `Confidence(Bio-hazard)` accumulates and Medical Bay's Vaccine
 Production tier unlocks for that pathogen, the settlement is assumed fully
 vaccinated — and that unlock guarantees a new escalation: an exploration task
@@ -590,7 +590,7 @@ dangerous to approach, now safe. A clean example of a *building* unlock
 ### Risk Spectrum
 Every task has exactly one of three risk profiles, defined by its worst
 possible outcome — not by reward rarity, which is a separate, independent
-axis (see Outcomes and the Strategy Dimensions, above):
+axis (see [Outcomes and the Strategy Dimensions](05_settlers_and_exploration.md#outcomes-and-the-strategy-dimensions), above):
 - **No-risk** — cannot lead to injury or death. Results range from nothing
   to a good find.
 - **Low-risk** — can lead to injury, cannot lead to death.
@@ -608,7 +608,7 @@ opportunities — anything that isn't an Achievement-flavor Legend outcome)
 handle risk differently from Achievement outcomes, and differently from
 the failure-gated negative-outcome pool described in Injuries: they carry
 a base **100% success rate** — only reducible by negative Exploration
-Aptitude (see Settlers' Aptitude), otherwise as good as guaranteed — but
+Aptitude (see [Settlers](05_settlers_and_exploration.md#settlers)' [Aptitude](05_settlers_and_exploration.md#aptitude)), otherwise as good as guaranteed — but
 the risk tier still applies as a fully separate **independent roll**
 alongside it — the settler *will almost always* discover the vein, but the
 dangerous environment they found it in (an active volcanic zone, a deep
@@ -637,22 +637,22 @@ available (e.g. a volatile volcanic planet generates more of them).
 ## Standing Assignments
 
 The other of the three Assignment target kinds (see Core Loop & Grid's
-Assignment) — drawn fresh each season rather than pool-limited, and
+[Assignment](03_core_loop_and_grid.md#assignment)) — drawn fresh each season rather than pool-limited, and
 **safe** (no risk spectrum, no Rations — the work stays on or near the
 farm, unlike a genuine off-site expedition). Worker-type eligibility
 varies per assignment, unlike Exploration Tasks (settler-only, full stop)
-— see Buildings & Economy's Robotics Assembly for the full drone
+— see Buildings & Economy's [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly) for the full drone
 taxonomy. Four members:
 
 - **Basic Deposit Survey** and **Deep Survey** (see Buildings & Economy's
-  Deposit Discovery) — Basic Survey covers a player-chosen rectangle of
+  [Deposit Discovery](04_buildings_and_economy.md#deposit-discovery)) — Basic Survey covers a player-chosen rectangle of
   tiles and flags which of them are worth a Deep Survey; Deep Survey then
   automatically targets every tile flagged that way so far, no rectangle
   choice needed. Both repeatable, one-shot per assignment (the worker is
   gone for the season and returns with a result) — the same resolution
   shape Exploration Tasks use. Open to Settlers and Advanced All-Purpose
   Drones (not Basic).
-- **Clear-Cutting** (see Buildings & Economy's Fuel) — production-speed-based,
+- **Clear-Cutting** (see Buildings & Economy's [Fuel](04_buildings_and_economy.md#fuel)) — production-speed-based,
   like a building: the player selects any number of individual Forest tiles
   (drag-click marks every eligible tile within a rectangle and can only
   mark, never unmark; single-tile click toggles mark/unmark on one tile at
@@ -661,7 +661,7 @@ taxonomy. Four members:
   unfinished tiles carrying over if reassigned next season. Each tile's
   Wood is bounded and depletes with use. Open to Settlers and any
   All-Purpose Drone, Basic included.
-- **Trapping** (see Buildings & Economy's Farm/Production) — also
+- **Trapping** (see Buildings & Economy's [Farm/Production](04_buildings_and_economy.md#farmproduction)) — also
   production-speed-based: targets one tile, yielding Pelt through repeating
   production cycles across the season's Mid-Sim window rather than a
   single lump-sum result, boosted by Forest presence and the planet's
@@ -670,12 +670,12 @@ taxonomy. Four members:
   Drones (not Basic).
 
 Trapping and Clear-Cutting's speed-based shape makes them eligible for
-Storied's production-speed bonus (see Settlers) the same way a Production
+Storied's production-speed bonus (see [Settlers](05_settlers_and_exploration.md#settlers)) the same way a Production
 building assignment is.
 
 Since these aren't drawn from the Exploration Tasks pool, they don't
 participate in that system's Reinforcing/Profile-shifting/Neutral outcome
-framing (see Outcomes and the Strategy Dimensions, above) — they're
+framing (see [Outcomes and the Strategy Dimensions](05_settlers_and_exploration.md#outcomes-and-the-strategy-dimensions), above) — they're
 guaranteed, mundane, on-farm work, not strategic-profile-shifting content.
 
 ---
@@ -706,12 +706,12 @@ there is no building filling that old "Matter Manipulator" nutrition role.
   Kitchen/Farm food production early, rather than a Matter tax that could
   always be paid indefinitely.
 - **Can be manually replenished** at a **Ration Press** (see Buildings &
-  Economy's Food/Meal Conversion) — an unstaffed, instant-conversion building
+  Economy's [Food/Meal Conversion](04_buildings_and_economy.md#foodmeal-conversion)) — an unstaffed, instant-conversion building
   that turns fresh food ingredients into more Rations at a lossy rate
   (`floor(min(P,F,C,V) / 2)`, with any axis imbalance beyond the matched
   minimum discarded). This is a genuine, felt inefficiency versus consuming
   fresh food directly — Rations are valuable specifically for portability
-  (required for certain exploration tasks — see Assignment above), not as a
+  (required for certain exploration tasks — see [Assignment](05_settlers_and_exploration.md#assignment) above), not as a
   strictly better choice than fresh consumption.
 - If total available nutrition (Rations plus any meals) can't cover the
   settler headcount at all, the shortfall causes **settler deaths** (the
@@ -723,8 +723,8 @@ there is no building filling that old "Matter Manipulator" nutrition role.
   time, separate from this pooled at-home check.
 
 ### Meals
-- Produced at ordinary staffed single-conversion production sites (see Platform &
-  Core Loop Redesign's Production Model) — no merge-space crafting.
+- Produced at ordinary staffed single-conversion production sites (see [Platform](03_core_loop_and_grid.md#platform) &
+  Core Loop Redesign's [Production Model](03_core_loop_and_grid.md#production-model)) — no merge-space crafting.
 - Defined by a recipe (single input→output conversion) and a nutrient-axis profile.
   **No secondary effects** — the old Morale-related meal effects (modifier, floor) no
   longer apply, since Morale has been cut from the design entirely.
@@ -738,7 +738,7 @@ there is no building filling that old "Matter Manipulator" nutrition role.
   Keeps small-number play simple and avoids the nutrition system dominating
   gameplay. **The pooled headcount only counts settlers actually present at
   the settlement that season** — a settler assigned to an Exploration Task
-  (see Exploration Tasks' Assignment) is excluded from it for the season(s)
+  (see [Exploration Tasks](05_settlers_and_exploration.md#exploration-tasks)' Assignment) is excluded from it for the season(s)
   they're away, since their sustenance is covered separately by that task's
   strict Ration cost instead.
 - **Food-for-consumption is assigned during planning** (not fully automatic), but
@@ -776,7 +776,7 @@ stacking an already-large axis shrinks, so diversifying naturally becomes the mo
 efficient move at the margin once one axis is deep into diminishing returns —
 without ever making a large single-axis investment feel wasted or capped.
 **"Stockpiled amount" specifically means food committed to a Food Storage
-building (see Storage)** — food merely sitting in general inventory doesn't
+building (see [Storage](04_buildings_and_economy.md#storage))** — food merely sitting in general inventory doesn't
 count. This makes deliberate storage a real, felt tradeoff (locking food away
 from active use) rather than a passive byproduct of surplus production.
 

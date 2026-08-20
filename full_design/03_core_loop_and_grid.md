@@ -51,10 +51,10 @@ Farm/Production — later unified into one; see below for why)*
 
 A single grid holds every building, crop, animal pen, and mining site, using
 **uniform single-cell placement — no polyominoes, no rotation** (multi-slot
-buildings still exist — see Building Schema — but as fixed, non-rotatable
+buildings still exist — see [Building Schema](04_buildings_and_economy.md#building-schema) — but as fixed, non-rotatable
 footprints, not a return to arrangement puzzles). Arrangement precision is
 deliberately de-emphasized; the puzzle now lives in resource allocation (see
-Assignment below), not spatial tessellation.
+[Assignment](03_core_loop_and_grid.md#assignment) below), not spatial tessellation.
 
 **Any building can go on any cell**, subject only to building-specific
 placement rules already established elsewhere (e.g. a Mine requires an Ore
@@ -90,8 +90,8 @@ strategic decision.
 rather than placeable:
 - Impassable terrain (mountains, lakes)
 - Permanent resource locations (e.g. metal ore, rare mineral deposits — see
-  Buildings & Economy's Deposit Discovery)
-- Forest tiles (bounded Wood quantity — see Buildings & Economy's Fuel)
+  Buildings & Economy's [Deposit Discovery](04_buildings_and_economy.md#deposit-discovery))
+- Forest tiles (bounded Wood quantity — see Buildings & Economy's [Fuel](04_buildings_and_economy.md#fuel))
 - Set at run start; cannot be moved or removed
 
 ### Crew Selection
@@ -102,7 +102,7 @@ the expedition-commitment/filament-scan step below is TBD — this section
 only fixes that it precedes Farm Site Selection.
 
 **What it determines.** Each candidate crew is a full set of settlers with
-independently-rolled Aptitude profiles (see Settlers & Exploration's
+independently-rolled Aptitude profiles (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's
 [Aptitude](05_settlers_and_exploration.md#aptitude)) — names and everything
 else about a settler are otherwise uninvolved in this screen. Selecting a
 crew locks in every settler's Aptitude levels, across all six buckets, for
@@ -134,10 +134,10 @@ grinding for.
 
 **Presentation.** Shows the full candidate crew — names and Aptitude
 profiles as plain-language readouts per bucket (e.g. "+30% Mining speed"),
-never raw levels or formulas — see Settlers & Exploration's Aptitude.
+never raw levels or formulas — see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Aptitude](05_settlers_and_exploration.md#aptitude).
 
 **Reroll.** The player may discard the entire shown crew and generate a
-new one. Unlike Farm Site Selection's reroll below, this one is **free and
+new one. Unlike [Farm Site Selection](03_core_loop_and_grid.md#farm-site-selection)'s reroll below, this one is **free and
 uncapped** — no Ration cost, no limit — since it's the very first decision
 of a run, before there's anything in inventory to spend.
 
@@ -166,7 +166,7 @@ candidate sites as grid-layout thumbnails. Each thumbnail is annotated with
 its known features — terrain shape, **Surface-tier** deposit positions only
 (matching Deposit Discovery's existing rule that Surface deposits are the
 one tier visible from run start), **Forest tile** positions (see Buildings &
-Economy's Fuel — visible from run start the same way Surface deposits are,
+Economy's [Fuel](04_buildings_and_economy.md#fuel) — visible from run start the same way Surface deposits are,
 just not part of the hidden-deposit system at all), and the site's
 **Average Temperature** (see Planets & Scoring's In-Simulation Hazard
 Events — sampled per-site at world-gen from the planet type's
@@ -180,7 +180,7 @@ gate them.
 the full deposit seeding (hidden tiers included) — for the entire run.
 
 **Reroll.** The player may discard all 3 candidates and generate 3 entirely
-new ones, at a cost of **1 Ration** (see Settlers & Exploration's
+new ones, at a cost of **1 Ration** (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's
 [Rations](05_settlers_and_exploration.md#rations-basic-sustenance)) —
 flavored as the additional orbital scanning taking enough time that the
 settlers eat while they wait, though not a full season's worth. Rerolling
@@ -198,10 +198,10 @@ limiting resource.
   (An earlier draft of this cut also carved out a **drone service footprint**
   exception — a Specialized Drone servicing a multi-cell area — but that idea
   was superseded once drones got a full Effort/eligibility system of their own;
-  see Buildings & Economy's Robotics Assembly. Every worker, settler or drone,
+  see Buildings & Economy's [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly). Every worker, settler or drone,
   is assigned to exactly one site.)
 - **Manual merge-space ingredient crafting** — no more dragging ingredients into a
-  mini-grid to discover/confirm recipes. See Production Model below for what replaces
+  mini-grid to discover/confirm recipes. See [Production Model](03_core_loop_and_grid.md#production-model) below for what replaces
   it.
 
 ### Production Model
@@ -242,29 +242,29 @@ reversible planning-phase action until Next Season is confirmed.
   producing its own wheat *and* baking it, though the wheat-growing side
   runs slower than a dedicated wheat field). An unstaffed site produces zero
   output for the season.
-- **Exploration Task** (see Settlers & Exploration) — one-shot: the settler
+- **Exploration Task** (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration) — one-shot: the settler
   is gone for the season and returns with a result. Drawn from a small
   pool, always available (not gated to a periodic window), refreshed on
   season-start and manual reroll — a side-quest, event-like, not a routine
   option. **Settler-only, full stop** — no drone of any tier is ever
-  eligible (see Buildings & Economy's Robotics Assembly). Risk-bearing;
+  eligible (see Buildings & Economy's [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly)). Risk-bearing;
   may require Rations to sustain the settler away from the farm.
-- **Standing Assignment** (see Settlers & Exploration) — also one-shot, same
+- **Standing Assignment** (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration) — also one-shot, same
   resolution as Exploration Tasks, but always available every season rather
   than pool-limited, and safe (no risk spectrum, no Rations — the work
   stays on or near the farm). Covers Basic Deposit Survey, Deep Survey (see
-  Buildings & Economy's Deposit Discovery), Clear-Cutting (see Buildings &
-  Economy's Fuel), and Trapping (see Buildings & Economy's Farm/Production)
+  Buildings & Economy's [Deposit Discovery](04_buildings_and_economy.md#deposit-discovery)), Clear-Cutting (see Buildings &
+  Economy's [Fuel](04_buildings_and_economy.md#fuel)), and Trapping (see Buildings & Economy's [Farm/Production](04_buildings_and_economy.md#farmproduction))
   — worker-type eligibility varies per assignment, not uniformly
-  settler-only (see Settlers & Exploration's Standing Assignments).
+  settler-only (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Standing Assignments](05_settlers_and_exploration.md#standing-assignments)).
 
 **Worker types** (Production-building assignments specifically — Exploration
-Tasks and Research are settler-only, full stop; see Settlers & Exploration
-and Buildings & Economy's Robotics Assembly for why):
+Tasks and Research are settler-only, full stop; see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration
+and Buildings & Economy's [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly) for why):
 - **Settlers** are universal — assignable to any job type Injuries/Aptitude
   don't bar them from — but can only cover one grid slot (one field or one
   building) each, contributing **1.0 Effort** as their unmodified baseline
-  (see Settlers & Exploration's Aptitude and Experience for modifiers).
+  (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Aptitude](05_settlers_and_exploration.md#aptitude) and [Experience](05_settlers_and_exploration.md#experience) for modifiers).
 - **Drones** are built at Robotics Assembly, a staffed production site (a
   real early-game bootstrapping decision: dedicating a scarce settler to
   drone production instead of food, for a later payoff). Every drone is
@@ -276,7 +276,7 @@ and Buildings & Economy's Robotics Assembly for why):
 - **Effort stacks toward a per-site production cap.** A site has a maximum
   per-cycle output (scaling with its tier/upgrades); each worker contributes
   their own Effort value toward that cap — 1.0 for an unmodified settler,
-  varying by tier for drones (see Robotics Assembly). A single worker might
+  varying by tier for drones (see [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly)). A single worker might
   only realize part of an advanced site's potential output, requiring a
   second worker to reach the cap — creating a spread-thin-vs-concentrate
   tradeoff on top of the basic staffing decision.
@@ -311,7 +311,7 @@ building) — all three resolve the *following* season, consistent with how
 production/crafting already resolves during simulation rather than instantly.
 
 Relocation exists specifically to resolve a real edge case: an upgrade that expands a
-building's footprint (see Building Schema's multi-slot buildings, e.g. Upgraded
+building's footprint (see [Building Schema](04_buildings_and_economy.md#building-schema)'s multi-slot buildings, e.g. Upgraded
 Kitchen) is only offered/confirmable if the required adjacent cell(s) are actually
 free — the same placement-validity check used for new construction, just applied to
 the upgrade action. If a neighboring built building is in the way, relocating it is
@@ -327,7 +327,7 @@ again for the move; relocation costs only the one robot-action (a season),
 same as any other construction-robot task.
 
 **Deposit/feature-gated buildings** (Mine, Quarry, Rare Metal Extractor,
-Geothermal Generator — see Buildings & Economy's Deposit Discovery and Fuel)
+Geothermal Generator — see Buildings & Economy's [Deposit Discovery](04_buildings_and_economy.md#deposit-discovery) and [Fuel](04_buildings_and_economy.md#fuel))
 can be relocated too, but only to a different tile with
 an already-discovered, not-yet-built-on deposit/feature of the **matching
 type** — a Mine can only relocate to another discovered, unbuilt Ore
@@ -366,7 +366,7 @@ infrastructure *total*.
 3. **Place/reposition a force-field or weather-protection structure.**
 4. **Assign a settler to an exploration task** (occasional, every 3rd season, per the
    existing Exploration Tasks design).
-5. **Adjust food-for-consumption** (see Food & Nutrition) — sticky-defaulted to last
+5. **Adjust food-for-consumption** (see [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition)) — sticky-defaulted to last
    season's diet, so only an action when the player wants to deviate from it.
 
 ---
@@ -419,7 +419,7 @@ against this same fixed window.
   Hazard Events are the clearest example (a storm has a start time and
   duration, not lasting the whole season). Purely ambient visual depictions
   of Outside-Sim-resolved activities also happen here for legibility/immersion
-  (see Art Design) — e.g. a Scanner Station's radio-wave pulse, or a survey
+  (see [Art Design](07_production_and_technical.md#art-design)) — e.g. a Scanner Station's radio-wave pulse, or a survey
   settler wandering the grid — with no coupling to the actual mechanical
   resolution.
 
@@ -480,7 +480,7 @@ The player can then branch along two paths depending on the planet's character:
 - **Local Agriculture Path** — hybridize Earth crops with native planet-side flora.
   Favored on planets with a **hospitable atmosphere** but **scarce building
   resources**. Concretely realized as **Hybridization** (see Buildings &
-  Economy's Farm/Production and Research Lab): an exploration discovery
+  Economy's [Farm/Production](04_buildings_and_economy.md#farmproduction) and [Research Lab](04_buildings_and_economy.md#research-lab)): an exploration discovery
   unlocks research for one specific plant-crop building at a Research Lab;
   completing it permanently changes that building type for the rest of the
   run, immune to the Alien Soil growth penalty every non-hybridized plant

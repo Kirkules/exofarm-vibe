@@ -4,10 +4,10 @@
 
 ### Basic Resources
 - **Energy** and **Matter** — pooled, colony-wide resources. Base production is
-  **zero-effort/unstaffed** (see Building Categories below), unlike ordinary staffed
+  **zero-effort/unstaffed** (see [Building Categories](04_buildings_and_economy.md#building-categories) below), unlike ordinary staffed
   production sites.
 - **Water** — pooled, colony-wide resource, ambiguous units (e.g. "3 Water"),
-  no complicated irrigation/transport system to model (see Water below).
+  no complicated irrigation/transport system to model (see [Water](04_buildings_and_economy.md#water) below).
   Unlike Energy/Matter, collection requires staffed buildings and a
   prerequisite structure (Water Processing Plant) — not zero-effort.
 
@@ -18,7 +18,7 @@ to Storage's uncapped-inventory rules entirely, not a second exception to
 them. It behaves as a liquid pool with three parts:
 - **Cap (ceiling)** — sum of every Energy-producing building's capacity
   contribution (Solar Array, Geothermal Generator, Fuel-based Generator —
-  see Basic Resource Production and Fuel) minus the sum of every building's
+  see [Basic Resource Production](04_buildings_and_economy.md#basic-resource-production) and [Fuel](04_buildings_and_economy.md#fuel)) minus the sum of every building's
   baseline Energy upkeep (below). Every Energy-producing building
   contributes to the cap simply by **existing**, regardless of whether it's
   currently actively producing — Fuel-based Generator's contribution comes
@@ -30,13 +30,13 @@ them. It behaves as a liquid pool with three parts:
   bounded by the cap. Solar Array and Geothermal Generator produce at a
   genuinely constant rate; Fuel-based Generator's contribution to *income*
   (distinct from its unconditional contribution to the *cap*, above) is
-  conditional — see its entry under Fuel for how its active window works.
+  conditional — see its entry under [Fuel](04_buildings_and_economy.md#fuel) for how its active window works.
 - **Draws** — discrete, reactive spending against the pool's **current
   balance** (not the cap), which persists across the season boundary rather
   than resetting each season. Weather Shield/Row Shield's event-driven
-  funding (see Planets & Scoring's In-Simulation Hazard Events) is the
+  funding (see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)) is the
   original example this generalizes from; the exploration reroll cost (see
-  Settlers & Exploration's Exploration Tasks) is a second draw type, spent
+  [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Exploration Tasks](05_settlers_and_exploration.md#exploration-tasks)) is a second draw type, spent
   during planning rather than mid-simulation.
 
 The Energy meter reads as a **smooth, continuous fill**, never discrete
@@ -66,26 +66,26 @@ this design.
    unstaffed — though not all zero-effort in practice: Geothermal Generator
    needs a discovered Thermal Vent, and Fuel-based Generator needs a real
    Wood/Fossil Fuel supply chain and carries an ongoing Stewardship cost
-   (see Fuel).
+   (see [Fuel](04_buildings_and_economy.md#fuel)).
 2. **Farm/Production** — crops, animal products, and mining, staffed sites
-   (see Baseline Farm/Mined Resources below).
+   (see [Baseline Farm/Mined Resources](04_buildings_and_economy.md#baseline-farmmined-resources) below).
 3. **Food/Meal Conversion** — turns raw farm output into meals with nutrient profiles
-   (see Food & Nutrition).
+   (see [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition)).
 4. **Fabrication** — staffed sites producing drones, construction robots, and
    other fabricated goods (Concrete, Fabric, High-Tech Components, Fine
-   Furniture, etc. — see Platform & Core Loop Redesign's Construction and
+   Furniture, etc. — see [Platform](03_core_loop_and_grid.md#platform) & Core Loop Redesign's [Construction](03_core_loop_and_grid.md#construction) and
    Worker Assignment sections).
 5. **Protection** — force-field/weather-protection structures and Medical
    Bay. Weather Shield/Row Shield specifically (not Medical Bay) carry a
    variable, event-driven Energy cost tied to Temperature Extremity events
-   (see Planets & Scoring's In-Simulation Hazard Events) — always
+   (see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)) — always
    explicitly listed when it has an impact, never a hidden drain.
 6. **Storage** — contributes inventory capacity, carried over from the original
    design.
 7. **Utilities** — staffed settlement-support infrastructure that isn't
    itself farming, fabrication, storage, or protection: Water collection
-   (see Water), Scanner Station (see Scanner Station), and Research Lab (see
-   Research Lab). The thing these share isn't output type, it's role —
+   (see [Water](04_buildings_and_economy.md#water)), Scanner Station (see [Scanner Station](04_buildings_and_economy.md#scanner-station)), and Research Lab (see
+   [Research Lab](04_buildings_and_economy.md#research-lab)). The thing these share isn't output type, it's role —
    keeping the place running rather than producing, protecting, or storing
    anything directly.
 
@@ -108,10 +108,10 @@ keeping the catalog from exploding as more planet types are added:
   Ore); each unit mined is an independent random draw from that distribution —
   fine since this randomness resolves during simulation, not planning, per the
   reversibility principle. Basic exploration windfalls (e.g. Exposed Mineral
-  Outcrop — see Settlers & Exploration's Task Catalog) also yield Ore, never
+  Outcrop — see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Task Catalog](05_settlers_and_exploration.md#task-catalog)) also yield Ore, never
   refined metal.
 - **Iron** and **Copper** — the refined, usable form of the Ore above, produced
-  at the Smelter (see Fabrication). Iron: structural strength (robot bodies).
+  at the Smelter (see [Fabrication](04_buildings_and_economy.md#fabrication)). Iron: structural strength (robot bodies).
   Copper: electronics components. Higher-tier exploration tasks can skip the
   Ore stage and yield refined metal directly, as part of the reward for their
   added difficulty/rarity.
@@ -124,18 +124,18 @@ keeping the catalog from exploding as more planet types are added:
   correlated, but only as a correlation, not a guarantee — a temperate planet can
   still yield them, just less often.
 - **Wood has two sources with different sustainability profiles, not two
-  separate resources.** Timber Grove's ordinary output (see Farm/Production)
-  is renewable/ongoing; Clear-Cutting (see Fuel — a Standing Assignment, not
+  separate resources.** Timber Grove's ordinary output (see [Farm/Production](04_buildings_and_economy.md#farmproduction))
+  is renewable/ongoing; Clear-Cutting (see [Fuel](04_buildings_and_economy.md#fuel) — a Standing Assignment, not
   a building) harvests from a bounded Forest tile, a one-time harvest that
   does not regenerate within a run. Both produce the same fungible, pooled
   **Wood** — usable interchangeably for fabrication or for burning at
   Fuel-based Generator — but *how* a given unit was produced is what
   matters for Stewardship: only Clear-Cutting's output counts toward
   `ExtractionRestraint`
-  (see SEED Factions in Win/Lose Conditions), tracked as a running total at
+  (see [SEED Factions](06_planets_and_scoring.md#seed-factions) in Win/Lose Conditions), tracked as a running total at
   production time, not by tracing which specific unit later gets consumed.
 - **Fossil Fuel** exists solely as Fuel-based Generator's upgrade-tier input
-  (see Fuel), from a hidden deposit (see Deposit Discovery) — always
+  (see [Fuel](04_buildings_and_economy.md#fuel)), from a hidden deposit (see [Deposit Discovery](04_buildings_and_economy.md#deposit-discovery)) — always
   non-sustainable, no Timber-Grove-style renewable source exists for it.
 - **Fertilizer** — produced passively by livestock buildings (Dairy Pasture,
   Poultry Coop, Sheep Pasture — not Trapping, which harvests wild animals
@@ -143,11 +143,11 @@ keeping the catalog from exploding as more planet types are added:
   existing on the farm, regardless of
   staffing or whether they're actively producing Milk/Eggs/Wool that season.
   Consumed automatically, once per *season* (not per production cycle), by
-  plant-crop buildings to offset the Alien Soil penalty (see Farm/Production).
+  plant-crop buildings to offset the Alien Soil penalty (see [Farm/Production](04_buildings_and_economy.md#farmproduction)).
 - **Mining deposits come in two types**: a **high-yield, bounded** site (finite
   total quantity, depletes with use) and a **lower-yield, effectively infinite**
   site (doesn't meaningfully deplete within a run's timescale). Both incur the same
-  per-unit Stewardship cost when mined (see SEED Factions in Win/Lose Conditions) —
+  per-unit Stewardship cost when mined (see [SEED Factions](06_planets_and_scoring.md#seed-factions) in Win/Lose Conditions) —
   the disruption Stewardship objects to is the mining process/infrastructure itself,
   not depletion, so extraction volume is penalized at the same rate regardless of
   deposit type.
@@ -162,7 +162,7 @@ keeping the catalog from exploding as more planet types are added:
 
 ## Building Schema
 
-Every building in the catalog (see Building Categories in Resources) is defined by
+Every building in the catalog (see [Building Categories](04_buildings_and_economy.md#building-categories) in [Resources](04_buildings_and_economy.md#resources)) is defined by
 the following properties. Working through the catalog category-by-category (see
 `DESIGN_TODO.md`) fills in concrete buildings against this shared schema.
 
@@ -180,11 +180,11 @@ the following properties. Working through the catalog category-by-category (see
   echo of the old polyomino system, with no rotation and no orientation-dependent
   effects. An upgrade that expands a building's footprint is only
   offered/confirmable if the required adjacent cell(s) are free — the same
-  placement-validity check used for new construction (see Construction, above,
+  placement-validity check used for new construction (see [Construction](03_core_loop_and_grid.md#construction), above,
   for how a construction robot can relocate a blocking building to resolve
   this).
 - **Input** — a multiset of resources/items consumed, per cycle (continuous-rate)
-  or per instant-conversion (see Ration Press); may be empty. Applies uniformly
+  or per instant-conversion (see [Ration Press](04_buildings_and_economy.md#ration-press)); may be empty. Applies uniformly
   to every building — no taxonomy of "which category gets this property" is
   needed, since an empty multiset already covers buildings that don't consume
   anything.
@@ -224,7 +224,7 @@ the following properties. Working through the catalog category-by-category (see
   designs, additional planet-side materials for advanced ones, per Technology &
   Progression); consumed when a construction robot begins the build
 - **`TechAchievement` value** — static, design-authored score (0 for basic
-  buildings, higher for advanced ones) — feeds Development Bloc (see SEED Factions
+  buildings, higher for advanced ones) — feeds Development Bloc (see [SEED Factions](06_planets_and_scoring.md#seed-factions)
   in Win/Lose Conditions)
 - **Repeatable** — whether multiple copies can be built (most can; whether any
   building should be capped at one instance is an open question)
@@ -262,8 +262,8 @@ doesn't need a name for each shape.
   `EcologicalData`) this building passively generates reports for each active
   season.
 - **Storage contribution** — capacity added to a dedicated storage mechanic
-  (e.g. Food Storage's stockpile capacity — see Storage). General working
-  inventory is uncapped (see Inventory) and has no storage-contribution
+  (e.g. Food Storage's stockpile capacity — see [Storage](04_buildings_and_economy.md#storage)). General working
+  inventory is uncapped (see [Inventory](04_buildings_and_economy.md#inventory)) and has no storage-contribution
   property; this only applies to buildings implementing a deliberate,
   limited-capacity commitment mechanic.
 
@@ -309,14 +309,14 @@ grid's limited-slots opportunity cost.
   repeatable anywhere on any planet, uncapped, while this building only
   exists where a Thermal Vent does — rare, Volcanic-exclusive, and gated
   behind the same exploration-survey investment as any other deposit (see
-  Deposit Discovery).
+  [Deposit Discovery](04_buildings_and_economy.md#deposit-discovery)).
 - Built directly on a discovered Thermal Vent deposit slot (any depth tier),
   same placement pattern as Mine/Quarry/Well.
 - Input: none | Output: Energy per season, at a rate meaningfully above
   Solar Array's Volcanic-tier rate (exact numbers
   TBD, deferred to a balancing pass) — this is what actually lets a Volcanic
   run offset Weather Shield's temperature-driven Energy cost (see Planets &
-  Scoring's In-Simulation Hazard Events), the original motivation for this
+  Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)), the original motivation for this
   building.
 - Production cap: N/A (unstaffed)
 - Construction cost: modest Matter/Concrete/Iron (TBD)
@@ -325,8 +325,8 @@ grid's limited-slots opportunity cost.
   Mine/Quarry) | Upgrade path: yes — higher tiers produce more Energy
 - Area of effect / Energy upkeep / Preparedness / Data-gathering / Storage: N/A
 
-*(A third Basic Resource Production building, Fuel-based Generator, lives
-under Fuel below rather than here, since it's most legible alongside Forest
+*(A third [Basic Resource Production](04_buildings_and_economy.md#basic-resource-production) building, [Fuel-based Generator](04_buildings_and_economy.md#fuel-based-generator), lives
+under [Fuel](04_buildings_and_economy.md#fuel) below rather than here, since it's most legible alongside Forest
 tiles and Clear-Cutting — its category is still Basic Resource Production.)*
 
 ---
@@ -338,17 +338,17 @@ Numbers below are a **first-pass illustrative draft**, not balanced — followin
 playtesting later, not over-engineered now. All buildings in this section:
 Repeatable: yes, Upgrade path: yes (higher tiers reduce `production_time`
 and/or raise the effort-stacking production cap), `TechAchievement` 0 at base
-tier. **All require the same flat amount of Water per cycle** (see Water below —
-exact amount TBD, calibrated against the settler baseline of 1 Water/season).
+tier. **All require the same flat amount of Water per cycle** (see [Water](04_buildings_and_economy.md#water) below —
+exact amount TBD, calibrated against the settler baseline of 1 [Water](04_buildings_and_economy.md#water)/season).
 
-**Alien Soil.** The four plant-crop buildings (Grain Field, Fruit Orchard,
-Fiber Field, Timber Grove — not the four animal-based buildings below) carry
+**Alien Soil.** The four plant-crop buildings ([Grain Field](04_buildings_and_economy.md#grain-field), [Fruit Orchard](04_buildings_and_economy.md#fruit-orchard),
+[Fiber Field](04_buildings_and_economy.md#fiber-field), [Timber Grove](04_buildings_and_economy.md#timber-grove) — not the four animal-based buildings below) carry
 a standing growth-rate penalty (illustrative -30%, TBD): Earth crops aren't
 naturally suited to a foreign planet's soil. Removed for any season Fertilizer
-is available (see Resources) — consumed automatically, no manual action
+is available (see [Resources](04_buildings_and_economy.md#resources)) — consumed automatically, no manual action
 needed, same low-friction spirit as Water's automatic draw. Permanently
 removed, with no further Fertilizer need at all, once a plant type has been
-hybridized (see Hybridization, below).
+hybridized (see [Hybridization](04_buildings_and_economy.md#hybridization), below).
 
 ### Grain Field
 - Staffing: Staffed | Input: Water | Output: 1 Grain per cycle,
@@ -382,7 +382,7 @@ hybridized (see Hybridization, below).
 
 Not a building — traps set on a tile for the season are just that, no
 persistent structure involved. **Trapping** is a Standing Assignment (see
-Settlers & Exploration), production-speed-based like a building rather than
+[Settlers](05_settlers_and_exploration.md#settlers) & Exploration), production-speed-based like a building rather than
 a single lump-sum result: assign a settler to one tile, and they yield
 **Pelt** through repeating production cycles across the season's Mid-Sim
 window (rate TBD) — eligible for Storied's production-speed bonus the same
@@ -396,7 +396,7 @@ Yield scales two ways:
   new per-planet dial: Verdant (richest biosphere) yields the most, Volcanic/
   Frozen (suppressed biological complexity) the least, Arid/Desert in
   between.
-- **Whether the tile currently has Forest present** (see Fuel) — unforested
+- **Whether the tile currently has Forest present** (see [Fuel](04_buildings_and_economy.md#fuel)) — unforested
   or already-clear-cut land is less habitable for prey animals, so a
   forested tile yields more than a bare one. This creates a direct,
   legible tension with Clear-Cutting: harvesting a Forest tile's Wood
@@ -404,14 +404,14 @@ Yield scales two ways:
   clear-cutting removes the habitat.
 
 No Rations, no risk — same as any Standing Assignment. Pelt stays one
-resource everywhere (see Resources), consistent with not exploding the
+resource everywhere (see [Resources](04_buildings_and_economy.md#resources)), consistent with not exploding the
 catalog per planet type, though its flavor name/appearance could vary
 cosmetically by planet with zero mechanical effect, the same pattern
 already used for Kitchen's combo-meal flavor-name pools.
 
 ### Hybridization
 
-An exploration discovery (Site Reveal outcome — see Settlers & Exploration)
+An exploration discovery (Site Reveal outcome — see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration)
 unlocks the ability to research **one specific plant-crop building's**
 hybridization at a Research Lab (see Utilities) — a single discovery targets
 a single building type (e.g. a Verdant find might unlock Grain Field's
@@ -447,7 +447,7 @@ Exploration Tasks' unwritten flavor content.
 
 ## Deposit Discovery
 
-Ore, Stone, rare-metal, and **aquifer** (see Water) deposits are hidden by
+Ore, Stone, rare-metal, and **aquifer** (see [Water](04_buildings_and_economy.md#water)) deposits are hidden by
 default — most are underground, and the player must actively discover them
 before they can be mined/tapped. **All deposit locations across the grid are
 determined at run start** (world generation), independent of when the player
@@ -455,7 +455,7 @@ actually discovers them — discovery only reveals what's already there, it
 never generates new deposits. Aquifers are binary (present/not-present) and
 single-tile, exactly like the other deposit types — no varying depths.
 
-**Thermal Vents** (see Geothermal Generator, under Basic Resource
+**Thermal Vents** (see [Geothermal Generator](04_buildings_and_economy.md#geothermal-generator), under Basic Resource
 Production) are a fifth deposit type, binary and single-tile like aquifers,
 but with a new kind of restriction the other four don't have: they're
 **Volcanic-exclusive** — guaranteed present (at least one) on Volcanic at
@@ -464,7 +464,7 @@ merely varying in frequency across planets the way Ore/Stone/rare-metal/
 aquifer do. Skews toward Mid-depth/Deep tiers, same rarity flavor as
 rare-metal deposits.
 
-**Fossil Fuel** (see Fuel-based Generator, under Fuel) is a sixth deposit
+**Fossil Fuel** (see [Fuel-based Generator](04_buildings_and_economy.md#fuel-based-generator), under [Fuel](04_buildings_and_economy.md#fuel)) is a sixth deposit
 type, hidden and skewing toward Mid-depth/Deep tiers like rare-metal and
 Thermal Vents — but unlike Thermal Vents' strict Volcanic-exclusivity, its
 frequency simply varies by planet type, reusing an existing correlation
@@ -477,7 +477,7 @@ complexity) have the least, Arid/Desert sits in between.
 
 **Overlap.** A tile can hold more than one deposit/feature type at once,
 which is exactly what makes relocating a deposit-gated building sometimes
-worth it (see Core Loop & Grid's Construction). The rules:
+worth it (see Core Loop & Grid's [Construction](03_core_loop_and_grid.md#construction)). The rules:
 - **Ore, Stone, and rare-metal are mutually exclusive with each other** — a
   tile has at most one of these three "what kind of rock is here"
   characterizations.
@@ -520,7 +520,7 @@ the Wood doesn't cost later access to whatever's underneath.
   Scanning mode. Skews toward rare-metal deposits specifically, not just more
   Iron/Copper/Stone.
 
-**Basic Deposit Survey** (Standing Assignment — see Settlers & Exploration)
+**Basic Deposit Survey** (Standing Assignment — see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration)
 — available from Season 1, every season, not pool-limited. Requires modest
 basic tools (small resource cost, TBD). At assignment time, the player
 selects a **rectangular region of tiles** (size TBD, a balancing number) to
@@ -554,7 +554,7 @@ available again next season with no reroll or pool mechanics involved.
 **Scanner Station's Deposit Scanning mode is entirely unaffected by any of
 this** — no rectangle selection, no eligibility flagging, it keeps its
 existing any-depth-tier, anywhere-on-the-grid probabilistic reveal (see
-Scanner Station). The rectangle/flagging pattern is specific to
+[Scanner Station](04_buildings_and_economy.md#scanner-station)). The rectangle/flagging pattern is specific to
 settler-performed surveys, not building-based scanning.
 
 ### Mine
@@ -580,10 +580,10 @@ settler-performed surveys, not building-based scanning.
 ## Fuel
 
 A deliberately *not clean* third Energy option, alongside Solar Array and
-Geothermal Generator (see Basic Resource Production) — cheap and immediately
+Geothermal Generator (see [Basic Resource Production](04_buildings_and_economy.md#basic-resource-production)) — cheap and immediately
 available from run start, no unlock needed, but genuinely resource-limited
 and, unlike either of those two, carries a real ongoing Stewardship cost
-(see Win/Lose Conditions' SEED Factions, `EmissionsRestraint`) for as long
+(see Win/Lose Conditions' [SEED Factions](06_planets_and_scoring.md#seed-factions), `EmissionsRestraint`) for as long
 as it's used.
 
 **Forest tiles** are a visible-from-start terrain feature (not a hidden
@@ -592,14 +592,14 @@ with count and density varying by planet type and site, shown at Farm Site
 Selection (see Core Loop & Grid) alongside Surface deposits and Average
 Temperature as a known feature. Each Forest tile holds a bounded quantity of
 **Wood** — the same "high-yield, bounded, depletes with use" shape already
-established for some Ore/Stone deposits (see Resources) — that does not
+established for some Ore/Stone deposits (see [Resources](04_buildings_and_economy.md#resources)) — that does not
 regenerate within a run once harvested. This is the *same* Wood Timber
-Grove produces on an ongoing, renewable basis (see Farm/Production and
-Resources) — one resource, two sources with different sustainability
+Grove produces on an ongoing, renewable basis (see [Farm/Production](04_buildings_and_economy.md#farmproduction) and
+[Resources](04_buildings_and_economy.md#resources)) — one resource, two sources with different sustainability
 profiles, not two separate items.
 
 ### Clear-Cutting
-Not a building — a **Standing Assignment** (see Settlers & Exploration). No
+Not a building — a **Standing Assignment** (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration). No
 grid slot, no construction cost, no staffing in the sticky sense.
 - Production-speed-based, like a building, rather than a single lump-sum
   result: the player selects any number of individual Forest tiles for one
@@ -618,14 +618,14 @@ grid slot, no construction cost, no staffing in the sticky sense.
   bank enough Wood to run a base-tier Fuel-based Generator for a season or
   two before the next round of Clear-Cutting is needed.
 - Every unit harvested this way counts toward `ExtractionRestraint` (see
-  SEED Factions in Win/Lose Conditions), unlike Timber Grove's output,
+  [SEED Factions](06_planets_and_scoring.md#seed-factions) in Win/Lose Conditions), unlike Timber Grove's output,
   which never does — the distinction lives at the point of production, not
   on the pooled Wood itself, which is fully fungible once in inventory.
 
 ### Fuel-based Generator
 - Category: Basic Resource Production | Staffing: **Unstaffed**
 - **Contributes to the Energy Pool's cap unconditionally, simply by
-  existing** — same as Solar Array and Geothermal Generator (see Resources'
+  existing** — same as Solar Array and Geothermal Generator (see [Resources](04_buildings_and_economy.md#resources)'
   Energy Pool) — on the assumption it comes with its own structural
   battery, the same reasoning that lets any Energy producer smooth out
   real-time mismatches between production and consumption. Its contribution
@@ -650,7 +650,7 @@ grid slot, no construction cost, no staffing in the sticky sense.
 - Upgrade tier additionally unlocks burning **Fossil Fuel** (see Deposit
   Discovery) once discovered — same multi-recipe pattern used elsewhere in
   the catalog (player selects the active fuel type as a normal, reversible,
-  sticky planning choice; see Building Schema). Fossil Fuel gives a
+  sticky planning choice; see [Building Schema](04_buildings_and_economy.md#building-schema)). Fossil Fuel gives a
   meaningfully higher Energy return per unit than Wood, which is the entire
   point of the upgrade — but see `EmissionsRestraint` below for the
   corresponding cost.
@@ -672,7 +672,7 @@ grid slot, no construction cost, no staffing in the sticky sense.
 
 ## Water
 
-*(Category: Utilities — see Building Categories in Resources)*
+*(Category: Utilities — see [Building Categories](04_buildings_and_economy.md#building-categories) in [Resources](04_buildings_and_economy.md#resources))*
 
 Settlers need **1 Water per settler per season** (pooled, same consumption
 model as nutrition) — this is the calibration anchor for all other Water
@@ -685,7 +685,7 @@ of distinct dietary needs, so a single pooled quantity is sufficient.
 > different?) is not yet decided — flagged in `DESIGN_TODO.md`.
 
 **No dedicated water-storage buildings** — Water sits in the ordinary
-uncapped general inventory like other resources (see Storage), not a
+uncapped general inventory like other resources (see [Storage](04_buildings_and_economy.md#storage)), not a
 Food-Storage-style special commitment mechanic.
 
 **Water transport is deliberately unmodeled** — no pipes, irrigation, or
@@ -694,7 +694,7 @@ don't need spatial adjacency; the player can imagine whatever transportation
 mechanism they like, with no design commitment either way — consistent with
 Energy/Matter also never needing an explained distribution system.
 
-**All collection buildings require a Water Processing Plant to function at
+**All collection buildings require a [Water Processing Plant](04_buildings_and_economy.md#water-processing-plant) to function at
 all** — see below. No separate "Raw Water" intermediate resource; the Plant's
 mere existence is a prerequisite gate, not a conversion step.
 
@@ -736,7 +736,7 @@ mere existence is a prerequisite gate, not a conversion step.
 ### Well
 - Staffing: Staffed | Input: none | Output: Water per cycle, **relatively
   low rate** | Buildable on any tile.
-- Built on a tile with a **detected aquifer** (see Deposit Discovery),
+- Built on a tile with a **detected aquifer** (see [Deposit Discovery](04_buildings_and_economy.md#deposit-discovery)),
   automatically becomes a **Deep Well** — same building, higher production
   rate, no separate build choice or upgrade action. The "deepening" is a
   passive consequence of the tile's property, not a player decision beyond
@@ -750,14 +750,14 @@ mere existence is a prerequisite gate, not a conversion step.
 "Deposit Scanner" concepts into one building, per the same consolidation logic
 already applied to Robotics Assembly)*
 
-- Category: Utilities (see Building Categories in Resources)
+- Category: Utilities (see [Building Categories](04_buildings_and_economy.md#building-categories) in [Resources](04_buildings_and_economy.md#resources))
 - Construction cost: Stone + Iron + Copper
 - Base tier: Staffed. Uses the multi-recipe pattern (player selects one active
   mode, no resource inputs beyond staffing itself — per the Building Schema's
   note that Input may be empty and Output may not be a trackable resource
   item):
   - **Weather Sensing** — generates Storm Severity/Frequency and Temperature
-    Extremity reports simultaneously each active season (see Exoplanet Types'
+    Extremity reports simultaneously each active season (see [Exoplanet Types](06_planets_and_scoring.md#exoplanet-types)'
     Data-Gathering Mechanism)
   - **Deposit Scanning** — a chance **each active season** to reveal one
     random undiscovered deposit of **any depth tier**, always capable of
@@ -777,12 +777,12 @@ already applied to Robotics Assembly)*
   (multiple Scanner Stations can exist, though diminishing value once deposits
   are discovered) | Upgrade path: yes, as described above
 - **Upgrades may also reduce the Energy cost of manually rerolling the
-  Exploration Tasks pool** (see Settlers & Exploration) — exact discount
+  Exploration Tasks pool** (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration) — exact discount
   per tier TBD, but the connection is real: better local sensing makes a
   fresh sweep of the region cheaper.
 - **One upgrade tier also permanently adds +1 to the Exploration Tasks
-  pool size** (see Settlers & Exploration) — which tier TBD. A Research
-  Lab project ("Expanded Reconnaissance Doctrine," see Research Lab) is
+  pool size** (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration) — which tier TBD. A Research
+  Lab project ("Expanded Reconnaissance Doctrine," see [Research Lab](04_buildings_and_economy.md#research-lab)) is
   the second, independent source of +1, for a maximum pool size of 5.
 
 ---
@@ -797,7 +797,7 @@ Technology & Progression: it doesn't introduce an abstract research-points
 currency, it's a bespoke, per-discovery unlock tied to specific exploration
 finds, same spirit as everything else in the catalog.
 
-- Category: Utilities (see Building Categories in Resources) | Staffing: Staffed
+- Category: Utilities (see [Building Categories](04_buildings_and_economy.md#building-categories) in [Resources](04_buildings_and_economy.md#resources)) | Staffing: Staffed
 - Input: none (beyond staffing) | Output: none in the trackable-resource
   sense — completing a research project is a permanent rule-change to a
   target building type, not an item (per the Building Schema's note that
@@ -807,11 +807,11 @@ finds, same spirit as everything else in the catalog.
   pending, the player selects which to work on — same multi-recipe
   selection pattern used elsewhere (sticky, reversible). `production_time`
   per project: TBD, some number of seasons.
-- **First use case: Hybridization** (see Farm/Production) — exploration
+- **First use case: Hybridization** (see [Farm/Production](04_buildings_and_economy.md#farmproduction)) — exploration
   discoveries unlock specific per-building hybridization projects here.
 - **Second use case: "Expanded Reconnaissance Doctrine"** — a research
   project permanently adding +1 to the Exploration Tasks pool size (see
-  Settlers & Exploration), always available to research (not
+  [Settlers](05_settlers_and_exploration.md#settlers) & Exploration), always available to research (not
   discovery-gated like Hybridization projects are).
 - Construction cost: TBD.
 
@@ -826,11 +826,11 @@ finds, same spirit as everything else in the catalog.
   recipe slots**, each independently staffed by one worker who selects which
   recipe *that slot* runs from the full available list — letting one Kitchen
   produce several different meals in parallel. Grid footprint scales with slot
-  count (see Building Schema): **base Kitchen = 1 slot (1 worker, 1 grid
+  count (see [Building Schema](04_buildings_and_economy.md#building-schema)): **base Kitchen = 1 slot (1 worker, 1 grid
   space)**, **Upgraded Kitchen = 2 slots (2 workers, 2 grid spaces, fixed
   non-rotatable shape)**.
 - Base-tier recipes — single-ingredient meals, chosen so the group together
-  covers all four PFCV axes (see Food & Nutrition):
+  covers all four PFCV axes (see [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition)):
   - Bread ← Grain (Carbs-heavy)
   - Fruit dish ← Fruit (Vitamins-heavy)
   - Dairy dish ← Milk (Protein/Fat/Vitamins)
@@ -865,14 +865,14 @@ finds, same spirit as everything else in the catalog.
 ### Ration Press
 
 Produces **Rations** — the replacement for the removed Nutrient Paste
-mechanic (see Settlers & Exploration's Food & Nutrition). Rations are
+mechanic (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition)). Rations are
 conceptually analogous to Nutrient Paste: densely packed, unappetizing,
 meant only to sustain life — but unlike Nutrient Paste, they're a genuine
 player-produced item, not an automatic settlement-wide conversion rule.
 
 - Staffing: Unstaffed — the conversion process is
   meant to feel automatic, not labor-intensive
-- **Instant conversion** (see Building Schema): the player selects a set of
+- **Instant conversion** (see [Building Schema](04_buildings_and_economy.md#building-schema)): the player selects a set of
   input food items during planning; resolves immediately, with output
   available the **same season** — including for exploration tasks being
   planned that same season. Repeatable within a single planning phase, no
@@ -902,7 +902,7 @@ introduced several new intermediate/luxury resources: **Fabric**, **Concrete**,
 Scanning Equipment**, **Leather Boots**, **Temperature-Resistant Gear**,
 **Diplomatic Gear**, **Fine Furniture**, and **Ornamental/Decorative Items**.
 
-Robotics Assembly and Diplomatic Gear below are both examples of the
+[Robotics Assembly](04_buildings_and_economy.md#robotics-assembly) and Diplomatic Gear below are both examples of the
 multi-recipe pattern already established in Building Schema — no separate
 addition needed here.
 
@@ -920,8 +920,8 @@ consolidated building with selectable recipes fits better)*
   - All-Purpose Drone (Basic) ← Iron + Copper (base tier)
   - All-Purpose Drone (Advanced) ← Iron + Copper + Silicon (**requires Upgraded
     Robotics Assembly**)
-  - Specialized Drone (one recipe per Experience group — see Settlers &
-    Exploration's Experience for the full list) ← Iron + Copper + a
+  - Specialized Drone (one recipe per Experience group — see [Settlers](05_settlers_and_exploration.md#settlers) &
+    Exploration's [Experience](05_settlers_and_exploration.md#experience) for the full list) ← Iron + Copper + a
     category-flavored input (**requires Upgraded Robotics Assembly AND at
     least one existing production structure of the matching group already
     built** — no point fabricating a Farming-specialized drone before any
@@ -940,7 +940,7 @@ consolidated building with selectable recipes fits better)*
 not consumable items once built. Every drone is assigned to exactly one
 site at a time, the same as a settler (no multi-cell service footprint).
 
-**Effort** (see Core Loop & Grid's Assignment for the general mechanic — a
+**Effort** (see Core Loop & Grid's [Assignment](03_core_loop_and_grid.md#assignment) for the general mechanic — a
 per-worker multiplier on a task's base production rate, where 1.0 matches
 an unmodified settler):
 
@@ -962,7 +962,7 @@ an unmodified settler):
   Lab's research work, and Medical Bay's medical research specifically) —
   those stay settler-only regardless of drone tier.
 - **Specialized** — restricted to exactly one Experience group (see
-  Settlers & Exploration's Experience), at a much higher Effort than even
+  [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Experience](05_settlers_and_exploration.md#experience)), at a much higher Effort than even
   Advanced All-Purpose, but never Exploration or Research under any
   circumstances, same as the other two tiers.
 
@@ -983,7 +983,7 @@ needed — a buffer against flickering on and immediately back off. No
 battery replacement is ever needed; this is permanent hardware, just
 periodically drained and refilled. Draining is faster the further
 temperature strays from the 72°F comfort target (see Planets & Scoring's
-In-Simulation Hazard Events), **except for hardened drones** (see the
+[In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)), **except for hardened drones** (see the
 Hardening upgrade recipe above), which don't suffer this penalty.
 
 **Destruction**: any worker, settler or drone, is freed and returns to the
@@ -1021,7 +1021,7 @@ Schema) and become exposed to any hazard active at that moment.
     cost for specific manned exploration tasks, generalizing the earlier
     food-cost-for-expeditions idea to manufactured goods
   - **Large Backpack** ← Pelts — an exploration-task consumable (see
-    Settlers & Exploration's Exploration Tasks Task Catalog): brought along
+    [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Exploration Tasks](05_settlers_and_exploration.md#exploration-tasks) [Task Catalog](05_settlers_and_exploration.md#task-catalog)): brought along
     on a Resource windfall task, it guarantees the top of that task's value
     range. Consumed on use, same precedent PPE already established for
     exploration-task consumables.
@@ -1029,7 +1029,7 @@ Schema) and become exposed to any hazard active at that moment.
 ### Tinkerer's Workshop
 - Category: Fabrication | Staffing: Staffed
   — Settler, Advanced All-Purpose Drone, or a Tinkerer's-Workshop-Specialized
-  Drone (see Robotics Assembly) — not Basic All-Purpose, since High-Tech
+  Drone (see [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly)) — not Basic All-Purpose, since High-Tech
   Components requires Advanced-tier eligibility
 - Selectable recipes (base tier):
   - High-Tech Components ← Copper + Silicon + Iron — used as a construction-cost
@@ -1052,18 +1052,18 @@ Schema) and become exposed to any hazard active at that moment.
     covered by a **passive stock check** — any Gear sitting in general
     inventory covers everyone on the farm against Temperature Extremity, not
     consumed, not per-settler-allocated — the same pattern PPE already
-    established for Atmospheric Hazard (see Protection's Medical Bay). Any
+    established for Atmospheric Hazard (see [Protection](04_buildings_and_economy.md#protection)'s [Medical Bay](04_buildings_and_economy.md#medical-bay)). Any
     passive-stock-check item like this one should show a visible "in use"
     indicator during season simulation when it's actively covering someone —
     a UI/Art Design note, not a mechanic.
   - Diplomatic Gear ← (Silicon + Copper) **or** (Fabric), player selects which
     input path — a prerequisite for the **Peaceful Contact** and
     **Bluff/Coercive Exploitation** approaches at First Contact (see
-    Exploration Tasks' Escalation Chains)
+    [Exploration Tasks](05_settlers_and_exploration.md#exploration-tasks)' [Escalation Chains](05_settlers_and_exploration.md#escalation-chains))
   - **Armed Expedition Kit** ← Iron + a rare metal — one of two
     prerequisites (alongside Overwhelming Force Package, below) for the
     **Military Exploitation** approach at First Contact (see Exploration
-    Tasks' Escalation Chains); deliberately named to read as practical
+    Tasks' [Escalation Chains](05_settlers_and_exploration.md#escalation-chains)); deliberately named to read as practical
     expedition equipment rather than a weapons system, matching the game's
     cozy-pioneering tone
   - **Overwhelming Force Package** (new) ← High-Tech Components + a rare
@@ -1090,14 +1090,14 @@ Schema) and become exposed to any hazard active at that moment.
 ## Protection
 
 Backs `MatchedPreparedness(Weather)` and `MatchedPreparedness(Bio-hazard)` for
-the Safeguard Coalition (see Win/Lose Conditions' SEED Factions). Also
+the Safeguard Coalition (see Win/Lose Conditions' [SEED Factions](06_planets_and_scoring.md#seed-factions)). Also
 resolves the "Medical/Vaccine production" gap: Bio-hazard preparedness lives
 here too, not as a separate category — Protection is about protecting the
 settlement from a planetary danger generally, whether physical (weather) or
 biological.
 
 Each building's **Preparedness contribution** is expressed on the same rough
-0–1 scale as `TrueRisk` (see Exoplanet Types' Hazard Priors), so that a
+0–1 scale as `TrueRisk` (see [Exoplanet Types](06_planets_and_scoring.md#exoplanet-types)' Hazard Priors), so that a
 reasonable number of buildings can plausibly reach or exceed a planet's true
 risk level and hit `MatchedPreparedness`'s cap of 1. Exact numbers TBD,
 deferred to a balancing pass — following "numbers stay small," these are
@@ -1105,7 +1105,7 @@ first-pass illustrative values.
 
 **Multi-slot footprints aren't only about worker capacity.** The Building
 Schema's rule that grid-slot count equals worker-assignment capacity (see
-Kitchen) has its first exception here: Row Shield below occupies 2 slots for
+[Kitchen](04_buildings_and_economy.md#kitchen)) has its first exception here: [Row Shield](04_buildings_and_economy.md#row-shield) below occupies 2 slots for
 a wholly different reason — its physical size determines the *shape* of
 coverage it projects, independent of staffing (it's unstaffed). A building's
 slot count can reflect either worker capacity or physical structure needs,
@@ -1120,7 +1120,7 @@ whichever applies.
   The Grid (Unified) for why coverage was widened when the two grids
   merged) — upgradeable to a larger radius
 - **Energy upkeep**: variable and event-driven, not a flat per-season
-  number — see Planets & Scoring's In-Simulation Hazard Events for the full
+  number — see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events) for the full
   mechanism. Summary: cost scales with the severity of whatever Temperature
   Extremity event is currently active (idle-but-armed cost normally, more
   during a mild event, more during an extreme one); paying it in full during
@@ -1136,7 +1136,7 @@ whichever applies.
   Preparedness credit
 - No data-gating on its Preparedness contribution — a physical shield works
   regardless of whether the settlement has measured how bad the weather
-  actually is. This is an intentional asymmetry with Medical Bay below, not
+  actually is. This is an intentional asymmetry with [Medical Bay](04_buildings_and_economy.md#medical-bay) below, not
   an inconsistency: physical protection doesn't require understanding a
   threat to block it, but a medical countermeasure specifically requires
   characterizing the threat to exist at all.
@@ -1158,7 +1158,7 @@ principle that a planet/strategy shouldn't reduce to one correct approach)*
   build a second Row Shield for more rows (at some cost to placement
   granularity, not considered worth designing around)
 - **Energy upkeep**: same variable, event-driven mechanic as Weather Shield
-  (see Planets & Scoring's In-Simulation Hazard Events)
+  (see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events))
 - **Preparedness contribution**: Weather axis, same shape as Weather Shield's
   base tier
 - Construction cost: strictly between Weather Shield's base cost and
@@ -1167,7 +1167,7 @@ principle that a planet/strategy shouldn't reduce to one correct approach)*
 
 ### Medical Bay
 - Staffing: Staffed — Settler, Advanced All-Purpose Drone, or a
-  Medical-Bay-Specialized Drone (see Robotics Assembly) for PPE and Vaccine
+  Medical-Bay-Specialized Drone (see [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly)) for PPE and Vaccine
   Production; medical research specifically stays settler-only, the same
   rule as Research Lab
 - **Base tier**: provides baseline `Preparedness(Bio-hazard)` credit
@@ -1193,7 +1193,7 @@ principle that a planet/strategy shouldn't reduce to one correct approach)*
   Unlocking a vaccine for a given pathogen also triggers a **new exploration
   escalation** — a task to explore the specific region where that pathogen
   was originally found, previously too dangerous, now safe (see Exploration
-  Tasks' Escalation Chains for the worked example).
+  Tasks' [Escalation Chains](05_settlers_and_exploration.md#escalation-chains) for the worked example).
   **The unlock is a permanent settlement-wide fact, not tied to the Medical
   Bay's continued existence** — everyone is already vaccinated the moment it
   unlocks, so even if the building is later destroyed (see In-Simulation
@@ -1201,7 +1201,7 @@ principle that a planet/strategy shouldn't reduce to one correct approach)*
   Medical Bay afterward restores its Preparedness/PPE functions, not the
   vaccine itself, since there's nothing to restore.
 - **Energy upkeep**: ordinary flat per-season baseline, same rule as every
-  other building (see Basic Resources above) — Medical Bay isn't one of the
+  other building (see [Basic Resources](04_buildings_and_economy.md#basic-resources) above) — Medical Bay isn't one of the
   two AOE shield structures, so it doesn't get the variable event-driven cost.
 - **PPE recipe** (Personal Protective Equipment — breathing masks, hazard
   suits, etc.): Fabric → PPE, an ordinary **recurring** staffed production
@@ -1211,7 +1211,7 @@ principle that a planet/strategy shouldn't reduce to one correct approach)*
   Weather sub-factor with no preparedness mitigation until now. Doesn't
   compete with Vaccine Production for a "slot," since Vaccine Production is
   a permanent tier unlock, not a recurring recipe.
-  - **Fully resolved** — see Planets & Scoring's In-Simulation Hazard Events
+  - **Fully resolved** — see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)
     for the complete mechanism. Summary: farm-based settlers are protected by
     a passive stock check (any PPE in general inventory, not consumed);
     exploration-task settlers require explicitly electing to send PPE when
@@ -1224,7 +1224,7 @@ principle that a planet/strategy shouldn't reduce to one correct approach)*
   Emergency Medical Kit, an ordinary **recurring** staffed production
   recipe alongside PPE, no `Confidence`-gating (generic rescue/trauma
   gear, not pathogen-specific). Consumed on use; brought optionally on the
-  Unknown Radio Signal exploration task (see Settlers & Exploration's Task
+  Unknown Radio Signal exploration task (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's Task
   Catalog) to guarantee a successful rescue if the signal turns out to be
   a genuine distress call.
 - Construction cost: Fabric + basic materials (base tier); Vaccine
@@ -1237,7 +1237,7 @@ principle that a planet/strategy shouldn't reduce to one correct approach)*
 ## Storage
 
 General working inventory needs no dedicated Storage buildings at all — it's
-fully uncapped (see Inventory below). The one deliberate exception is **Food
+fully uncapped (see [Inventory](04_buildings_and_economy.md#inventory) below). The one deliberate exception is **Food
 Storage**, which exists specifically to give the Sustenance Bloc's
 `NutritionStockpile` term a real, felt tradeoff rather than a passive byproduct
 of surplus production.
@@ -1281,12 +1281,12 @@ of surplus production.
   planning
 - **Fully uncapped** — no capacity limit, no storage-contribution buildings
   needed to hold ordinary working resources (raw materials, manufactured
-  goods, food not yet committed to Food Storage — see Storage below). This
+  goods, food not yet committed to [Food Storage](04_buildings_and_economy.md#food-storage) — see [Storage](04_buildings_and_economy.md#storage) below). This
   supersedes the old capacity-limited model entirely: there is no prioritization
   list, no overflow state, and no overflow-into-Matter breakdown mechanic —
   nothing ever needs to be discarded or converted for lack of space. Reflects
   the general design goal of keeping ordinary resource-holding low-effort and
   low-interaction; the one deliberate exception is Food Storage, a dedicated
-  building that requires real investment (see Storage below).
+  building that requires real investment (see [Storage](04_buildings_and_economy.md#storage) below).
 - The inventory is a **list**, not a spatial arrangement — the player never has
   to pack items into storage physically

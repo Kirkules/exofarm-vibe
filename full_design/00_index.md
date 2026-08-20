@@ -4,7 +4,7 @@
 ## Document Structure
 
 The full design lives in `full_design/`, split across multiple files by topic
-area (listed in the Table of Contents below, each shown with its filename).
+area (listed in the [Table of Contents](00_index.md#table-of-contents) below, each shown with its filename).
 Every file uses its own local heading hierarchy: `#` for the file's own title
 (one per file), `##` for topic sections, `###` for their subsections. Don't
 skip levels.
@@ -13,7 +13,7 @@ skip levels.
 1. Decide which existing file it belongs to. If it doesn't fit any file
    cleanly, that's worth flagging rather than forcing — consider whether a
    new file is warranted instead.
-2. Add one line to the Table of Contents below at the same time, showing both
+2. Add one line to the [Table of Contents](00_index.md#table-of-contents) below at the same time, showing both
    the section name and its filename — don't defer this.
 3. Use `##` for a new topic section within a file, `###` for its subsections.
 
