@@ -48,7 +48,7 @@ even though the actual reveal resolves Outside-Sim. Feeds into the still-open
 "Animation budget" question below — this pattern is a cheap way to make Mid-Sim
 feel alive without needing per-building mechanical animation.
 
-### Open Questions
+### Open Questions — Art Design
 
 > - **Settlers:** how are individual settlers visually represented? Currently
 >   ColorRect placeholders during simulation. Distinct sprites per settler? Portraits
@@ -113,7 +113,7 @@ Established during the Phase 1/2 refactor (see CLAUDE.md for full detail): a sin
 new draggable-piece surface introduced during a one-shot implementation, rather than
 each new grid inventing its own input handling.
 
-### Open Questions
+### Open Questions — Code Architecture
 
 > - Is the current manager-per-concern split (BuildingManager, KitchenManager,
 >   SettlerManager, SimulationController, all owned by a thin `game.gd` orchestrator)
@@ -146,7 +146,7 @@ each new grid inventing its own input handling.
   - Saves are handled by `GameState` and must be fast enough to run synchronously
     without perceptible lag
 
-### Open Questions
+### Open Questions — Backend & Data Persistence
 Monetization stance is currently **undecided** (see [Monetization](07_production_and_technical.md#monetization)),
 which is the main fork point for this section:
 
@@ -170,7 +170,7 @@ which is the main fork point for this section:
 
 ## Authentication, Security & Privacy
 
-### Open Questions
+### Open Questions — Authentication, Security & Privacy
 This entire section is contingent on the [Backend & Data Persistence](07_production_and_technical.md#backend--data-persistence)
 decision above — if the game stays local-only with no accounts, most of this section
 resolves to "not applicable":
@@ -229,7 +229,7 @@ currently has no defined approach.
 
 ## Monetization
 
-### Open Questions
+### Open Questions — Monetization
 Currently **undecided** — no commitment made. This section exists to resolve that:
 
 > - **Free, no monetization**: simplest, no store review complexity around IAP/ads,

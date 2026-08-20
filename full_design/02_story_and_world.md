@@ -487,7 +487,6 @@ surfacing later rather than driving the exploration (per design-process preferen
   competitive volunteers, not naive or coerced (per I, and Earth's open political
   debate over the climate/seed-ship situation). No single dominant emotional
   tenor (duty, wonder, personal reinvention, etc.) is defined at the story level —
-  motivations are left to vary per settler, with potential to surface later as a way
-  to differentiate individual settlers, if that turns out to be fun (consistent with
-  the Settlers section's current "no individual gameplay mechanics" stance being a
-  starting point, not a permanent constraint).
+  motivations are left to vary per settler, consistent with the real per-settler
+  mechanical differentiation Settlers & Exploration's Settler State now provides
+  (Injuries, Aptitude, Experience, `legend_value`).

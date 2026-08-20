@@ -344,7 +344,7 @@ for exploration-task consumables.
 | Wild Orchard Grove (Food-cache flavor) | Common | No-risk | 1+ | 1 Ration | Optional: Large Backpack → top of range | 2–5 Fruit and/or Grain |
 | Predator's Larder (Food-cache flavor) | Common | No-risk | 1+ | 1 Ration | Optional: Large Backpack → top of range | 2–5 Milk and/or Egg |
 | Abandoned Settlement (Food-cache flavor) | Uncommon | No-risk | 3+ | 1 Ration | Optional: Large Backpack → top of range | 2–4 Rations (preserved food) + alien-civilization escalation chance (see Escalation Chains) |
-| Exposed Mineral Outcrop (Non-food flavor) | Common | No-risk | 1+ | 1 Ration | Optional: Large Backpack → top of range | 3–6 Ore |
+| Exposed Mineral Outcrop (Non-food flavor) | Common | No-risk | 1+ | 1 Ration | Optional: Large Backpack → top of range | 3–6 Iron Ore and/or Copper Ore (mixed) |
 | Unusual Rock Formation (Non-food flavor) | Common | No-risk | 1+ | 1 Ration | Optional: Large Backpack → top of range | 3–6 Stone |
 | Crashed Debris Field (Non-food flavor) | Uncommon | No-risk | 3+ | 1 Ration | Optional: Portable High-Powered Scanning Equipment → *also* yields High-Tech Components | 2–4 rare metal (always guaranteed) + 1–2 High-Tech Components if scanner brought + alien-civilization escalation chance |
 | Unusual Crystalline Growth (Rare-resource flavor) | Uncommon | No-risk | 4+ | 1 Ration | Optional: Large Backpack → top of range | 1–3 rare metal |

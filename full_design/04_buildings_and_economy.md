@@ -102,13 +102,19 @@ keeping the catalog from exploding as more planet types are added:
 - **Wool, Fiber/Cotton, Wood, Pelts** — baseline non-food farm materials
   (construction/fabrication inputs, not nutrition). Advanced/planet-specific
   variants are an open thread, not yet designed.
-- **Iron** and **Copper** — refined from distinct Iron Ore and Copper Ore deposits
-  (differentiated at the source, not from a generic "Ore"). A single site can have
-  multiple ore kinds mixed in some percentage distribution (e.g. 70% Iron / 30%
-  Copper); each unit mined is an independent random draw from that distribution —
+- **Iron Ore** and **Copper Ore** — mined from distinct deposits (differentiated
+  at the source, not from a generic "Ore"). A single site can have multiple ore
+  kinds mixed in some percentage distribution (e.g. 70% Iron Ore / 30% Copper
+  Ore); each unit mined is an independent random draw from that distribution —
   fine since this randomness resolves during simulation, not planning, per the
-  reversibility principle. Iron: structural strength (robot bodies). Copper:
-  electronics components.
+  reversibility principle. Basic exploration windfalls (e.g. Exposed Mineral
+  Outcrop — see Settlers & Exploration's Task Catalog) also yield Ore, never
+  refined metal.
+- **Iron** and **Copper** — the refined, usable form of the Ore above, produced
+  at the Smelter (see Fabrication). Iron: structural strength (robot bodies).
+  Copper: electronics components. Higher-tier exploration tasks can skip the
+  Ore stage and yield refined metal directly, as part of the reward for their
+  added difficulty/rarity.
 - **Stone** — raw material for basic construction, distinct from **Silicon**, which
   is refined/extracted from the same Stone resource for electronics fabrication.
 - **Rare metals** — findable on any planet, but with probability strongly biased by
@@ -553,9 +559,9 @@ settler-performed surveys, not building-based scanning.
 
 ### Mine
 - Built directly on an Iron/Copper Ore deposit slot (any depth tier, once
-  discovered) | Staffing: Staffed | Input: none | Output: 1 unit of Iron
-  and/or Copper per cycle, drawn independently per unit from the deposit's
-  percentage mix, `production_time` 4s | Production cap: 1 (base) |
+  discovered) | Staffing: Staffed | Input: none | Output: 1 unit of Iron Ore
+  and/or Copper Ore per cycle, drawn independently per unit from the
+  deposit's percentage mix, `production_time` 4s | Production cap: 1 (base) |
   Construction cost: 3 Matter + 1 Stone
 
 ### Quarry
@@ -994,13 +1000,14 @@ Schema) and become exposed to any hazard active at that moment.
 ### Smelter
 - Category: Fabrication | Staffing: Staffed
 - New (surfaced while designing Settlers & Exploration's Aptitude
-  buckets): refines raw **Ore** into usable metal, the same role Stone
-  Processing plays for Stone — Iron and Copper were previously just used
-  as inputs everywhere with no processing step of their own; this adds
-  one.
+  buckets): refines **Iron Ore** and **Copper Ore** into usable Iron and
+  Copper, the same role Stone Processing plays for Stone — Mine's Ore
+  output previously had nowhere to go but directly into Fabrication
+  recipes unrefined; this adds a real processing step, matching the
+  mined-then-processed shape Stone Processing already established.
 - Selectable recipes:
-  - Iron ← Ore
-  - Copper ← Ore
+  - Iron ← Iron Ore
+  - Copper ← Copper Ore
 - Exact ratios TBD, deferred to balancing like other numeric values in
   this design.
 

@@ -326,3 +326,13 @@
   different *kinds* of numbers with no inherent shared scale, so each must be
   normalized before being added into a single score (see SEED Factions' Development
   Bloc in Win/Lose Conditions for a worked example).
+- **Design docs describe the current design, not its history.** Content in the
+  numbered design files (Story & World through Roadmap) should read as if the
+  described mechanic always existed this way — no "originally X, but this was
+  changed to Y because..." narration, no self-referential asides about when or
+  why a decision was made or superseded. That kind of process narration doesn't
+  help a reader understand the *current* system, and it goes stale the moment
+  the design changes again, unlike a plain description of how something
+  presently works. `DESIGN_TODO.md` is the deliberate exception — it exists
+  specifically to track what changed and why, and should keep doing exactly
+  that.

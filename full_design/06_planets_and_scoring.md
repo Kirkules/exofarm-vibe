@@ -446,7 +446,7 @@ rather than repeated per faction below.
     weighting TBD, deferred to balancing like other numeric values in this
     design.
   - `ExtractionRestraint` — penalized by cumulative volume of **non-sustainable**
-    resources extracted: Ore, Copper, Stone, rare metals (both bounded and
+    resources extracted: Iron Ore, Copper Ore, Stone, rare metals (both bounded and
     effectively-infinite deposit sub-types incur it at the same rate — neither
     mineral regenerates, "effectively infinite" only means the specific
     deposit is large relative to a run's timescale, not that the resource
@@ -512,9 +512,9 @@ rather than repeated per faction below.
 
   **Mechanically defined**, across three independently-contributing axes:
   - `ResourceStockpile` — `sum of rarity-weighted sqrt(stockpiled amount)` across
-    non-food resources (Iron, Copper, Stone, Silicon, Wool, Fiber/Cotton, Wood,
-    Pelts, rare metals) — rarer resources weighted higher. Same diminishing-returns
-    shape as Food Security.
+    non-food resources (Iron Ore, Copper Ore, Iron, Copper, Stone, Silicon,
+    Wool, Fiber/Cotton, Wood, Pelts, rare metals) — rarer resources weighted
+    higher. Same diminishing-returns shape as Food Security.
   - `ResourceIncome` — `sum of rarity-weighted (linear average income rate over the
     run's last 5 seasons)` across the same resources. No `sqrt`-flattening, since
     it's a rate, not a stockpile — a separate signal from total stockpile, which
@@ -538,10 +538,9 @@ rather than repeated per faction below.
   standout settler who's completed a lot of exploration tasks.
   Not just an institutional PR angle (though it is pragmatically that too, given
   SEED's need for continued public/political support) — the faction's own members
-  want to see *themselves* as among the legends, not just chase good press. Gives
-  the earlier-flagged "settler individuality could surface later, if it's fun"
-  thread (from the Story session) a concrete reason to exist — the first place in
-  the design individual-settler tracking becomes mechanically real.
+  want to see *themselves* as among the legends, not just chase good press. Draws
+  on the per-settler `legend_value` tracked in Settlers & Exploration's Settler
+  State.
 
   **Mechanically defined.** Each notably difficult/named exploration site has a
   static, design-authored "legend value," earned by completing it (mirrors
