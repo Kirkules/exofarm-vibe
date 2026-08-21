@@ -19,7 +19,7 @@ replayability idea flagged early in the design-principles work.
 - **B — Biosphere Integration.** The Local Agriculture path — hybridizing with
   native flora/fauna, open-air farming that works *with* the planet's ecosystem.
 - **C — Synthesis/Self-Sufficiency.** Heavy fabrication/synthesized production
-  (Matter-conversion chains, hydroponics, drone-driven output) to compensate for a
+  (deep fabrication chains, hydroponics, drone-driven output) to compensate for a
   poor natural substrate.
 - **D — Energy Management.** Energy production diversity and budgeting under
   scarcity. Given real teeth by the temperature-control mechanic below — without
@@ -56,7 +56,7 @@ distribution per planet is still to be worked out (open thread — see below).
 > **Open questions:** the exact quantitative pressure distribution (dominant /
 > moderate / minimal) per planet across all four dimensions is not yet defined —
 > flagged to return to after Exploration is worked through. Terrain layout and
-> Energy/Matter base regeneration rates per planet are also still open.
+> Energy base regeneration rates per planet are also still open.
 
 ### Hazard Priors (Safeguard Coalition's TrueRisk Values)
 Feeds the Safeguard Coalition's Bayesian `MatchedRisk` calculation (see SEED

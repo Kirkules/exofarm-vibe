@@ -61,7 +61,7 @@ feel alive without needing per-building mechanical animation.
 > - **Reference points:** are there specific pixel-art games/palettes to anchor tone
 >   against (e.g. Stardew Valley warmth vs. something starker/sci-fi)?
 > - **Icon/UI chrome:** is there a defined icon set style for HUD elements (Energy,
->   Matter, worker roster avatars) beyond "pixel font, small sizes"?
+>   worker roster avatars) beyond "pixel font, small sizes"?
 > - **Planet identity:** do different exoplanet types get distinct color grading /
 >   skybox treatment in the settlement-view background, or is that Phase 5+ scope?
 > - **Animation budget:** given single-developer scope, what's the *minimum* animation
@@ -92,7 +92,7 @@ live in `scripts/`.
 
 ### Autoloads (Singletons)
 - **GameState** — current run data: season number, settler count, inventory,
-  Energy, Matter, grid layout, and all other mutable run state; responsible for
+  Energy, grid layout, and all other mutable run state; responsible for
   triggering saves
 - **Catalog** — known designs and recipes reflecting current meta-progression state
 - **EventBus** — global signal bus for decoupled communication between systems

@@ -331,9 +331,9 @@ Legend and Farm-wide Upgrade outcomes rarer still.
 
 First-pass content, numbers illustrative and TBD-balanced like everything
 else in this design. Every task's "seasons to complete" equals its Ration
-cost (see [Assignment](05_settlers_and_exploration.md#assignment), above). **Large Backpack** (new: a Pelt-derived
+cost (see [Assignment](05_settlers_and_exploration.md#assignment), above). **Leather Backpack** (a Leather-derived
 Textile Workshop item, see Buildings & Economy's [Fabrication](04_buildings_and_economy.md#fabrication)) and
-**Portable High-Powered Scanning Equipment** (existing, Tinkerer's
+**Portable High-Powered Scanning Equipment** (Tinkerer's
 Workshop) are both consumed on use, same precedent PPE already established
 for exploration-task consumables.
 
@@ -341,13 +341,13 @@ for exploration-task consumables.
 
 | Task | Rarity | Risk | Season gate | Base cost | Item | Outcome |
 |---|---|---|---|---|---|---|
-| Wild Orchard Grove (Food-cache flavor) | Common | No-risk | 1+ | 1 Ration | Optional: Large Backpack → top of range | 2–5 Fruit and/or Grain |
-| Predator's Larder (Food-cache flavor) | Common | No-risk | 1+ | 1 Ration | Optional: Large Backpack → top of range | 2–5 Milk and/or Egg |
-| Abandoned Settlement (Food-cache flavor) | Uncommon | No-risk | 3+ | 1 Ration | Optional: Large Backpack → top of range | 2–4 Rations (preserved food) + alien-civilization escalation chance (see [Escalation Chains](05_settlers_and_exploration.md#escalation-chains)) |
-| Exposed Mineral Outcrop (Non-food flavor) | Common | No-risk | 1+ | 1 Ration | Optional: Large Backpack → top of range | 3–6 Iron Ore and/or Copper Ore (mixed) |
-| Unusual Rock Formation (Non-food flavor) | Common | No-risk | 1+ | 1 Ration | Optional: Large Backpack → top of range | 3–6 Stone |
+| Wild Orchard Grove (Food-cache flavor) | Common | No-risk | 1+ | 1 Ration | Optional: Leather Backpack → top of range | 2–5 Fruit and/or Grain |
+| Predator's Larder (Food-cache flavor) | Common | No-risk | 1+ | 1 Ration | Optional: Leather Backpack → top of range | 2–5 Milk and/or Egg |
+| Abandoned Settlement (Food-cache flavor) | Uncommon | No-risk | 3+ | 1 Ration | Optional: Leather Backpack → top of range | 2–4 Rations (preserved food) + alien-civilization escalation chance (see [Escalation Chains](05_settlers_and_exploration.md#escalation-chains)) |
+| Exposed Mineral Outcrop (Non-food flavor) | Common | No-risk | 1+ | 1 Ration | Optional: Leather Backpack → top of range | 3–6 Iron Ore and/or Copper Ore (mixed) |
+| Unusual Rock Formation (Non-food flavor) | Common | No-risk | 1+ | 1 Ration | Optional: Leather Backpack → top of range | 3–6 Stone |
 | Crashed Debris Field (Non-food flavor) | Uncommon | No-risk | 3+ | 1 Ration | Optional: Portable High-Powered Scanning Equipment → *also* yields High-Tech Components | 2–4 rare metal (always guaranteed) + 1–2 High-Tech Components if scanner brought + alien-civilization escalation chance |
-| Unusual Crystalline Growth (Rare-resource flavor) | Uncommon | No-risk | 4+ | 1 Ration | Optional: Large Backpack → top of range | 1–3 rare metal |
+| Unusual Crystalline Growth (Rare-resource flavor) | Uncommon | No-risk | 4+ | 1 Ration | Optional: Leather Backpack → top of range | 1–3 rare metal |
 | Generic Ore/Stone Site Reveal | Common | No-risk | 1+ | 1 Ration | — | Reveals one undiscovered Ore or Stone deposit |
 | Generic Aquifer Site Reveal | Common | No-risk | 1+ | 1 Ration | — | Reveals one undiscovered aquifer |
 | High Pelt-Population Tile Reveal | Uncommon | No-risk | 2+ | 1 Ration | — | Flags one tile with boosted Trapping yield |
@@ -399,7 +399,7 @@ settler, which also earns them a Frontier Legends bonus when it happens:
 | Volcanic Profile-shifting | Rare | Low-risk | 6+ | 1 Ration | Mandatory: Temperature-Resistant Gear | Hybridization opportunity (lava-tube fungi) |
 | Arid Reinforcing | Uncommon | Low-risk | 3+ | 1 Ration | — | Site Reveal: Aquifer (guaranteed) |
 | Arid Profile-shifting | Rare | No-risk | 6+ | 2 Rations | — | Hybridization opportunity (dormant seed bank) + Moderate alien-civilization escalation chance (see [Escalation Chains](05_settlers_and_exploration.md#escalation-chains)) |
-| Ice Reinforcing | Uncommon | Low-risk | 3+ | 1 Ration | Optional: Large Backpack → top of range | 2–4 rare metal (insulation flavor) |
+| Ice Reinforcing | Uncommon | Low-risk | 3+ | 1 Ration | Optional: Leather Backpack → top of range | 2–4 rare metal (insulation flavor) |
 | Ice Profile-shifting | Rare | Low-risk | 6+ | 1 Ration | — | Hybridization opportunity (warmth-pocket flora) |
 
 **Meteorite Fragment** — planet-independent, not tied to any single planet
@@ -480,7 +480,7 @@ fruit stockpiles on a Verdant planet reveals the option to seek out the habitat 
 the animal that gathers and preserves that fruit; succeeding at *that* task can lead
 to an alliance with those animals — a passive, ongoing food source requiring **no
 staffing at all**, a qualitatively different reward tier from ordinary production,
-similar in spirit to how baseline Energy/Matter production is already zero-effort.
+similar in spirit to how baseline Energy production is already zero-effort.
 
 **Alien civilization classes.** Once Sentience Detection succeeds, the
 specific civilization encountered is rolled from a small set of curated

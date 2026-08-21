@@ -460,7 +460,8 @@ split with a single, simpler structure:
 - Progression is **resource-gated, not time-gated or research-gated.**
 - Settlers arrive with blueprints for all known designs. What limits fabrication is
   having enough of the required materials.
-- **Basic designs** require only Energy and Matter.
+- **Basic designs** require only Energy and the two universal construction
+  materials, Lumber and Concrete.
 - **Advanced designs** additionally require specific planet-side materials (ore types,
   rare deposits, etc.) that must be extracted or harvested on the planet.
 - Finding a rich deposit of a rare material early can accelerate access to advanced

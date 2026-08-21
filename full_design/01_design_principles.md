@@ -36,7 +36,7 @@
   showing quantities themselves, not to abstract non-physical scales, and not to
   real-world meta/UI information that sits outside the fiction.
 
-  The game never explains the underlying real-world mechanism behind Energy, Matter,
+  The game never explains the underlying real-world mechanism behind Energy
   or other in-fiction resources in enough technical detail to justify a genuine
   physical unit — attaching one anyway would only add shallow flavor while creating a
   place for a player with real domain knowledge to notice an inconsistency (wrong
@@ -64,7 +64,7 @@
   (see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)) is the same case — showing
   "15 Temperature" instead of "15°" would force players to re-learn an arbitrary
   scale for a quantity they already understand instinctively in Fahrenheit or
-  Celsius. Unlike Energy/Matter/Water, which have no real-world referent a typical
+  Celsius. Unlike Energy/Water, which have no real-world referent a typical
   player already holds, temperature and time are quantities everyone already has
   working intuition for — the exemption applies specifically because a made-up
   scale would be a net loss of clarity, not a gain in immersion. Fahrenheit vs.
@@ -121,7 +121,7 @@
 
   **Auto-queued defaults are exempt from undo-history semantics, but carry a
   transparency bar instead.** A default the game applies without an explicit player
-  action (e.g. auto-spending Matter on basic sustenance) doesn't need "undo" in the
+  action (e.g. auto-spending Rations on basic sustenance) doesn't need "undo" in the
   traditional sense — the player never took an action to undo, they simply haven't
   chosen to override the default yet. But introducing any such default requires it
   to be (a) the obviously-correct choice, both mechanically and in the game's
@@ -169,7 +169,7 @@
   substitute for it. This is the same underlying concern as "units are unspecified":
   labels should accurately communicate, not decorate.
 
-  Basic, foundational things get simple, familiar names (Energy, Matter). Advanced,
+  Basic, foundational things get simple, familiar names (Energy, Lumber, Concrete). Advanced,
   rare, or exotic things get progressively more technical or unfamiliar-sounding
   names (Flux-modulated Drone Battery), and the degree of unfamiliarity should scale
   consistently with actual tech-tier/rarity — a player should be able to roughly

@@ -3,13 +3,22 @@
 ## Resources
 
 ### Basic Resources
-- **Energy** and **Matter** — pooled, colony-wide resources. Base production is
+- **Energy** — a pooled, colony-wide resource. Base production is
   **zero-effort/unstaffed** (see [Building Categories](04_buildings_and_economy.md#building-categories) below), unlike ordinary staffed
   production sites.
 - **Water** — pooled, colony-wide resource, ambiguous units (e.g. "3 Water"),
   no complicated irrigation/transport system to model (see [Water](04_buildings_and_economy.md#water) below).
-  Unlike Energy/Matter, collection requires staffed buildings and a
+  Unlike Energy, collection requires staffed buildings and a
   prerequisite structure (Water Processing Plant) — not zero-effort.
+- **Matter no longer exists as a resource.** It's been removed entirely,
+  along with Matter Extractor as a starting building — construction costs
+  now run on Lumber and Concrete (see Baseline Farm/Mined Resources below
+  and Sawmill/Stone Processing under Fabrication) instead of a generic
+  filler resource, and the settlement's initial footing comes from a
+  starting Rations stockpile (see Settlers & Exploration's Rations) plus
+  what Clear-Cutting and the two starting Fabrication buildings can
+  self-bootstrap from turn one — no separate starting-materials stockpile
+  is needed.
 
 **Energy Pool.** Energy is not an inventory item — it never appears in the
 general inventory list alongside Wood, Stone, food, etc.; it's tracked as
@@ -62,7 +71,7 @@ per-building values TBD, deferred to balancing like other numeric values in
 this design.
 
 ### Building Categories
-1. **Basic Resource Production** — Energy and Matter generation, always
+1. **Basic Resource Production** — Energy generation, always
    unstaffed — though not all zero-effort in practice: Geothermal Generator
    needs a discovered Thermal Vent, and Fuel-based Generator needs a real
    Wood/Fossil Fuel supply chain and carries an ongoing Stewardship cost
@@ -115,8 +124,10 @@ keeping the catalog from exploding as more planet types are added:
   Copper: electronics components. Higher-tier exploration tasks can skip the
   Ore stage and yield refined metal directly, as part of the reward for their
   added difficulty/rarity.
-- **Stone** — raw material for basic construction, distinct from **Silicon**, which
-  is refined/extracted from the same Stone resource for electronics fabrication.
+- **Stone** — mined raw material. Refines at Stone Processing into **Concrete**
+  (base tier — the other universal base construction material, alongside
+  Lumber) and, once upgraded to Stone Processing II, **Silicon** (electronics
+  fabrication) — see Fabrication.
 - **Rare metals** — findable on any planet, but with probability strongly biased by
   planet type. Needed for high-tech applications, including energy-shielding
   devices. Governed by a standing planet-design principle (see Planet Types below):
@@ -134,6 +145,17 @@ keeping the catalog from exploding as more planet types are added:
   `ExtractionRestraint`
   (see [SEED Factions](06_planets_and_scoring.md#seed-factions) in Win/Lose Conditions), tracked as a running total at
   production time, not by tracing which specific unit later gets consumed.
+- **Lumber** — the refined, usable form of Wood, cut at the Sawmill (see
+  Fabrication) — Wood itself is never a direct construction/fabrication
+  input once Lumber exists, the same "raw deposit → refined form" shape
+  Iron Ore/Copper Ore already established. Now one of the two universal
+  base materials every structure's construction cost draws on (alongside
+  Concrete), replacing the old Matter resource.
+- **Leather** — the refined, usable form of Pelts, tanned at the Textile
+  Workshop — a second, independent use for Pelts alongside Fabric (Pelts
+  remains a valid direct alternate input to Fabric on its own; tanning is
+  only required for the specifically Leather-based goods: Leather Boots,
+  Leather Backpack, Temperature-Resistant Gear, Wooden Plow).
 - **Fossil Fuel** exists solely as Fuel-based Generator's upgrade-tier input
   (see [Fuel](04_buildings_and_economy.md#fuel)), from a hidden deposit (see [Deposit Discovery](04_buildings_and_economy.md#deposit-discovery)) — always
   non-sustainable, no Timber-Grove-style renewable source exists for it.
@@ -153,7 +175,7 @@ keeping the catalog from exploding as more planet types are added:
   deposit type.
 
 ### Naming Convention
-- Basic resources: simple names (Energy, Matter)
+- Basic resources: simple names (Energy)
 - Advanced/rare items: technical compound names (e.g. "Flux-modulated Drone Battery")
 - Planet-side materials: can use less familiar names (e.g. "Iridite") since they are
   rarer and encountered later in play
@@ -220,9 +242,14 @@ the following properties. Working through the catalog category-by-category (see
   shielded tile). If a building is destroyed mid-Mid-Sim, its worker is
   freed and returns to the roster immediately, losing whatever Indoor
   protection they had at that instant.
-- **Construction cost** — resources required to build (Energy/Matter for basic
-  designs, additional planet-side materials for advanced ones, per Technology &
-  Progression); consumed when a construction robot begins the build
+- **Construction cost** — resources required to build. **Lumber and Concrete
+  are the two universal base materials every structure draws on** (replacing
+  the old Matter resource), with the exact ratio varying per building — some
+  lean more Lumber, some more Concrete; additional planet-side/advanced
+  materials (Iron, Copper, High-Tech Components, etc.) layer on top for
+  more demanding designs, per Technology & Progression. Exact per-building
+  Lumber:Concrete ratios TBD, deferred to a follow-up balancing pass (see
+  `DESIGN_TODO.md`). Consumed when a construction robot begins the build.
 - **`TechAchievement` value** — static, design-authored score (0 for basic
   buildings, higher for advanced ones) — feeds Development Bloc (see [SEED Factions](06_planets_and_scoring.md#seed-factions)
   in Win/Lose Conditions)
@@ -271,33 +298,25 @@ doesn't need a name for each shape.
 
 ## Basic Resource Production
 
-Every run begins with one Solar Array and one Matter Extractor (exact starting
-count tied to wormhole mass-threshold stabilization tech — a meta-progression axis
-— see Background Story's Faster-Than-Light Travel section). Both can be built
-again (more copies) and upgraded, each consuming a grid slot, preserving the
-grid's limited-slots opportunity cost.
+Every run begins with one Solar Array (exact starting count tied to wormhole
+mass-threshold stabilization tech — a meta-progression axis — see Background
+Story's Faster-Than-Light Travel section), alongside the other starting
+buildings (Water Processing Plant, Sawmill, Stone Processing — see Water and
+Fabrication). Solar Array can be built again (more copies) and upgraded,
+each consuming a grid slot, preserving the grid's limited-slots opportunity
+cost.
 
 ### Solar Array
 - Category: Basic Resource Production | Staffing:
   Unstaffed
 - Input: none | Output: Energy per season (rate varies by planet type)
 - Production cap: N/A (unstaffed)
-- Construction cost: modest Energy/Matter (exact numbers TBD, deferred to a
-  balancing pass)
+- Construction cost: modest Energy + Lumber/Concrete (exact numbers TBD,
+  deferred to a balancing pass)
 - `TechAchievement`: 0 | Repeatable: yes | Upgrade path: yes — higher tiers
   produce more Energy; a late tier is a natural place to pay off the Crash
   Research Era's controlled-fusion lore (e.g. eventually becoming a Fusion
   Generator)
-- Area of effect / Energy upkeep / Preparedness / Data-gathering / Storage: N/A
-
-### Matter Extractor
-- Category: Basic Resource Production | Staffing:
-  Unstaffed
-- Input: none | Output: Matter per season (rate varies by planet type)
-- Production cap: N/A (unstaffed)
-- Construction cost: modest Energy/Matter (TBD)
-- `TechAchievement`: 0 | Repeatable: yes | Upgrade path: yes — higher tiers
-  produce more Matter
 - Area of effect / Energy upkeep / Preparedness / Data-gathering / Storage: N/A
 
 ### Geothermal Generator
@@ -319,7 +338,7 @@ grid's limited-slots opportunity cost.
   Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)), the original motivation for this
   building.
 - Production cap: N/A (unstaffed)
-- Construction cost: modest Matter/Concrete/Iron (TBD)
+- Construction cost: Lumber/Concrete (ratio TBD) + Iron
 - `TechAchievement`: 0 | Repeatable: yes (naturally capped by how many
   Thermal Vents exist on the site, not by player choice — same pattern as
   Mine/Quarry) | Upgrade path: yes — higher tiers produce more Energy
@@ -352,31 +371,31 @@ hybridized (see [Hybridization](04_buildings_and_economy.md#hybridization), belo
 
 ### Grain Field
 - Staffing: Staffed | Input: Water | Output: 1 Grain per cycle,
-  `production_time` 3s | Production cap: 1 (base) | Construction cost: 2 Matter
+  `production_time` 3s | Production cap: 1 (base) | Construction cost: Lumber/Concrete (ratio TBD)
 
 ### Fruit Orchard
 - Staffing: Staffed | Input: Water | Output: 1 Fruit per cycle,
-  `production_time` 4s | Production cap: 1 (base) | Construction cost: 2 Matter
+  `production_time` 4s | Production cap: 1 (base) | Construction cost: Lumber/Concrete (ratio TBD)
 
 ### Dairy Pasture
 - Staffing: Staffed | Input: Water | Output: 1 Milk per cycle,
-  `production_time` 5s | Production cap: 1 (base) | Construction cost: 3 Matter
+  `production_time` 5s | Production cap: 1 (base) | Construction cost: Lumber/Concrete (ratio TBD)
 
 ### Poultry Coop
 - Staffing: Staffed | Input: Water | Output: 1 Egg per cycle,
-  `production_time` 3s | Production cap: 1 (base) | Construction cost: 2 Matter
+  `production_time` 3s | Production cap: 1 (base) | Construction cost: Lumber/Concrete (ratio TBD)
 
 ### Sheep Pasture
 - Staffing: Staffed | Input: Water | Output: 1 Wool per cycle,
-  `production_time` 5s | Production cap: 1 (base) | Construction cost: 3 Matter
+  `production_time` 5s | Production cap: 1 (base) | Construction cost: Lumber/Concrete (ratio TBD)
 
 ### Fiber Field
 - Staffing: Staffed | Input: Water | Output: 1 Fiber/Cotton per cycle,
-  `production_time` 3s | Production cap: 1 (base) | Construction cost: 2 Matter
+  `production_time` 3s | Production cap: 1 (base) | Construction cost: Lumber/Concrete (ratio TBD)
 
 ### Timber Grove
 - Staffing: Staffed | Input: Water | Output: 1 Wood per cycle,
-  `production_time` 4s | Production cap: 1 (base) | Construction cost: 2 Matter
+  `production_time` 4s | Production cap: 1 (base) | Construction cost: Lumber/Concrete (ratio TBD)
 
 ### Trapping
 
@@ -562,18 +581,22 @@ settler-performed surveys, not building-based scanning.
   discovered) | Staffing: Staffed | Input: none | Output: 1 unit of Iron Ore
   and/or Copper Ore per cycle, drawn independently per unit from the
   deposit's percentage mix, `production_time` 4s | Production cap: 1 (base) |
-  Construction cost: 3 Matter + 1 Stone
+  Construction cost: Lumber/Concrete (ratio TBD) + 1 Stone
 
 ### Quarry
 - Built directly on a Stone deposit slot (any depth tier, once discovered) |
   Staffing: Staffed | Input: none | Output: 1 Stone per cycle,
-  `production_time` 3s | Production cap: 1 (base) | Construction cost: 3 Matter
+  `production_time` 3s | Production cap: 1 (base) | Construction cost: a
+  **small amount of Lumber only** — deliberately cheap, since this is the
+  one building that has to be reachable before Stone (and therefore
+  Concrete) exists anywhere in the settlement's economy; see Fabrication's
+  Sawmill/Stone Processing for the full bootstrapping chain this closes.
 
 ### Rare Metal Extractor
 - Built directly on a rare-metal deposit slot (any depth tier, once
   discovered) | Staffing: Staffed | Input: none | Output: 1 rare metal per
   cycle, `production_time` 8s (slower, reflecting rarity) | Production cap: 1
-  (base) | Construction cost: 4 Matter + 2 Stone
+  (base) | Construction cost: Lumber/Concrete (ratio TBD) + 2 Stone
 
 ---
 
@@ -654,7 +677,7 @@ grid slot, no construction cost, no staffing in the sticky sense.
   meaningfully higher Energy return per unit than Wood, which is the entire
   point of the upgrade — but see `EmissionsRestraint` below for the
   corresponding cost.
-- Construction cost: cheap, common materials only (Matter/Iron, no
+- Construction cost: cheap, common materials only (Lumber/Concrete/Iron, no
   High-Tech Components) — deliberately no barrier to entry, in contrast to
   Geothermal Generator's deposit-gating. Upgrade cost: TBD.
 - **No further upgrade path beyond the Fossil Fuel tier.** Solar Array
@@ -665,8 +688,7 @@ grid slot, no construction cost, no staffing in the sticky sense.
   the text.
 - `TechAchievement`: 0 (base) / slightly higher (Fossil Fuel tier) |
   Repeatable: yes | Available from run start, no unlock needed — same
-  footing as Solar Array/Matter Extractor, since it needs no exotic
-  materials.
+  footing as Solar Array, since it needs no exotic materials.
 
 ---
 
@@ -692,15 +714,15 @@ Food-Storage-style special commitment mechanic.
 distribution system to design. Collection buildings and consumption sites
 don't need spatial adjacency; the player can imagine whatever transportation
 mechanism they like, with no design commitment either way — consistent with
-Energy/Matter also never needing an explained distribution system.
+Energy also never needing an explained distribution system.
 
 **All collection buildings require a [Water Processing Plant](04_buildings_and_economy.md#water-processing-plant) to function at
 all** — see below. No separate "Raw Water" intermediate resource; the Plant's
 mere existence is a prerequisite gate, not a conversion step.
 
 ### Water Processing Plant
-- A **starting building**, present from run start like Solar Array/Matter
-  Extractor — not something the player constructs. (Once a demolish-building
+- A **starting building**, present from run start like Solar Array, Sawmill,
+  and Stone Processing I — not something the player constructs. (Once a demolish-building
   mechanic exists — not yet designed — rebuilding a demolished Processing
   Plant via normal construction should become possible; flagged as a forward
   dependency, not resolved now.)
@@ -751,7 +773,9 @@ mere existence is a prerequisite gate, not a conversion step.
 already applied to Robotics Assembly)*
 
 - Category: Utilities (see [Building Categories](04_buildings_and_economy.md#building-categories) in [Resources](04_buildings_and_economy.md#resources))
-- Construction cost: Stone + Iron + Copper
+- Construction cost: Stone + Iron + Copper + High-Tech Components +
+  High-Resolution Screens — a real gate, requiring Tinkerer's Workshop to
+  have already produced both before Scanner Station is reachable
 - Base tier: Staffed. Uses the multi-recipe pattern (player selects one active
   mode, no resource inputs beyond staffing itself — per the Building Schema's
   note that Input may be empty and Output may not be a trackable resource
@@ -813,7 +837,7 @@ finds, same spirit as everything else in the catalog.
   project permanently adding +1 to the Exploration Tasks pool size (see
   [Settlers](05_settlers_and_exploration.md#settlers) & Exploration), always available to research (not
   discovery-gated like Hybridization projects are).
-- Construction cost: TBD.
+- Construction cost: Lumber/Concrete (ratio TBD) + High-Tech Components.
 
 ---
 
@@ -918,21 +942,24 @@ consolidated building with selectable recipes fits better)*
 - Selectable recipes:
   - Construction Robot ← Iron + Copper (base tier)
   - All-Purpose Drone (Basic) ← Iron + Copper (base tier)
-  - All-Purpose Drone (Advanced) ← Iron + Copper + Silicon (**requires Upgraded
-    Robotics Assembly**)
+  - All-Purpose Drone (Advanced) ← Iron + Copper + Silicon + High-Tech
+    Components (**requires Upgraded Robotics Assembly**)
   - Specialized Drone (one recipe per Experience group — see [Settlers](05_settlers_and_exploration.md#settlers) &
-    Exploration's [Experience](05_settlers_and_exploration.md#experience) for the full list) ← Iron + Copper + a
+    Exploration's [Experience](05_settlers_and_exploration.md#experience) for the full list) ← Iron + Copper +
+    High-Tech Components + a
     category-flavored input (**requires Upgraded Robotics Assembly AND at
     least one existing production structure of the matching group already
     built** — no point fabricating a Farming-specialized drone before any
     farm plot exists). Never available for Research Lab, since Research is
     settler-only regardless of drone tier.
-  - **Hardening upgrade** (temperature-resistant battery) — takes an
+  - **Hardening upgrade** (temperature-resistant battery) ← High-Tech
+    Components — takes an
     existing drone as an assigned *resource* to the task (it's tied up,
     unavailable for its normal assignment, for the task's duration) while a
-    *different* worker performs the upgrade; the same drone comes out the
-    other side hardened, its identity and current battery charge carried
-    through rather than being consumed and replaced by a fresh unit.
+    *different* worker performs the upgrade and supplies the Components; the
+    same drone comes out the other side hardened, its identity and current
+    battery charge carried through rather than being consumed and replaced
+    by a fresh unit.
 - `TechAchievement`: 0 (base tier) / higher (upgraded tier) | Repeatable: yes |
   Upgrade path: yes, gates the Advanced/Specialized recipes above
 
@@ -991,11 +1018,20 @@ roster when their building is destroyed. If this happens mid-Mid-Sim, they
 also immediately lose whatever Indoor protection they had (see Building
 Schema) and become exposed to any hazard active at that moment.
 
-### Stone Processing
+### Stone Processing I
+*(a starting building, present from run start like Solar Array and Water
+Processing Plant — not something the player constructs; see Sawmill below
+for the matching Lumber-side building and the bootstrapping problem this
+pair of starting buildings resolves)*
 - Category: Fabrication | Staffing: Staffed
 - Selectable recipes:
   - Concrete ← Stone
+- Concrete is one of the two universal base construction materials (see
+  Resources) — this is why Stone Processing has to be standing from turn
+  one rather than something the player builds.
+- Upgrades to **Stone Processing II**, which additionally unlocks:
   - Silicon ← Stone
+- Upgrade cost: TBD.
 
 ### Smelter
 - Category: Fabrication | Staffing: Staffed
@@ -1015,16 +1051,22 @@ Schema) and become exposed to any hazard active at that moment.
 - Category: Fabrication | Staffing: Staffed
 - Selectable recipes:
   - Fabric ← Wool, or Fiber/Cotton, or Pelts (any one of the three, player
-    selects which this cycle consumes)
-  - Leather Boots ← Pelts + Fiber (**requires Upgraded Textile Workshop**) — a
-    Luxury Good; feeds `TechAchievement` and can serve as a prerequisite/supply
-    cost for specific manned exploration tasks, generalizing the earlier
-    food-cost-for-expeditions idea to manufactured goods
-  - **Large Backpack** ← Pelts — an exploration-task consumable (see
-    [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Exploration Tasks](05_settlers_and_exploration.md#exploration-tasks) [Task Catalog](05_settlers_and_exploration.md#task-catalog)): brought along
-    on a Resource windfall task, it guarantees the top of that task's value
-    range. Consumed on use, same precedent PPE already established for
-    exploration-task consumables.
+    selects which this cycle consumes) — Pelts' direct role here is
+    independent of tanning, below; a player can go straight from Pelts to
+    Fabric without ever producing Leather.
+  - **Leather** ← Pelts (tanning) — the refined, usable form of Pelts for
+    Leather-specific goods (see Resources). Everything below that used to
+    consume Pelts directly now consumes Leather instead.
+  - Leather Boots ← Leather + Fiber (**requires Upgraded Textile Workshop**) —
+    a Luxury Good; feeds `TechAchievement` and can serve as a
+    prerequisite/supply cost for specific manned exploration tasks,
+    generalizing the earlier food-cost-for-expeditions idea to manufactured
+    goods
+  - **Leather Backpack** (renamed from Large Backpack) ← Leather — an
+    exploration-task consumable (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Exploration Tasks](05_settlers_and_exploration.md#exploration-tasks) [Task Catalog](05_settlers_and_exploration.md#task-catalog)):
+    brought along on a Resource windfall task, it guarantees the top of
+    that task's value range. Consumed on use, same precedent PPE already
+    established for exploration-task consumables.
 
 ### Tinkerer's Workshop
 - Category: Fabrication | Staffing: Staffed
@@ -1039,12 +1081,14 @@ Schema) and become exposed to any hazard active at that moment.
     complexity, since each step is still automatic single-recipe production
   - High-Resolution Screens ← Silicon + Copper — a Luxury Good; no functional
     use yet beyond `TechAchievement`/faction-reward value, left open
-  - Portable High-Powered Scanning Equipment ← Silicon + Copper + a rare metal —
+  - Portable High-Powered Scanning Equipment ← Silicon + Copper + a rare metal
+    + High-Tech Components —
     an exploration task initiation cost, likely gating access to higher-tier/
     more-frequent Safeguard or Stewardship data-gathering missions (weather
     balloon, atmospheric probe, bio-survey, sentience-detection)
 - Selectable recipes (**requires further-Upgraded Tinkerer's Workshop**):
-  - Temperature-Resistant Gear ← Fabric/Leather + a rare metal — **one
+  - Temperature-Resistant Gear ← (Fabric **or** Leather, player selects
+    which) + a rare metal + High-Tech Components — **one
     universal item covering both hot and cold** (no separate variants),
     distinct from `MatchedPreparedness` (which is about the settlement's
     structures, not what an individual carries). Exploration-task settlers
@@ -1074,16 +1118,26 @@ Schema) and become exposed to any hazard active at that moment.
     civilization without one. Exact recipe a first-pass placeholder — see
     `DESIGN_TODO.md`
 
-### Carpenter's Shop
+### Sawmill
+*(a starting building, present from run start like Solar Array and Stone
+Processing I — not something the player constructs)*
 - Category: Fabrication | Staffing: Staffed
-  (Settler or all-purpose drone — simpler craft work, no research requirement)
 - Selectable recipes:
+  - Lumber ← Wood
+- Lumber is one of the two universal base construction materials (see
+  Resources), and Wood is freely available from turn one via Clear-Cutting
+  (a Standing Assignment, no building required) — together with Stone
+  Processing I, this is what makes the settlement's starting economy
+  self-bootstrapping with no separate starting-materials stockpile needed.
+- Upgrades to **Carpenter's Shop**, which additionally unlocks:
   - Fine Furniture ← Lumber — a Luxury Good, pure flavor/`TechAchievement`
     reward, no functional use
   - Ornamental/Decorative Items ← Lumber + Stone/Concrete — same tier as Fine
     Furniture
-- Left with room to grow — upgrade path can add functional recipes later
-  without redesigning the building
+  - **Wooden Plow** ← 2 Lumber + 1 Leather — an outdoor-farming item;
+    mechanics deliberately not designed yet, this entry is fabrication-chain
+    placement only (see `DESIGN_TODO.md`)
+- Upgrade cost: TBD.
 
 ---
 
@@ -1227,8 +1281,9 @@ principle that a planet/strategy shouldn't reduce to one correct approach)*
   Unknown Radio Signal exploration task (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's Task
   Catalog) to guarantee a successful rescue if the signal turns out to be
   a genuine distress call.
-- Construction cost: Fabric + basic materials (base tier); Vaccine
-  Production tier additionally requires **High-Tech Components**
+- Construction cost: Fabric + Lumber/Concrete (ratio TBD) + High-Tech
+  Components (base tier); Vaccine
+  Production tier requires **additional High-Tech Components** on top
 - `TechAchievement`: 0 (base) / higher (Vaccine Production tier) |
   Repeatable: yes | Upgrade path: yes, as described above
 
@@ -1267,7 +1322,7 @@ of surplus production.
   multiple Food Storage buildings) as a genuine ongoing investment, not a
   one-time build-and-forget structure. Exact capacity numbers TBD, deferred to
   a balancing pass.
-- Construction cost: modest Matter (TBD) | `TechAchievement`: 0 (base) /
+- Construction cost: Lumber/Concrete (ratio TBD) | `TechAchievement`: 0 (base) /
   higher (upgraded tiers) | Repeatable: yes | Upgrade path: yes, raises
   capacity
 
@@ -1283,7 +1338,7 @@ of surplus production.
   needed to hold ordinary working resources (raw materials, manufactured
   goods, food not yet committed to [Food Storage](04_buildings_and_economy.md#food-storage) — see [Storage](04_buildings_and_economy.md#storage) below). This
   supersedes the old capacity-limited model entirely: there is no prioritization
-  list, no overflow state, and no overflow-into-Matter breakdown mechanic —
+  list, no overflow state, and no overflow-breakdown mechanic —
   nothing ever needs to be discarded or converted for lack of space. Reflects
   the general design goal of keeping ordinary resource-holding low-effort and
   low-interaction; the one deliberate exception is Food Storage, a dedicated

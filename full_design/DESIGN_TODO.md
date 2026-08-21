@@ -9,12 +9,36 @@ tracks what's needed *underneath* them.
 
 - [x] **Development Bloc** — formula done
   - [ ] Rarity weights per resource (not yet assigned)
-  - [ ] Real buildings/items catalog carrying `TechAchievement` values
+  - [ ] Real buildings/items catalog carrying `TechAchievement` values — a
+    first-pass table was drafted and partly discussed, then paused to do
+    the fabrication-chain revisit below first; needs re-running once that
+    settles, since it added several items (Lumber, Leather, Wooden Plow)
+    and changed several recipes (Temperature-Resistant Gear,
+    Scanner Station, Medical Bay, the drone tiers) since the draft table
+    was made.
 - [x] **Frontier Legends** — formula done
   - [ ] Catalog of named "hard sites" with legend-values
 
 ## Open Items
 
+- [ ] **Fabrication chain revisit — still open pieces**: this pass (see
+  Buildings & Economy's Resources and Fabrication) replaced Matter with
+  Lumber/Concrete as the universal construction-cost materials, split
+  Carpenter's Shop into a starting Sawmill (Lumber only) + Carpenter's Shop
+  upgrade, split Stone Processing into a starting Stone Processing I
+  (Concrete only) + Stone Processing II upgrade (adds Silicon), introduced
+  Leather (tanned from Pelts) alongside Fabric, added the Wooden Plow, and
+  widened High-Tech Components into several more recipes and structures.
+  Still to do:
+  - Per-building **Lumber:Concrete construction-cost ratios** across the
+    whole catalog — this pass established the rule (and Quarry's specific
+    small-Lumber-only cost) but deferred assigning the actual ratio for
+    every other building.
+  - **Wooden Plow's gameplay mechanics** — only its fabrication recipe (2
+    Lumber + 1 Leather) is defined so far; what it actually does for
+    outdoor farming is explicitly deferred.
+  - Sawmill→Carpenter's Shop and Stone Processing I→II **upgrade costs** —
+    TBD.
 - [ ] **Production building UI** — not yet designed at all; how a player
   actually sees/interacts with a staffed site's assignment, Effort,
   Experience/Aptitude readouts, and (for drones) battery state during
