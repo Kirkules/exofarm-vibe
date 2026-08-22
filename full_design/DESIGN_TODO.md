@@ -68,6 +68,15 @@ tracks what's needed *underneath* them.
 
 ## Newly Surfaced Ideas (recorded, not yet designed in detail)
 
+- [ ] **Alien trade economy** — surfaced while designing the Local Delicacy
+  food good (see Buildings & Economy's Food/Meal Conversion): once a
+  Peaceful Contact alliance exists, how does the player actually *trade*
+  with it? Does it get its own dedicated interface, or does it operate
+  through repeatable/follow-up exploration tasks the same way everything
+  else in the sentience-contact chain does? This is the same underlying
+  gap as the already-tracked "Peaceful Contact's base alliance rewards"
+  item below, just approached from the trade-goods side rather than the
+  rewards side — worth resolving together, not twice.
 - [ ] **Water resource open threads**: settler Water-shortfall consequence
   model (does it mirror nutrition's Tier-1 mechanic, or differ?);
   Reclamation's unlock gate (tech/resource prerequisite, not yet

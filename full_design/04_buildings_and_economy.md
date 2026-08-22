@@ -173,6 +173,20 @@ keeping the catalog from exploding as more planet types are added:
   the disruption Stewardship objects to is the mining process/infrastructure itself,
   not depletion, so extraction volume is penalized at the same rate regardless of
   deposit type.
+- **Seasonings (Herbs and Spices)** — found only incidentally, never through
+  dedicated gathering: **Herbs** have a small chance to turn up during
+  Clear-Cutting, Basic/Deep Survey, or any Exploration Task; **Spices**
+  have a small chance to turn up during Mining (Mine/Quarry/Rare Metal
+  Extractor) or any Exploration Task (exact probabilities TBD, deferred to
+  balancing). Each planet type has its own roster of roughly 2–3 distinct
+  Herbs and 2–3 distinct Spices — genuinely separate, individually-named
+  items, not one fungible pooled resource — so a given run only ever
+  realistically encounters a handful of the full cross-planet catalog,
+  tied to that planet's identity and that run's discovery luck. Each
+  Seasoning corresponds to exactly one Gourmet recipe (see Food/Meal
+  Conversion's Kitchen) and participates in nothing else, which is what
+  keeps the catalog's actual per-run footprint small despite the total
+  roster being wide.
 
 ### Naming Convention
 - Basic resources: simple names (Energy)
@@ -743,17 +757,20 @@ mere existence is a prerequisite gate, not a conversion step.
   but easier direct liquid-water access (Cistern) makes condensing
   non-optimal there; Ice and Arid/Desert are too low-humidity to be
   effective.
+- Construction cost: Lumber/Concrete (ratio TBD).
 
 ### Ice Melter
 - Staffing: Staffed | Input: none | Output: Water per cycle (rate TBD) |
   Melts surface ice/snow. Exclusive to Frozen planets — the direct
   counterpart to Water Condenser's Volcanic specialization.
+- Construction cost: Lumber/Concrete (ratio TBD).
 
 ### Cistern
 - Staffing: Staffed | Input: none | Output: Water per cycle (rate TBD) |
   Passive rainfall collection. Best on planets with regular rainfall
   (Verdant and similar) — the "finding water is easy here" mechanism for
   hospitable planets.
+- Construction cost: Lumber/Concrete (ratio TBD).
 
 ### Well
 - Staffing: Staffed | Input: none | Output: Water per cycle, **relatively
@@ -763,6 +780,11 @@ mere existence is a prerequisite gate, not a conversion step.
   rate, no separate build choice or upgrade action. The "deepening" is a
   passive consequence of the tile's property, not a player decision beyond
   choosing where to build.
+- Construction cost: Lumber/Concrete (ratio TBD). All four Water
+  collection buildings deliberately stay in this same low-barrier
+  register — Water is essential enough that gating collection behind
+  demanding materials would just create an early-run bottleneck, not a
+  meaningful choice.
 
 ---
 
@@ -877,6 +899,29 @@ finds, same spirit as everything else in the catalog.
     matching ingredients — a named dish referencing an ingredient the player
     doesn't literally have is fine, relying on the player's suspension of
     disbelief.
+- **Gourmet tier** — a **settler-specific** unlock, distinct in kind from
+  every recipe above: once a settler has maxed their Kitchen [Experience](05_settlers_and_exploration.md#experience)
+  (3 stacks — see Settlers & Exploration) *and* at least one Seasoning
+  (see Resources) currently sits in the farm's general inventory, each
+  season they work Kitchen carries an independent chance (illustrative
+  75%, one roll per distinct Seasoning currently available) of a "moment
+  of brilliance" — inventing that Seasoning's corresponding Gourmet dish.
+  A settler can invent more than one Gourmet recipe over a run, one per
+  distinct Seasoning they successfully roll against. Once invented, the
+  recipe belongs to that settler specifically: only they can cook it, and
+  only while they're the one currently assigned to Kitchen — unlike every
+  other recipe in this design, it isn't a settlement-wide unlock. Gourmet
+  dishes feed `TechAchievement` the same way Luxury Goods do, on top of
+  their ordinary nutritional value.
+- **Local Delicacy** — a second, separate new recipe, unlocked once a
+  Peaceful Contact alliance exists with an alien civilization (see
+  Settlers & Exploration's Escalation Chains) rather than through
+  Experience/Seasonings. Name, flavor, and exact input cost are tied to
+  the specific planet type and civilization class contacted. How this
+  connects to the broader alien-trade relationship (exported, imported,
+  ongoing exchange) is still open — see `DESIGN_TODO.md`'s Alien trade
+  economy item.
+- Construction cost: Lumber/Concrete (ratio TBD).
 - `TechAchievement`: 0 (base tier) / higher (upgraded tier) | Repeatable: yes |
   Upgrade path: yes, gates the combo recipes and second recipe slot above
 
@@ -960,6 +1005,8 @@ consolidated building with selectable recipes fits better)*
     same drone comes out the other side hardened, its identity and current
     battery charge carried through rather than being consumed and replaced
     by a fresh unit.
+- Construction cost: Lumber/Concrete (ratio TBD) + Iron + Copper — a robotics
+  workshop needs its own metal framework, not just wood/masonry.
 - `TechAchievement`: 0 (base tier) / higher (upgraded tier) | Repeatable: yes |
   Upgrade path: yes, gates the Advanced/Specialized recipes above
 
@@ -1046,9 +1093,12 @@ pair of starting buildings resolves)*
   - Copper ← Copper Ore
 - Exact ratios TBD, deferred to balancing like other numeric values in
   this design.
+- Construction cost: Lumber/Concrete (ratio TBD) + Stone — same register
+  as Stone Processing, another modest processing-plant structure.
 
 ### Textile Workshop
 - Category: Fabrication | Staffing: Staffed
+- Construction cost: Lumber/Concrete (ratio TBD).
 - Selectable recipes:
   - Fabric ← Wool, or Fiber/Cotton, or Pelts (any one of the three, player
     selects which this cycle consumes) — Pelts' direct role here is
@@ -1073,6 +1123,9 @@ pair of starting buildings resolves)*
   — Settler, Advanced All-Purpose Drone, or a Tinkerer's-Workshop-Specialized
   Drone (see [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly)) — not Basic All-Purpose, since High-Tech
   Components requires Advanced-tier eligibility
+- Construction cost: Lumber/Concrete (ratio TBD) + Iron + Copper + Silicon
+  — the most materially demanding of the Fabrication buildings' own
+  construction costs, matching the sophistication of what it produces.
 - Selectable recipes (base tier):
   - High-Tech Components ← Copper + Silicon + Iron — used as a construction-cost
     input for Protection-tier shield structures and other advanced buildings,

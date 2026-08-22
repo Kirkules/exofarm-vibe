@@ -38,6 +38,10 @@ Each settler carries:
   (see [Experience](05_settlers_and_exploration.md#experience), below).
 - `aptitude` — a per-bucket level (−3 to +3), innate and fixed at Crew
   Selection, never changing over a run (see [Aptitude](05_settlers_and_exploration.md#aptitude), below).
+- `gourmet_recipes` — a list of Gourmet dishes this specific settler has
+  personally invented (see Buildings & Economy's Kitchen) — only they can
+  cook these, and only while assigned to Kitchen; empty for most settlers,
+  since it requires maxed Kitchen `experience` plus a Seasoning roll.
 
 ### Injuries
 
@@ -169,6 +173,12 @@ away or reassignment.
 **Effect**: +15% production speed per stack, up to 3 stacks (+45% max).
 Tooltip shows a plain-language readout ("+30% Farming speed"), never the
 underlying formula.
+
+**Kitchen's max stack does something no other group's does**: it's the
+prerequisite for a settler's Gourmet-recipe "moment of brilliance" (see
+Buildings & Economy's Kitchen and `gourmet_recipes` above) — a qualitative
+payoff layered on top of the ordinary speed bonus, not a replacement for
+it.
 
 ### Aptitude
 
