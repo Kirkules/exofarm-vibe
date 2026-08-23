@@ -9,13 +9,12 @@ tracks what's needed *underneath* them.
 
 - [x] **Development Bloc** — formula done
   - [ ] Rarity weights per resource (not yet assigned)
-  - [ ] Real buildings/items catalog carrying `TechAchievement` values — a
-    first-pass table was drafted and partly discussed, then paused to do
-    the fabrication-chain revisit below first; needs re-running once that
-    settles, since it added several items (Lumber, Leather, Wooden Plow)
-    and changed several recipes (Temperature-Resistant Gear,
-    Scanner Station, Medical Bay, the drone tiers) since the draft table
-    was made.
+  - [x] Real buildings/items catalog carrying `TechAchievement` values — see
+    Buildings & Economy's [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog); the 0–4 rubric, the counting
+    rule (each distinct entry counts once per run, not per unit/copy), and
+    per-entry values are all written in. Exact numbers are a first pass,
+    same as every other illustrative number in this design — revisit
+    during balancing, not urgent to track here further.
 - [x] **Frontier Legends** — formula done
   - [ ] Catalog of named "hard sites" with legend-values
 

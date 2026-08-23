@@ -520,10 +520,17 @@ rather than repeated per faction below.
     it's a rate, not a stockpile — a separate signal from total stockpile, which
     could reflect one-time windfalls or short-lived high-yield mining rather than
     durable production capacity.
-  - `TechAchievement` — sum of each built element's **static, design-authored
-    achievement score** (assigned per catalog entry based on how demanding its
-    prerequisites/input resources are — basic buildings score 0), not something
-    computed adaptively from a run or environment.
+  - `TechAchievement` — sum, across every distinct catalog entry (a building
+    tier, a fabricated item type, a drone type/tier/hardened-state) **ever
+    reached at least once during the run**, of that entry's **static,
+    design-authored achievement score** on a 0–4 scale (see Buildings &
+    Economy's [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog) for the full rubric and per-entry
+    values), not something computed adaptively from a run or environment.
+    Each distinct entry counts **once**, regardless of how many units were
+    produced, how many copies were built, or what remains in stock at
+    scoring time — producing 10 Iron and later consuming all of it still
+    contributes Iron's tier value once; building two fully-upgraded Scanner
+    Stations still contributes that tier's value once, not twice.
   - These three are different *kinds* of quantities (a resource total, a rate, and
     a design-authored point count), so each is normalized before combining, per the
     "normalize before combining unrelated values" design principle:

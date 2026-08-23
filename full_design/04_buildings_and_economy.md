@@ -264,8 +264,9 @@ the following properties. Working through the catalog category-by-category (see
   more demanding designs, per Technology & Progression. Exact per-building
   Lumber:Concrete ratios TBD, deferred to a follow-up balancing pass (see
   `DESIGN_TODO.md`). Consumed when a construction robot begins the build.
-- **`TechAchievement` value** — static, design-authored score (0 for basic
-  buildings, higher for advanced ones) — feeds Development Bloc (see [SEED Factions](06_planets_and_scoring.md#seed-factions)
+- **`TechAchievement` value** — static, design-authored score on a 0–4 scale
+  (see the [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog) below for the full rubric and
+  per-entry values) — feeds Development Bloc (see [SEED Factions](06_planets_and_scoring.md#seed-factions)
   in Win/Lose Conditions)
 - **Repeatable** — whether multiple copies can be built (most can; whether any
   building should be capped at one instance is an open question)
@@ -310,6 +311,179 @@ doesn't need a name for each shape.
 
 ---
 
+## TechAchievement Catalog
+
+Every building tier, fabricated item, and drone state below carries a
+static, design-authored `TechAchievement` value on a 0–4 scale, based on how
+demanding its own prerequisites/inputs are:
+
+- **0 — Base tier.** Buildable from run start with only the two universal
+  construction materials (Lumber/Concrete — see [Building Schema](04_buildings_and_economy.md#building-schema); these
+  replaced the old Matter resource and occupy its old role here) plus single
+  common raw materials (Stone, Wood, basic farm output). No deposit
+  discovery, no building prerequisite, no upgrade needed.
+- **1 — Processed, or hard-gated by a required deposit.** Needs a refined
+  resource (Silicon, Fabric, Leather, smelted Iron/Copper) as an input, or
+  the building itself cannot exist without a discovered deposit (Mine,
+  Quarry, Rare Metal Extractor, Geothermal Generator, Fuel-based Generator's
+  Fossil Fuel tier).
+- **2 — Advanced-input or first upgrade tier.** Needs High-Tech Components,
+  or is itself an "Upgraded" building tier (or the fresh-fabrication result
+  of one), or is a passive bonus automatically triggered by a deposit on an
+  otherwise freely-buildable structure (Deep Well).
+- **3 — Compound-advanced or gate-locked.** Needs multiple advanced inputs
+  together (a rare metal plus High-Tech Components, or two Tier-2 items at
+  once), or is gated behind a Confidence threshold rather than materials
+  (Medical Bay's Vaccine Production tier), or requires a further-Upgraded
+  building tier beyond the first.
+- **4 — Rarest tier.** The catalog's actual ceiling items.
+
+**Counting rule** (see Win/Lose Conditions' [SEED Factions](06_planets_and_scoring.md#seed-factions) for the full
+Development Bloc formula): each distinct catalog entry below contributes
+its tier value **once**, the first time it's ever reached during a run — not
+once per unit produced, not once per copy built. Producing 10 Iron and
+later consuming all of it still contributes Iron's tier (1); building two
+fully-upgraded Scanner Stations still contributes 4, not 8. A building's
+successive tiers, and a drone's successive Basic/Advanced/Hardened states,
+are each their own distinct entry.
+
+**Basic Resource Production**
+
+| Entry | Tier |
+|---|---|
+| Solar Array (base) | 0 |
+| Solar Array (upgraded) | 2 |
+| Geothermal Generator | 1 |
+| Geothermal Generator (upgraded) | 2 |
+| Fuel-based Generator (Wood) | 0 |
+| Fuel-based Generator (Fossil Fuel tier) | 1 |
+
+**Farm/Production**
+
+| Entry | Tier |
+|---|---|
+| Grain Field / Fruit Orchard / Dairy Pasture / Poultry Coop / Sheep Pasture / Fiber Field / Timber Grove (base, each) | 0 |
+| Same seven, upgraded tier (each) | 2 |
+| Trapping | 0 |
+| Hybridization (per-planet signature discovery) | 3 |
+| Hybridization (meteorite-fragment, planet-independent) | 4 |
+
+**Deposit Discovery**
+
+| Entry | Tier |
+|---|---|
+| Mine | 1 |
+| Quarry | 1 |
+| Rare Metal Extractor | 1 |
+
+**Water**
+
+| Entry | Tier |
+|---|---|
+| Water Processing Plant (base) | 0 |
+| Water Processing Plant (Reclamation) | 2 |
+| Water Condenser / Ice Melter / Cistern (each) | 0 |
+| Well (base) | 0 |
+| Deep Well | 2 |
+
+**Scanner Station / Research Lab**
+
+| Entry | Tier |
+|---|---|
+| Scanner Station (base) | 3 |
+| Scanner Station (upgrade tier 2, unstaffed) | 3 |
+| Scanner Station (upgrade tier 3, all-modes) | 4 |
+| Research Lab | 2 |
+
+**Food/Meal Conversion**
+
+| Entry | Tier |
+|---|---|
+| Kitchen (base) | 0 |
+| Kitchen (upgraded, combo recipes) | 2 |
+| Gourmet tier (per settler-invented recipe) | 2 |
+| Local Delicacy | 3 |
+| Ration Press | 0 |
+
+*Gourmet tier and Local Delicacy are gated by settler mastery and alliance
+state rather than materials, so they don't derive from the rubric's own
+input-cost logic the way everything else here does — their placement is a
+deliberate placeholder pending balancing, same as the numeric TBDs
+elsewhere in this catalog.*
+
+**Fabrication — buildings**
+
+| Entry | Tier |
+|---|---|
+| Robotics Assembly (base) | 1 |
+| Robotics Assembly (upgraded) | 2 |
+| Stone Processing I | 0 |
+| Stone Processing II | 2 |
+| Smelter | 0 |
+| Textile Workshop | 0 |
+| Tinkerer's Workshop | 2 |
+| Sawmill | 0 |
+| Carpenter's Shop | 2 |
+
+**Fabrication — items**
+
+| Entry | Tier |
+|---|---|
+| Concrete / Lumber (each) | 0 |
+| Iron / Copper (smelted, each) | 1 |
+| Silicon | 2 |
+| Fabric | 1 |
+| Leather | 1 |
+| Leather Boots | 2 |
+| Leather Backpack | 1 |
+| Fine Furniture | 2 |
+| Ornamental/Decorative Items | 2 |
+| Wooden Plow | 2 |
+| High-Tech Components | 2 |
+| High-Resolution Screens | 2 |
+| Portable High-Powered Scanning Equipment | 3 |
+| Temperature-Resistant Gear | 3 |
+| Diplomatic Gear | 3 |
+| Armed Expedition Kit | 3 |
+| Overwhelming Force Package | 4 |
+
+**Drones** (see [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly) for the Basic/Advance/Harden
+fabrication-vs-upgrade structure — each state below is its own distinct
+catalog entry)
+
+| Entry | Tier |
+|---|---|
+| Construction Robot | 1 |
+| All-Purpose Drone, Basic | 1 |
+| All-Purpose Drone, Advanced | 2 |
+| All-Purpose Drone, Basic + Hardened | 2 |
+| All-Purpose Drone, Advanced + Hardened | 3 |
+| Specialized Drone, Basic | 2 |
+| Specialized Drone, Advanced | 3 |
+| Specialized Drone, Basic + Hardened | 3 |
+| Specialized Drone, Advanced + Hardened | 4 |
+
+**Protection**
+
+| Entry | Tier |
+|---|---|
+| Weather Shield (base) | 1 |
+| Weather Shield (upgraded) | 2 |
+| Row Shield | 1 |
+| Medical Bay (base) | 2 |
+| Medical Bay (Vaccine Production) | 3 |
+| PPE | 1 |
+| Emergency Medical Kit | 2 |
+
+**Storage**
+
+| Entry | Tier |
+|---|---|
+| Food Storage (base) | 0 |
+| Food Storage (upgraded) | 2 |
+
+---
+
 ## Basic Resource Production
 
 Every run begins with one Solar Array (exact starting count tied to wormhole
@@ -327,10 +501,11 @@ cost.
 - Production cap: N/A (unstaffed)
 - Construction cost: modest Energy + Lumber/Concrete (exact numbers TBD,
   deferred to a balancing pass)
-- `TechAchievement`: 0 | Repeatable: yes | Upgrade path: yes — higher tiers
+- `TechAchievement`: 0 (base) / 2 (upgraded) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog) |
+  Repeatable: yes | Upgrade path: yes — higher tiers
   produce more Energy; a late tier is a natural place to pay off the Crash
   Research Era's controlled-fusion lore (e.g. eventually becoming a Fusion
-  Generator)
+  Generator — `TechAchievement` TBD once that tier is actually designed)
 - Area of effect / Energy upkeep / Preparedness / Data-gathering / Storage: N/A
 
 ### Geothermal Generator
@@ -353,7 +528,8 @@ cost.
   building.
 - Production cap: N/A (unstaffed)
 - Construction cost: Lumber/Concrete (ratio TBD) + Iron
-- `TechAchievement`: 0 | Repeatable: yes (naturally capped by how many
+- `TechAchievement`: 1 (base) / 2 (upgraded) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog) |
+  Repeatable: yes (naturally capped by how many
   Thermal Vents exist on the site, not by player choice — same pattern as
   Mine/Quarry) | Upgrade path: yes — higher tiers produce more Energy
 - Area of effect / Energy upkeep / Preparedness / Data-gathering / Storage: N/A
@@ -371,7 +547,7 @@ Numbers below are a **first-pass illustrative draft**, not balanced — followin
 playtesting later, not over-engineered now. All buildings in this section:
 Repeatable: yes, Upgrade path: yes (higher tiers reduce `production_time`
 and/or raise the effort-stacking production cap), `TechAchievement` 0 at base
-tier. **All require the same flat amount of Water per cycle** (see [Water](04_buildings_and_economy.md#water) below —
+tier / 2 upgraded (see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)). **All require the same flat amount of Water per cycle** (see [Water](04_buildings_and_economy.md#water) below —
 exact amount TBD, calibrated against the settler baseline of 1 [Water](04_buildings_and_economy.md#water)/season).
 
 **Alien Soil.** The four plant-crop buildings ([Grain Field](04_buildings_and_economy.md#grain-field), [Fruit Orchard](04_buildings_and_economy.md#fruit-orchard),
@@ -700,7 +876,7 @@ grid slot, no construction cost, no staffing in the sticky sense.
   better fuel," never "become clean" — the mechanical shape of "easier and
   faster, but not sustainable," without needing to editorialize about it in
   the text.
-- `TechAchievement`: 0 (base) / slightly higher (Fossil Fuel tier) |
+- `TechAchievement`: 0 (base) / 1 (Fossil Fuel tier) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog) |
   Repeatable: yes | Available from run start, no unlock needed — same
   footing as Solar Array, since it needs no exotic materials.
 
@@ -734,6 +910,10 @@ Energy also never needing an explained distribution system.
 all** — see below. No separate "Raw Water" intermediate resource; the Plant's
 mere existence is a prerequisite gate, not a conversion step.
 
+Water Condenser, Ice Melter, and Cistern each: `TechAchievement` 0 (see
+[TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)) — Lumber/Concrete only, no deposit gate. Well: `TechAchievement` 0
+base / 2 once it automatically becomes a Deep Well (below).
+
 ### Water Processing Plant
 - A **starting building**, present from run start like Solar Array, Sawmill,
   and Stone Processing I — not something the player constructs. (Once a demolish-building
@@ -749,7 +929,7 @@ mere existence is a prerequisite gate, not a conversion step.
   separate structure or item (structurally similar to Vaccine Production's
   one-time-unlock shape, but gated by a tech/resource prerequisite rather
   than a data-confidence threshold — exact gate TBD).
-- `TechAchievement`: 0 (base) / higher (Reclamation tier)
+- `TechAchievement`: 0 (base) / 2 (Reclamation tier) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)
 
 ### Water Condenser
 - Staffing: Staffed | Input: none | Output: Water per cycle (rate TBD) |
@@ -819,7 +999,8 @@ already applied to Robotics Assembly)*
   Kitchen-style multiple grid slots/workers — it's a property of automation at
   this tier, not of staffing capacity, a distinct mechanism from Kitchen's
   worker-count-driven parallelism.
-- `TechAchievement`: 0 (base) / higher (each upgrade tier) | Repeatable: yes
+- `TechAchievement`: 3 (base and upgrade tier 2) / 4 (upgrade tier 3,
+  all-modes) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog) | Repeatable: yes
   (multiple Scanner Stations can exist, though diminishing value once deposits
   are discovered) | Upgrade path: yes, as described above
 - **Upgrades may also reduce the Energy cost of manually rerolling the
@@ -860,6 +1041,7 @@ finds, same spirit as everything else in the catalog.
   [Settlers](05_settlers_and_exploration.md#settlers) & Exploration), always available to research (not
   discovery-gated like Hybridization projects are).
 - Construction cost: Lumber/Concrete (ratio TBD) + High-Tech Components.
+- `TechAchievement`: 2 — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)
 
 ---
 
@@ -922,7 +1104,9 @@ finds, same spirit as everything else in the catalog.
   ongoing exchange) is still open — see `DESIGN_TODO.md`'s Alien trade
   economy item.
 - Construction cost: Lumber/Concrete (ratio TBD).
-- `TechAchievement`: 0 (base tier) / higher (upgraded tier) | Repeatable: yes |
+- `TechAchievement`: 0 (base tier) / 2 (upgraded tier) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog); Gourmet tier 2 per
+  invented recipe, Local Delicacy 3 (both non-material-gated, see the
+  Catalog) | Repeatable: yes |
   Upgrade path: yes, gates the combo recipes and second recipe slot above
 
 > **Open question:** meal expiration — deliberately deferred until meal
@@ -984,30 +1168,45 @@ sticking around once built rather than needing constant replacement — so one
 consolidated building with selectable recipes fits better)*
 - Category: Fabrication | Staffing: Staffed
   (Settler or all-purpose drone)
-- Selectable recipes:
+- **Every drone starts as a Basic unit, fabricated fresh.** Reaching
+  Advanced, or Hardened, is always a separate **upgrade-in-place** action
+  performed on an already-built drone afterward — never its own from-scratch
+  recipe. An upgrade-in-place action takes the existing drone as an assigned
+  *resource* to the task (it's tied up, unavailable for its normal
+  assignment, for the task's duration) while a *different* worker performs
+  the upgrade and supplies the materials; the same drone comes out the other
+  side changed, its identity and current battery charge carried through
+  rather than being consumed and replaced by a fresh unit. **Advance** and
+  **Harden** are independent axes — either can be applied first, and Harden
+  works on a drone at either tier of either line.
+- Selectable recipes (fresh fabrication):
   - Construction Robot ← Iron + Copper (base tier)
   - All-Purpose Drone (Basic) ← Iron + Copper (base tier)
-  - All-Purpose Drone (Advanced) ← Iron + Copper + Silicon + High-Tech
-    Components (**requires Upgraded Robotics Assembly**)
-  - Specialized Drone (one recipe per Experience group — see [Settlers](05_settlers_and_exploration.md#settlers) &
-    Exploration's [Experience](05_settlers_and_exploration.md#experience) for the full list) ← Iron + Copper +
-    High-Tech Components + a
-    category-flavored input (**requires Upgraded Robotics Assembly AND at
-    least one existing production structure of the matching group already
-    built** — no point fabricating a Farming-specialized drone before any
-    farm plot exists). Never available for Research Lab, since Research is
-    settler-only regardless of drone tier.
-  - **Hardening upgrade** (temperature-resistant battery) ← High-Tech
-    Components — takes an
-    existing drone as an assigned *resource* to the task (it's tied up,
-    unavailable for its normal assignment, for the task's duration) while a
-    *different* worker performs the upgrade and supplies the Components; the
-    same drone comes out the other side hardened, its identity and current
-    battery charge carried through rather than being consumed and replaced
-    by a fresh unit.
+  - Specialized Drone (Basic) (one recipe per Experience group — see
+    [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's
+    [Experience](05_settlers_and_exploration.md#experience) for the full
+    list) ← Iron + Copper + a category-flavored input (**base tier — no
+    Upgraded Robotics Assembly needed**, so a settlement can field its first
+    specialized drone about as early as its first All-Purpose one) — still
+    requires **at least one existing production structure of the matching
+    group already built** — no point fabricating a Farming-specialized drone
+    before any farm plot exists. Never available for Research Lab, since
+    Research is settler-only regardless of drone tier.
+- Selectable recipes (upgrade-in-place, on an existing drone):
+  - **Advance** All-Purpose Drone (Basic → Advanced) ← Silicon + High-Tech
+    Components (**requires Upgraded Robotics Assembly**) — the Basic build
+    already paid for the Iron/Copper frame, so this only covers what
+    Advanced tier actually adds.
+  - **Advance** Specialized Drone (Basic → Advanced) ← High-Tech Components
+    (**requires Upgraded Robotics Assembly**) — likewise only the increment
+    beyond what Basic Specialized already paid for.
+  - **Harden** (temperature-resistant battery) ← High-Tech Components —
+    applies to a drone at either tier of either line.
 - Construction cost: Lumber/Concrete (ratio TBD) + Iron + Copper — a robotics
   workshop needs its own metal framework, not just wood/masonry.
-- `TechAchievement`: 0 (base tier) / higher (upgraded tier) | Repeatable: yes |
+- `TechAchievement` (the building itself): 1 (base) / 2 (upgraded) — see the
+  [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)'s Drones table for each individual
+  drone state's own value | Repeatable: yes |
   Upgrade path: yes, gates the Advanced/Specialized recipes above
 
 **Drones are persistent, assignable units** — settler-lite roster entries,
@@ -1024,6 +1223,10 @@ an unmodified settler):
 | All-Purpose (Advanced) | 1.0 |
 | Specialized (Basic) | 1.5 |
 | Specialized (Advanced) | 2.0 |
+
+Hardening changes none of the above — it's a battery-only upgrade (see below),
+so a Hardened drone has the same Effort and task eligibility as its
+unhardened counterpart at the same Basic/Advanced tier.
 
 **Task eligibility:**
 - **All-Purpose (Basic)** — basic production, Farming, Mining, Clear-Cutting,
@@ -1079,6 +1282,8 @@ pair of starting buildings resolves)*
 - Upgrades to **Stone Processing II**, which additionally unlocks:
   - Silicon ← Stone
 - Upgrade cost: TBD.
+- `TechAchievement`: 0 (Stone Processing I) / 2 (Stone Processing II) — see
+  [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)
 
 ### Smelter
 - Category: Fabrication | Staffing: Staffed
@@ -1095,10 +1300,14 @@ pair of starting buildings resolves)*
   this design.
 - Construction cost: Lumber/Concrete (ratio TBD) + Stone — same register
   as Stone Processing, another modest processing-plant structure.
+- `TechAchievement`: 0 — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)
 
 ### Textile Workshop
 - Category: Fabrication | Staffing: Staffed
 - Construction cost: Lumber/Concrete (ratio TBD).
+- `TechAchievement` (the building itself): 0 — see the [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)'s
+  Fabrication — items table for Fabric/Leather/Leather Boots/Leather
+  Backpack's own values
 - Selectable recipes:
   - Fabric ← Wool, or Fiber/Cotton, or Pelts (any one of the three, player
     selects which this cycle consumes) — Pelts' direct role here is
@@ -1126,6 +1335,8 @@ pair of starting buildings resolves)*
 - Construction cost: Lumber/Concrete (ratio TBD) + Iron + Copper + Silicon
   — the most materially demanding of the Fabrication buildings' own
   construction costs, matching the sophistication of what it produces.
+- `TechAchievement` (the building itself): 2 — see the [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)'s
+  Fabrication — items table for each recipe's own value
 - Selectable recipes (base tier):
   - High-Tech Components ← Copper + Silicon + Iron — used as a construction-cost
     input for Protection-tier shield structures and other advanced buildings,
@@ -1191,6 +1402,8 @@ Processing I — not something the player constructs)*
     mechanics deliberately not designed yet, this entry is fabrication-chain
     placement only (see `DESIGN_TODO.md`)
 - Upgrade cost: TBD.
+- `TechAchievement`: 0 (Sawmill) / 2 (Carpenter's Shop, and each of Fine
+  Furniture/Ornamental/Decorative Items/Wooden Plow) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)
 
 ---
 
@@ -1238,7 +1451,7 @@ whichever applies.
 - Construction cost: Concrete + Iron (base tier); upgraded tier additionally
   requires **High-Tech Components** (from Tinkerer's Workshop), consistent
   with shield technology needing sophisticated components
-- `TechAchievement`: 0 (base) / higher (upgraded) | Repeatable: yes (multiple
+- `TechAchievement`: 1 (base) / 2 (upgraded) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog) | Repeatable: yes (multiple
   can be built for wider coverage) | Upgrade path: yes — larger radius, more
   Preparedness credit
 - No data-gating on its Preparedness contribution — a physical shield works
@@ -1270,7 +1483,7 @@ principle that a planet/strategy shouldn't reduce to one correct approach)*
   base tier
 - Construction cost: strictly between Weather Shield's base cost and
   (Weather Shield base + Advanced upgrade) combined — exact numbers TBD
-- `TechAchievement`: 0 | Repeatable: yes
+- `TechAchievement`: 1 — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog) | Repeatable: yes
 
 ### Medical Bay
 - Staffing: Staffed — Settler, Advanced All-Purpose Drone, or a
@@ -1337,7 +1550,8 @@ principle that a planet/strategy shouldn't reduce to one correct approach)*
 - Construction cost: Fabric + Lumber/Concrete (ratio TBD) + High-Tech
   Components (base tier); Vaccine
   Production tier requires **additional High-Tech Components** on top
-- `TechAchievement`: 0 (base) / higher (Vaccine Production tier) |
+- `TechAchievement`: 2 (base) / 3 (Vaccine Production tier) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog); PPE 1,
+  Emergency Medical Kit 2 |
   Repeatable: yes | Upgrade path: yes, as described above
 
 ---
@@ -1376,7 +1590,7 @@ of surplus production.
   one-time build-and-forget structure. Exact capacity numbers TBD, deferred to
   a balancing pass.
 - Construction cost: Lumber/Concrete (ratio TBD) | `TechAchievement`: 0 (base) /
-  higher (upgraded tiers) | Repeatable: yes | Upgrade path: yes, raises
+  2 (upgraded tiers) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog) | Repeatable: yes | Upgrade path: yes, raises
   capacity
 
 ---
