@@ -299,6 +299,24 @@ unassigned workers of that type, B = total owned.
   an avatar with unassigned workers (A > 0) begins the same assign-to-site flow as
   picking up a worker directly, fusing "notice an idle worker" and "assign it" into
   one continuous interaction per the minimal-UI-interaction principle.
+- **During Mid-Sim, each type's single row expands into one icon per actual
+  worker** of that type — e.g. 3 settlers means 3 small individual icons,
+  not "A/B" text — each independently showing that worker's current state,
+  worker-centric rather than site-centric:
+  - **Actively working** — animated (subtle, matching the low-animation-budget
+    bias elsewhere in Art Design)
+  - **Hazard-affected** — small overlay icon matching the worker's active
+    `status_effect` (e.g. a tiny heat icon for a Temperature Extremity
+    effect)
+  - **Not working** — the default/idle (non-animated) appearance otherwise;
+    covers any reason the worker isn't currently producing, including their
+    site being unpowered when power is actually relevant to that work (not
+    the case for e.g. outdoor farms) — no separate dedicated "unpowered"
+    icon, it's just the absence of the working animation
+  - **Drones** additionally get a permanent tiny battery-remaining bar on
+    their icon, shown regardless of working state
+  - Reverts to the collapsed per-type "A/B" row once the next planning
+    phase opens; this expansion is Mid-Sim-only.
 
 ### Construction
 
@@ -386,42 +404,102 @@ Each game round = one **season** on the planet.
 - Tooltips and contextual information throughout
 
 ### Simulation Phase
-- **Passive** — no player input required
+- **Passive** — no decision is ever required; adjusting playback speed
+  (including pausing) is an available control, not a gameplay decision
 - Production runs on the continuous-rate model described in Platform & Core Loop
   Redesign
-- Playback speed controls: **1×, 2×, 3×, 5×**
+- **Playback speed**: a continuous-feeling slider, snapping to **0.1
+  increments**, rather than discrete preset buttons. **0× pauses the
+  simulation outright** — no separate pause control needed, it's just the
+  bottom of the same slider. See Playback Speed below for range and
+  defaulting.
 - Results feed into the next planning phase
 
 **Fixed real-time window.** A season corresponds to a fixed length of real
-time in the story-world, so the simulation window has a fixed real-time
-duration regardless of what's built — playback speed is a pure time-multiplier
-that compresses wall-clock time without changing what happens. Production
+time in the story-world — **30 seconds at 1× playback** — so the simulation
+window has a fixed duration regardless of what's built; playback speed is a
+pure time-multiplier that compresses (or stretches, below 1×) wall-clock
+time without changing what happens. (30s, not a shorter value, specifically
+to give unhurried 1× playback room to not feel rushed.) Production
 `production_time` values and event occurrence rates are all calibrated
 against this same fixed window.
 
-**Two resolution contexts, not a single timeline:**
-- **Outside-Sim** — instantaneous, discrete resolution with no clock running
-  and no continuous production ticking. Merges what could otherwise be three
-  separate moments (right before the clock starts, right after it ends, and
-  the top of the next planning phase) into one mechanically-equivalent
-  bucket, since none of them involve real time passing. Hosts: Vaccine
-  unlock threshold checks, pooled nutrition consumption resolution, Food
-  Storage commitments becoming final, Scanner Station report resolution
-  (the mechanical `Confidence`/`MatchedRisk` update), Deposit Discovery
-  survey mechanical resolution, construction/upgrade/relocate actions
-  completing. An internal order of sub-steps still applies within this
-  bucket (not yet fully specified — TBD). Exploration task results are a
-  special case within Outside-Sim: they get a **dedicated confirmation UI**
-  at the start of the next planning phase, rather than resolving silently.
+**Playback Speed.** Legibility of Mid-Sim visuals (the production progress
+overlay, hazard event visuals, ambient depictions) is targeted at **1×
+only** — there is deliberately **no minimum wall-clock floor** guaranteeing
+any visual stays perceptible at higher speeds. Increasing speed is a
+legibility-for-time tradeoff placed entirely in the player's hands: a
+player who wants to rush to the next planning phase without watching
+things play out can do so, at the explicit cost of missing visuals (the
+log remains available afterward regardless, per its retrospective-catch-up
+role above).
+
+- **Range: 0× to 5×**, snapping to 0.1 increments. At the 5× ceiling, the
+  full 30-second window compresses to 6 wall-clock seconds — fast enough
+  that no separate "skip simulation" affordance exists; cranking the
+  slider to its max **is** the rush-to-next-season option. (Supersedes the
+  prior implementation's standalone Skip button.)
+- **Default per-season speed is sticky-carried**, the same pattern as
+  food-for-consumption and other planning defaults elsewhere in this
+  design: whatever speed the player last used persists automatically as
+  the starting point for the next season's Simulation Phase, defaulting to
+  **1×** for a player who has never adjusted it. Not a separate
+  Settings-menu preference — adjusting the slider in-season is itself what
+  updates the default.
+
+**Three resolution moments, not a single timeline:**
+- **Planning Lock-in** — instantaneous, right before the Mid-Sim clock
+  starts. Purely a freeze: reversible planning-phase choices become fixed
+  inputs for the season. No consequence is computed and nothing is revealed
+  to the player here — that's Post-Sim's job, below. Hosts: Food Storage
+  deposits becoming committed (per Storage's Food Storage, removed from the
+  general pool for the rest of the run from this instant on), the
+  food-for-consumption selection becoming fixed for the season, and
+  construction/upgrade/relocate actions being queued (a robot is consumed
+  from the available pool the instant the action is queued, not when it
+  later completes).
 - **Mid-Sim** — the only place real time actually passes. Continuous
   production ticks live here, plus any discrete event with a genuine reason
   to occupy a specific interval rather than resolving instantly — In-Simulation
   Hazard Events are the clearest example (a storm has a start time and
   duration, not lasting the whole season). Purely ambient visual depictions
-  of Outside-Sim-resolved activities also happen here for legibility/immersion
+  of Post-Sim-resolved activities also happen here for legibility/immersion
   (see [Art Design](07_production_and_technical.md#art-design)) — e.g. a Scanner Station's radio-wave pulse, or a survey
   settler wandering the grid — with no coupling to the actual mechanical
   resolution.
+- **Post-Sim** — instantaneous, discrete resolution with no clock running,
+  right after the Mid-Sim clock ends. Merges what could otherwise be two
+  separate moments (right after the clock ends, and the top of the next
+  planning phase) into one mechanically-equivalent bucket, since neither
+  involves real time passing. (Named for when it happens, not "Outside-Sim"
+  — unlike Planning Lock-in, Post-Sim never occurs before a season's Mid-Sim
+  has actually run.) This is where the season's actual outcomes resolve:
+  Vaccine unlock threshold checks, pooled nutrition consumption resolution,
+  Scanner Station report resolution (the mechanical `Confidence`/`MatchedRisk`
+  update), Deposit Discovery survey mechanical resolution, and
+  construction/upgrade/relocate actions completing. Exploration task results
+  are a special case within Post-Sim: they get a **dedicated confirmation
+  UI** at the start of the next planning phase, rather than resolving
+  silently — the resolution itself, not just its reveal, sits at that tail
+  moment.
+  - **Internal sub-step order**: (1) Scanner Station report resolution, (2)
+    Deposit Discovery survey resolution, (3) pooled nutrition consumption
+    resolution, (4) construction/upgrade/relocate completions, (5)
+    Exploration Task confirmation UI (start of next planning phase), (6)
+    Vaccine unlock threshold check — placed **last, unconditionally**,
+    after every `Confidence`-feeding source for the season has landed
+    (including exploration-driven ones), rather than branching on which
+    data source pushed `Confidence` over the threshold. Steps 1–4 have no
+    dependencies on each other; their relative order is arbitrary.
+  - **Why nutrition consumption waits for Post-Sim** rather than resolving
+    at Planning Lock-in alongside the food-for-consumption selection: food
+    produced *during* the season should itself be consumable that same
+    season. The settlement doesn't draw food down in real time as it's
+    produced mid-season — production simply accumulates through Mid-Sim,
+    and the whole season's consumption resolves as one lump at Post-Sim,
+    which is also the natural point to apply its Tier-1/Tier-2 consequences
+    (see Settlers & Exploration's [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition)) as season outcomes
+    rather than a pre-season freeze.
 
 **The log/event-feed system.** Replaces the old live-log-overlay/outcome-log
 split with a single, simpler structure:
@@ -447,10 +525,33 @@ split with a single, simpler structure:
   voice reports) from this per-season mechanical log, and that split is
   preserved rather than merged.
 
-> **Still open**: how multiple buildings' continuous production cycles
-> interleave *visually* (beyond the log itself — is there any per-building
-> animation, or is the log the primary way production is communicated?); the
-> internal sub-step ordering within Outside-Sim.
+**Production progress overlay.** Every active production site gets a
+per-tick visual during Mid-Sim: the building/field sprite is rendered
+semi-transparent, with an opaque fill rising from the bottom as the current
+cycle progresses, capped by a thin white line marking the opaque/transparent
+boundary — a fill gauge shaped by the sprite itself rather than a separate
+UI bar. Driven directly by the same continuous-rate progress value from
+[Production Model](#production-model) (`100% / production_time` per
+second), so it costs nothing new to compute — a scaling overlay mask on a
+sprite that's already at a fixed grid location for the whole simulation
+window. This is the *primary* at-a-glance channel for "what's happening
+right now" during simulation — deliberately redundant with the aggregated
+log above, which serves a different purpose: players won't be parsing log
+text in real time during simulation (at best skimming it), so the log's
+real job is slow, retrospective understanding of what happened, especially
+after fast/skipped playback, not moment-to-moment legibility. The overlay
+carries that moment-to-moment job instead.
+
+**Assigned-worker Mid-Sim depiction.** A worker stickily assigned to a
+production site is shown as a static sprite parked at/near that site for the
+whole Mid-Sim window — no walking, since Production Model no longer requires
+a worker to physically move to tend a site; a minor idle frame (bob, subtle
+gesture) is fine, but no locomotion. This is purely an ownership/presence
+cue, not a legibility mechanism — "where is this worker deployed" is already
+answered by the Worker Roster's hover-highlight (see [Worker Roster
+(UI)](#worker-roster-ui)), and per-worker status (working / hazard-affected
+/ battery) lives on the roster's per-worker icon (see Worker Roster (UI)),
+not on this on-site sprite.
 
 ---
 

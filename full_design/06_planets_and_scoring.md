@@ -202,6 +202,28 @@ temperature passing a threshold" concrete meaning below, instead of
 consequence being driven purely by the settlement's static Preparedness
 coverage as before.
 
+**Concurrency.** Storm and Temperature Extremity are the only two hazard
+sub-factors that manifest as a discrete Mid-Sim event at all — Atmospheric
+Hazard (also Weather) is a continuous passive-stock/PPE check with no
+start/duration event, and Bio-hazard's two sub-factors (Pathogen Threat,
+Toxic/Parasitic Organism Threat) only ever resolve through individual
+exploration-task encounters, never a settlement-wide event. Each of Storm
+and Temperature Extremity triggers **at most once per season**, tied
+one-to-one to that season's single evidence-gathering report for that
+sub-factor (see Data-Gathering Mechanism's "one reading/season active");
+there's no scenario where the same hazard type fires twice in one season.
+That leaves a ceiling of at most two discrete events in a season — one
+Storm, one Temperature Extremity — each independently rolled and
+independently severity-banded. **When both occur and their windows overlap
+at the same site, their consequences stack independently** — each hazard's
+consequence chain (Energy-funded shield coverage, production
+slowed/stopped/destroyed, settler status-effect/death) runs exactly as
+specified in its own subsection below, with no special-cased interaction
+between them. The one edge case this implies: if one hazard's consequence
+already destroyed a Farm/Production site, the other hazard's destruction
+check for that same site simply has nothing left to act on — the slot is
+already empty, not destroyed twice.
+
 **Temperature Extremity** — average temperature and consequence, in full:
 - Every candidate farm site gets its own **Average Temperature**, sampled at
   world-gen from a distribution parameterized by the planet type's

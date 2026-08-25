@@ -38,10 +38,14 @@ tracks what's needed *underneath* them.
     outdoor farming is explicitly deferred.
   - Sawmill→Carpenter's Shop and Stone Processing I→II **upgrade costs** —
     TBD.
-- [ ] **Production building UI** — not yet designed at all; how a player
-  actually sees/interacts with a staffed site's assignment, Effort,
-  Experience/Aptitude readouts, and (for drones) battery state during
-  play.
+- [ ] **Production building UI (planning phase)** — not yet designed at
+  all; how the UI presents a production site's available choices during
+  planning — which resources to produce, which recipe among alternatives,
+  Effort/Experience/Aptitude readouts for the assigned worker(s), and
+  similar. (Mid-Sim worker status display is a separate, now-resolved
+  concern — see Core Loop & Grid's Worker Roster (UI) — this item is about
+  the planning-phase choice-presentation problem specifically, not
+  in-simulation status.)
 - [ ] Remaining numeric TBDs from the Settler State / Injuries / Storied
   design pass: Storied's `legend_value` threshold; the Temperature
   Extremity settler death-probability on extreme exposure; Trapping's and
@@ -51,19 +55,75 @@ tracks what's needed *underneath* them.
 
 - [ ] **Season simulation** — in progress. **Resolved so far**: fixed
   real-time window length (seasons correspond to fixed real-world time
-  in-fiction; playback speed stays a pure time-multiplier); two resolution
-  contexts, Outside-Sim (merges pre-clock, post-clock, and
-  start-of-next-planning into one mechanically-equivalent instantaneous
-  bucket) and Mid-Sim (the only place real time passes — continuous
+  in-fiction; playback speed stays a pure time-multiplier); three resolution
+  moments — **Planning Lock-in** (instantaneous, right before the Mid-Sim
+  clock starts; reversible planning choices simply freeze into fixed
+  inputs — Food Storage deposits, food-for-consumption selection,
+  construction/upgrade/relocate queuing — no consequence computed, nothing
+  revealed), **Mid-Sim** (the only place real time passes — continuous
   production plus any discrete event with a genuine reason to occupy a
-  specific interval, e.g. hazard events); the "ambient Mid-Sim visual for an
-  Outside-Sim-resolved activity" pattern (see Art Design); the
-  **log/event-feed system** (see Core Loop & Grid's Season Structure) — a
-  single togglable log (no forced overlay), per-resource-type aggregated
+  specific interval, e.g. hazard events), and **Post-Sim** (instantaneous,
+  merges the moment right after the clock ends with the top of the next
+  planning phase, since neither involves real time passing — renamed from
+  the old single "Outside-Sim" now that the pre-clock moment has its own
+  Planning Lock-in bucket; hosts actual season-outcome resolution: Vaccine
+  unlock checks, pooled nutrition consumption resolution — deliberately here
+  rather than Planning Lock-in, so mid-season production is consumable that
+  same season — Scanner Station report resolution, Deposit Discovery
+  resolution, construction/upgrade/relocate completion); the "ambient
+  Mid-Sim visual for a Post-Sim-resolved activity" pattern (see Art Design);
+  the **log/event-feed system** (see Core Loop & Grid's Season Structure) —
+  a single togglable log (no forced overlay), per-resource-type aggregated
   production lines that live-update/re-timestamp, individual lines for
-  noteworthy events, Transmissions kept fully separate. **Still open**: how
-  multiple buildings' continuous production cycles interleave *visually*
-  beyond the log itself; the internal sub-step ordering within Outside-Sim.
+  noteworthy events, Transmissions kept fully separate; the **production
+  progress overlay** (see Core Loop & Grid's Season Structure) — a per-tick
+  semi-transparent bottom-up fill on each active production site's sprite,
+  driven directly by the continuous-rate progress value, established as the
+  primary at-a-glance channel (deliberately redundant with the log, which
+  serves slower retrospective parsing instead); the **internal sub-step
+  order within Post-Sim** (see Core Loop & Grid's Season Structure) —
+  Scanner Station report resolution, then Deposit Discovery resolution,
+  then pooled nutrition consumption, then construction/upgrade/relocate
+  completions (relative order among these four is arbitrary — no
+  dependencies), then the Exploration Task confirmation UI at next
+  planning-phase start, then the Vaccine unlock threshold check
+  unconditionally last (after every `Confidence`-feeding source for the
+  season, including exploration-driven ones, has landed); the **assigned-worker
+  Mid-Sim depiction** (see Core Loop & Grid's Season Structure) — a static,
+  non-walking sprite parked at/near the assigned site, purely an
+  ownership/presence cue; and the **Worker Roster's Mid-Sim expansion**
+  (see Core Loop & Grid's Worker Roster (UI)) — one icon per actual worker
+  during simulation (vs. one row per type during planning), each showing
+  working/hazard-affected/idle state, with drones additionally always
+  showing a battery-remaining bar; **Hazard Event concurrency** (see Planets
+  & Scoring's In-Simulation Hazard Events) — only Storm and Temperature
+  Extremity manifest as discrete Mid-Sim events at all (Atmospheric Hazard
+  is a continuous check, Bio-hazard only resolves via exploration
+  encounters), each capped at most once per season by its one-report/season
+  evidence source, and when both occur with overlapping windows at the same
+  site their consequences stack independently (no double-destroy — a
+  second destruction check against an already-emptied slot is a no-op);
+  **Playback Speed** (see Core Loop & Grid's Season Structure) — the
+  Mid-Sim window is now **30 seconds at 1×** (was 15s in the prior
+  implementation, widened so unhurried 1× playback has room to not feel
+  rushed); speed is a **continuous-feeling slider from 0× to 5×, snapping
+  to 0.1 increments**, rather than discrete preset buttons, with **0× as
+  an outright pause** (no separate pause control, and this is also the
+  resolution to mid-simulation pause/resume — 0× on the same slider *is*
+  pause); Mid-Sim visual legibility (production overlay, hazard events,
+  ambient depictions) deliberately **targets 1× only**, with no minimum
+  wall-clock floor at higher speeds — a legibility-for-time tradeoff placed
+  entirely in the player's hands, on the same "log covers what you missed"
+  precedent as the production progress overlay above; the standalone "Skip
+  simulation" button from the prior implementation is **removed** —
+  cranking the slider to its 5× max (30s → 6s) is the only rush-to-next-
+  season option; and the **default per-season speed is sticky-carried**
+  (the same pattern as food-for-consumption and other planning defaults),
+  starting at 1× until the player first adjusts it, rather than a separate
+  Settings-menu preference. No further specifically-identified open
+  sub-items remain for Season Simulation at this pass — left unchecked
+  below since this reflects the currently-known gap list, not a claim that
+  every possible gap has been surfaced.
 
 ## Newly Surfaced Ideas (recorded, not yet designed in detail)
 

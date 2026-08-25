@@ -36,17 +36,29 @@ Testing conventions moved to [Testing Strategy](07_production_and_technical.md#t
 > see [Platform](03_core_loop_and_grid.md#platform) & Core Loop Redesign above (PC/landscape, FTL/Into the Breach visual
 > reference) — and are to be resolved in a full Art Design pass.
 
-**Ambient Mid-Sim visuals for Outside-Sim-resolved activities.** An activity whose
-mechanical resolution lives Outside-Sim (see Core Loop & Grid's [Season Structure](03_core_loop_and_grid.md#season-structure))
+**Ambient Mid-Sim visuals for Post-Sim-resolved activities.** An activity whose
+mechanical resolution lives at Post-Sim (see Core Loop & Grid's [Season Structure](03_core_loop_and_grid.md#season-structure))
 can still get a purely ambient visual depiction during the Mid-Sim window, for
 legibility/immersion, with no coupling between the two — the visual never affects
 or is affected by the actual resolution. Two confirmed examples: a Scanner Station
 shows a radio-wave pulse effect centered on the building, repeating every few
 seconds throughout the window; an Ore/Deposit Survey shows a settler sprite
 wandering the grid and stopping/stooping at unoccupied cells, visually "searching,"
-even though the actual reveal resolves Outside-Sim. Feeds into the still-open
+even though the actual reveal resolves at Post-Sim. Feeds into the still-open
 "Animation budget" question below — this pattern is a cheap way to make Mid-Sim
 feel alive without needing per-building mechanical animation.
+
+**Production progress overlay.** Separately, every *active production* site
+(Mid-Sim, mechanically real — not the ambient/decoupled pattern above) gets
+its own per-tick visual: a semi-transparent rendering of the site's sprite
+with an opaque fill rising from the bottom as the cycle progresses, bounded
+by a thin white line — see Core Loop & Grid's [Season
+Structure](03_core_loop_and_grid.md#season-structure) for the full
+mechanism. This is the primary at-a-glance answer to "does this look alive"
+for staffed/active sites specifically, and partially resolves the
+"Buildings & crops" open question below for that case — still open for
+unstaffed-vs-staffed static sprite distinction outside simulation, idle
+animation frames, and crop sway.
 
 ### Open Questions — Art Design
 
