@@ -257,11 +257,17 @@ Exploration" (or the negative-direction equivalents), never the formulas.
   and in-progress slots are exempt from every refresh trigger until they're
   unlocked or resolve, the in-progress case simply being automatic rather
   than something the player has to toggle on.
-- **Manual reroll costs Energy** — a flat amount (TBD), drawn from the
-  Energy Pool's current balance (see [Resources](04_buildings_and_economy.md#resources)), not its cap — framed as
-  tasking local sensors/drones with a fresh sweep of the surrounding
-  region, the same principle already used at the hub level for
-  filament-scanning. Scanner Station upgrades may reduce this cost.
+- **Manual reroll costs Rations** — a flat amount (TBD) — framed as tasking
+  local sensors/drones with a fresh sweep of the surrounding region, the
+  same principle already used at the hub level for filament-scanning.
+  Deliberately **not** an Energy cost (see Buildings & Economy's Resources'
+  Energy Income/Consumption Rates, which has no spendable balance to draw
+  from at all now) — Rations is the pointed choice instead, since it's
+  already the same resource that funds actually *launching* a risk-bearing
+  Exploration Task (below). This creates a real, felt tension: rerolling
+  for a better task option spends the same stockpile that would otherwise
+  let the player commit to a task sooner, rather than being a free,
+  consequence-free do-over. Scanner Station upgrades may reduce this cost.
 - **Pool size**: 3 by default. Scanner Station upgrades and a Research Lab
   project ("Expanded Reconnaissance Doctrine") each permanently add +1,
   for a maximum of 5. Exact tier mapping TBD.
@@ -562,11 +568,71 @@ already constitutes first contact. All three approaches are still
 available at that point; a rescue doesn't force the player into Peaceful
 Contact specifically.
 
-**Deepening an alliance.** Peaceful Contact's alliance/trade relationship
-isn't a one-time payout — it deepens through follow-up exploration tasks,
-each requiring Diplomatic Gear, using the same guaranteed-escalation-slot
-shape as everything else in this section. Exact tier count and per-tier
-rewards TBD, same as Peaceful Contact's base rewards.
+**Deepening an alliance.** Peaceful Contact's alliance isn't a one-time
+payout — it deepens through follow-up exploration tasks, each requiring
+Diplomatic Gear, using the same guaranteed-escalation-slot shape as
+everything else in this section, and **only reachable once the base
+alliance already exists** (First Contact via Peaceful Contact must have
+already succeeded — deepening is never a standalone entry point). Exact
+tier count and per-tier rewards otherwise TBD, same as Peaceful Contact's
+base rewards — **establishing a Trade Agreement (below) is one form a
+deepening reward can take, not the only one.**
+
+**Trade Agreements** are the concrete resolution of "how does the player
+actually trade with an ally" (previously an open question — see
+`DESIGN_TODO.md`). Structurally:
+- A deepening task that resolves into a trade opportunity surfaces its
+  offer in the task's own **confirmation dialog** — the same dialog every
+  Exploration Task already gets at the start of the next planning phase
+  (see Core Loop & Grid's Season Structure), not a new UI surface. The
+  dialog presents **three candidate agreements**, each a fixed pairing of
+  one expense resource (paid by the settlement) and one income resource
+  (received from the ally), with per-season quantities — illustrative/TBD
+  like other first-pass numbers. The player picks exactly **one; no
+  reroll**, consistent with "deliberately not something a player can
+  optimize" restraint already used elsewhere in this design (e.g. the
+  Water-draw queue, Energy's random shedding).
+- **One-season delay before the first exchange.** Accepting an agreement
+  doesn't trade anything immediately — the first exchange resolves at the
+  end of the *next* season to follow (i.e., the season the player is about
+  to plan when the dialog appears), giving a full planning phase to
+  prepare the expense resource rather than an immediate, unpreparable
+  deduction.
+- **Ongoing resolution**: every season thereafter, resolved during
+  Post-Sim (placed right after pooled nutrition consumption and before
+  construction completions in the established sub-step order — see Core
+  Loop & Grid's Season Structure — so survival needs get first claim on
+  any resource an agreement also happens to use, Rations most notably).
+  If the settlement has the required expense quantity, it's deducted and
+  the income quantity is added. **If it doesn't, the agreement ends
+  permanently**, with a dialog informing the player — no grace period, no
+  partial fulfillment.
+- **Up to three Trade Agreements can be active at once.** A terminated
+  agreement frees its slot — a future deepening task can offer a new
+  agreement to fill it — rather than being a lifetime cap of three ever.
+- **Allowed income-resource types** (what an ally could plausibly produce
+  without sharing the settlement's own tech tree): raw/harvested materials
+  (Wood, Stone, ore types, Pelt, raw uncooked food ingredients), plus
+  **Lumber, Concrete, and refined-metal outputs** (Iron, Copper, and
+  similar — a light processing step, included on request). **Excluded**:
+  anything requiring deeper settler fabrication/culinary process to
+  exist — cooked Meals, Luxury Goods (Fine Furniture, Ornamental/
+  Decorative Items), textile-processed goods (Fabric, Leather), deep
+  manufacturing (High-Tech Components and similar), and Rations.
+  Expense-side resources have no equivalent restriction (any inventory
+  resource is a valid expense).
+- **Energy and Water are never tradeable, income or expense**, full stop —
+  both are rate-tracked with no stockpile (see Buildings & Economy's
+  Resources' Energy Income/Consumption Rates and Water), so there's
+  nothing for a per-season lump exchange to add to or deduct from.
+- **Local Delicacy's ingredient** (see Buildings & Economy's Food/Meal
+  Conversion) is a natural fit as a civilization/planet-specific income
+  option within this system — the alliance existing unlocks the *recipe*,
+  but actually being able to cook it would require having negotiated a
+  Trade Agreement that brings the ingredient in, rather than it arriving
+  automatically. Proposed here as the resolution to that recipe's
+  previously-open sourcing question; flag if you'd rather keep it
+  decoupled from Trade Agreements entirely.
 
 **Elevated legend value.** Every task in this chain — the initial
 detection, Observe from a distance, and First Contact regardless of which

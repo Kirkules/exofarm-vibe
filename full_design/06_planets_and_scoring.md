@@ -241,14 +241,17 @@ already empty, not destroyed twice.
   Average Temperature for the event's duration — same temporariness as a
   storm, never permanent on its own.
 - **Consequence is decided by Energy funding, not a coverage tier**: a
-  Weather Shield or Row Shield's Energy upkeep during an active event scales
-  with that event's severity band (a small idle-but-armed cost normally,
-  more during a mild event, more during an extreme one — banded, not
-  continuous, per Buildings & Economy's Basic Resources). If the settlement
-  had enough Energy in the pool to cover that cost, the shield **fully
-  maintains the comfort target** — zero effect on covered production,
-  regardless of how extreme the event got outside. If there's no shield
-  covering the site, or the cost wasn't covered that season:
+  Weather Shield or Row Shield's Energy consumption during an active event
+  scales with that event's severity band (a small idle-but-armed rate
+  normally, more during a mild event, more during an extreme one — banded,
+  not continuous, per Buildings & Economy's Resources' Energy
+  Income/Consumption Rates). If the settlement's total Income rate covers
+  total Consumption including that elevated cost — i.e. the shield isn't
+  one of the consumers randomly shed during a shortfall, see Resources —
+  the shield **fully maintains the comfort target** — zero effect on
+  covered production, regardless of how extreme the event got outside. If
+  there's no shield covering the site, or the cost wasn't covered that
+  season:
   - **Mild event** → production **slowed** for the event's duration.
   - **Extreme event** → production **stopped** entirely for the event's
     duration.

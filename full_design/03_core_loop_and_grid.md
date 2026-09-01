@@ -219,10 +219,14 @@ limiting resource.
   not a countdown — a cycle 50% complete when a boost hits finishes at half the
   remaining time, and subsequent cycles run at the boosted rate until the effect ends.
   No discrete timer resets, no exploitable edge cases from boost timing.
-- **Farm and infrastructure production are unified under this same model.** A wheat
-  field runs the same continuous-rate production as a Bakery, modified by external
-  effects (weather, fertilizer) instead of requiring a settler to walk over and tend
-  it, as in the original design.
+- **Farm and infrastructure production are largely unified under this same
+  model.** Most farm buildings run the same continuous-rate production as a
+  Bakery, modified by external effects (weather, fertilizer) instead of
+  requiring a settler to walk over and tend it, as in the original design.
+  **Exception**: the four plant-crop buildings (Grain Field, Fruit Orchard,
+  Fiber Field, Timber Grove) instead run a three-phase
+  Planting/Growing/Harvesting cycle, each phase driven by different factors
+  — see Buildings & Economy's [Farm/Production](04_buildings_and_economy.md#farmproduction) for the full mechanism.
 
 ### Assignment
 
@@ -317,6 +321,65 @@ unassigned workers of that type, B = total owned.
     their icon, shown regardless of working state
   - Reverts to the collapsed per-type "A/B" row once the next planning
     phase opens; this expansion is Mid-Sim-only.
+
+### Site Panel (UI)
+
+**Selecting any built production site during Planning Phase** — staffed or
+not — opens a floating **Site Panel** on the right edge of the viewport,
+mirroring the Worker Roster's placement on the left (per Platform's "UI
+interaction panels float over [the settlement vista] on the left and
+right"). One consistent interaction regardless of building type, rather
+than a UI that behaves differently depending on whether there's a real
+choice to make at that particular site. Contents, always in this order:
+
+- **Name/icon** — the site's identity, same icon used everywhere else it
+  appears (grid tile, Worker Roster highlight, etc.).
+- **Recipe section — always present.** A single-recipe building shows a
+  plain, non-interactive indicator of its one Input/Output pairing. A
+  multi-recipe building (per Building Schema's recipe concept) instead
+  shows a **selector**: a short row of its available recipes, current
+  selection highlighted, click to switch — an ordinary reversible
+  planning-phase choice, same as any other planning action.
+- **Assigned worker slot — always present**, including for **unstaffed**
+  buildings, where it's shown but **visibly disabled** (greyed out, not
+  simply absent) rather than omitted — so the panel's layout never shifts
+  shape based on staffing type, and "this building can't be staffed" reads
+  as clearly as "this building can be staffed but currently isn't." A
+  valid drop target for assigning a worker: dragging a worker (from the
+  Worker Roster, or picked up directly) **either onto this slot or onto
+  the building's own grid tile** assigns them — two drop targets for the
+  same action, not two different actions.
+- **Production rate summary** — the site's current effective output rate,
+  combining every applicable modifier into one readout: base rate, the
+  assigned worker's Effort/Experience/Aptitude contribution, and any other
+  active effect (Alien Soil, Fertilizer, Hybridization, and similar,
+  where applicable). One combined number, not a breakdown by default — the
+  breakdown lives in this element's tooltip (below).
+- **Status section** — anything about the site's current standing beyond
+  its production rate. Confirmed for launch: a **power-sufficiency
+  indicator**, three states — **Green** (covered by Reliable Income alone,
+  powered no matter what happens to fuel or weather), **Yellow** (covered
+  only once Conditional Income sources are included — powered under the
+  optimistic plan, genuinely at risk if fuel runs out early or a hazard
+  disrupts production), **Red** (not covered even by the full optimistic
+  estimate, won't be powered this season) — a planning-phase *prediction*,
+  not a live Mid-Sim status, per Buildings & Economy's Resources' Energy
+  Income/Consumption Rates. Each paired with a distinct **icon shape**, not
+  color alone, per Design Principles' color-accessibility rule
+  (illustrative: a filled circle for Green, a half-filled triangle for
+  Yellow, an empty/crossed square for Red — exact shapes TBD, just
+  confirmed to be shape-distinct, not color-distinct, alongside color).
+  Other status-section content (beyond power) is left open for whatever
+  future mechanics turn out to need a per-site status readout.
+- **Every element has its own hover tooltip** (a separate small box, not a
+  single panel-wide tooltip) surfacing that element's key details in
+  plain language — this is specifically where the assigned worker's
+  Effort/Experience/Aptitude readout lives (hovering the worker slot),
+  using the existing plain-language convention ("+30% Farming speed",
+  never the underlying formula) already established for those stats. The
+  production rate summary's tooltip is where its full breakdown (base +
+  each contributing modifier) lives, per the "one combined number by
+  default" note above.
 
 ### Construction
 
@@ -476,21 +539,26 @@ role above).
   has actually run.) This is where the season's actual outcomes resolve:
   Vaccine unlock threshold checks, pooled nutrition consumption resolution,
   Scanner Station report resolution (the mechanical `Confidence`/`MatchedRisk`
-  update), Deposit Discovery survey mechanical resolution, and
+  update), Deposit Discovery survey mechanical resolution, Trade Agreement
+  resolution (see Settlers & Exploration's Escalation Chains), and
   construction/upgrade/relocate actions completing. Exploration task results
   are a special case within Post-Sim: they get a **dedicated confirmation
   UI** at the start of the next planning phase, rather than resolving
   silently — the resolution itself, not just its reveal, sits at that tail
-  moment.
+  moment (this is also where a Trade Agreement's own three-way offer dialog
+  appears, since it rides the same confirmation-UI mechanism).
   - **Internal sub-step order**: (1) Scanner Station report resolution, (2)
     Deposit Discovery survey resolution, (3) pooled nutrition consumption
-    resolution, (4) construction/upgrade/relocate completions, (5)
-    Exploration Task confirmation UI (start of next planning phase), (6)
-    Vaccine unlock threshold check — placed **last, unconditionally**,
+    resolution, (3.5) Trade Agreement resolution — deliberately right after
+    nutrition, so survival needs get first claim on any resource an
+    agreement also happens to use (Rations, most notably), before trade
+    obligations are paid — (4) construction/upgrade/relocate completions,
+    (5) Exploration Task confirmation UI (start of next planning phase),
+    (6) Vaccine unlock threshold check — placed **last, unconditionally**,
     after every `Confidence`-feeding source for the season has landed
     (including exploration-driven ones), rather than branching on which
-    data source pushed `Confidence` over the threshold. Steps 1–4 have no
-    dependencies on each other; their relative order is arbitrary.
+    data source pushed `Confidence` over the threshold. Steps 1, 2, and 4
+    have no dependencies on each other; their relative order is arbitrary.
   - **Why nutrition consumption waits for Post-Sim** rather than resolving
     at Planning Lock-in alongside the food-for-consumption selection: food
     produced *during* the season should itself be consumable that same
@@ -541,6 +609,20 @@ text in real time during simulation (at best skimming it), so the log's
 real job is slow, retrospective understanding of what happened, especially
 after fast/skipped playback, not moment-to-moment legibility. The overlay
 carries that moment-to-moment job instead.
+
+**Farm-specific variant: phase-colored fill.** The four plant-crop
+buildings (see Buildings & Economy's Farm/Production) run a three-phase
+Planting/Growing/Harvesting cycle instead of one continuous-rate cycle, so
+their overlay differs in two ways: the fill **resets to empty and refills
+from 0% at the start of each phase** rather than one continuous 0–100% arc
+across the whole cycle, and the fill color changes per phase — **brown**
+(Planting), **green** (Growing), **gold** (Harvesting). Per Design
+Principles' "color is never the sole channel of information" rule, each
+phase also shows a small **icon badge** on the site (e.g. a seed / sprout /
+sheaf icon) so the phase reads without relying on the color alone. Every
+other production site — the four animal-based buildings and all non-farm
+infrastructure — keeps the single continuous fill described above,
+unaffected.
 
 **Assigned-worker Mid-Sim depiction.** A worker stickily assigned to a
 production site is shown as a static sprite parked at/near that site for the

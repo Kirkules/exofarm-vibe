@@ -3,12 +3,13 @@
 ## Resources
 
 ### Basic Resources
-- **Energy** — a pooled, colony-wide resource. Base production is
+- **Energy** — a colony-wide **rate**, not a stockpile (see [Resources](04_buildings_and_economy.md#resources)'
+  Energy Income/Consumption Rates below). Base production is
   **zero-effort/unstaffed** (see [Building Categories](04_buildings_and_economy.md#building-categories) below), unlike ordinary staffed
   production sites.
-- **Water** — pooled, colony-wide resource, ambiguous units (e.g. "3 Water"),
-  no complicated irrigation/transport system to model (see [Water](04_buildings_and_economy.md#water) below).
-  Unlike Energy, collection requires staffed buildings and a
+- **Water** — also a colony-wide **rate**, not a stockpile, same shape as
+  Energy (see [Water](04_buildings_and_economy.md#water) below); no complicated irrigation/transport system to
+  model. Unlike Energy, collection requires staffed buildings and a
   prerequisite structure (Water Processing Plant) — not zero-effort.
 - **Matter no longer exists as a resource.** It's been removed entirely,
   along with Matter Extractor as a starting building — construction costs
@@ -20,55 +21,84 @@
   self-bootstrap from turn one — no separate starting-materials stockpile
   is needed.
 
-**Energy Pool.** Energy is not an inventory item — it never appears in the
-general inventory list alongside Wood, Stone, food, etc.; it's tracked as
-its own separate system (a dedicated meter/gauge in the UI), **orthogonal**
-to Storage's uncapped-inventory rules entirely, not a second exception to
-them. It behaves as a liquid pool with three parts:
-- **Cap (ceiling)** — sum of every Energy-producing building's capacity
-  contribution (Solar Array, Geothermal Generator, Fuel-based Generator —
-  see [Basic Resource Production](04_buildings_and_economy.md#basic-resource-production) and [Fuel](04_buildings_and_economy.md#fuel)) minus the sum of every building's
-  baseline Energy upkeep (below). Every Energy-producing building
-  contributes to the cap simply by **existing**, regardless of whether it's
-  currently actively producing — Fuel-based Generator's contribution comes
-  from an assumed structural battery, the same reasoning that lets any
-  Energy producer smooth out real-time mismatches between production and
-  consumption. Upkeep permanently reduces the ceiling the moment a building
-  is placed — a **build-time decision**, not a recurring withdrawal.
-- **Income** — constant-rate accumulation into the pool during Mid-Sim,
-  bounded by the cap. Solar Array and Geothermal Generator produce at a
-  genuinely constant rate; Fuel-based Generator's contribution to *income*
-  (distinct from its unconditional contribution to the *cap*, above) is
-  conditional — see its entry under [Fuel](04_buildings_and_economy.md#fuel) for how its active window works.
-- **Draws** — discrete, reactive spending against the pool's **current
-  balance** (not the cap), which persists across the season boundary rather
-  than resetting each season. Weather Shield/Row Shield's event-driven
-  funding (see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)) is the
-  original example this generalizes from; the exploration reroll cost (see
-  [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Exploration Tasks](05_settlers_and_exploration.md#exploration-tasks)) is a second draw type, spent
-  during planning rather than mid-simulation.
+**Energy Income/Consumption Rates.** Energy is not an inventory item — it
+never appears in the general inventory list alongside Wood, Stone, food,
+etc.; it's tracked as its own separate system (a dedicated bar in the UI),
+**orthogonal** to Storage's uncapped-inventory rules entirely, not a second
+exception to them. Unlike every other resource, **Energy is never
+stockpiled at all** — there's no accumulated balance carried between
+moments or across the season boundary, only two continuously-tracked live
+rates: total **Income** (Energy/s) and total **Consumption** (Energy/s).
+Whether the settlement is "keeping the lights on" is purely a live
+comparison of these two numbers, never a depleting reserve.
 
-The Energy meter reads as a **smooth, continuous fill**, never discrete
-ticks — the same "continuous rate, not a discrete timer" principle already
-established for the Production Model, applied to Energy's own UI
-specifically.
+- **Income** splits into two kinds. **Reliable** sources (Solar Array,
+  Geothermal Generator — see [Basic Resource Production](04_buildings_and_economy.md#basic-resource-production)) produce at a
+  genuinely constant rate for the whole season, no failure mode. **Conditional**
+  sources (Fuel-based Generator — see [Fuel](04_buildings_and_economy.md#fuel)) contribute only while actively
+  burning, per its planning-phase active/fuel-limit control, dropping to
+  zero the instant fuel runs out or a hazard disrupts production — it
+  doesn't necessarily cover the whole season, and unlike Reliable sources
+  carries genuine risk of falling short of plan.
+- **Consumption** is every building's flat per-season baseline rate (below)
+  summed together, plus any temporarily **elevated** consumption from an
+  active source — Weather/Row Shield's event-driven cost during an active
+  hazard, or a drone's battery recharge (see [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly)) — layered
+  on top for as long as that source is active, then dropping back to
+  baseline.
+- **When total Consumption exceeds total available Income** at any Mid-Sim
+  moment, the shortfall is resolved by **randomly** selecting enough
+  currently-active consumers to shed until Consumption fits back under
+  Income — deliberately random, not by build order or any player-set
+  priority, so *which specific building goes dark* is never something a
+  player can optimize or needs to manage; the player's real levers are
+  building more Income capacity and the active/inactive toggle **every**
+  building has (generalizing Fuel-based Generator's existing control, see
+  its entry), not triaging an outage order. This keeps the tension real
+  ("build enough Income for what you're running") without turning outages
+  into a minigame, which would sit oddly against the cozy tone. Recomputed
+  only when the total picture actually changes — a Conditional source's
+  window starting/ending, a hazard event starting/ending, a building being
+  built/destroyed/toggled — not continuously every tick, so the unpowered
+  set doesn't flicker without a real cause.
+- **Planning-phase UI**: a horizontal bar, **0 to the season's optimistic
+  max Income rate** (sum of every currently-placed producer's maximum
+  rate — Reliable plus Conditional, assuming every Conditional source runs
+  its full planned window uninterrupted), with two indicator lines on it:
+  current planned Income rate and current planned Consumption rate. This is
+  explicitly a best-case estimate, not a guarantee — the bar's hover
+  tooltip states plainly that actual results can come in lower if fuel runs
+  out early or a hazard disrupts production, so the player never mistakes
+  the bar for a promise.
+- **Per-building prediction (see Core Loop & Grid's Site Panel (UI))**: a
+  building is **Green** if Reliable Income alone already covers its share
+  (powered no matter what happens to fuel or weather), **Red** if not even
+  the full optimistic estimate covers it (will never be powered this
+  season), and **Yellow** if it's covered only *with* Conditional sources
+  included — powered under the optimistic plan, genuinely at risk if fuel
+  runs out early or a hazard cuts production. A real, calculable
+  distinction, not a live status — see Design Principles' "color is never
+  the sole channel of information" rule for why this also needs a
+  shape-coded icon, not color alone.
 
 **Baseline Energy upkeep.** Every building — staffed or not, and regardless
-of category — draws a flat per-season Energy cost just for existing on the
-grid (lights, climate-neutral operation, idle machinery draw), reducing the
-pool's cap as described above, with exactly one exception: **Weather Shield
-and Row Shield** (only these two — not the rest of Protection, so Medical
-Bay follows the ordinary flat-baseline rule like any other staffed
-building) instead carry a variable, event-driven cost drawn from the pool's
-current balance during an active Temperature Extremity event, rather than a
-fixed cap reduction. This is a deliberate simplicity choice: the baseline
-cost is fixed the moment a building is placed, so budgeting for it is a
-build-time decision, not something to re-check every season — juggling
-Energy in response to short-lived threats (via the two shield buildings,
-and now exploration reroll) is meant to be a real, occasional decision;
-juggling it just to keep the lights on everywhere else is not. Exact
-per-building values TBD, deferred to balancing like other numeric values in
-this design.
+of category — draws a flat per-season Energy **consumption rate** just for
+existing on the grid (lights, climate-neutral operation, idle machinery
+draw), with exactly one exception: **Weather Shield and Row Shield** (only
+these two — not the rest of Protection, so Medical Bay follows the ordinary
+flat-baseline rule like any other staffed building) instead carry a small
+idle-armed baseline rate that **temporarily elevates** during an active
+Temperature Extremity event, rather than a flat constant rate. This is
+still a deliberate simplicity choice: no individual building's own
+baseline rate ever needs re-examining once built, fixed the moment it's
+placed — but the *aggregate* relationship between total Consumption and
+total Income genuinely can shift over a season now, specifically because
+Conditional Income sources can fall short of plan. Juggling Energy in
+response to short-lived threats (via the two shield buildings, drone
+recharge, and Conditional-source risk) is meant to be a real, occasional
+consideration; juggling it just to keep the lights on everywhere else is
+not. Exact per-building values TBD, deferred to balancing like other
+numeric values in this design.
 
 ### Building Categories
 1. **Basic Resource Production** — Energy generation, always
@@ -548,7 +578,15 @@ playtesting later, not over-engineered now. All buildings in this section:
 Repeatable: yes, Upgrade path: yes (higher tiers reduce `production_time`
 and/or raise the effort-stacking production cap), `TechAchievement` 0 at base
 tier / 2 upgraded (see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)). **All require the same flat amount of Water per cycle** (see [Water](04_buildings_and_economy.md#water) below —
-exact amount TBD, calibrated against the settler baseline of 1 [Water](04_buildings_and_economy.md#water)/season).
+exact amount TBD, calibrated against the settler baseline of 1 [Water](04_buildings_and_economy.md#water)/season) —
+except the four plant-crop buildings, whose Water requirement is instead a
+**Growing-phase draw through a shared queue** (see Production Cycle below),
+not a simple flat per-cycle consumption like the rest of this section.
+Every building in this section stays a **single 1-tile footprint** with a
+correspondingly fixed **1-worker cap** (per Core Loop & Grid's Assignment
+"one worker, one slot" default) — upgrades here only ever reduce
+`production_time`, never raise the effort-stacking cap, unlike the general
+per-building upgrade note above.
 
 **Alien Soil.** The four plant-crop buildings ([Grain Field](04_buildings_and_economy.md#grain-field), [Fruit Orchard](04_buildings_and_economy.md#fruit-orchard),
 [Fiber Field](04_buildings_and_economy.md#fiber-field), [Timber Grove](04_buildings_and_economy.md#timber-grove) — not the four animal-based buildings below) carry
@@ -559,33 +597,96 @@ needed, same low-friction spirit as Water's automatic draw. Permanently
 removed, with no further Fertilizer need at all, once a plant type has been
 hybridized (see [Hybridization](04_buildings_and_economy.md#hybridization), below).
 
+**Production Cycle: Planting → Growing → Harvesting.** Unlike every other
+production site in this design (a single continuous-rate cycle, per Core
+Loop & Grid's Production Model), the same four plant-crop buildings run a
+**three-phase cycle** instead, each phase driven by different factors and
+each rendered as its own segment of the production progress overlay (see
+below):
+- **Planting** — duration driven by the assigned worker's Effort (per
+  Assignment's effort-stacking model), and reduced by Wooden Plow's passive
+  settlement-wide effect (see Fabrication).
+- **Growing** — no worker needed; the site sits idle — still sticky-assigned,
+  per Assignment — for the phase's duration. Governed entirely by Alien
+  Soil (above) and Hybridization (below), **not** by Effort: since Effort
+  only speeds Planting and Harvesting, more staffing can never shorten
+  Growing's floor, only the soil/hybridization levers can (currently
+  academic given the fixed 1-worker cap above, but stays true if that ever
+  changes). Requires a **flat Water consumption-rate reservation, held for
+  the phase's whole duration**, to begin (sized so rate × phase duration
+  equals the crop's total Water need) — see the water-draw queue below for
+  what happens when available Income can't cover it.
+- **Harvesting** — duration driven by Effort again, same as Planting.
+
+**Water-draw queue (Growing phase only).** Water, like Energy, is tracked
+as a live **Income rate** (see Water below), not an accumulated stock —
+there is no shared balance to draw a lump sum from. When a plant-crop
+building's Growing phase is ready to start, it joins the back of one
+**settlement-wide queue**, shared across every plant-crop building rather
+than tracked per-tile, requesting a consumption-rate reservation sized for
+its crop. Each Mid-Sim tick, the queue's front entry attempts to **reserve**
+its needed rate out of whatever Water Income capacity isn't already
+reserved by other currently-growing buildings; on success it leaves the
+queue and Growing begins immediately, holding that reservation for the
+phase's whole duration and releasing it back to available capacity the
+instant Growing ends (Harvesting needs none). On failure, it stays at the
+front and **every entry behind it stays blocked too** — the queue never
+skips ahead to serve a smaller request further back, even if current
+capacity could cover it. This is deliberate: the intended player skill is
+keeping *total* Water Income ahead of *total* production demand, not
+learning to game which specific farm gets served first — the strict-FIFO
+behavior is there so a player who does notice and exploit it is finding an
+emergent trick, not following the designed-for strategy. Ties (multiple
+buildings finishing Planting on the same Mid-Sim tick) break by
+**build/placement order**. A building re-joins the back of the same queue
+on every subsequent cycle, so nothing is permanently favored within a
+season — only a sustained Water shortage
+stalls whoever's currently at the front (and everyone behind them)
+indefinitely.
+> The four animal-based buildings below still just have a flat per-cycle
+> Water requirement with **no defined insufficient-Water behavior at
+> all** — this queue does not apply to them; see `DESIGN_TODO.md`'s Water
+> resource open threads.
+
 ### Grain Field
-- Staffing: Staffed | Input: Water | Output: 1 Grain per cycle,
-  `production_time` 3s | Production cap: 1 (base) | Construction cost: Lumber/Concrete (ratio TBD)
+- Staffing: Staffed | Input: Water (Growing-phase draw, see above) |
+  Output: 1 Grain per cycle | Planting/Growing/Harvesting split of the
+  prior single 3s `production_time` (see Production Cycle above): exact
+  per-phase durations TBD | Production cap: 1 (fixed, single tile) |
+  Construction cost: Lumber/Concrete (ratio TBD)
 
 ### Fruit Orchard
-- Staffing: Staffed | Input: Water | Output: 1 Fruit per cycle,
-  `production_time` 4s | Production cap: 1 (base) | Construction cost: Lumber/Concrete (ratio TBD)
+- Staffing: Staffed | Input: Water (Growing-phase draw, see above) |
+  Output: 1 Fruit per cycle | Planting/Growing/Harvesting split of the
+  prior single 4s `production_time` (see Production Cycle above): exact
+  per-phase durations TBD | Production cap: 1 (fixed, single tile) |
+  Construction cost: Lumber/Concrete (ratio TBD)
 
 ### Dairy Pasture
 - Staffing: Staffed | Input: Water | Output: 1 Milk per cycle,
-  `production_time` 5s | Production cap: 1 (base) | Construction cost: Lumber/Concrete (ratio TBD)
+  `production_time` 5s | Production cap: 1 (fixed, single tile) | Construction cost: Lumber/Concrete (ratio TBD)
 
 ### Poultry Coop
 - Staffing: Staffed | Input: Water | Output: 1 Egg per cycle,
-  `production_time` 3s | Production cap: 1 (base) | Construction cost: Lumber/Concrete (ratio TBD)
+  `production_time` 3s | Production cap: 1 (fixed, single tile) | Construction cost: Lumber/Concrete (ratio TBD)
 
 ### Sheep Pasture
 - Staffing: Staffed | Input: Water | Output: 1 Wool per cycle,
-  `production_time` 5s | Production cap: 1 (base) | Construction cost: Lumber/Concrete (ratio TBD)
+  `production_time` 5s | Production cap: 1 (fixed, single tile) | Construction cost: Lumber/Concrete (ratio TBD)
 
 ### Fiber Field
-- Staffing: Staffed | Input: Water | Output: 1 Fiber/Cotton per cycle,
-  `production_time` 3s | Production cap: 1 (base) | Construction cost: Lumber/Concrete (ratio TBD)
+- Staffing: Staffed | Input: Water (Growing-phase draw, see above) |
+  Output: 1 Fiber/Cotton per cycle | Planting/Growing/Harvesting split of
+  the prior single 3s `production_time` (see Production Cycle above):
+  exact per-phase durations TBD | Production cap: 1 (fixed, single tile) |
+  Construction cost: Lumber/Concrete (ratio TBD)
 
 ### Timber Grove
-- Staffing: Staffed | Input: Water | Output: 1 Wood per cycle,
-  `production_time` 4s | Production cap: 1 (base) | Construction cost: Lumber/Concrete (ratio TBD)
+- Staffing: Staffed | Input: Water (Growing-phase draw, see above) |
+  Output: 1 Wood per cycle | Planting/Growing/Harvesting split of the
+  prior single 4s `production_time` (see Production Cycle above): exact
+  per-phase durations TBD | Production cap: 1 (fixed, single tile) |
+  Construction cost: Lumber/Concrete (ratio TBD)
 
 ### Trapping
 
@@ -837,12 +938,10 @@ grid slot, no construction cost, no staffing in the sticky sense.
 
 ### Fuel-based Generator
 - Category: Basic Resource Production | Staffing: **Unstaffed**
-- **Contributes to the Energy Pool's cap unconditionally, simply by
-  existing** — same as Solar Array and Geothermal Generator (see [Resources](04_buildings_and_economy.md#resources)'
-  Energy Pool) — on the assumption it comes with its own structural
-  battery, the same reasoning that lets any Energy producer smooth out
-  real-time mismatches between production and consumption. Its contribution
-  to Energy *income*, though, is conditional on actually burning fuel (below).
+- The catalog's one **Conditional** Energy Income source (see [Resources](04_buildings_and_economy.md#resources)'
+  Energy Income/Consumption Rates) — contributes **zero** Income while
+  inactive or out of fuel, unlike Solar Array and Geothermal Generator's
+  constant Reliable contribution.
 - **Planning-phase control**: the player sets this building **active or
   inactive** for the season, plus a **fuel limit** — the maximum Wood/Fossil
   Fuel it's allowed to consume that season. During Mid-Sim, if active, it
@@ -886,25 +985,43 @@ grid slot, no construction cost, no staffing in the sticky sense.
 
 *(Category: Utilities — see [Building Categories](04_buildings_and_economy.md#building-categories) in [Resources](04_buildings_and_economy.md#resources))*
 
-Settlers need **1 Water per settler per season** (pooled, same consumption
-model as nutrition) — this is the calibration anchor for all other Water
-values (production rates, Farm/Production's per-cycle need) in this section.
-No sub-axes, unlike nutrition's PFCV model — Water doesn't have an equivalent
-of distinct dietary needs, so a single pooled quantity is sufficient.
+**Water is tracked as a live Income rate (Water/s), not an accumulated
+stock** — the same shape as Energy (see Resources' Energy
+Income/Consumption Rates). No inventory presence, nothing carried between
+moments or across the season boundary, nothing to have "banked." Water
+Condenser/Ice Melter/Cistern/Well's "Output: Water per cycle" figures
+(below) are exactly this rate's contributing sources, the same way Solar
+Array and Geothermal Generator contribute to Energy's Income.
 
-> **Open question:** the consequence model for a settler Water shortfall
-> (mirroring nutrition's Tier-1 bulk-shortfall → death mechanic, or something
-> different?) is not yet decided — flagged in `DESIGN_TODO.md`.
+**Settler consumption is deliberately *not* rate-tracked or
+amount-measured at all — a single binary check, not a headcount-vs-quantity
+comparison like nutrition's.** Resolved once per season at Post-Sim: **if
+there was zero Water Income anywhere this season — no functioning Water
+production at all — every settler dies.** Any nonzero production, however
+small, avoids this entirely; there is no partial or proportional
+consequence, and settler need never competes with production's own Water
+reservations (see Farm/Production's water-draw queue) for capacity. (Since
+there's no longer a settler-need figure to calibrate against, collection
+rates and the plant-crop Growing-phase draw amounts have no shared numeric
+anchor between them anymore — each stays independently TBD, deferred to
+balancing like every other first-pass number in this design, same as
+before.) This is a deliberate departure from nutrition's Tier-1 model, not
+a mirror of it —
+Water's stakes are binary (functioning infrastructure or total collapse),
+never gradated by exact quantity.
 
-**No dedicated water-storage buildings** — Water sits in the ordinary
-uncapped general inventory like other resources (see [Storage](04_buildings_and_economy.md#storage)), not a
-Food-Storage-style special commitment mechanic.
+**No dedicated water-storage buildings** — superseded by the rate model
+above; there was never an amount to store in the first place now.
 
 **Water transport is deliberately unmodeled** — no pipes, irrigation, or
 distribution system to design. Collection buildings and consumption sites
 don't need spatial adjacency; the player can imagine whatever transportation
 mechanism they like, with no design commitment either way — consistent with
-Energy also never needing an explained distribution system.
+Energy also never needing an explained distribution system. (The plant-crop
+buildings' water-draw queue, see Farm/Production's Production Cycle, is an
+**allocation-order** mechanic — deciding who reserves available Income rate
+first when it's scarce — not a spatial/transport one; it doesn't reopen
+this decision.)
 
 **All collection buildings require a [Water Processing Plant](04_buildings_and_economy.md#water-processing-plant) to function at
 all** — see below. No separate "Raw Water" intermediate resource; the Plant's
@@ -924,11 +1041,24 @@ base / 2 once it automatically becomes a Deep Well (below).
   Preparedness contribution, or data-gathering of its own. Its only function
   is being the required prerequisite that lets collection buildings actually
   produce Water. Still occupies a real grid slot.
-- Upgrade tier unlocks **Reclamation** — a settlement-wide reduction in net
-  Water consumption, folded directly into this building rather than being a
-  separate structure or item (structurally similar to Vaccine Production's
-  one-time-unlock shape, but gated by a tech/resource prerequisite rather
-  than a data-confidence threshold — exact gate TBD).
+- Upgrade tier unlocks **Reclamation** — a settlement-wide reduction
+  (illustrative -20%, TBD, deferred to balancing) applied to net Water
+  consumption-rate demand, folded directly into this building rather than
+  being a separate structure or item (structurally similar to Vaccine
+  Production's one-time-unlock shape, but gated by a tech/resource
+  prerequisite rather than a data-confidence threshold). **Resolved gate**:
+  the upgrade's construction cost includes **High-Tech Components**
+  alongside the usual Lumber/Concrete — the same advanced-tech gate
+  material already used elsewhere (e.g. Scanner Station's construction
+  cost), reused rather than inventing a new resource, and a fitting
+  "water-recycling tech" theme. **Note**: since settler Water shortfall is
+  now a binary "any production at all" check rather than a
+  headcount-vs-quantity comparison (see Water above), Reclamation's
+  consumption-rate reduction has no bearing on that check at all — its
+  real, felt benefit is entirely on the production side, easing pressure
+  on the plant-crop water-draw queue's rate reservations (see
+  Farm/Production's Production Cycle). A quality-of-life upgrade for
+  farming throughput, not a settler-safety one.
 - `TechAchievement`: 0 (base) / 2 (Reclamation tier) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)
 
 ### Water Condenser
@@ -1003,7 +1133,7 @@ already applied to Robotics Assembly)*
   all-modes) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog) | Repeatable: yes
   (multiple Scanner Stations can exist, though diminishing value once deposits
   are discovered) | Upgrade path: yes, as described above
-- **Upgrades may also reduce the Energy cost of manually rerolling the
+- **Upgrades may also reduce the Rations cost of manually rerolling the
   Exploration Tasks pool** (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration) — exact discount
   per tier TBD, but the connection is real: better local sensing makes a
   fresh sweep of the region cheaper.
@@ -1099,10 +1229,12 @@ finds, same spirit as everything else in the catalog.
   Peaceful Contact alliance exists with an alien civilization (see
   Settlers & Exploration's Escalation Chains) rather than through
   Experience/Seasonings. Name, flavor, and exact input cost are tied to
-  the specific planet type and civilization class contacted. How this
-  connects to the broader alien-trade relationship (exported, imported,
-  ongoing exchange) is still open — see `DESIGN_TODO.md`'s Alien trade
-  economy item.
+  the specific planet type and civilization class contacted. The alliance
+  existing unlocks the *recipe*; actually cooking it requires the
+  ingredient itself, sourced as a civilization/planet-specific income
+  option within a **Trade Agreement** (see Settlers & Exploration's
+  Escalation Chains) — the resolution to this recipe's previously-open
+  sourcing question.
 - Construction cost: Lumber/Concrete (ratio TBD).
 - `TechAchievement`: 0 (base tier) / 2 (upgraded tier) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog); Gourmet tier 2 per
   invented recipe, Local Delicacy 3 (both non-material-gated, see the
@@ -1248,16 +1380,18 @@ per-drone maximum (better on higher tiers). It **resets to full for free at
 the start of every season**, no cross-season tracking. Performing an
 assigned task drains it over the course of Mid-Sim; if it hits zero, the
 drone **briefly recharges** (~3 seconds of Mid-Sim time, roughly a fifth of
-a season, possibly varying by drone type), drawing a small amount from the
-settlement's Energy Pool — fully automatic, no player decision, the same
-"background check against reserved Energy" pattern already established for
-Weather/Row Shield funding. While recharging, the drone contributes zero
-Effort. Higher-tier drones have big enough batteries that they may never
-need to recharge in a normal season. If the settlement doesn't have enough
-Energy to complete a recharge, it pauses at whatever percentage it reached
-and resumes once available Energy reaches **twice** the amount still
-needed — a buffer against flickering on and immediately back off. No
-battery replacement is ever needed; this is permanent hardware, just
+a season, possibly varying by drone type) — fully automatic, no player
+decision. Recharging is a temporary **elevated Energy consumption** need,
+the same category of thing as Weather/Row Shield's event-driven cost (see
+Resources' Energy Income/Consumption Rates), so it competes for coverage
+the same way: if there isn't enough available Income when the drone needs
+to recharge, it's one of the consumers the random-shedding mechanism can
+select, and recharging simply doesn't progress until Income next covers it
+(no separate buffer/threshold needed — the "don't recompute except on a
+real change" rule already prevents rapid flapping). While recharging or
+waiting to, the drone contributes zero Effort. Higher-tier drones have big
+enough batteries that they may never need to recharge in a normal season.
+No battery replacement is ever needed; this is permanent hardware, just
 periodically drained and refilled. Draining is faster the further
 temperature strays from the 72°F comfort target (see Planets & Scoring's
 [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)), **except for hardened drones** (see the
@@ -1398,9 +1532,13 @@ Processing I — not something the player constructs)*
     reward, no functional use
   - Ornamental/Decorative Items ← Lumber + Stone/Concrete — same tier as Fine
     Furniture
-  - **Wooden Plow** ← 2 Lumber + 1 Leather — an outdoor-farming item;
-    mechanics deliberately not designed yet, this entry is fabrication-chain
-    placement only (see `DESIGN_TODO.md`)
+  - **Wooden Plow** ← 2 Lumber + 1 Leather — a passive-stock-check item
+    (same pattern as PPE/Temperature-Resistant Gear: not consumed, its
+    effect is simply active whenever at least one sits in general
+    inventory), reducing the **Planting**-phase duration of all four
+    plant-crop buildings settlement-wide (see Farm/Production's Production
+    Cycle) — illustrative -15%, TBD, deferred to balancing like other
+    numeric values in this design
 - Upgrade cost: TBD.
 - `TechAchievement`: 0 (Sawmill) / 2 (Carpenter's Shop, and each of Fine
   Furniture/Ornamental/Decorative Items/Wooden Plow) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)
