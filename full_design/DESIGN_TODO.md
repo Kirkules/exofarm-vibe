@@ -5,6 +5,10 @@ what each SEED Faction's scoring formula still needs to become concrete and
 buildable. All five faction formulas are done (see Win/Lose Conditions); this
 tracks what's needed *underneath* them.
 
+> A per-system design audit (2026-09-02) is consolidated in **Design Audit
+> (2026-09-02)** at the end of this file — organised by system rather than by
+> faction. Full per-system reports live in `full_design/audits/`.
+
 ## Per-Faction Status
 
 - [x] **Development Bloc** — formula done
@@ -188,6 +192,20 @@ tracks what's needed *underneath* them.
   sub-items remain for Season Simulation at this pass — left unchecked
   below since this reflects the currently-known gap list, not a claim that
   every possible gap has been surfaced.
+- [ ] **Run-start flow** — Story & World's Meta-Progression & Earth Hub
+  section is currently a 4-bullet sketch (Design browser, Exoplanet
+  catalog, Run history, Start run) with no real UI/flow design underneath
+  it. Needs fleshing out: the hub landing itself (what the player actually
+  sees/does first); how the already-designed Crew Selection and Farm Site
+  Selection (see Core Loop & Grid) connect to the hub and to each other in
+  sequence; what happens between pressing "Start run" and the first
+  planning phase actually beginning — including where the already-designed
+  one-time SEED summary transmission (see Planets & Scoring's
+  In-Simulation Hazard Events, "near-zero confidence... one-time SEED
+  summary transmission at run start") actually lands in that sequence, and
+  starting-building/starting-Rations setup; Run History's actual
+  presentation; and Settings screen(s), not designed anywhere yet. Surfaced
+  while scoping a broader per-system design audit.
 
 ## Newly Surfaced Ideas (recorded, not yet designed in detail)
 
@@ -284,3 +302,457 @@ tracks what's needed *underneath* them.
     written into Buildings & Economy's Fabrication)
   - Exact legend-value-scaling formula shape (inverse of success
     probability, magnitude TBD)
+
+---
+
+## Design Audit (2026-09-02)
+
+A per-system design audit of `full_design/` produced 14 reports in
+`full_design/audits/` (indexed by `audits/00_system_inventory.md`), against a
+9-section template. This section consolidates their **Blockers** and
+**Should-fix** findings; full rationale plus each report's Internal-consistency,
+Story-consistency, Nice-to-have, and Defer items stay in the individual reports.
+Findings are cited as `system-B/SFn` (e.g. `5-B3`, `11-SF14`); `7a`/`7b` and
+`10a`/`10b` are the split reports.
+
+### Cross-cutting themes
+
+1. **Season 1 / initial state is undefined and four systems block on it.** The
+   run-start flow is unwritten (`12-B1`); nothing specifies the starting loadout
+   or how starting buildings land on the grid (`12-B3`) → blocks the grid's
+   initial state and `DisruptionFootprint` baseline (`1-B3`), Season 1's
+   entry/seeding moment (`2-B1`), and the Energy/Water Season-1 baselines.
+2. **Post-Sim resolution order is under-specified where steps depend on each
+   other.** No sub-step applies accumulated production to inventory, yet
+   nutrition, Trade-Agreement expense, and construction-cost accounting all read
+   inventory (`2-B2`); construction completions are declared "arbitrary" order
+   but relocate-then-build needs sequencing (`1-SF1` / `2-SF2`); Mid-Sim's
+   process list omits the Energy/Water rate machinery and the plant-crop Water
+   queue (`2-B3`, `4`); explorer Ration deduction and hazard-death-vs-nutrition
+   interaction aren't placed (`10a-SF3`, `8-SF5`).
+3. **The rate-scarcity mechanics can compound into no-decision run-enders.**
+   Energy's random shedding can zero a Water building → the binary "zero Water →
+   all settlers die" check (`5-B3`, `6-B2`), which has no temporal semantics; an
+   armed shield may be shed during the event it counters (`5-B4`); random-shed →
+   indoor worker exposed → extreme-event death roll (`11-SF7`). In tension with
+   "no purely ambient randomness ends a run".
+4. **Failure legibility is thin across systems.** No planning-phase Water readout
+   (`6-B3`); "blocked in the Water queue" isn't a Site Panel state (`4-SF7`,
+   `6-SF6`); bootstrap deadlocks have no in-game signal (`7a-A-P1`, `7b-B-P2`);
+   the exploration outcome UI doesn't separate the success roll from the
+   independent risk roll (`9-SF7`, `10a-SF1`); the log can't distinguish
+   deterministic destruction from an unlucky roll (`2-SF8`, `11-SF12`).
+5. **"Colour is never the sole channel" is recorded for no overlay or
+   indicator** — grid overlays, log line types, roster idle state, deposit
+   tiles, shield/preparedness states (`1-SF4`, `2-SF7`, `3-SF4`, `5-SF6`,
+   `7b-B-P1`, `8-SF9`, `11-SF15`). One systemic fix.
+6. **Systems don't state what they emit to the SEED scoring formulas, when, or
+   normalized how.** `NutritionIncome`/`ResourceIncome` measurement points
+   (`4-SF9`, `8-SF7`); `ExtractionRestraint`/`EmissionsRestraint` increments
+   (`4-SF9`); luxury goods' "faction value" is unwired to any formula (`7a-A-CS5`);
+   sub-factor→axis aggregation for the Safeguard `Score` is missing (`11-B2`);
+   `DisruptionFootprint`'s baseline, per-type "changed" definition, and
+   invisible-disruption case (`1-B3`, `6-SF7`, `7b-B-CS3`, `11-SF14`).
+7. **Phantom scope — referenced as real, never designed.** Combo/multi-purpose
+   buildings (`4-B1`); the automatic-alternative-output idea (`4-SF1`);
+   effort-stacking toward a per-site cap has no building instance (`3-B1`); the
+   meta-progression unlock trigger (`12-B2`); Peaceful Contact's base alliance
+   reward has no shape (`10b-B1`); the recurring data-gathering exploration
+   tasks that are the sole source for 3 of 5 hazard sub-factors (`11-SF9`).
+8. **Turn-one bootstrap can hard-deadlock.** "Self-bootstraps from turn one" is
+   asserted but unverified; no guaranteed turn-one Wood, and the Surface-deposit
+   guarantee doesn't guarantee Stone (`7a-A-S1/A-S2`, `7b-B-S1`); rare-metal /
+   Deep-tier discovery is softly circular through Portable Scanning Equipment
+   (`7a-A-CS3`, `7b-B-CS1`).
+9. **Injury acquisition is undefined** — no {nothing/SP/permanent/death} weights
+   per risk tier, no rule for which permanent type is picked, no concurrent-injury
+   stacking (`9-B1/B2`); `05`'s claimed hazard-shared injury taxonomy isn't
+   delivered by `06` (`9-SF1`).
+10. **Stale references to the deleted mobile design survive in several docs** —
+    "assign food planning-action pattern" (`8-SF3`), "settler baseline of 1
+    Water/season" (`6-SF2`), "Energy" in Solar Array's cost (`5-SF3`), the cut
+    double-tap toggle (`5-SF4`), "four animal-based buildings" when three exist
+    (`4-SF5`), `03`'s "(In Progress)" / "What Got Cut" framing (audit `1`
+    Nice-to-have).
+
+### Blockers by system
+
+**1 — Grid, Placement & Construction** (`audits/01_grid_placement_and_construction.md`)
+- `1-B1` — Whether Protection structures (shields) run through the
+  construction-robot economy at all (Small Set of Impactful Actions #3 vs #1);
+  determines the action economy and whether the player can react to a per-season
+  hazard forecast.
+- `1-B2` — No multi-slot footprint *shape* model and no footprint-expansion
+  direction rule; even Upgraded Kitchen's 2-slot shape is unspecified.
+- `1-B3` — Initial grid state undefined: starting-building positions, who places
+  them, whether they are later relocatable, and the `DisruptionFootprint`
+  "start of Season 1" baseline.
+
+**2 — Season Structure & Simulation Flow** (`audits/02_season_structure_and_simulation_flow.md`)
+- `2-B1` — Season 1's entry state unspecified — no Post-Sim precedes the first
+  planning phase; what seeds it (starting grid/inventory, run-start SEED summary
+  transmission, whether Season 1 has a normal Planning Lock-in) is unreconciled.
+- `2-B2` — No Post-Sim sub-step applies the season's accumulated production to
+  inventory, yet nutrition, Trade-Agreement expense, and construction-cost
+  accounting all read inventory.
+- `2-B3` — Mid-Sim's process list names only continuous production and discrete
+  hazard events; it omits Energy/Water live-rate recompute + random shedding and
+  the plant-crop Water-draw FIFO queue.
+
+**3 — Worker Assignment, Roster & Site Panel** (`audits/03_worker_assignment_roster_site_panel.md`)
+- `3-B1` — Effort-stacking toward a per-site production cap has no concrete
+  building instance (Farm/Production is 1-worker-capped; Kitchen's tier is
+  parallel stations) — decide whether it has real homes or is cut.
+- `3-B2` — Site Panel gives one "Assigned worker slot" but multi-slot buildings
+  need several, and worker-to-building vs. worker-to-slot is unspecified.
+- `3-B3` — Roster hover-highlight and Mid-Sim per-worker expansion assume
+  building targets; representation of Exploration-Task and Standing-Assignment
+  workers is undefined.
+
+**4 — Production Model** (`audits/04_production_model.md`)
+- `4-B1` — Combo / multi-purpose buildings are referenced as existing but have
+  no catalogue entry, no schema, and contradict "one primary input→output
+  conversion".
+- `4-B2` — Three-phase plant-crop cycle parameterization undefined —
+  Planting/Harvesting are Effort-driven, Growing soil-driven, yet each building
+  carries one combined `production_time` with no statement of what is authored
+  vs. derived or the Effort→duration function.
+- `4-B3` — Cross-season handling of an in-progress cycle is undefined for both
+  models (partial continuous-rate cycle at Mid-Sim end; plant-crop mid-Growing
+  whose held Water reservation cannot span a season boundary).
+
+**5 — Energy** (`audits/05_energy.md`)
+- `5-B1` — The temperature/protection/energy coupling is described as intent, not
+  built spec, and four non-agreeing accounts exist of which buildings carry it
+  and whether it is flat-at-placement or event-driven. Strategy dimension D
+  depends on it.
+- `5-B2` — The Green/Yellow/Red per-building power prediction requires
+  apportioning total Income into a per-building "share", and no apportionment
+  rule exists.
+- `5-B3` — "Consumer" and "active" are undefined for random shedding, and it is
+  unspecified whether staffed Water collection buildings are shed-eligible — if
+  they are, an Energy shortfall can zero Water Income and trigger the
+  all-settlers-die check.
+- `5-B4` — Unresolved whether an armed Weather/Row Shield is shed-eligible during
+  the Temperature Extremity event it is meant to counter, and whether its
+  elevated cost is added before or after the shedding pass.
+
+**6 — Water** (`audits/06_water.md`)
+- `6-B1` — Animal-building Water-draw mechanism is undefined against the
+  rate-not-stock model — not just the shortfall case; a "flat per-cycle" amount
+  has no defined way to draw from a stockless rate.
+- `6-B2` — "Zero Water Income anywhere this season" has no temporal semantics
+  (instant vs. ever-nonzero vs. integrated); under the strict reading, Energy's
+  random shedding can cause total colony loss with no decision behind it.
+- `6-B3` — No planning-phase Water readout is specified — the player cannot see
+  before committing whether the survival check passes or the Growing queue will
+  stall.
+
+**7a — Economy & Fabrication** (`audits/07a_economy_and_fabrication.md`)
+- `7a-A-S1` — "Self-bootstraps from turn one" is unverified; the bootstrap-path
+  Lumber:Concrete ratios are a structural precondition mislabelled as a
+  balancing TBD.
+- `7a-A-S2` — No guaranteed turn-one Wood source — a site with zero Forest tiles
+  has no Lumber and cannot build anything.
+- `7a-A-S3` — Fertilizer per-season consumption quantity undefined
+  (settlement-wide unit vs. per-plant-crop-building) — sets whether Fertilizer
+  is a real cost or a trivial side-effect.
+
+**7b — Deposits & Surveys** (`audits/07b_deposits_and_surveys.md`)
+- `7b-B-S1` — The Surface-deposit guarantee ("Stone OR Iron OR Copper") doesn't
+  guarantee first Stone, and Stone is required to build a Quarry or a Mine — a
+  site whose one Surface deposit is Ore can deadlock.
+- `7b-B-S4/IC1` — Iron Ore vs. Copper Ore are described both as "distinct
+  deposits" and as one site with a "70/30 mixed" split; the model needs one
+  consistent representation.
+
+**8 — Food & Nutrition** (`audits/08_food_and_nutrition.md`)
+- `8-B1` — Tier-1 bulk-shortfall test undefined in units — "can't cover the
+  settler headcount at all" vs. the summed worked example (3/3/5/5 vs. 4/4/4/4)
+  admit different death outcomes.
+- `8-B2` — How many settlers die on a Tier-1 shortfall is unspecified
+  (proportional to the gap? feed-as-many-as-possible?).
+- `8-B3` — Gourmet dishes and Local Delicacy have no defined ingredient list,
+  nutrient profile, or `production_time`, and whether a Seasoning is consumed by
+  the roll, by cooking, or neither is unstated.
+
+**9 — Settlers** (`audits/09_settlers.md`)
+- `9-B1` — Injury-acquisition distribution undefined — no {nothing/SP/permanent/
+  death} weights per risk tier, no rule for which of the 4 permanent types is
+  picked, no one-failure-multiple-injuries rule.
+- `9-B2` — Multiple concurrent permanent injuries have no stacking rule — do
+  speed cuts compound, do eligibility bars intersect to a possible "no eligible
+  assignment" state.
+
+**10a — Exploration Tasks & Standing Assignments** (`audits/10a_exploration_tasks_and_standing_assignments.md`)
+- `10a-B1` — No pool-population/draw algorithm — filling the 3 (max 5) slots
+  from the per-planet eligible set given Rarity, Season gate, and
+  meta-progression unlocks is unspecified.
+- `10a-B2` — Multi-season / multi-Ration payment timing undefined — 2 Rations
+  upfront at sim-start vs. 1/season across the duration; "consumed at
+  season-simulation-start" contradicts "seasons to complete = Ration cost".
+- `10a-B3` — Reroll's interaction with partially-locked / in-progress pools
+  undefined — which slots refresh, whether the flat cost scales, whether locks
+  can starve the pool of refreshes (no lock cap).
+
+**10b — Escalation Chains, Alien Contact & Trade** (`audits/10b_escalation_chains_alien_contact_trade.md`)
+- `10b-B1` — Peaceful Contact base alliance reward has no defined *shape*, only
+  "TBD" — deepening rewards, Trade Agreement availability, Local Delicacy
+  sourcing, and the zero-staffing passive-food reward tier all depend on it.
+  Structural, not numeric.
+- `10b-B2` — Deepening-alliance tier *count* and cadence undefined — sets arc
+  length and the number of guaranteed-escalation pool slots generated;
+  mis-tagged "purely numeric" in this file's alien-classes item.
+- `10b-B3` — No rule enforcing "at most one alien civilization per run" despite
+  `ContactRestraint` assuming it — five triggers + Universal Ubiquity + the
+  Unknown Radio Signal path can each reach Sentience Detection.
+- `10b-B4` — Trade Agreement candidate generation unspecified — how the 3 fixed
+  expense/income pairings are drawn has no algorithm.
+
+**11 — Hazards, Protection & Data-Gathering** (`audits/11_hazards_protection_data_gathering.md`)
+- `11-B1` — The per-season hazard draw's dependence on a data source is
+  contradictory ("the report and the event are the same draw" vs. events firing
+  at near-zero confidence before any surveying); must state the draw fires
+  unconditionally at `P = TrueRisk` and a data source only converts it to a
+  visible/counted report.
+- `11-B2` — Sub-factor → hazard-axis aggregation for `Data` and `MatchedRisk` is
+  undefined — `Score(Weather)` / `Score(Bio-hazard)` need axis-level values but
+  the mechanism is entirely per-sub-factor and only `TrueRisk` has a stated
+  aggregation.
+- `11-B3` — The `adequately covered` vs. `under-covered` Storm boundary is
+  undefined — only `severely under-covered → destroyed` is pinned.
+- `11-B4` — Vaccine-Production gate granularity is ambiguous — axis-level
+  `Confidence(Bio-hazard)` vs. per-discovered-pathogen; number of distinct
+  pathogens per run undefined.
+- `11-B5` — Atmospheric Hazard's exposure trigger is undefined — called a
+  "continuous check with no event" yet the status effect "triggers on
+  exposure"; no cause, frequency, or weighting given.
+- `11-B6` — Event timing and duration within the 30s Mid-Sim window is
+  unmodelled — consequences are scoped "for the event's duration" with no rule
+  for start time or length.
+
+**12 — Meta-Progression, Earth Hub & Run-Start Flow** (`audits/12_meta_progression_hub_run_start.md`)
+- `12-B1` — The run-start flow (hub landing → Crew Selection → planet commitment
+  → Farm Site Selection → starting loadout → SEED summary transmission → Season 1
+  planning) is undesigned — sequence, transitions, and where each already-designed
+  step sits.
+- `12-B2` — Meta-progression unlock trigger undefined — the "enough of a
+  previously-unseen resource type" threshold, the cross-run ledger it implies,
+  the authored material→design mapping, and whether the unlock is surfaced to
+  the player.
+- `12-B3` — Starting-loadout ownership seam — this system produces the starting
+  settlers/buildings/Rations/Solar Arrays but no doc defines the loadout or how
+  starting buildings land on the grid; blocks Systems 1/5/6 baselines and the
+  `DisruptionFootprint` Season-1 snapshot.
+
+### Should-fix by system
+
+Compressed to `id — label`; full rationale and doc citations are in each report's
+§9.
+
+**1 — Grid** — `SF1` intra-Post-Sim ordering of construction completions
+(relocations before dependent builds); `SF2` rules for building on an
+undiscovered deposit tile + its silent `DisruptionFootprint`; `SF3` add "except
+via exploration Site Reveal" carve-out to "cannot be moved or removed"; `SF4`
+non-colour channel for every grid overlay; `SF5` explicit cause messaging for
+blocked/greyed grid actions; `SF6` construction-cost timing — leave inventory at
+Planning Lock-in, restored on cancel; `SF7` transition-season behaviour of an
+upgrading/relocating building + worker retention; `SF8` confirm relocate counts
+against the N-actions cap.
+
+**2 — Season Structure** — `SF1` reword Post-Sim "instantaneous" → "no
+simulation clock runs"; `SF2` intra-step-(4) construction ordering (owned here);
+`SF3` split Post-Sim into immediate (1–4) vs. next-planning-phase preamble
+(5–6); `SF4` reconcile hazard-warning lead time with when the triggering draw is
+rolled (no look-ahead mechanism exists); `SF5` fix the Mid-Sim log-line list —
+vaccine/deposit/escalation resolve at Post-Sim; `SF6` state prior Post-Sim
+outcomes are final, not reversible next phase; `SF7` non-colour cue for log line
+types; `SF8` event log lines must carry luck-vs-certainty detail for
+retrospective legibility.
+
+**3 — Worker Assignment** — `SF1` modifier-combination rule for the Site Panel's
+"one combined number" + what a 3-phase building shows; `SF2` per-building
+worker-eligibility enforcement + "why rejected" messaging; `SF3` pre-assign to a
+queued not-yet-built building? first-season-idle rule; `SF4` static cue for the
+Mid-Sim roster "idle" state; `SF5` planning-phase signal that a drone recharge
+may stall output; `SF6` which concrete worker a type-row drag assigns when
+A > 1; `SF7` construction robots — roster row or separate budget indicator;
+`SF8` if effort-stacking survives, Site Panel shows cap + headroom; `SF9` define
+the unassign / send-to-idle gesture.
+
+**4 — Production Model** — `SF1` resolve the automatic-alternative-output idea
+(cut or scope; remove the paragraph if cut); `SF2` Fertilizer → Alien Soil
+removal: settlement-wide boolean vs. rationed + amount consumed; `SF3` hazard
+slowed/stopped behaviour for a plant-crop mid-Planting/mid-Growing + whether a
+stopped Growing phase holds or releases its Water reservation; `SF4` quantify
+"slowed" as a rate multiplier shared by both hazard types; `SF5` fix "the four
+animal-based buildings" (three exist); `SF6` resolve the farm upgrade-rule
+contradiction (cap raise allowed vs. forbidden); `SF7` per-building "waiting for
+Water" indicator + surface queue order; `SF8` reconcile whether a 2nd worker
+shortens a cycle or raises per-cycle output; `SF9` name the Production Model
+scoring emission points; `SF10` what the Site Panel combined rate means for a
+3-phase cycle + expected-yield legibility risk.
+
+**5 — Energy** — `SF1` recompute-trigger list omits drone-recharge start/stop
+and a shed building's own consumption drop; define the shedding pass's
+termination; `SF2` shed staffed building — release worker or hold idle; `SF3`
+remove "Energy" from Solar Array's construction cost; `SF4` define the
+per-building active/inactive toggle interaction (the double-tap gesture was
+cut); `SF5` surface random-shedding events in the log with cause; `SF6`
+non-colour distinction for the Income bar's two indicator lines; `SF7` where the
+temperature-coupling upkeep is surfaced to the player; `SF8` Fuel-based
+Generator fuel-limit sticky/reversible + post-season "burned X of Y" readout.
+
+**6 — Water** — `SF1` warning/confirmation gate for a season that will trigger
+the zero-Water wipe; `SF2` stale anchor — "settler baseline of 1 Water/season"
+no longer exists; `SF3` canonical queue tiebreak given planning reorders pieces;
+`SF4` queue advances per sim-time, not wall-clock; `SF5` can a collection
+building's toggle turn off the only Water source, and is that gated; `SF6` make
+"blocked in the Water queue" a named Site Panel status state; `SF7` does tapping
+an aquifer incur `DisruptionFootprint` (ExtractionRestraint excludes water but
+the slot-state-changed rule does not); `SF8` confirm Deep Well auto-upgrade and
+a stalled Growing queue emit log/Transmission lines.
+
+**7a — Economy & Fabrication** — `A-S4` Seasoning drop cadence for continuous
+sources (per cycle vs. per season); `A-S5` drone upgrade-in-place has no
+duration / resolution moment / Robotics Assembly slot cost; `A-IC1` multi-recipe
+items get one `TechAchievement` tier that can exceed their cheapest recipe's
+cost; `A-IC4/CS1/CS2` Sawmill/Smelter/Textile Workshop unplaced in the
+Experience-group, Aptitude-bucket, and Manual-Labor taxonomies (Sawmill is a
+*starting* staffed building); `A-CS3` rare-metal acquisition softly circular
+(Portable Scanning Equipment needs a rare metal; systematic rare-metal discovery
+needs the equipment); `A-CS4` the entire advanced catalog is single-threaded
+through Silicon → the Stone Processing II upgrade, unacknowledged; `A-CS5`
+luxury goods' "faction-reward value" is unwired — no SEED formula has a luxury
+term; `A-P1` the bootstrap deadlock and the Silicon chokepoint have no in-game
+legibility signal.
+
+**7b — Deposits & Surveys** — `B-S2` "on success" for a Survey is undefined — a
+success/failure roll or just "on completion"? conflicts with "safe, no risk";
+`B-S3` Basic Deposit Survey's required "basic tools" unspecified (a fabricated
+prereq would break its Season-1 availability); `B-IC3` Deep Survey can be
+fabricated-for and assigned with zero effect when no tile is flagged — needs a
+UI guard; `B-CS1` Deep-tier discovery softly circular through Portable
+High-Powered Scanning Equipment; `B-CS3` the Stewardship `DisruptionFootprint`
+penalty for discovering + mining a discovery-gated (esp. Deep) deposit is
+invisible when the player commits; `B-CS5` `B-S1`'s deadlock degrades, for
+informed players, into a Ration-spending site-reroll tax; `B-P1` no non-colour
+marker for discovered deposits, flagged deep-eligible tiles, or per-depth reveal
+state; `B-P2` the bootstrap-Stone deadlock has no in-game legibility signal.
+
+**8 — Food & Nutrition** — `SF1` specify the food-for-consumption default UI
+surface (the auto-queued-defaults transparency bar, shown at the very start of
+planning); `SF2` reconcile Tier-1 "Rations plus any meals" with raw
+crops/animal products also feeding settlers; `SF3` replace the superseded
+"assign food planning-action pattern" reference with a defined interaction;
+`SF4` Ration Press consumes only food present at the start of the planning
+phase; `SF5` define the Post-Sim interaction between hazard/injury deaths and
+the nutrition headcount + Lock-in-fixed food plan (is earmarked food refunded);
+`SF6` define "food type" for the sticky-diet default (item id vs. category;
+flavor-name variants); `SF7` define the per-season production measurement
+feeding `NutritionIncome`, shared with `ResourceIncome`; `SF8` visible Rations
+count + runway, and an unmistakable non-standard confirm for the rest-of-run
+Food Storage commitment; `SF9` non-colour cue for the food-for-consumption /
+axis-short indicators; `SF10` surface a signal that a settler is
+Gourmet-*eligible*.
+
+**9 — Settlers** — `SF1` resolve whether Atmospheric/Temperature hazards can
+inflict SP or permanent injuries or only status effects + death (`05` claims a
+shared taxonomy `06` doesn't deliver); `SF2` specify SP on-site recovery as a
+variable-Effort model so it composes with the continuous-rate model; `SF3`
+define the "idle" `current_assignment` state; `SF4` state whether a dead
+settler's `legend_value` persists into the Frontier Legends totals; `SF5` which
+`status_effect` the roster's single "hazard-affected" icon shows when a settler
+carries more than one; `SF6` permanent-injury effects surfaced on the settler,
+not inferred from failed attempts; `SF7` exploration outcome UI reports the
+success roll and the independent risk roll separately; `SF8` explicit "X is now
+Storied" surface at threshold crossing; `SF9` fix the plain-language tooltip
+understatement when Storied's +1 and Exploration Aptitude's +1 stack to +2;
+`SF10` mark Storied and permanent injuries as non-expiring `status_effect`
+entries; `SF11` add the injury-acquisition gaps to this file's Settler/Injuries
+TBD list.
+
+**10a — Exploration loop** — `SF1` guaranteed-success-vs-independent-risk result
+messaging (tell the player separately whether the discovery succeeded and
+whether the environment harmed the settler); `SF2` where an accepted/in-progress
+task lives relative to the 3 pool slots + full-pool escalation placement; `SF3`
+add the explorer Ration deduction (sim-start) to the Season Structure
+resolution-moment list; `SF4` name where Clear-Cutting/Trapping output lands
+(Mid-Sim accumulation) vs. Survey's Post-Sim one-shot; `SF5` add the
+injury/death-on-guaranteed-risk Frontier Legends bonus to `06`; `SF6` define the
+"one-time `Confidence(Weather)` burst" in evidence-count terms; `SF7` reconcile
+the two descriptions of how negative Exploration Aptitude reduces a "guaranteed"
+Site Reveal; `SF8` tighten "Site Reveals get no optional item" (the exclusives
+table lists mandatory items); `SF9` can an injury roll on a multi-season
+High-risk task occur mid-task or only at resolution; `SF10` Mid-Sim progress
+indication for Clear-Cutting / Trapping.
+
+**10b — Escalation chains** — `SF1` define what a *base* alliance grants before
+any deepening; `SF2` First Contact approach-selection reversibility (reserved
+Rations/items released on switch/cancel); `SF3` how an unresolved sentience
+chain is handled at run end + which `ContactRestraint` tier applies mid-arc;
+`SF4` quantify the chain's "significantly elevated `EcologicalData` weight" in
+evidence-count terms; `SF5` First Contact approach UI info content (cost, risk
+tier, directional odds, `ContactRestraint` consequence) before commit; `SF6`
+edge case: per-season expense is Rations and Post-Sim nutrition just consumed
+the last — silently, permanently ends the agreement; `SF7` author the
+vaccine-unlock region-reveal escalation as a real catalog entry; `SF8` "Observe
+from a distance" keeps a flat elevated legend value; `SF9` guaranteed-escalation-
+slot vs. pool-size-3 pressure — an alliance arc can dominate the pool; `SF10`
+re-tag base-alliance-reward shape + deepening-tier-count as structural, not
+"purely numeric".
+
+**11 — Hazards, Protection & Data-Gathering** — `SF1` Storm's targeted-site
+consequence ignores the severity band — gate "destroyed" on extreme severity;
+`SF2` "Medical/Research facility" passive Pathogen data source is listed but
+unspecified in `04`; `SF3` reconcile the two `MatchedRisk` descriptions (the
+Bayes-theorem phrasing reads as superseded by the Beta-counter model); `SF4`
+shield Energy behaviour during a Storm (event-driven upkeep is defined only vs.
+Temperature Extremity); `SF5` which channel hazard reports use — Transmissions
+vs. the simulation log; `SF6` telegraph lead time ≥ construction lead time, or
+shields exempt from the next-season delay, or state prophylactic pre-building is
+the intended response; `SF7` address the random-shed → indoor-worker-exposure →
+extreme-event death-roll chain; `SF8` Atmospheric Hazard preparedness has no
+scoring representation; `SF9` author the recurring data-gathering exploration
+tasks (bio-survey, atmospheric sampling, weather balloon, probe); `SF10` present
+shield-coverage UI as a prediction-with-confidence, mirroring the Site Panel
+power indicator; `SF11` make the run-start SEED summary the explicit sole
+failure-legibility instrument pre-`Confidence` + decide a `Confidence` floor /
+early-season grace for the destructive/lethal tiers; `SF12` post-event log
+distinguishes deterministic destruction from an unlucky roll + surfaces the
+coverage state; `SF13` decide term weighting in `Score = Data + MatchedRisk ×
+MatchedPreparedness` (Data saturates, the product term is biased small); `SF14`
+reconcile mid-Mid-Sim building destruction into one ordered sequence
+(slot-state/`DisruptionFootprint`, worker return, exposure); `SF15` distinct UI
+language for "protected"'s three shield meanings; `SF16` confirm hazard-caused
+death routes through the death-acknowledgment line.
+
+**12 — Meta-Progression, Hub & Run-Start** — `SF1` decide Crew Selection ↔
+filament-scan ordering (blind vs. planet-informed crew pick); `SF2` define the
+run-start reversibility/commitment boundary; `SF3` decide whether the
+"stabilization tech" meta-axis is real (design it) or cut it and fix the
+starting loadout as a flat number; `SF4` specify pre-Phase-5 exoplanet selection
+(candidate count, generation, whether shelf-life/reroll-limit is active,
+random-vs-choose); `SF5` consolidate a Settings screen spec (°F/°C, global
+dexterity/gesture-timing scale, volume, optional larger-font tier, drag-offset;
+in-run vs. hub access); `SF6` resolve the interruptibility open principle here +
+re-base `07`'s persistence section off its Android-lifecycle assumptions; `SF7`
+define Run History's role and presentation (record vs. seeds next run; cross-run
+score; no implied timeline); `SF8` add SEED Bulletin to the "Earth Hub Contents"
+enumeration in `02`; `SF9` decide where the one-time Herald-naming step lives
+(presumes an undesigned first-run intro/tutorial).
+
+### Housekeeping the audits surfaced
+
+- **Add a "deposit overlap audit" item.** `03` "Construction" and `04` "Deposit
+  Discovery" both cite a deposit-overlap audit that was never written into this
+  file. (audit `7b`)
+- **Extend the Settler/Injuries TBD list** (under "Remaining numeric TBDs from
+  the Settler State / Injuries / Storied design pass" above) with the
+  now-known *structural* gaps: injury-acquisition distribution, concurrent-
+  permanent-injury stacking, and whether Atmospheric/Temperature hazards share
+  the SP/permanent injury taxonomy. (audit `9`)
+- **Re-tag two "Alien civilization classes" sub-items** from "deferred to
+  balancing" to structural: Peaceful Contact's base-alliance-reward *shape*, and
+  the deepening-alliance tier *count*/cadence — these gate whether the arc is
+  buildable, not just tunable. (audit `10b`)
