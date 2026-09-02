@@ -1,8 +1,0 @@
-[gd_scene format=3 uid="uid://elfkl1mx678v"]
-
-[ext_resource type="Script" uid="uid://nqj7y300x17j" path="res://scenes/hub/home_screen.gd" id="1"]
-
-[node name="HomeScreen" type="Control" unique_id=1324297638]
-layout_mode = 3
-anchors_preset = 0
-script = ExtResource("1")
