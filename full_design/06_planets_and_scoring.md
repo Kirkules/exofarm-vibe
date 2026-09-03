@@ -163,57 +163,80 @@ and scored against* — this section makes them actually happen during
 simulation, with real gameplay consequences, closing the gap flagged when
 Medical Bay's PPE recipe was designed (see Buildings & Economy's [Protection](04_buildings_and_economy.md#protection)).
 
-**Trigger — reuse the existing hidden draw, don't add a new one.** The
-Data-gathering mechanism above already implicitly simulates "did this hazard
-condition occur in this observation window" as a hidden Bernoulli draw (that's
-literally what generates a report's success/failure). That same draw is what
-triggers an in-simulation event — a storm *report* and a storm *actually
-happening* are the same event, not two separate rolls.
+**Occurrence — a fixed per-run schedule, not a per-season draw.** This
+applies to every **non-reactive** hazard — one that manifests at a time of
+its own rather than in response to a player action. Storm and Temperature
+Extremity are the two such hazards here; Bio-hazard's sub-factors (Pathogen
+Threat, Toxic/Parasitic Organism Threat) are *reactive* — they resolve only
+through exploration-task encounters — and are outside this model, and
+whether Atmospheric Hazard stays a continuous check or joins the scheduled
+model is still open (see `DESIGN_TODO.md` `11-B5`).
 
-**Telegraphing scales continuously with `Confidence(hazard)`** — reusing the
-value already computed for scoring, not a separate building-gated tier system:
-- **Near-zero confidence** (run start, before any surveying): no per-season
-  warnings. Instead, a one-time **SEED summary transmission** at run start
-  surfaces the planet-type's *prior* values directly (narrativized, but
-  showing the actual Bayesian prior numbers or a close translation) — framed
-  in-fiction as SEED's institutional knowledge about planet-type archetypes
-  from prior missions, not this specific planet. Gives every run a baseline
-  sense of what to expect from turn one, satisfying "failure should be
-  legible" even with zero investment. Events at this stage happen with no
-  specific advance notice.
-- **Low-to-moderate confidence**: vague per-season warnings ("elevated risk
-  of severe weather this season"), short lead time — appearing right before
-  the affected season's planning phase.
-- **High confidence**: precise, reliable warnings — which sub-factor, roughly
-  how severe — with more lead time (illustrative: a season or two ahead).
+At **run generation** the game rolls, once and for the rest of the run:
+which seasons carry a Storm and/or a Temperature Extremity event, and each
+scheduled event's **severity band (mild or extreme)** — the same coarse
+band described below, pre-rolled here rather than at event time, weighted by
+that hazard's `TrueRisk` (a worse-off planet gets more scheduled events and
+skews them more extreme). This schedule is **deterministic once rolled** —
+never re-drawn. The only part still rolled at simulation time is *when
+within* a scheduled season the event occupies the Mid-Sim window: it hits
+one or more **random intervals** of that season, not the whole of it.
 
-All delivered via the existing **Transmissions** mechanic (see Story & World's
-[Gameplay-Story Integration](02_story_and_world.md#gameplay-story-integration)), which was already specifically designed for this
-purpose — this section is that mechanic's concrete realization, not a new
-system layered on top of it.
+**Telegraphing — a lead-time window that narrows with `Confidence(hazard)`.**
+At the start of every season's planning, the game reads the fixed schedule
+and, through the **Transmissions** channel (see Story & World's
+[Gameplay-Story Integration](02_story_and_world.md#gameplay-story-integration)), reports the next inbound scheduled hazard
+season and roughly how many seasons away it is. Accumulated data-`Confidence`
+for that hazard sharpens both the lead-time window and the severity readout,
+not whether the event happens:
+- **Near-zero confidence** (run start, before any surveying): possibly no
+  advance notice at all. The one-time **SEED summary transmission** at run
+  start still surfaces the planet-type's *prior* values directly
+  (narrativized, but showing the actual Bayesian prior numbers or a close
+  translation) — framed in-fiction as SEED's institutional knowledge about
+  planet-type archetypes from prior missions, not this specific planet —
+  so every run has a baseline sense of what to expect from turn one even
+  with zero investment.
+- **Low confidence**: a wide window ("severe weather incoming, some time in
+  the next 1–5 seasons" — numbers illustrative), severity vague ("elevated
+  risk").
+- **Moderate confidence**: a narrower window ("2–4 seasons out").
+- **High confidence** (a raised tier, not the maximum): the exact lead time
+  ("3 seasons out") and a specific severity ("a severe storm").
+- Regardless of confidence, when a scheduled season is the **current** one,
+  that season's planning opens with a firm, certain notice.
+- The **orbital probe** (see Core Loop & Grid's [Specialization](03_core_loop_and_grid.md#specialization)) shifts
+  the warning **one tier better** than the player's current data-`Confidence`
+  alone would give (capped at the exact-lead-time tier).
+
+All delivered via the existing **Transmissions** mechanic, which was already
+specifically designed for this purpose — this section is that mechanic's
+concrete realization, not a new system layered on top of it. (How a survey
+now accrues `Confidence` against a fixed schedule rather than a per-season
+coin-flip, and how that feeds the Safeguard score, is being reconciled in
+the Hazards & Data-Gathering design pass — see `DESIGN_TODO.md` `11-B1` /
+`11-B2`.)
 
 **Event severity — a coarse band, shared by Storm and Temperature
-Extremity.** Alongside the occurrence trigger above, a triggered event also
-rolls one of two severity bands, **mild** or **extreme**, weighted by that
-hazard's `TrueRisk` (a worse-off planet skews toward more extreme events, not
-just more frequent ones — reusing a value already tracked rather than adding
-a new dial). This is what gives "a strong enough storm" or "the real
-temperature passing a threshold" concrete meaning below, instead of
-consequence being driven purely by the settlement's static Preparedness
-coverage as before.
+Extremity.** Each scheduled event carries one of two severity bands,
+**mild** or **extreme** — pre-rolled with the schedule at run generation
+(above), weighted by that hazard's `TrueRisk` (a worse-off planet skews
+toward more extreme events, not just more frequent ones — reusing a value
+already tracked rather than adding a new dial). This is what gives "a strong
+enough storm" or "the real temperature passing a threshold" concrete
+meaning below, instead of consequence being driven purely by the
+settlement's static Preparedness coverage as before.
 
 **Concurrency.** Storm and Temperature Extremity are the only two hazard
 sub-factors that manifest as a discrete Mid-Sim event at all — Atmospheric
 Hazard (also Weather) is a continuous passive-stock/PPE check with no
 start/duration event, and Bio-hazard's two sub-factors (Pathogen Threat,
 Toxic/Parasitic Organism Threat) only ever resolve through individual
-exploration-task encounters, never a settlement-wide event. Each of Storm
-and Temperature Extremity triggers **at most once per season**, tied
-one-to-one to that season's single evidence-gathering report for that
-sub-factor (see Data-Gathering Mechanism's "one reading/season active");
-there's no scenario where the same hazard type fires twice in one season.
-That leaves a ceiling of at most two discrete events in a season — one
-Storm, one Temperature Extremity — each independently rolled and
+exploration-task encounters, never a settlement-wide event. Each scheduled
+season carries **at most one Storm and at most one Temperature Extremity**
+event; there's no scenario where the same hazard type fires twice in one
+season. That leaves a ceiling of at most two discrete events in a season —
+one Storm, one Temperature Extremity — each independently scheduled and
 independently severity-banded. **When both occur and their windows overlap
 at the same site, their consequences stack independently** — each hazard's
 consequence chain (Energy-funded shield coverage, production
@@ -241,17 +264,16 @@ already empty, not destroyed twice.
   Average Temperature for the event's duration — same temporariness as a
   storm, never permanent on its own.
 - **Consequence is decided by Energy funding, not a coverage tier**: a
-  Weather Shield or Row Shield's Energy consumption during an active event
-  scales with that event's severity band (a small idle-but-armed rate
-  normally, more during a mild event, more during an extreme one — banded,
-  not continuous, per Buildings & Economy's Resources' Energy
-  Income/Consumption Rates). If the settlement's total Income rate covers
-  total Consumption including that elevated cost — i.e. the shield isn't
-  one of the consumers randomly shed during a shortfall, see Resources —
-  the shield **fully maintains the comfort target** — zero effect on
-  covered production, regardless of how extreme the event got outside. If
-  there's no shield covering the site, or the cost wasn't covered that
-  season:
+  Weather Shield or Row Shield covering the site becomes **active** for the
+  event and draws Energy banded by the event's severity band (more for a
+  mild event, more still for an extreme one — banded, not continuous, per
+  Buildings & Economy's Resources' Energy Income/Consumption Rates; a shield
+  draws nothing when inactive). If the settlement's total Income rate covers
+  total Consumption including that draw — i.e. the shield is **not one of
+  the buildings left un-powered by a shortfall**, see Resources — the shield
+  **fully maintains the comfort target** — zero effect on covered
+  production, regardless of how extreme the event got outside. If there's no
+  shield covering the site, or the shield couldn't be powered:
   - **Mild event** → production **slowed** for the event's duration.
   - **Extreme event** → production **stopped** entirely for the event's
     duration.
@@ -293,12 +315,26 @@ top-severity consequence:
   Platform & Core Loop Redesign's Construction. (This tier already meant
   destruction under the hood; it's stated explicitly now that the
   distinction from "paused" actually matters.)
-- **New**: when a storm event specifically rolls **extreme** severity, every
-  *other* unprotected building on the grid (any category, not just the
+- When a storm event is scheduled at **extreme** severity, every *other*
+  unprotected building on the grid (any category, not just the
   directly-targeted Farm/Production site — "unprotected" reuses the same
   Weather/Row Shield coverage check) independently rolls a small chance of
   the same fate. Chance value TBD, deferred to balancing like other numeric
   values in this design.
+- **Settler and drone casualties.** At an affected site with no shield
+  coverage, a Storm can also **kill an unprotected outdoor settler** and
+  **destroy an unprotected outdoor worker drone** — the same roster-removal
+  / unit-loss mechanics used elsewhere. Outdoor workers on a shielded tile
+  are covered by that shield the same way crops and buildings are; Indoor
+  workers in a powered building are sheltered.
+- **Never a direct run-ender.** Storm losses — buildings, crops, settlers,
+  drones — are severe but do not by themselves end a run. A run ends only
+  when every settler is dead (to which Storm casualties can contribute) or
+  the season limit is reached (see [Win / Lose Conditions](06_planets_and_scoring.md#win--lose-conditions)). The
+  pre-rolled schedule and its `Confidence`-scaled telegraph are the
+  intended counterplay: advance knowledge of a stormy season is what lets a
+  player fund shield coverage, pull outdoor workers indoors, or brace for
+  the loss.
 
 *Atmospheric Hazard* — a settler-level consequence, not a building-level one:
 - Farm-based settlers: protection is a **passive stock check** — any PPE
@@ -614,14 +650,23 @@ All five SEED Factions now have real formulas.
 > comparable figure across runs, if at all, is still open.
 
 ### Critical Failure (Early End)
-- Total farm destruction (weather, disaster)
-- Settler starvation
 
-> **Open question:** "total farm destruction (weather, disaster)" has no implemented
-> mechanic yet (no weather/disaster system exists in code). Is this still an intended
-> failure condition, and if so what triggers it — random planet-type-weighted events,
-> or a consequence of neglecting some other system? Colony-wide settler death (all
-> settlers dead) is already implemented as the actual failure trigger per CLAUDE.md.
+There is exactly one critical-failure trigger: **every settler is dead.**
+No other single event — not total farm destruction, not the loss of a
+building, not a hazard — ends a run on its own. The paths to colony-wide
+death are:
+- **Starvation** — the nutrition Tier-1 consequence compounding across
+  seasons (see Settlers & Exploration's Food & Nutrition).
+- **No Water infrastructure** — the settlement has no functioning Water
+  collection building for a season (see Buildings & Economy's [Water](04_buildings_and_economy.md#water)); a
+  binary check, not reachable from a mere Energy shortfall.
+- **Hazard casualties** — Storm and Temperature Extremity can kill
+  settlers (see [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events) above); enough of them in a
+  run whittles the crew to zero. Each such death is telegraphed by the
+  hazard schedule, never an ambush.
+
+Everything else — a wiped-out farm, a destroyed Settlement Base, a bad
+season — is a setback to recover from or a lower score, not an early end.
 
 ### Gradual Decline
 - Poor seasons compound: fewer resources, understaffed sites, harder recovery

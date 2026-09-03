@@ -227,12 +227,15 @@ Rations stock, the starting buildings, and one construction robot).
   for the whole run. It has no grid presence — no slot, no staffing, no Energy —
   and is an abstract run modifier surfaced through the planetary-assessment
   readout and Transmissions. Two effects:
-  - **Weather floor.** It raises the floor of hazard telegraphing (see Planets &
-    Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)): the settlement always receives at
-    least the vague, one-season-ahead warning of a coming Storm or Temperature
-    Extremity, even at near-zero `Confidence`. This adds no separate channel —
-    it lifts the existing `Confidence`-scaled telegraphing to its
-    low-to-moderate tier as a baseline.
+  - **Weather warning boost.** It shifts hazard telegraphing (see Planets &
+    Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)) **one tier better** than the
+    settlement's current weather-data `Confidence` alone would give — at
+    near-zero `Confidence` that means the settlement gets the wide "some time
+    in the next several seasons" warning of a scheduled Storm or Temperature
+    Extremity instead of possibly nothing, and at higher `Confidence` it
+    sharpens the lead-time window and severity readout by one step (capped at
+    the exact-lead-time tier). It adds no separate channel — it advances the
+    player along the existing `Confidence`-scaled telegraph.
   - **Civilization scan.** Once, early in the run, the probe rolls an **80%**
     chance to detect organized life on the planet. On success the player
     receives a Transmission and a **guaranteed slot in the Exploration Task

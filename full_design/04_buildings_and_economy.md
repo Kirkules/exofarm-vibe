@@ -48,7 +48,7 @@ comparison of these two numbers, never a depleting reserve.
   baseline.
 - **When total Consumption exceeds total available Income** at any Mid-Sim
   moment, the shortfall is resolved by **randomly** selecting enough
-  currently-active consumers to shed until Consumption fits back under
+  currently-drawing consumers to un-power until Consumption fits back under
   Income — deliberately random, not by build order or any player-set
   priority, so *which specific building goes dark* is never something a
   player can optimize or needs to manage; the player's real levers are
@@ -56,11 +56,40 @@ comparison of these two numbers, never a depleting reserve.
   building has (generalizing Fuel-based Generator's existing control, see
   its entry), not triaging an outage order. This keeps the tension real
   ("build enough Income for what you're running") without turning outages
-  into a minigame, which would sit oddly against the cozy tone. Recomputed
-  only when the total picture actually changes — a Conditional source's
-  window starting/ending, a hazard event starting/ending, a building being
-  built/destroyed/toggled — not continuously every tick, so the unpowered
-  set doesn't flicker without a real cause.
+  into a minigame, which would sit oddly against the cozy tone. **The
+  design does not lean on the toggle** — no other system is built assuming
+  routine use of it; it's an available mitigation, not an expected
+  season-to-season chore.
+  - **Eligibility.** Every Energy *draw* is eligible. Energy *producers*
+    (Solar Array, Settlement Base, Geothermal Generator, Fuel-based
+    Generator) draw no Energy at all — they only produce it — so they are
+    never un-powered by this pass.
+  - **An un-powered building draws zero Energy** and its cycle **pauses —
+    progress is held, never lost** — resuming the instant it is re-powered.
+    A staffed building that goes dark **holds its worker idle** (the worker
+    is not returned to the roster mid-Mid-Sim).
+  - **The pass iterates to a fixed point:** after each building is
+    un-powered, total Consumption is recomputed and the check repeats,
+    re-rolling the random pick among still-powered draws, until Consumption
+    ≤ Income. Recomputed on every event that changes the total — a
+    Conditional source's window starting/ending, a hazard event
+    starting/ending, a drone battery recharge starting/ending, a building
+    built/destroyed/toggled — not continuously every tick, so the unpowered
+    set doesn't flicker without a real cause.
+  - **Consequence is throughput only.** An Energy shortfall can slow or
+    pause production, nothing more — it can never kill a settler or end a
+    run. Buildings with a survival-critical function keep that function in
+    a reduced form when un-powered: a Water collection building still
+    produces a minimal fail-safe trickle (see [Water](04_buildings_and_economy.md#water)); crew quarters
+    still shelter the crew for sleep, just without the sleep bonus (see
+    [Habitation](04_buildings_and_economy.md#habitation)); an Indoor building still shelters its worker from
+    Atmospheric Hazard, though not from temperature (see [Building Schema](04_buildings_and_economy.md#building-schema)'s
+    Indoor/Outdoor). A Weather/Row Shield that cannot be powered simply
+    goes **inactive** (no protection) for that interval.
+  - **Legibility.** Every un-powering surfaces in the simulation log with
+    its cause (`"Energy shortfall — [building] offline"`) and counts as a
+    noteworthy event, so an unexplained production gap is never mistaken
+    for a bug and bad luck is never mistaken for a preventable certainty.
 - **Planning-phase UI**: a horizontal bar, **0 to the season's optimistic
   max Income rate** (sum of every currently-placed producer's maximum
   rate — Reliable plus Conditional, assuming every Conditional source runs
@@ -86,19 +115,25 @@ of category — draws a flat per-season Energy **consumption rate** just for
 existing on the grid (lights, climate-neutral operation, idle machinery
 draw), with exactly one exception: **Weather Shield and Row Shield** (only
 these two — not the rest of Protection, so Medical Bay follows the ordinary
-flat-baseline rule like any other staffed building) instead carry a small
-idle-armed baseline rate that **temporarily elevates** during an active
-Temperature Extremity event, rather than a flat constant rate. This is
-still a deliberate simplicity choice: no individual building's own
-baseline rate ever needs re-examining once built, fixed the moment it's
-placed — but the *aggregate* relationship between total Consumption and
-total Income genuinely can shift over a season now, specifically because
-Conditional Income sources can fall short of plan. Juggling Energy in
-response to short-lived threats (via the two shield buildings, drone
-recharge, and Conditional-source risk) is meant to be a real, occasional
-consideration; juggling it just to keep the lights on everywhere else is
-not. Exact per-building values TBD, deferred to balancing like other
-numeric values in this design.
+flat-baseline rule like any other staffed building). A shield draws
+**nothing at all when it is inactive**, and draws only while **active** —
+its activation is automatic, never player-managed: a shield is active
+exactly when either a Storm or Temperature Extremity event is affecting its
+coverage area, **or** the site's ambient temperature sits outside the 72°F
+comfort band and needs continuous mitigating for the settlers or crops
+there (see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)). While
+active its draw is **banded** — a lower rate for ambient mitigation or a
+mild event, a higher rate for an extreme event. This is still a deliberate
+simplicity choice: no individual building's own baseline rate ever needs
+re-examining once built, fixed the moment it's placed — but the *aggregate*
+relationship between total Consumption and total Income genuinely can shift
+over a season now, both because Conditional Income sources can fall short
+of plan and because shield draw comes and goes with events. Juggling
+Energy in response to short-lived threats (via the two shield buildings,
+drone recharge, and Conditional-source risk) is meant to be a real,
+occasional consideration; juggling it just to keep the lights on everywhere
+else is not. Exact per-building values TBD, deferred to balancing like
+other numeric values in this design.
 
 ### Building Categories
 1. **Basic Resource Production** — Energy generation, always
@@ -281,9 +316,17 @@ the following properties. Working through the catalog category-by-category (see
   Exploration Tasks, which aren't buildings but follow the same rule) as
   Outdoor; everything else staffed (Kitchen, all Fabrication buildings,
   Research Lab, Medical Bay, Scanner Station, Water buildings) is Indoor.
-  An Indoor building shields its worker (settler or drone) from Atmospheric
-  Hazard and Temperature Extremity for free, but **only while powered** —
-  an unpowered Indoor building is treated as Outdoor. This is a separate,
+  A **powered** Indoor building shields its worker (settler or drone) from
+  both Atmospheric Hazard and Temperature Extremity for free. An
+  **un-powered** Indoor building (shed during an Energy shortfall, see
+  [Resources](04_buildings_and_economy.md#resources)) still shelters its worker from **Atmospheric Hazard**,
+  but **not from temperature** — for Temperature Extremity it is treated as
+  Outdoor, including the extreme-event death roll. (Principle note: a
+  temperature death by this path is only ever reachable in a season the
+  Temperature Extremity schedule had already telegraphed — see Planets &
+  Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events) — so it traces to an
+  Energy-budget decision the player made against a known-inbound event, not
+  an ambush.) This is a separate,
   free-by-default protection channel alongside Weather/Row Shield, which
   remains how Outdoor sites/crops/workers get protected (funded shield
   coverage protects both the structure/crops *and* any outdoor worker on a
@@ -1044,10 +1087,18 @@ Array and Geothermal Generator contribute to Energy's Income.
 
 **Settler consumption is deliberately *not* rate-tracked or
 amount-measured at all — a single binary check, not a headcount-vs-quantity
-comparison like nutrition's.** Resolved once per season at Post-Sim: **if
-there was zero Water Income anywhere this season — no functioning Water
-production at all — every settler dies.** Any nonzero production, however
-small, avoids this entirely; there is no partial or proportional
+comparison like nutrition's.** Resolved once per season at Post-Sim: **the
+check fails, and every settler dies, only if the settlement had no
+functioning Water collection building at any point in the season** — none
+built, or the only one(s) destroyed and not replaced, or none with its
+[Water Processing Plant](04_buildings_and_economy.md#water-processing-plant) prerequisite intact and a worker assigned.
+It is a check on *infrastructure existence*, not on rate or power state: a
+collection building that is merely **un-powered** by an Energy shortfall
+still produces a minimal fail-safe trickle (see [Resources](04_buildings_and_economy.md#resources)' random
+un-powering rule) — enough that settlers are never at risk from an Energy
+shortfall, effectively nothing for production draws. So an Energy shortfall
+can never trigger this; only losing the collection infrastructure outright
+can. There is no partial or proportional
 consequence, and settler need never competes with production's own Water
 reservations (see Farm/Production's water-draw queue) for capacity. (Since
 there's no longer a settler-need figure to calibrate against, collection
@@ -1753,10 +1804,16 @@ stack:
 
 | Best quarters standing | Status | Effect |
 |---|---|---|
-| none | **Poor Sleep** | on-site Effort ×0.75 |
-| Settlement Base only | *(neutral — no status)* | baseline |
-| Crew Quarters | **Good Sleep** | on-site Effort ×1.10 |
-| Luxury Living Quarters | **Great Sleep** | on-site Effort ×1.15 |
+| no quarters building stands at all | **Poor Sleep** | on-site Effort ×0.75 |
+| Settlement Base only (powered or not) | *(neutral — no status)* | baseline |
+| Crew Quarters, **powered** | **Good Sleep** | on-site Effort ×1.10 |
+| Luxury Living Quarters, **powered** | **Great Sleep** | on-site Effort ×1.15 |
+
+The **bonus** tiers require the building to be powered. An **un-powered**
+Crew Quarters or Luxury Living Quarters (shed during an Energy shortfall —
+see [Resources](04_buildings_and_economy.md#resources)) is still a valid place to sleep, so it falls back to the
+neutral baseline, never to Poor Sleep. Poor Sleep applies only when **no**
+quarters building — Settlement Base or dedicated — stands at all.
 
 - The modifier applies to **settlers only** (drones do not sleep) and to
   **on-site work only** — production-building assignments *and* Standing

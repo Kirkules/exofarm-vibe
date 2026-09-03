@@ -827,3 +827,62 @@ Settlers & Exploration (`status_effect` list), and Planets & Scoring
   of production buildings, other buildings, and drone recharge are
   designed. Sequenced after that Systems 5/6 consumption-rate pass, not
   part of the run-start work.
+
+### Addressed by the rate-scarcity / run-ender pass (2026-09-03)
+
+Theme 3 (rate-scarcity mechanics compounding into no-decision run-enders) —
+written into Buildings & Economy (Resources' Energy un-powering rule,
+Baseline Energy upkeep, Building Schema Indoor/Outdoor, Water, Habitation)
+and Planets & Scoring (In-Simulation Hazard Events, Critical Failure).
+
+- **Framing.** An Energy shortfall is now **throughput-only** — it can slow
+  or pause production and nothing more; it can never kill a settler or end a
+  run. Survival-critical buildings degrade instead of failing when
+  un-powered.
+- `5-B3` — **resolved.** "Consumer/active" defined: every Energy *draw* is
+  eligible for un-powering, Energy *producers* draw nothing and are never
+  picked; an un-powered building draws zero, pauses (progress held, not
+  lost), and holds its worker idle; the pass iterates to a fixed point.
+  Water collection buildings are eligible but degrade to a fail-safe trickle
+  rather than zero, so un-powering one can't trigger the Water death check.
+- `5-B4` — **resolved.** Shields draw Energy only while **active** (a Storm
+  or Temperature Extremity event in their area, or an ambient temperature
+  outside the 72°F band needing mitigation) — automatic, not
+  player-managed — and draw nothing when inactive. The old "idle-armed
+  baseline rate" is cut. A shield that can't be powered simply goes
+  inactive (no protection) for that interval; there is no separate
+  shed-ordering question because there is no idle cost to shed.
+- `6-B2` — **resolved.** The zero-Water settler-death check is a check on
+  **infrastructure existence**, not rate or power: it fires only if the
+  settlement had no functioning (built + Water Processing Plant + staffed)
+  collection building at any point in the season. An un-powered collection
+  building still trickles enough for settler survival, so an Energy shortfall
+  can never reach this.
+- `11-SF7` — **resolved.** An un-powered Indoor building still shelters its
+  worker from Atmospheric Hazard, but not from temperature (treated as
+  Outdoor for Temperature Extremity, extreme-event death roll included).
+  Principle-compliance rides on Temperature Extremity seasons being
+  pre-scheduled and telegraphed (below), so any such death traces to a
+  known-inbound event and an Energy-budget decision, not an ambush.
+- `5-SF2` / `5-SF5` — **addressed.** Shed staffed building holds its worker
+  idle (not returned to roster); every un-powering surfaces in the sim log
+  with cause and counts as a noteworthy event.
+- **Non-reactive hazard occurrence is now a fixed per-run schedule.** At run
+  generation the game rolls which seasons carry a Storm and/or Temperature
+  Extremity event and each event's severity band; deterministic once rolled;
+  only the intra-season timing is rolled at sim time. Telegraphed at the top
+  of each planning phase via Transmissions, with a lead-time window (and
+  severity readout) that narrows as weather-data `Confidence` rises; the
+  orbital probe shifts it one tier better. Storm can kill unprotected
+  outdoor settlers / destroy outdoor drones, but **no hazard event is a
+  direct run-ender** — the sole critical-failure trigger is all-settlers-dead
+  (`06` Critical Failure rewritten; stale CLAUDE.md reference removed).
+- `2-SF4` — **partly addressed.** Hazard-warning lead time now reconciles
+  with a run-generation schedule the telegraph looks ahead at; the
+  look-ahead mechanism exists.
+- **Deferred to the Hazards & Data-Gathering theme:** how a survey accrues
+  `Confidence` against a fixed schedule rather than a per-season Bernoulli
+  draw, and how that feeds the Safeguard `Score` (`11-B1`, `11-B2`); whether
+  Atmospheric Hazard also becomes a scheduled event or stays continuous
+  (`11-B5`); the non-shield Indoor temperature/energy coupling and the
+  `06` "scales with how extreme" reconciliation (`5-B1`).
