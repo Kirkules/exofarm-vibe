@@ -30,7 +30,9 @@ Each settler carries:
   - **Standing Assignment** — stays one-shot, no stickiness, unaffected.
 - `status_effect` — a list of concurrently-possible entries (not a single
   field): Injury (see below), Atmospheric Hazard, Temperature Extremity
-  (slowed), and Storied.
+  (slowed), Storied, and Sleep quality (Poor / Good / Great — a
+  settlement-wide Effort modifier on on-site work, set by the best crew
+  quarters standing; see Buildings & Economy's [Habitation](04_buildings_and_economy.md#habitation)).
 - `legend_value` — a list of completed sites/achievements, not just a
   scalar; the Frontier Legends formula (see Win/Lose Conditions) sums it,
   and the list itself feeds personnel-file/end-of-run report display.

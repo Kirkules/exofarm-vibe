@@ -192,20 +192,18 @@ tracks what's needed *underneath* them.
   sub-items remain for Season Simulation at this pass — left unchecked
   below since this reflects the currently-known gap list, not a claim that
   every possible gap has been surfaced.
-- [ ] **Run-start flow** — Story & World's Meta-Progression & Earth Hub
-  section is currently a 4-bullet sketch (Design browser, Exoplanet
-  catalog, Run history, Start run) with no real UI/flow design underneath
-  it. Needs fleshing out: the hub landing itself (what the player actually
-  sees/does first); how the already-designed Crew Selection and Farm Site
-  Selection (see Core Loop & Grid) connect to the hub and to each other in
-  sequence; what happens between pressing "Start run" and the first
-  planning phase actually beginning — including where the already-designed
-  one-time SEED summary transmission (see Planets & Scoring's
-  In-Simulation Hazard Events, "near-zero confidence... one-time SEED
-  summary transmission at run start") actually lands in that sequence, and
-  starting-building/starting-Rations setup; Run History's actual
-  presentation; and Settings screen(s), not designed anywhere yet. Surfaced
-  while scoping a broader per-system design audit.
+- [ ] **Run-start flow** — Surfaced while scoping the per-system design
+  audit. **Largely resolved (2026-09-03):** the ordered screen sequence
+  with its two commit points (wormhole confirmation, land-at-site
+  confirmation), reversibility between them, the starting loadout, and
+  Starting Settlement Placement (the T-tetromino) are written into Core
+  Loop & Grid's Run-Start Flow / Starting Settlement Placement; the hub's
+  five destinations are in Story & World's Earth Hub Contents; the
+  Settlement Base is in Buildings & Economy; Season 1 is confirmed an
+  ordinary season, and the one-time SEED summary transmission lands at the
+  top of Season 1 planning. **Still open:** Run History's actual
+  presentation (see also `12-SF7`), and the Settings screen(s), not
+  designed anywhere yet (see `12-SF5`).
 - [ ] **Meta-progression redesign** — cross-run progression is currently only
   a loose definition ("any cross-run change to the game outside of run
   history"; see Story & World's Meta-Progression and Core Loop & Grid's Across
@@ -222,11 +220,23 @@ tracks what's needed *underneath* them.
     would) invent on their own, via that relationship.
   - Better wormhole-opening technology raises the Specialization mass budget
     (see Core Loop & Grid's Specialization) and widens/cheapens its pool —
-    e.g. affording an advanced worker, or two directions at once.
+    e.g. affording an advanced worker, or two directions at once. This
+    **absorbs the old "wormhole mass-threshold stabilization tech" axis**
+    (audit `12-SF3`): the base starting loadout is now a flat "one
+    Settlement Base + three other starting buildings + one construction
+    robot" (see Core Loop & Grid's Run-Start Flow), and any cross-run
+    variation on it belongs to this redesign rather than a separate axis.
   Sequenced **after** the initial-run-state work.
 
 ## Newly Surfaced Ideas (recorded, not yet designed in detail)
 
+- [ ] **Luxury-item catalog & Habitation boosts** — Luxury Living Quarters
+  (see Buildings & Economy's Habitation) gives one luxury-item slot per
+  settler; each *distinct* luxury item held in a slot grants one
+  settlement-wide boost. Undesigned: which luxury items exist, where they
+  come from (fabrication? Trade Agreements? alliance rewards?), what each
+  one boosts, and how strong the boosts are. Surfaced by the run-start /
+  Settlement Base design pass (2026-09-03).
 - [x] **Alien trade economy** — resolved as **Trade Agreements** (see
   Settlers & Exploration's Escalation Chains' Deepening an alliance):
   neither a dedicated interface nor an automatic passive trickle — a
@@ -774,3 +784,44 @@ enumeration in `02`; `SF9` decide where the one-time Herald-naming step lives
   balancing" to structural: Peaceful Contact's base-alliance-reward *shape*, and
   the deepening-alliance tier *count*/cadence — these gate whether the arc is
   buildable, not just tunable. (audit `10b`)
+
+### Addressed by the run-start / initial-state pass (2026-09-03)
+
+Theme 1 work — written into Core Loop & Grid (Run-Start Flow, Starting
+Settlement Placement), Buildings & Economy (Settlement Base, Habitation),
+Settlers & Exploration (`status_effect` list), and Planets & Scoring
+(`DisruptionFootprint` baseline).
+
+- `2-B1` — **resolved.** Season 1 is an ordinary season: normal Planning
+  Phase first, no preceding Post-Sim, no special seeding, same
+  Lock-in/Mid-Sim/Post-Sim structure; the SEED summary transmission lands
+  at the top of Season 1 planning.
+- `1-B3` — **resolved.** Initial grid state = Starting Settlement Placement
+  (a rotatable T-tetromino: Settlement Base centre, the three other
+  starting buildings on the arms); all four become independent
+  robot-relocatable buildings once the run starts; the `DisruptionFootprint`
+  baseline is the site's pristine state captured at Farm Site Selection,
+  before placement, and the placement is its first accrual (plus a small
+  flat founding amount).
+- `12-B1` — **resolved.** Full ordered run-start sequence with two commit
+  points (wormhole confirmation; land-at-site confirmation) and the
+  reversibility rules between them.
+- `12-B3` — **resolved.** Starting loadout defined: 5 crew, Specialization
+  additions, a starting Rations stock (amount TBD), one Settlement Base +
+  Water Processing Plant + Sawmill + Stone Processing, one construction
+  robot.
+- `12-SF1` — **resolved.** Crew Selection is first, before any planet
+  detail is shown (blind pick).
+- `12-SF2` — **resolved.** Reversibility/commitment boundary defined (the
+  two confirmations above).
+- `12-SF3` — **resolved (direction).** No standalone "stabilization tech"
+  axis; base loadout is a flat number, and cross-run variation on it is
+  folded into the Meta-progression redesign item.
+- `6-SF7` / `11-SF14` / `7b-B-CS3` — **partially addressed.** The
+  `DisruptionFootprint` baseline and its "changed from baseline" definition
+  are now pinned; the per-type weighting, the discovery-gated extra weight
+  for aquifers, and the mid-Mid-Sim destruction ordering remain open.
+- Energy/Water Season-1 baselines (theme 1) — **unblocked, not yet
+  written.** The starting buildings and their placement now exist; the
+  actual Season-1 Energy/Water starting rates still need a pass with
+  Systems 5/6.

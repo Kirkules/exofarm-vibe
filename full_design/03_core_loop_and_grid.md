@@ -94,12 +94,61 @@ rather than placeable:
 - Forest tiles (bounded Wood quantity — see Buildings & Economy's [Fuel](04_buildings_and_economy.md#fuel))
 - Set at run start; cannot be moved or removed
 
+### Run-Start Flow
+
+The screens between "start a run" and the first Planning Phase, in order.
+Most are detailed in their own subsection below; the hub is in Story &
+World's [Meta-Progression](02_story_and_world.md#meta-progression) & Earth Hub.
+
+1. **Hub** — the player picks a planet from the candidate pool. The pool is
+   rerollable *here, in the hub*, and nowhere later.
+2. **[Crew Selection](03_core_loop_and_grid.md#crew-selection)** — settle on the starting crew of 5.
+3. **[Specialization](03_core_loop_and_grid.md#specialization)** — allocate the wormhole mass budget.
+4. **Wormhole confirmation** — an explicit, deliberate confirm and the
+   **first point of no return:** the planet is now locked and can never be
+   rerolled. Nothing about the specific planet has been shown yet; it is
+   revealed only from here on.
+5. **[Farm Site Selection](03_core_loop_and_grid.md#farm-site-selection)** — choose the grid instance from 3
+   candidates (the candidate set is rerollable here, 1 Ration per reroll).
+6. **[Starting Settlement Placement](03_core_loop_and_grid.md#starting-settlement-placement)** — position the starting
+   buildings on the chosen grid.
+7. **Land-at-site confirmation** — a second explicit confirm and the
+   **second point of no return:** the site and the settlement's placement
+   are locked, and Farm Site Selection can no longer be revisited.
+8. **Season 1 planning** — the first Planning Phase opens.
+
+**Reversibility between the commit points.** Everything up to the wormhole
+confirmation is freely revisited: the player can back out to Crew
+Selection, and re-confirming the crew restarts Specialization fresh (see
+[Specialization](03_core_loop_and_grid.md#specialization)). Between the wormhole confirmation and the
+land-at-site confirmation the planet is fixed, so the only "back" action
+is rerolling the Farm Site Selection candidate set; Starting Settlement
+Placement itself is freely repositioned until the land-at-site confirm.
+
+**Season 1 is an ordinary season.** It opens directly on a normal
+[Planning Phase](03_core_loop_and_grid.md#planning-phase) — no Post-Sim precedes it, there is no special
+first-season seeding step, and it runs the same Planning Lock-in / Mid-Sim
+/ Post-Sim structure as every other season (see [Season Structure](03_core_loop_and_grid.md#season-structure)).
+The only Season-1-specific content is the one-time SEED summary
+transmission (see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events),
+near-zero-`Confidence` telegraphing), which arrives at the **top of Season
+1 planning**, once the settlement is on the grid.
+
+**Starting loadout.** A run begins with: the crew of 5; whatever
+[Specialization](03_core_loop_and_grid.md#specialization) added on top; a starting Rations stock (amount
+TBD, deferred to balancing); one **Settlement Base** plus the three other
+starting buildings — Water Processing Plant, Sawmill, and Stone Processing
+(see Buildings & Economy's [Basic Resource Production](04_buildings_and_economy.md#basic-resource-production), [Water](04_buildings_and_economy.md#water), and
+[Fabrication](04_buildings_and_economy.md#fabrication)); and one construction robot.
+
 ### Crew Selection
 
-A one-time pre-run screen, before Farm Site Selection, where the player
-settles on their starting crew (5 settlers). Exact ordering relative to
-the expedition-commitment/filament-scan step below is TBD — this section
-only fixes that it precedes Farm Site Selection.
+A one-time pre-run screen — the first decision of a run, immediately after
+the planet is picked in the hub and before anything about the planet is
+shown. It is followed by [Specialization](03_core_loop_and_grid.md#specialization), then the wormhole
+confirmation, then [Farm Site Selection](03_core_loop_and_grid.md#farm-site-selection) (see [Run-Start Flow](03_core_loop_and_grid.md#run-start-flow)
+for the full ordering). The player settles here on their starting crew of
+5 settlers.
 
 **What it determines.** Each candidate crew is a full set of settlers with
 independently-rolled Aptitude profiles (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's
@@ -199,10 +248,11 @@ Rations stock, the starting buildings, and one construction robot).
 A one-time pre-run screen that determines the actual grid instance a run
 plays out on — terrain layout, fixed/environmental slots, and deposit
 seeding (see Buildings & Economy's [Deposit Discovery](04_buildings_and_economy.md#deposit-discovery))
-are all generated here, not before. It happens **after** committing to an
-expedition (the planet-type choice made via filament-scan, see Story &
-World's [Filaments and Exoplanet Discovery](02_story_and_world.md#background-story--gameplay-story-integration))
-and before Season 1 planning opens.
+are all generated here, not before. It happens **after** the wormhole
+confirmation (which locks the planet type — the choice made via
+filament-scan, see Story & World's [Filaments and Exoplanet Discovery](02_story_and_world.md#background-story--gameplay-story-integration))
+and **before** [Starting Settlement Placement](03_core_loop_and_grid.md#starting-settlement-placement) and Season 1 planning
+(see [Run-Start Flow](03_core_loop_and_grid.md#run-start-flow)).
 
 **What varies by site vs. by planet type.** Planet-type-level values —
 Hazard Priors, the A/B/C/D strategy-dimension pressures — are fixed once the
@@ -230,7 +280,12 @@ this stage would undercut the discovery gameplay loop that's supposed to
 gate them.
 
 **Selection.** Picking a candidate locks in that grid instance — terrain and
-the full deposit seeding (hidden tiers included) — for the entire run.
+the full deposit seeding (hidden tiers included) — for the entire run. The
+site's **pristine state at this moment** — before any building is placed —
+is the baseline the Stewardship `DisruptionFootprint` score is measured
+against for the rest of the run (see Planets & Scoring's [SEED Factions](06_planets_and_scoring.md#seed-factions)).
+World generation guarantees every candidate admits at least one legal
+Starting Settlement Placement (below).
 
 **Reroll.** The player may discard all 3 candidates and generate 3 entirely
 new ones, at a cost of **1 Ration** (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's
@@ -240,6 +295,45 @@ settlers eat while they wait, though not a full season's worth. Rerolling
 is uncapped other than by the player's Ration stock, so it draws on the same
 scarcity already established for Rations rather than introducing a new
 limiting resource.
+
+### Starting Settlement Placement
+
+The step between [Farm Site Selection](03_core_loop_and_grid.md#farm-site-selection) and the land-at-site
+confirmation, where the player positions the starting buildings on the
+chosen grid.
+
+**The footprint.** The four starting buildings land together as one rigid
+**T-tetromino** (four cells): the centre — the cell adjacent to the other
+three — holds the **Settlement Base** (see Buildings & Economy's
+[Settlement Base](04_buildings_and_economy.md#settlement-base)), and the three arm cells hold the **Water
+Processing Plant**, **Sawmill**, and **Stone Processing** (arm-to-building
+assignment is fixed, not random; the specific mapping is a balancing-pass
+detail). The player slides the tetromino across the grid and **rotates it
+through its four orientations**; there is no other arrangement freedom at
+this step.
+
+**Placement validity.** Every one of the four cells must be in-bounds,
+passable, and empty. Covering a visible feature (a Surface-tier deposit,
+a Forest tile) is permitted and resolves under the general
+building-on-a-feature rule (its own open item — see `DESIGN_TODO.md`).
+World generation guarantees at least one legal placement exists on every
+candidate site, so this step can never dead-end.
+
+**After placement.** The tetromino is rigid only during this step. Once
+the run begins, the four buildings are independent, ordinary fixed
+buildings, each relocatable by a construction robot like any other (see
+[Construction](03_core_loop_and_grid.md#construction)).
+
+**Reversibility.** Freely repositioned and rotated until the land-at-site
+confirmation; that confirmation is the second point of no return (see
+[Run-Start Flow](03_core_loop_and_grid.md#run-start-flow)).
+
+**Disruption.** Placing the starting settlement is the first change
+measured against the run-start `DisruptionFootprint` baseline (see
+Planets & Scoring's [SEED Factions](06_planets_and_scoring.md#seed-factions)). Founding a settlement always
+carries a small `DisruptionFootprint` — there is no zero-impact way to
+settle an alien world — and it is deliberately a minor term, not a
+dominant one.
 
 ### What Got Cut
 

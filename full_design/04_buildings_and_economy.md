@@ -127,6 +127,10 @@ numeric values in this design.
    [Research Lab](04_buildings_and_economy.md#research-lab)). The thing these share isn't output type, it's role —
    keeping the place running rather than producing, protecting, or storing
    anything directly.
+8. **Habitation** — crew sleeping quarters (see [Habitation](04_buildings_and_economy.md#habitation)). Unstaffed;
+   its output is a settlement-wide settler effect ("Sleep quality"), not a
+   tracked resource. The starting Settlement Base fills this role for free
+   at the baseline level; a dedicated building is an upgrade over it.
 
 ### Baseline Farm/Mined Resources
 A small set of **generic resource categories**, common to every mission
@@ -235,7 +239,7 @@ the following properties. Working through the catalog category-by-category (see
 **Universal properties** (every building has these):
 - **Name** — per the naming-convention design principle (tier-appropriate
   familiarity/exoticism)
-- **Category** — one of the 7 Building Categories
+- **Category** — one of the 8 Building Categories
 - **Grid slot count** — all buildings sit on a single unified grid (see Core
   Loop & Grid's The Grid). **Slot count equals the number of simultaneous
   worker assignments a building supports** — most
@@ -381,6 +385,8 @@ are each their own distinct entry.
 
 | Entry | Tier |
 |---|---|
+| Settlement Base (base) | 0 |
+| Settlement Base II (upgraded) | 2 |
 | Solar Array (base) | 0 |
 | Solar Array (upgraded) | 2 |
 | Geothermal Generator | 1 |
@@ -512,17 +518,28 @@ catalog entry)
 | Food Storage (base) | 0 |
 | Food Storage (upgraded) | 2 |
 
+**Habitation**
+
+| Entry | Tier |
+|---|---|
+| Crew Quarters | 1 |
+| Luxury Living Quarters | 3 |
+
+*(The Settlement Base's Habitation role carries no separate
+`TechAchievement` entry — the building is scored under Basic Resource
+Production, above, as the starting Solar Array it also is.)*
+
 ---
 
 ## Basic Resource Production
 
-Every run begins with one Solar Array (exact starting count tied to wormhole
-mass-threshold stabilization tech — a meta-progression axis — see Background
-Story's Faster-Than-Light Travel section), alongside the other starting
-buildings (Water Processing Plant, Sawmill, Stone Processing — see Water and
-Fabrication). Solar Array can be built again (more copies) and upgraded,
-each consuming a grid slot, preserving the grid's limited-slots opportunity
-cost.
+Every run begins with one **[Settlement Base](04_buildings_and_economy.md#settlement-base)** — the run's first
+Solar Array, a variant that also houses the crew's quarters — alongside the
+other starting buildings (Water Processing Plant, Sawmill, Stone Processing
+— see [Water](04_buildings_and_economy.md#water) and [Fabrication](04_buildings_and_economy.md#fabrication)). How these four land on the grid is
+Core Loop & Grid's [Starting Settlement Placement](03_core_loop_and_grid.md#starting-settlement-placement). Plain Solar
+Arrays can be built and upgraded thereafter (more copies), each consuming a
+grid slot, preserving the grid's limited-slots opportunity cost.
 
 ### Solar Array
 - Category: Basic Resource Production | Staffing:
@@ -536,6 +553,38 @@ cost.
   produce more Energy; a late tier is a natural place to pay off the Crash
   Research Era's controlled-fusion lore (e.g. eventually becoming a Fusion
   Generator — `TechAchievement` TBD once that tier is actually designed)
+- Area of effect / Energy upkeep / Preparedness / Data-gathering / Storage: N/A
+
+### Settlement Base
+
+The one starting Solar Array, a special variant that **also houses the
+crew's quarters**. Apart from the quarters, it behaves exactly like a
+[Solar Array](04_buildings_and_economy.md#solar-array): same planet-type Energy rate, unstaffed, one grid
+slot, robot-relocatable.
+
+- Category: Basic Resource Production (the quarters function also places it
+  in [Habitation](04_buildings_and_economy.md#habitation)) | Staffing: Unstaffed
+- Input: none | Output: Energy per season (as Solar Array) + baseline
+  crew quarters (see [Habitation](04_buildings_and_economy.md#habitation) — the crew get neither the "Poor
+  Sleep" debuff nor a "Good/Great Sleep" buff while a Settlement Base or
+  any dedicated quarters stands)
+- Grid slot count: 1 (the quarters are spartan and add no footprint)
+- Construction cost: N/A at run start (it arrives with the expedition);
+  not independently buildable
+- `TechAchievement`: 0 (base) / 2 (**Settlement Base II**, upgraded) — see
+  [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)
+- Repeatable: **no** — exactly one per run; further Solar Arrays are plain
+- Upgrade path: yes — upgrading raises the Energy tier the same way a Solar
+  Array upgrade does, and the result stays a distinct **Settlement Base
+  II** (it keeps the quarters and stays separate from an upgraded plain
+  Solar Array)
+- **If destroyed** (see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)):
+  the run does **not** end. Its Energy output is lost and it stops
+  providing quarters — if it was the only source of quarters, the whole
+  crew takes the "Poor Sleep" debuff (see [Habitation](04_buildings_and_economy.md#habitation)). It is a
+  one-off: once destroyed it cannot be rebuilt, and the player recovers by
+  building a plain Solar Array for the Energy and a [Crew Quarters](04_buildings_and_economy.md#crew-quarters)
+  for the sleep.
 - Area of effect / Energy upkeep / Preparedness / Data-gathering / Storage: N/A
 
 ### Geothermal Generator
@@ -1691,6 +1740,71 @@ principle that a planet/strategy shouldn't reduce to one correct approach)*
 - `TechAchievement`: 2 (base) / 3 (Vaccine Production tier) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog); PPE 1,
   Emergency Medical Kit 2 |
   Repeatable: yes | Upgrade path: yes, as described above
+
+---
+
+## Habitation
+
+The crew need somewhere to sleep. **Sleep quality** is a settlement-wide
+settler status (a `status_effect` entry — see Settlers & Exploration's
+[Settler State](05_settlers_and_exploration.md#settlers)), determined by the best quarters the settlement
+currently provides, on a **best-available-wins** basis — the tiers do not
+stack:
+
+| Best quarters standing | Status | Effect |
+|---|---|---|
+| none | **Poor Sleep** | on-site Effort ×0.75 |
+| Settlement Base only | *(neutral — no status)* | baseline |
+| Crew Quarters | **Good Sleep** | on-site Effort ×1.10 |
+| Luxury Living Quarters | **Great Sleep** | on-site Effort ×1.15 |
+
+- The modifier applies to **settlers only** (drones do not sleep) and to
+  **on-site work only** — production-building assignments *and* Standing
+  Assignments (both performed at or near the settlement, where the settler
+  sleeps in their quarters). Exploration Tasks are unaffected — the settler
+  is away from the settlement for the season.
+- It is a straight multiplier on the worker's Effort contribution; its
+  exact position relative to Aptitude/Experience/other modifiers folds
+  into the open modifier-combination question (see Worker Assignment audit
+  `3-SF1` in `DESIGN_TODO.md`).
+- One qualifying building covers the **whole crew** — there is no
+  per-settler capacity. The status flips the moment the settlement's best
+  standing quarters changes (a Crew Quarters built, the Settlement Base
+  destroyed, etc.), resolved at the same point as other `status_effect`
+  changes.
+
+### Crew Quarters
+- Category: Habitation | Staffing: Unstaffed
+- Input: none | Output: **Good Sleep** for the whole crew (see table
+  above)
+- Grid slot count: 1
+- Construction cost: modest Lumber/Concrete (ratio TBD, deferred to
+  balancing)
+- `TechAchievement`: 1 — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)
+- Repeatable: **no** — a second one does nothing (the effect is
+  settlement-wide and non-stacking)
+- Upgrade path: yes → **Luxury Living Quarters**
+- Area of effect / Energy upkeep / Preparedness / Data-gathering / Storage: N/A
+
+### Luxury Living Quarters
+The upgrade tier of [Crew Quarters](04_buildings_and_economy.md#crew-quarters).
+- Category: Habitation | Staffing: Unstaffed
+- Input: none | Output: **Great Sleep** for the whole crew, plus the
+  luxury-item slots below
+- Grid slot count: 1
+- **Luxury-item slots** — one slot per settler (five, at the crew size of
+  5). A luxury item is *held/assigned* into a slot from general inventory,
+  a normal reversible planning-phase action in **any** planning phase (not
+  only the one where it was first assigned) — it is not consumed. Each
+  **distinct** luxury item in a slot grants one settlement-wide boost;
+  duplicates of the same item add nothing. The luxury-item roster and the
+  boost each one grants are **not yet designed** — see `DESIGN_TODO.md`,
+  "Luxury-item catalog & Habitation boosts".
+- Construction cost: Crew Quarters' cost plus refined goods (exact set
+  TBD, deferred to balancing)
+- `TechAchievement`: 3 — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)
+- Repeatable: no | Upgrade path: none (top tier)
+- Area of effect / Energy upkeep / Preparedness / Data-gathering / Storage: N/A
 
 ---
 

@@ -457,11 +457,18 @@ rather than repeated per faction below.
   - `DisruptionFootprint` — a weighted ratio of untouched vs. disrupted
     native-terrain (fixed/environmental) slots on the grid; directly
     computable from grid state, no data-gathering needed to reveal it.
+    **Baseline**: the site's pristine state, captured when the grid
+    instance is locked in Farm Site Selection — *before* the starting
+    settlement is placed (see Core Loop & Grid's [Starting Settlement Placement](03_core_loop_and_grid.md#starting-settlement-placement)).
     **Base disruption**: any fixed/environmental slot whose state has
-    changed from what it was at the start of Season 1 (built over,
-    harvested, extracted from, etc.) counts as disrupted — applies
-    uniformly across every fixed/environmental type (deposits, Forest
-    tiles, all of it); untouched slots don't count. **Further
+    changed from that baseline (built over, harvested, extracted from,
+    etc.) counts as disrupted — applies uniformly across every
+    fixed/environmental type (deposits, Forest tiles, all of it);
+    untouched slots don't count. The starting settlement's own placement
+    is the first change measured this way; on top of any slot it happens
+    to cover, **founding the settlement adds a small flat amount** — there
+    is no zero-impact way to settle an alien world — kept deliberately
+    minor relative to a run's ongoing extraction. **Further
     disruption**: among disrupted slots, ones whose underlying feature
     required active discovery (a Mid-depth or Deep tier survey reveal)
     before being acted on contribute more than a base-disrupted slot does —
