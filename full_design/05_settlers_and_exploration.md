@@ -2,7 +2,7 @@
 
 ## Settlers
 
-- A small group of **human settlers** (3–4 at run start)
+- A small group of **human settlers** (5 at run start)
 - Named individuals, with real per-settler state (see [Settler State](05_settlers_and_exploration.md#settler-state), below) —
   no longer "no individual gameplay mechanics" now that Frontier Legends,
   injuries, and Atmospheric/Temperature hazards all need it. Settlers may form

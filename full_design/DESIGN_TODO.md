@@ -206,6 +206,21 @@ tracks what's needed *underneath* them.
   starting-building/starting-Rations setup; Run History's actual
   presentation; and Settings screen(s), not designed anywhere yet. Surfaced
   while scoping a broader per-system design audit.
+- [ ] **Meta-progression redesign** — cross-run progression is currently only
+  a loose definition ("any cross-run change to the game outside of run
+  history"; see Story & World's Meta-Progression and Core Loop & Grid's Across
+  Runs). The earlier single mechanism — gather enough of a previously-unseen
+  resource type during a run → Earth develops new catalog designs from it,
+  unlocked for future runs — was **dropped as too narrow**: a story-era guess
+  made before the surrounding systems were settled. Needs a real design
+  spanning several intended avenues. Fodder, not yet designed:
+  - Per-faction score thresholds unlock a game-changing element — e.g. once
+    Frontier Legends passes a threshold, its recruitment ramp guarantees
+    every future crew one legendary-tier "hero" settler.
+  - A small chance, on establishing trade with a technologically advanced
+    alien species, to unlock a technology humans do not (and in-fiction never
+    would) invent on their own, via that relationship.
+  Sequenced **after** the initial-run-state work.
 
 ## Newly Surfaced Ideas (recorded, not yet designed in detail)
 

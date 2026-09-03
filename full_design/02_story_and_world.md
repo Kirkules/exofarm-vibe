@@ -18,24 +18,31 @@
 The Earth hub is the persistent home base between runs. It represents humanity's
 growing body of knowledge from all completed expeditions.
 
-### Design Catalog
-- Earth already knows how to make everything — settlers arrive with **blueprints for all
-  known designs**. What limits them is access to the required **planet-side materials**.
-- As the game progresses across multiple runs, the catalog **grows**: discovering and
-  gathering enough of a previously-unseen resource type during a run prompts Earth's
-  designers to develop new designs using that material, unlocking them for future runs.
-- This is the primary meta-progression mechanic: **resource discovery → new designs
-  unlocked.**
-- Story framing: Earth didn't have reason or opportunity to develop these designs before.
-  The expedition's discovery creates the impetus.
+### Meta-Progression
+
+**Meta-progression** is any cross-run change to the game outside of run history
+— a permanent shift to what a future run starts with, contains, or can reach,
+representing humanity's accumulating knowledge and capability from completed
+expeditions. Several distinct avenues are intended; the specific mechanisms are
+**not yet designed** (see `DESIGN_TODO.md`).
+
+Earth already knows how to make everything the catalog currently contains —
+settlers arrive with **blueprints for all known designs**, and what limits them
+in a run is access to the required **planet-side materials**, not knowledge.
 
 ### Earth Hub Contents
-- **Design browser** — all known buildings/conversions, organized by category;
-  reflects current meta-progression unlocks
-- **Exoplanet catalog** — available planet types with their conditions and features;
-  used to choose the next run (or opt into random selection)
-- **Run history** — summary of past runs: planet visited, score, key outcomes
-- **Start run** — launch into a new expedition
+
+The hub landing routes to five screens; it is otherwise independent of a run's
+first season and initial settlement state:
+- **Exoplanet catalog** — the available candidate planets with their known
+  conditions and features; used to choose the next run (or opt into random
+  selection), and to reroll the candidate pool. "Start run" launches from here
+  once a candidate is chosen.
+- **Run history** — summary of past runs: planet visited, score, key outcomes.
+- **Meta-progression** — the cross-run options above.
+- **Settings** — game-wide settings.
+- **Discovered-element codex** — reference detail on game elements the player
+  has encountered: how they work, their stats, and so on.
 
 *Backstory and lore moved to [Background Story & Gameplay-Story Integration](02_story_and_world.md#background-story--gameplay-story-integration) below.*
 

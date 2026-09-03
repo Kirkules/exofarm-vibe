@@ -74,7 +74,7 @@
   the persistence paradigm for all future run-state additions
 
 ### Phase 4 — Meta-Progression & Content
-- [ ] New design unlocking via novel resource discovery (cross-run)
+- [ ] Cross-run meta-progression avenues (not yet designed — see `DESIGN_TODO.md`)
 - [ ] Multiple exoplanet types with distinct properties
 - [ ] Full initial set of buildings, crops, and modules
 - [ ] Cafeteria building content: meal recipes, crop and animal output items

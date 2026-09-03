@@ -97,7 +97,7 @@ rather than placeable:
 ### Crew Selection
 
 A one-time pre-run screen, before Farm Site Selection, where the player
-settles on their starting crew (3–4 settlers). Exact ordering relative to
+settles on their starting crew (5 settlers). Exact ordering relative to
 the expedition-commitment/filament-scan step below is TBD — this section
 only fixes that it precedes Farm Site Selection.
 
@@ -128,9 +128,9 @@ independently-rolled settlers can't be gamed by concentrating every
 settler's downside where it's easiest to ignore (e.g. one settler eating
 every negative bucket while never being assigned there, leaving every
 other settler's upside free). A full-Savant crew is possible
-(0.1³ ≈ 0.1% for a 3-settler crew) but very rare, matching the intent that
-an optimal roll should be a real, felt outlier, not something worth
-grinding for.
+(0.1⁵ ≈ 0.001% for the 5-settler crew) but vanishingly rare, matching the
+intent that an optimal roll should be a real, felt outlier, not something
+worth grinding for.
 
 **Presentation.** Shows the full candidate crew — names and Aptitude
 profiles as plain-language readouts per bucket (e.g. "+30% Mining speed"),
@@ -680,8 +680,8 @@ adaptability) and which advanced designs become accessible.
 the other viable — not to make one path always correct.*
 
 ### Across Runs (Meta-Progression)
-- Gathering enough of a **new resource type** (one not seen in prior runs) during a run
-  causes Earth's designers to develop a new design using that material.
-- That design is added to the **catalog** and available in all future runs.
-- Creates incentive to explore varied exoplanet types, each with distinct resource
-  profiles.
+
+Cross-run progression — any permanent change a completed run makes to future
+runs, beyond the run-history record — is **not yet designed**; several avenues
+are intended. See Story & World's [Meta-Progression](02_story_and_world.md#meta-progression)
+and `DESIGN_TODO.md`.
