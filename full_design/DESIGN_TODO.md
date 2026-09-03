@@ -821,7 +821,9 @@ Settlers & Exploration (`status_effect` list), and Planets & Scoring
   `DisruptionFootprint` baseline and its "changed from baseline" definition
   are now pinned; the per-type weighting, the discovery-gated extra weight
   for aquifers, and the mid-Mid-Sim destruction ordering remain open.
-- Energy/Water Season-1 baselines (theme 1) — **unblocked, not yet
-  written.** The starting buildings and their placement now exist; the
-  actual Season-1 Energy/Water starting rates still need a pass with
-  Systems 5/6.
+- Energy/Water Season-1 baselines (theme 1) — **still blocked, deferred.**
+  The starting buildings and their placement now exist, but the Season-1
+  starting rates can't be set until the Energy/Water **consumption** rates
+  of production buildings, other buildings, and drone recharge are
+  designed. Sequenced after that Systems 5/6 consumption-rate pass, not
+  part of the run-start work.
