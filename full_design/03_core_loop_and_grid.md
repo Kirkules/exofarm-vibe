@@ -141,6 +141,59 @@ new one. Unlike [Farm Site Selection](03_core_loop_and_grid.md#farm-site-selecti
 uncapped** — no Ration cost, no limit — since it's the very first decision
 of a run, before there's anything in inventory to spend.
 
+### Specialization
+
+A one-time pre-run screen after [Crew Selection](03_core_loop_and_grid.md#crew-selection) and before the wormhole is
+committed. Framed as the small amount of extra mass that fits through the
+wormhole alongside the crew and the basic starting materials — an opportunity to
+begin the run leaning in one direction.
+
+**Mechanic.** The player has a **mass budget** — set by current
+meta-progression state — and fills a bucket with elements from the **full list
+of possibilities**, each carrying a mass cost. An element can be added only
+while the remaining budget covers its cost. The full list is always shown,
+including elements the current budget cannot afford (they appear but
+unselectable), so the screen doubles as a visible signpost for what
+meta-progression will later open up. There is no randomness and nothing to
+reroll — it is pure allocation, freely filled, rearranged, or emptied, and fully
+reversible up to the wormhole confirmation (backing out to Crew Selection and
+re-confirming the crew starts Specialization fresh).
+
+**Base budget** affords exactly one atomic element, so at the start of the game
+this is effectively a single mutually-exclusive pick; specializing in more than
+one direction at once is a meta-progression reward (a larger budget, plus a
+wider and cheaper pool — see Story & World's [Meta-Progression](02_story_and_world.md#meta-progression)). Whatever is
+chosen is **additive** on top of the base starting loadout (the crew, a starting
+Rations stock, the starting buildings, and one construction robot).
+
+**Base pool.**
+- **Extra Rations** — one fixed additional Rations unit (larger bundles are a
+  later meta-progression option). Intended to be enough to fund early
+  exploration without an immediate pivot to farming; exact amount TBD, deferred
+  to balancing.
+- **Extra worker** — one additional worker, the player choosing a **construction
+  robot** or a basic **all-purpose drone** (see Buildings & Economy's
+  [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly)).
+- **Orbital probe** — a small satellite placed in a semi-stable orbit that holds
+  for the whole run. It has no grid presence — no slot, no staffing, no Energy —
+  and is an abstract run modifier surfaced through the planetary-assessment
+  readout and Transmissions. Two effects:
+  - **Weather floor.** It raises the floor of hazard telegraphing (see Planets &
+    Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)): the settlement always receives at
+    least the vague, one-season-ahead warning of a coming Storm or Temperature
+    Extremity, even at near-zero `Confidence`. This adds no separate channel —
+    it lifts the existing `Confidence`-scaled telegraphing to its
+    low-to-moderate tier as a baseline.
+  - **Civilization scan.** Once, early in the run, the probe rolls an **80%**
+    chance to detect organized life on the planet. On success the player
+    receives a Transmission and a **guaranteed slot in the Exploration Task
+    pool to initiate contact** — feeding the sentience-contact chain (see
+    Settlers & Exploration's [Escalation Chains](05_settlers_and_exploration.md#escalation-chains)) exactly as a completed
+    Sentience Detection task would. On failure there is **no report and no
+    Transmission**: a null result is deliberately ambiguous between "no
+    civilization here" and "the scan missed," and the player can still reach
+    Sentience Detection through ordinary exploration.
+
 ### Farm Site Selection
 
 A one-time pre-run screen that determines the actual grid instance a run

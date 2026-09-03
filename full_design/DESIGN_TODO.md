@@ -220,6 +220,9 @@ tracks what's needed *underneath* them.
   - A small chance, on establishing trade with a technologically advanced
     alien species, to unlock a technology humans do not (and in-fiction never
     would) invent on their own, via that relationship.
+  - Better wormhole-opening technology raises the Specialization mass budget
+    (see Core Loop & Grid's Specialization) and widens/cheapens its pool —
+    e.g. affording an advanced worker, or two directions at once.
   Sequenced **after** the initial-run-state work.
 
 ## Newly Surfaced Ideas (recorded, not yet designed in detail)
