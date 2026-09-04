@@ -52,7 +52,9 @@ tracks what's needed *underneath* them.
   Harvesting are Effort-driven (Planting additionally sped by Wooden Plow);
   Growing needs no worker present (still sticky-assigned, just idle),
   is governed by Alien Soil/Hybridization not Effort, and gates on a
-  **water-draw queue** — a single settlement-wide FIFO queue requesting
+  **water-draw queue** *(superseded — see the Post-Sim resolution-order
+  pass below: this FIFO shape was later replaced by a random-shortfall
+  pool matching Energy's)* — a single settlement-wide FIFO queue requesting
   each building's crop-specific Water amount, strictly ordered with no
   skip-ahead even when the pool could cover a smaller request further back
   (deliberate: the intended player skill is keeping total supply ahead of
@@ -633,13 +635,17 @@ Generator fuel-limit sticky/reversible + post-season "burned X of Y" readout.
 
 **6 — Water** — `SF1` warning/confirmation gate for a season that will trigger
 the zero-Water wipe; `SF2` stale anchor — "settler baseline of 1 Water/season"
-no longer exists; `SF3` canonical queue tiebreak given planning reorders pieces;
-`SF4` queue advances per sim-time, not wall-clock; `SF5` can a collection
-building's toggle turn off the only Water source, and is that gated; `SF6` make
-"blocked in the Water queue" a named Site Panel status state; `SF7` does tapping
-an aquifer incur `DisruptionFootprint` (ExtractionRestraint excludes water but
-the slot-state-changed rule does not); `SF8` confirm Deep Well auto-upgrade and
-a stalled Growing queue emit log/Transmission lines.
+no longer exists; ~~`SF3` canonical queue tiebreak~~ / ~~`SF4` queue advances
+per sim-time, not wall-clock~~ **obsolete** — the Growing-phase Water-draw
+FIFO queue was replaced by a random-shortfall pool (see the Post-Sim
+resolution-order pass below), so there is no queue order left to tiebreak or
+pace; `SF5` can a collection building's toggle turn off the only Water source,
+and is that gated; `SF6` make a Water denial a named Site Panel status state
+(reworded from "blocked in the Water queue" — no queue anymore, see below);
+`SF7` does tapping an aquifer incur `DisruptionFootprint` (ExtractionRestraint
+excludes water but the slot-state-changed rule does not); `SF8` confirm Deep
+Well auto-upgrade and a Water-denied Growing phase emit log/Transmission
+lines.
 
 **7a — Economy & Fabrication** — `A-S4` Seasoning drop cadence for continuous
 sources (per cycle vs. per season); `A-S5` drone upgrade-in-place has no
@@ -886,3 +892,42 @@ and Planets & Scoring (In-Simulation Hazard Events, Critical Failure).
   Atmospheric Hazard also becomes a scheduled event or stays continuous
   (`11-B5`); the non-shield Indoor temperature/energy coupling and the
   `06` "scales with how extreme" reconciliation (`5-B1`).
+
+### Addressed by the Post-Sim resolution-order pass (2026-09-04) — in progress
+
+Theme 2 (Post-Sim resolution order under-specified). Being worked through
+one issue at a time; this subsection is extended as each is resolved.
+
+- `2-B2` — **resolved.** Production was never meant to batch at Post-Sim:
+  every production cycle (continuous-rate or plant-crop three-phase) writes
+  its output to inventory **the instant that cycle completes**, live during
+  Mid-Sim — including a Fuel-based Generator's Fuel draw, deliberately, so
+  Fuel gathered mid-season can be burned just-in-time (see Core Loop &
+  Grid's Season Structure Mid-Sim bullet; Buildings & Economy's Fuel).
+  Nutrition stays the one exception: it's deliberately **not** drawn down
+  live — it resolves as a single lump at Post-Sim, same as before — but the
+  player now gets a **planning-phase prediction readout** (mirroring the
+  Energy bar's "optimistic estimate, not a guarantee") so a dire shortfall
+  is visible and actionable during planning without adding per-tick
+  consumption (see Settlers & Exploration's Food & Nutrition, Consumption —
+  Pooled).
+- **Water's Growing-phase reservation model unified with Energy's.** The
+  strict-FIFO water-draw queue (front-only service, no skip-ahead, ties by
+  build order) is replaced by the same random-shortfall mechanism Energy's
+  Resources section already uses: reservations exceeding available Water
+  Income are resolved by randomly denying enough to fit, recomputed to a
+  fixed point; a denied Growing phase pauses (no progress lost) and
+  re-enters the pool; a manual "turn Water off at this site" toggle exists
+  on the same not-leaned-on footing as Energy's. This addresses the Energy
+  audit's `E-CS5`/`NTH3` finding (Water and Energy claimed "the same shape"
+  but resolved contention by opposite mechanisms) and obsoletes `6-SF3`/
+  `6-SF4` (see Should-fix by system, above). The four animal-based
+  buildings' Water draw is still undefined and is queued as part of the
+  upcoming plant-/animal-based production design pass.
+- **Still open (this theme):** `4-B3` cross-season in-progress-cycle
+  carryover; `1-SF1`/`2-SF2` intra-Post-Sim construction ordering;
+  `2-SF1`/`2-SF3` Post-Sim's two-part structure; `2-SF5` log-line timing
+  accuracy; `2-SF6` previous-season-outcomes-are-final; `10a-SF3`/`10a-B2`
+  explorer Ration deduction placement + multi-season payment model;
+  `10a-SF4` Standing Assignment output timing; `8-SF5` hazard/injury death
+  vs. nutrition headcount.

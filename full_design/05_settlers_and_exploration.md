@@ -592,8 +592,8 @@ actually trade with an ally" (previously an open question — see
   (received from the ally), with per-season quantities — illustrative/TBD
   like other first-pass numbers. The player picks exactly **one; no
   reroll**, consistent with "deliberately not something a player can
-  optimize" restraint already used elsewhere in this design (e.g. the
-  Water-draw queue, Energy's random shedding).
+  optimize" restraint already used elsewhere in this design (e.g. Energy
+  and Water's shared random-shortfall model).
 - **One-season delay before the first exchange.** Accepting an agreement
   doesn't trade anything immediately — the first exchange resolves at the
   end of the *next* season to follow (i.e., the season the player is about
@@ -841,6 +841,21 @@ there is no building filling that old "Matter Manipulator" nutrition role.
     end-of-run Food Security score below.
 - **No penalty for excess** in any axis — surplus simply accumulates in the shared
   inventory stockpile, feeding the score below.
+
+**Planning-phase prediction readout.** The actual Tier-1/Tier-2 check still
+resolves once, at Post-Sim (see Core Loop & Grid's [Season Structure](03_core_loop_and_grid.md#season-structure)) — but
+the player isn't left guessing whether their plan covers a dire need until
+it's too late to act. Through the Planning Phase, a readout projects the
+likely season-end nutrition outcome from currently-stocked food plus this
+season's staffed production, the same **"optimistic estimate, not a
+guarantee"** role the Energy Income/Consumption bar already plays (see
+Buildings & Economy's [Resources](04_buildings_and_economy.md#resources)) — reusing that established pattern rather
+than inventing a second one. In the common case, given how severe Tier-1's
+consequence is, this simply reads "on track" before the player has to think
+about it at all; it only becomes an active decision point on a genuinely
+tight plan, which is exactly when it should. This adds no new mechanic to
+nutrition itself — no per-tick consumption, no new tracked quantities —
+it's a projection layered on the existing once-a-season check.
 
 ### End-of-Run Food Security Score
 `FoodSecurity = normalize(NutritionStockpile) + normalize(NutritionIncome)`

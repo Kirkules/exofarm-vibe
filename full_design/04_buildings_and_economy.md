@@ -706,39 +706,44 @@ below):
   academic given the fixed 1-worker cap above, but stays true if that ever
   changes). Requires a **flat Water consumption-rate reservation, held for
   the phase's whole duration**, to begin (sized so rate × phase duration
-  equals the crop's total Water need) — see the water-draw queue below for
-  what happens when available Income can't cover it.
+  equals the crop's total Water need) — see Water reservation & shortfall
+  below for what happens when available Income can't cover it.
 - **Harvesting** — duration driven by Effort again, same as Planting.
 
-**Water-draw queue (Growing phase only).** Water, like Energy, is tracked
-as a live **Income rate** (see Water below), not an accumulated stock —
-there is no shared balance to draw a lump sum from. When a plant-crop
-building's Growing phase is ready to start, it joins the back of one
-**settlement-wide queue**, shared across every plant-crop building rather
-than tracked per-tile, requesting a consumption-rate reservation sized for
-its crop. Each Mid-Sim tick, the queue's front entry attempts to **reserve**
-its needed rate out of whatever Water Income capacity isn't already
-reserved by other currently-growing buildings; on success it leaves the
-queue and Growing begins immediately, holding that reservation for the
-phase's whole duration and releasing it back to available capacity the
-instant Growing ends (Harvesting needs none). On failure, it stays at the
-front and **every entry behind it stays blocked too** — the queue never
-skips ahead to serve a smaller request further back, even if current
-capacity could cover it. This is deliberate: the intended player skill is
-keeping *total* Water Income ahead of *total* production demand, not
-learning to game which specific farm gets served first — the strict-FIFO
-behavior is there so a player who does notice and exploit it is finding an
-emergent trick, not following the designed-for strategy. Ties (multiple
-buildings finishing Planting on the same Mid-Sim tick) break by
-**build/placement order**. A building re-joins the back of the same queue
-on every subsequent cycle, so nothing is permanently favored within a
-season — only a sustained Water shortage
-stalls whoever's currently at the front (and everyone behind them)
-indefinitely.
-> The four animal-based buildings below still just have a flat per-cycle
-> Water requirement with **no defined insufficient-Water behavior at
-> all** — this queue does not apply to them; see `DESIGN_TODO.md`'s Water
-> resource open threads.
+**Water reservation & shortfall (Growing phase).** Water, like Energy, is
+tracked as a live **Income rate** (see Water below), not an accumulated
+stock — there is no shared balance to draw a lump sum from. When a
+plant-crop building's Growing phase is ready to start, it requests a
+consumption-rate reservation sized for its crop, entering one
+**settlement-wide pool** shared across every currently-requesting Growing
+phase (and, once designed, the animal-based buildings' draw — see
+`DESIGN_TODO.md`'s Water resource open threads).
+
+- **Resolution mirrors Energy's random un-powering** (see [Resources](04_buildings_and_economy.md#resources)),
+  applied to Water instead: when total requested reservations exceed
+  available Water Income, the shortfall is resolved by **randomly**
+  selecting enough requests to deny until the total fits back under
+  Income — recomputed to a fixed point on every event that changes the
+  picture (a Growing phase starting/ending, Water Income changing).
+  Deliberately random, not by a queue position or build order, so which
+  specific site goes dry is never something a player can optimize — the
+  same "keep total supply ahead of total demand, not the service order"
+  intent as before, now delivered by the same mechanism Energy uses rather
+  than a separate one.
+- **A denied Growing phase pauses** — holds its progress, no loss — and
+  re-enters the pool at the next recompute. Once granted, a reservation
+  holds for the phase's whole duration and releases back to available
+  capacity the instant Growing ends (Harvesting needs none).
+- A manual **"turn Water off at this site"** toggle exists, on the same
+  footing as Energy's active/inactive toggle: an available mitigation, not
+  something else in the design is built to expect routine use of.
+- **Legibility.** A denied site surfaces in the simulation log with cause,
+  the same as an Energy un-powering.
+
+> The four animal-based buildings' Water draw mechanism, against this same
+> rate-not-stock model, is still undefined — see `DESIGN_TODO.md`'s Water
+> resource open threads. A design pass covering both the animal-based
+> buildings and this plant-crop section is queued next.
 
 ### Grain Field
 - Staffing: Staffed | Input: Water (Growing-phase draw, see above) |
@@ -1100,7 +1105,8 @@ shortfall, effectively nothing for production draws. So an Energy shortfall
 can never trigger this; only losing the collection infrastructure outright
 can. There is no partial or proportional
 consequence, and settler need never competes with production's own Water
-reservations (see Farm/Production's water-draw queue) for capacity. (Since
+reservations (see Farm/Production's Water reservation & shortfall) for
+capacity. (Since
 there's no longer a settler-need figure to calibrate against, collection
 rates and the plant-crop Growing-phase draw amounts have no shared numeric
 anchor between them anymore — each stays independently TBD, deferred to
@@ -1118,10 +1124,10 @@ distribution system to design. Collection buildings and consumption sites
 don't need spatial adjacency; the player can imagine whatever transportation
 mechanism they like, with no design commitment either way — consistent with
 Energy also never needing an explained distribution system. (The plant-crop
-buildings' water-draw queue, see Farm/Production's Production Cycle, is an
-**allocation-order** mechanic — deciding who reserves available Income rate
-first when it's scarce — not a spatial/transport one; it doesn't reopen
-this decision.)
+buildings' Water reservation pool, see Farm/Production's Production Cycle,
+is a **resource-allocation** mechanic — deciding which reservations get
+served when Income is scarce — not a spatial/transport one; it doesn't
+reopen this decision.)
 
 **All collection buildings require a [Water Processing Plant](04_buildings_and_economy.md#water-processing-plant) to function at
 all** — see below. No separate "Raw Water" intermediate resource; the Plant's
@@ -1155,10 +1161,10 @@ base / 2 once it automatically becomes a Deep Well (below).
   now a binary "any production at all" check rather than a
   headcount-vs-quantity comparison (see Water above), Reclamation's
   consumption-rate reduction has no bearing on that check at all — its
-  real, felt benefit is entirely on the production side, easing pressure
-  on the plant-crop water-draw queue's rate reservations (see
-  Farm/Production's Production Cycle). A quality-of-life upgrade for
-  farming throughput, not a settler-safety one.
+  real, felt benefit is entirely on the production side, easing pressure on
+  the plant-crop Water reservation pool (see Farm/Production's Production
+  Cycle) — fewer denials, less time spent paused. A quality-of-life upgrade
+  for farming throughput, not a settler-safety one.
 - `TechAchievement`: 0 (base) / 2 (Reclamation tier) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)
 
 ### Water Condenser

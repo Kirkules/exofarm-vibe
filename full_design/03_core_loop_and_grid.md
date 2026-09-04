@@ -671,15 +671,29 @@ role above).
   construction/upgrade/relocate actions being queued (a robot is consumed
   from the available pool the instant the action is queued, not when it
   later completes).
-- **Mid-Sim** — the only place real time actually passes. Continuous
-  production ticks live here, plus any discrete event with a genuine reason
-  to occupy a specific interval rather than resolving instantly — In-Simulation
-  Hazard Events are the clearest example (a storm has a start time and
-  duration, not lasting the whole season). Purely ambient visual depictions
-  of Post-Sim-resolved activities also happen here for legibility/immersion
-  (see [Art Design](07_production_and_technical.md#art-design)) — e.g. a Scanner Station's radio-wave pulse, or a survey
-  settler wandering the grid — with no coupling to the actual mechanical
-  resolution.
+- **Mid-Sim** — the only place real time actually passes. What actually
+  runs here:
+  - **Production, landing live.** Every production cycle (continuous-rate
+    or the plant-crop three-phase cycle) writes its output to the general
+    inventory **the instant that cycle completes** — not batched to
+    Post-Sim. This repeats every time a short cycle finishes within the
+    30s window. A Fuel-based Generator's Fuel draw is likewise live, so it
+    can burn Wood/Fossil Fuel arriving from a concurrent Clear-Cutting or
+    mining operation in the same window — the deliberate "gather fuel
+    just-in-time" tension (see Buildings & Economy's [Fuel](04_buildings_and_economy.md#fuel)).
+  - **The Energy/Water live-rate machinery** (see Buildings & Economy's
+    [Resources](04_buildings_and_economy.md#resources) and [Water](04_buildings_and_economy.md#water)): continuous Income/Consumption recomputation,
+    the random un-powering/un-watering pass on a shortfall, and the
+    plant-crop Growing-phase Water-reservation pool all run here,
+    recomputed on every event that changes the totals.
+  - **Discrete events** with a genuine reason to occupy a specific interval
+    rather than resolving instantly — In-Simulation Hazard Events are the
+    clearest example (a storm has a start time and duration, not lasting
+    the whole season).
+  - **Purely ambient visual depictions** of Post-Sim-resolved activities,
+    for legibility/immersion (see [Art Design](07_production_and_technical.md#art-design)) — e.g. a Scanner Station's
+    radio-wave pulse, or a survey settler wandering the grid — with no
+    coupling to the actual mechanical resolution.
 - **Post-Sim** — instantaneous, discrete resolution with no clock running,
   right after the Mid-Sim clock ends. Merges what could otherwise be two
   separate moments (right after the clock ends, and the top of the next
@@ -712,12 +726,17 @@ role above).
   - **Why nutrition consumption waits for Post-Sim** rather than resolving
     at Planning Lock-in alongside the food-for-consumption selection: food
     produced *during* the season should itself be consumable that same
-    season. The settlement doesn't draw food down in real time as it's
-    produced mid-season — production simply accumulates through Mid-Sim,
-    and the whole season's consumption resolves as one lump at Post-Sim,
-    which is also the natural point to apply its Tier-1/Tier-2 consequences
-    (see Settlers & Exploration's [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition)) as season outcomes
-    rather than a pre-season freeze.
+    season, and it already lands live in inventory through Mid-Sim (above)
+    — but nutrition itself is deliberately **not** drawn down in real time
+    as it's produced. The whole season's consumption resolves as one lump
+    at Post-Sim, which is also the natural point to apply its Tier-1/Tier-2
+    consequences (see Settlers & Exploration's [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition)) as
+    season outcomes rather than a pre-season freeze. This keeps nutrition a
+    once-a-season concern, not a fifth live rate alongside Energy/Water —
+    the player's forward visibility into it comes from a **planning-phase
+    prediction readout** instead (see Food & Nutrition's [Consumption — Pooled, Not Per-Settler](05_settlers_and_exploration.md#consumption--pooled-not-per-settler)),
+    the same "optimistic estimate, not a guarantee" role the Energy bar
+    already plays.
 
 **The log/event-feed system.** Replaces the old live-log-overlay/outcome-log
 split with a single, simpler structure:
