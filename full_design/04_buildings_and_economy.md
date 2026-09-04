@@ -667,97 +667,135 @@ tiles and Clear-Cutting — its category is still Basic Resource Production.)*
 Numbers below are a **first-pass illustrative draft**, not balanced — following
 "numbers stay small," exact values are meant to be tuned empirically via
 playtesting later, not over-engineered now. All buildings in this section:
-Repeatable: yes, Upgrade path: yes (higher tiers reduce `production_time`
-and/or raise the effort-stacking production cap), `TechAchievement` 0 at base
-tier / 2 upgraded (see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)). **All require the same flat amount of Water per cycle** (see [Water](04_buildings_and_economy.md#water) below —
-exact amount TBD, calibrated against the settler baseline of 1 [Water](04_buildings_and_economy.md#water)/season) —
-except the four plant-crop buildings, whose Water requirement is instead a
-**Growing-phase draw through a shared queue** (see Production Cycle below),
-not a simple flat per-cycle consumption like the rest of this section.
-Every building in this section stays a **single 1-tile footprint** with a
-correspondingly fixed **1-worker cap** (per Core Loop & Grid's Assignment
-"one worker, one slot" default) — upgrades here only ever reduce
-`production_time`, never raise the effort-stacking cap, unlike the general
-per-building upgrade note above.
+Repeatable: yes, Upgrade path: yes (higher tiers reduce duration and/or raise
+the effort-stacking production cap), `TechAchievement` 0 at base tier / 2
+upgraded (see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)). **Water**: the four animal-based
+buildings ([Dairy Pasture](04_buildings_and_economy.md#dairy-pasture), [Poultry Coop](04_buildings_and_economy.md#poultry-coop), [Sheep Pasture](04_buildings_and_economy.md#sheep-pasture)) draw a flat
+amount per cycle (exact amount and insufficient-Water behavior still TBD —
+see `DESIGN_TODO.md`'s Water resource open threads); the four plant-crop
+buildings instead draw Water only during specific transitions of their own
+persistent per-site state (see [Plant-Crop Production Model](04_buildings_and_economy.md#plant-crop-production-model), below) —
+never a flat per-cycle amount. Every building in this section stays a
+**single 1-tile footprint** with a correspondingly fixed **1-worker cap**
+(per Core Loop & Grid's Assignment "one worker, one slot" default) —
+upgrades here only ever reduce duration, never raise the effort-stacking
+cap, unlike the general per-building upgrade note above.
 
-**Alien Soil.** The four plant-crop buildings ([Grain Field](04_buildings_and_economy.md#grain-field), [Fruit Orchard](04_buildings_and_economy.md#fruit-orchard),
-[Fiber Field](04_buildings_and_economy.md#fiber-field), [Timber Grove](04_buildings_and_economy.md#timber-grove) — not the four animal-based buildings below) carry
-a standing growth-rate penalty (illustrative -30%, TBD): Earth crops aren't
-naturally suited to a foreign planet's soil. Removed for any season Fertilizer
-is available (see [Resources](04_buildings_and_economy.md#resources)) — consumed automatically, no manual action
-needed, same low-friction spirit as Water's automatic draw. Permanently
-removed, with no further Fertilizer need at all, once a plant type has been
-hybridized (see [Hybridization](04_buildings_and_economy.md#hybridization), below).
+### Plant-Crop Production Model
 
-**Production Cycle: Planting → Growing → Harvesting.** Unlike every other
-production site in this design (a single continuous-rate cycle, per Core
-Loop & Grid's Production Model), the same four plant-crop buildings run a
-**three-phase cycle** instead, each phase driven by different factors and
-each rendered as its own segment of the production progress overlay (see
-below):
-- **Planting** — duration driven by the assigned worker's Effort (per
-  Assignment's effort-stacking model), and reduced by Wooden Plow's passive
-  settlement-wide effect (see Fabrication).
-- **Growing** — no worker needed; the site sits idle — still sticky-assigned,
-  per Assignment — for the phase's duration. Governed entirely by Alien
-  Soil (above) and Hybridization (below), **not** by Effort: since Effort
-  only speeds Planting and Harvesting, more staffing can never shorten
-  Growing's floor, only the soil/hybridization levers can (currently
-  academic given the fixed 1-worker cap above, but stays true if that ever
-  changes). Requires a **flat Water consumption-rate reservation, held for
-  the phase's whole duration**, to begin (sized so rate × phase duration
-  equals the crop's total Water need) — see Water reservation & shortfall
-  below for what happens when available Income can't cover it.
-- **Harvesting** — duration driven by Effort again, same as Planting.
+The four plant-crop buildings — [Grain Field](04_buildings_and_economy.md#grain-field), [Fruit Orchard](04_buildings_and_economy.md#fruit-orchard), [Fiber Field](04_buildings_and_economy.md#fiber-field),
+[Timber Grove](04_buildings_and_economy.md#timber-grove) — don't run the single continuous-rate cycle every other
+production site in this design uses (per Core Loop & Grid's Production
+Model). Instead, each tracks a **persistent per-site state** that advances
+through a named sequence of timed transitions, and — deliberately — **each
+building's sequence is its own shape**, not a shared template with
+different numbers, so the four don't read as color-tinted versions of one
+building: Grain Field and Fiber Field replant from scratch every harvest
+(an annual-crop shape); Fruit Orchard establishes once and then fruits
+repeatedly forever after (a tree-crop shape); Timber Grove establishes once
+and then harvests a self-renewing batch on a fixed interval decoupled from
+any single tree's maturity (a managed-woodlot shape). All four: **Staffing:
+Staffed** — a worker/drone is needed to progress every short, active
+transition (below), though not the passive/biological-wait ones. Per-building
+detail is below; what's shared across all four:
 
-**Water reservation & shortfall (Growing phase).** Water, like Energy, is
-tracked as a live **Income rate** (see Water below), not an accumulated
-stock — there is no shared balance to draw a lump sum from. When a
-plant-crop building's Growing phase is ready to start, it requests a
-consumption-rate reservation sized for its crop, entering one
-**settlement-wide pool** shared across every currently-requesting Growing
-phase (and, once designed, the animal-based buildings' draw — see
-`DESIGN_TODO.md`'s Water resource open threads).
+- **Cross-season carryover follows one rule.** A transition is either a
+  **short, worker-active** step (a settler or drone physically plowing,
+  planting, or harvesting) or a **long, passive/biological-wait** step (the
+  crop growing or ripening on its own). If Mid-Sim ends mid-transition: a
+  worker-active transition **restarts from zero** next season (assuming a
+  worker is still assigned) — no partial credit for a half-finished plow or
+  harvest; a passive/biological-wait transition **pauses and resumes with
+  its progress held** — a crop 20s into a 30s growth doesn't forget those
+  20s just because a season boundary fell in the middle.
+- **Water is drawn during every passive/biological-wait transition, and
+  only those** — see Water reservation & shortfall, below.
+- **Alien Soil** applies to the same set of transitions: the four plant-crop
+  buildings carry a standing growth-rate penalty on every passive/
+  biological-wait transition (illustrative -30%, TBD) — Earth crops aren't
+  naturally suited to a foreign planet's soil. Removed for any season
+  Fertilizer is available (see [Resources](04_buildings_and_economy.md#resources)) — consumed automatically, no
+  manual action needed, same low-friction spirit as Water's automatic
+  draw. Permanently removed, with no further Fertilizer need at all, once a
+  plant type has been hybridized (see [Hybridization](04_buildings_and_economy.md#hybridization), below).
+- **Worker effects on the short, active transitions** follow the general
+  Effort-stacking model (see Core Loop & Grid's [Assignment](03_core_loop_and_grid.md#assignment)), same as
+  ordinary production. **Every transition away from a building's
+  `unprepared` state is additionally, drastically sped up** by a **Wooden
+  Plow** (a passive settlement-wide stock check, not consumed — see
+  [Fabrication](04_buildings_and_economy.md#fabrication)) for a settler or an All-Purpose Drone, **or inherently, with
+  no Plow needed, for a Farming-Specialized Drone** (its body is built for
+  the task directly — this stacks on top of its Effort multiplier, it
+  doesn't substitute for it; see [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly)).
+- Each transition is its own segment of the production progress overlay
+  (see Core Loop & Grid's Season Structure) — exact color/icon mapping per
+  building is an open Art Design item (see `DESIGN_TODO.md`).
+
+**Water reservation & shortfall.** Water, like Energy, is tracked as a live **Income rate** (see [Water](04_buildings_and_economy.md#water) below),
+not an accumulated stock — there is no shared balance to draw a lump sum
+from. When a plant-crop building's passive/biological-wait transition is
+ready to start, it requests a consumption-rate reservation sized for its
+crop, entering one **settlement-wide pool** shared across every
+currently-requesting transition (and, once designed, the animal-based
+buildings' draw — see `DESIGN_TODO.md`'s Water resource open threads).
 
 - **Resolution mirrors Energy's random un-powering** (see [Resources](04_buildings_and_economy.md#resources)),
   applied to Water instead: when total requested reservations exceed
   available Water Income, the shortfall is resolved by **randomly**
   selecting enough requests to deny until the total fits back under
   Income — recomputed to a fixed point on every event that changes the
-  picture (a Growing phase starting/ending, Water Income changing).
-  Deliberately random, not by a queue position or build order, so which
-  specific site goes dry is never something a player can optimize — the
-  same "keep total supply ahead of total demand, not the service order"
-  intent as before, now delivered by the same mechanism Energy uses rather
-  than a separate one.
-- **A denied Growing phase pauses** — holds its progress, no loss — and
+  picture (a request starting/ending, Water Income changing). Deliberately
+  random, not by a queue position or build order, so which specific site
+  goes dry is never something a player can optimize — the same "keep total
+  supply ahead of total demand, not the service order" intent as before,
+  now delivered by the same mechanism Energy uses rather than a separate
+  one.
+- **A denied transition pauses** — holds its progress, no loss — and
   re-enters the pool at the next recompute. Once granted, a reservation
-  holds for the phase's whole duration and releases back to available
-  capacity the instant Growing ends (Harvesting needs none).
+  holds for the transition's whole duration and releases back to available
+  capacity the instant it ends.
 - A manual **"turn Water off at this site"** toggle exists, on the same
   footing as Energy's active/inactive toggle: an available mitigation, not
   something else in the design is built to expect routine use of.
 - **Legibility.** A denied site surfaces in the simulation log with cause,
   the same as an Energy un-powering.
 
-> The four animal-based buildings' Water draw mechanism, against this same
-> rate-not-stock model, is still undefined — see `DESIGN_TODO.md`'s Water
-> resource open threads. A design pass covering both the animal-based
-> buildings and this plant-crop section is queued next.
-
 ### Grain Field
-- Staffing: Staffed | Input: Water (Growing-phase draw, see above) |
-  Output: 1 Grain per cycle | Planting/Growing/Harvesting split of the
-  prior single 3s `production_time` (see Production Cycle above): exact
-  per-phase durations TBD | Production cap: 1 (fixed, single tile) |
-  Construction cost: Lumber/Concrete (ratio TBD)
+
+States: `unprepared → plowed → growing → harvestable → unprepared → …` —
+returns to `unprepared` and replants every cycle.
+
+| Transition | Base duration | Progresses without a worker? | Draws Water? | At season boundary |
+|---|---|---|---|---|
+| `unprepared → plowed` | 2s | No (Effort-driven; Wooden Plow / Farming-Specialized Drone bonus applies) | No | Restarts |
+| `plowed → growing` | 1s | No (Effort-driven) | No | Restarts |
+| `growing → harvestable` | 3s | Yes (Alien Soil/Hybridization-driven) | Yes | Pauses, progress held |
+| `harvestable → unprepared` | 1s | No (Effort-driven) | No | Restarts |
+
+**1 Grain is added to inventory at the completion of `harvestable →
+unprepared`.** Full cycle at base rates: 7s (vs. the prior flat 3s
+`production_time` — this redesign trades a fast flat cycle for a slower,
+distinct, multi-step one). Production cap: 1 (fixed, single tile).
+Construction cost: Lumber/Concrete (ratio TBD).
 
 ### Fruit Orchard
-- Staffing: Staffed | Input: Water (Growing-phase draw, see above) |
-  Output: 1 Fruit per cycle | Planting/Growing/Harvesting split of the
-  prior single 4s `production_time` (see Production Cycle above): exact
-  per-phase durations TBD | Production cap: 1 (fixed, single tile) |
-  Construction cost: Lumber/Concrete (ratio TBD)
+
+States: one-time establishment `unprepared → planted → mature`, then a
+**repeating loop, once mature, that never returns to `planted` or
+`unprepared`**: `mature → fruiting → mature → …` — the tree is planted once
+and fruits indefinitely after that.
+
+| Transition | Base duration | Progresses without a worker? | Draws Water? | At season boundary |
+|---|---|---|---|---|
+| `unprepared → planted` | 1s | No (Effort-driven; Wooden Plow / Farming-Specialized Drone bonus applies) | No | Restarts |
+| `planted → mature` | 30s | Yes | Yes | Pauses, progress held |
+| `mature → fruiting` | `k` s, `k` ∈ {3, 4, 5} rerolled fresh every cycle | Yes | Yes | Pauses, progress held |
+| `fruiting → mature` | 1s | No (Effort-driven) | No | Restarts |
+
+**1 Fruit is added to inventory at the completion of `fruiting →
+mature`.** One-time establishment: 31s. Steady state after that: 4–6s per
+Fruit, depending on the `k` roll. Production cap: 1 (fixed, single tile).
+Construction cost: Lumber/Concrete (ratio TBD).
 
 ### Dairy Pasture
 - Staffing: Staffed | Input: Water | Output: 1 Milk per cycle,
@@ -772,18 +810,46 @@ phase (and, once designed, the animal-based buildings' draw — see
   `production_time` 5s | Production cap: 1 (fixed, single tile) | Construction cost: Lumber/Concrete (ratio TBD)
 
 ### Fiber Field
-- Staffing: Staffed | Input: Water (Growing-phase draw, see above) |
-  Output: 1 Fiber/Cotton per cycle | Planting/Growing/Harvesting split of
-  the prior single 3s `production_time` (see Production Cycle above):
-  exact per-phase durations TBD | Production cap: 1 (fixed, single tile) |
-  Construction cost: Lumber/Concrete (ratio TBD)
+
+Same shape as [Grain Field](04_buildings_and_economy.md#grain-field): states `unprepared → plowed → growing →
+harvestable → unprepared → …`, replanting every cycle.
+
+| Transition | Base duration | Progresses without a worker? | Draws Water? | At season boundary |
+|---|---|---|---|---|
+| `unprepared → plowed` | 2s | No (Effort-driven; Wooden Plow / Farming-Specialized Drone bonus applies) | No | Restarts |
+| `plowed → growing` | 1s | No (Effort-driven) | No | Restarts |
+| `growing → harvestable` | 4s | Yes (Alien Soil/Hybridization-driven) | Yes | Pauses, progress held |
+| `harvestable → unprepared` | 1s | No (Effort-driven) | No | Restarts |
+
+**1 Fiber/Cotton is added to inventory at the completion of `harvestable →
+unprepared`.** Full cycle at base rates: 8s (vs. the prior flat 3s
+`production_time`). Production cap: 1 (fixed, single tile). Construction
+cost: Lumber/Concrete (ratio TBD).
 
 ### Timber Grove
-- Staffing: Staffed | Input: Water (Growing-phase draw, see above) |
-  Output: 1 Wood per cycle | Planting/Growing/Harvesting split of the
-  prior single 4s `production_time` (see Production Cycle above): exact
-  per-phase durations TBD | Production cap: 1 (fixed, single tile) |
-  Construction cost: Lumber/Concrete (ratio TBD)
+
+States: one-time establishment `unprepared → growing → cycle-harvestable`,
+then a **self-loop** — `cycle-harvestable → cycle-harvestable → …` — that
+never returns to `growing` or `unprepared`: a managed woodlot, harvested on
+a fixed interval decoupled from any single tree's maturity.
+
+| Transition | Base duration | Progresses without a worker? | Draws Water? | At season boundary |
+|---|---|---|---|---|
+| `unprepared → growing` | 1s | No (Effort-driven; Wooden Plow / Farming-Specialized Drone bonus applies) | No | Restarts |
+| `growing → cycle-harvestable` | 15s | Yes | Yes | Pauses, progress held |
+| `cycle-harvestable → cycle-harvestable` (self-loop) | 5s | Yes, **to progress** — see completion gate below | Yes | Pauses/holds, including a held-at-100% state |
+
+**Completion gate — unique to this self-loop.** Every other passive
+transition above only ever *progresses* without a worker. This one *also*
+produces the building's output at completion, so it needs a rule the others
+don't: its timer can reach 100% with no worker assigned (the batch keeps
+maturing on its own), but the loop only actually **completes** — adding
+**1 Wood** to inventory and restarting the 5s timer — the next time a
+worker is present. A Timber Grove held at 100%-pending-worker carries that
+exact state across a season boundary, same as any other in-progress passive
+transition. One-time establishment: 16s. Steady state after that: 5s per
+Wood, while staffed. Production cap: 1 (fixed, single tile). Construction
+cost: Lumber/Concrete (ratio TBD).
 
 ### Trapping
 
@@ -1108,8 +1174,8 @@ consequence, and settler need never competes with production's own Water
 reservations (see Farm/Production's Water reservation & shortfall) for
 capacity. (Since
 there's no longer a settler-need figure to calibrate against, collection
-rates and the plant-crop Growing-phase draw amounts have no shared numeric
-anchor between them anymore — each stays independently TBD, deferred to
+rates and the plant-crop buildings' passive-transition draw amounts have no
+shared numeric anchor between them anymore — each stays independently TBD, deferred to
 balancing like every other first-pass number in this design, same as
 before.) This is a deliberate departure from nutrition's Tier-1 model, not
 a mirror of it —
@@ -1124,7 +1190,7 @@ distribution system to design. Collection buildings and consumption sites
 don't need spatial adjacency; the player can imagine whatever transportation
 mechanism they like, with no design commitment either way — consistent with
 Energy also never needing an explained distribution system. (The plant-crop
-buildings' Water reservation pool, see Farm/Production's Production Cycle,
+buildings' Water reservation pool, see Farm/Production's [Plant-Crop Production Model](04_buildings_and_economy.md#plant-crop-production-model),
 is a **resource-allocation** mechanic — deciding which reservations get
 served when Income is scarce — not a spatial/transport one; it doesn't
 reopen this decision.)
@@ -1162,9 +1228,9 @@ base / 2 once it automatically becomes a Deep Well (below).
   headcount-vs-quantity comparison (see Water above), Reclamation's
   consumption-rate reduction has no bearing on that check at all — its
   real, felt benefit is entirely on the production side, easing pressure on
-  the plant-crop Water reservation pool (see Farm/Production's Production
-  Cycle) — fewer denials, less time spent paused. A quality-of-life upgrade
-  for farming throughput, not a settler-safety one.
+  the plant-crop Water reservation pool (see Farm/Production's [Plant-Crop Production Model](04_buildings_and_economy.md#plant-crop-production-model))
+  — fewer denials, less time spent paused. A quality-of-life upgrade for
+  farming throughput, not a settler-safety one.
 - `TechAchievement`: 0 (base) / 2 (Reclamation tier) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)
 
 ### Water Condenser
@@ -1641,10 +1707,15 @@ Processing I — not something the player constructs)*
   - **Wooden Plow** ← 2 Lumber + 1 Leather — a passive-stock-check item
     (same pattern as PPE/Temperature-Resistant Gear: not consumed, its
     effect is simply active whenever at least one sits in general
-    inventory), reducing the **Planting**-phase duration of all four
-    plant-crop buildings settlement-wide (see Farm/Production's Production
-    Cycle) — illustrative -15%, TBD, deferred to balancing like other
-    numeric values in this design
+    inventory), **drastically** cutting the duration of every plant-crop
+    building's transition *away from* its `unprepared` state, settlement-wide
+    (see Farm/Production's [Plant-Crop Production Model](04_buildings_and_economy.md#plant-crop-production-model)) —
+    illustrative **at least -50%**, exact value TBD, deferred to balancing
+    like other numeric values in this design. A **Farming-Specialized
+    Drone** doesn't need a Wooden Plow at all — its body is built for the
+    task directly, so it gets this same cut inherently, **stacked on top of**
+    its Effort multiplier rather than substituting for it. A settler or an
+    **All-Purpose Drone** still needs the item present, same as anyone else
 - Upgrade cost: TBD.
 - `TechAchievement`: 0 (Sawmill) / 2 (Carpenter's Shop, and each of Fine
   Furniture/Ornamental/Decorative Items/Wooden Plow) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)

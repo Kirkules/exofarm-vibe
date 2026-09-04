@@ -43,7 +43,10 @@ tracks what's needed *underneath* them.
     every other building.
   - Sawmill→Carpenter's Shop and Stone Processing I→II **upgrade costs** —
     TBD.
-- [x] **Farm production cycle (plant-crop buildings)** — resolved: the four
+- [x] **Farm production cycle (plant-crop buildings)** *(superseded — see
+  "Plant-crop production redesign: per-building state machines" below: the
+  shared three-phase model this item describes was later replaced by four
+  genuinely distinct per-building state machines)* — resolved: the four
   plant-crop buildings (Grain Field, Fruit Orchard, Fiber Field, Timber
   Grove) now run a three-phase **Planting → Growing → Harvesting** cycle
   instead of the single continuous-rate model every other production site
@@ -65,10 +68,40 @@ tracks what's needed *underneath* them.
   per Design Principles' color-accessibility rule (see Core Loop & Grid's
   Season Structure). Farm buildings stay pinned to a 1-tile/1-worker cap
   (upgrades only reduce `production_time`, never raise the cap). **Still
-  open**: exact per-phase duration split for each building (currently one
-  combined `production_time` number per building, TBD how it divides
-  across the three phases); the four animal-based buildings' still-undefined
-  insufficient-Water behavior (see Water resource open threads below).
+  open** at the time: exact per-phase duration split for each building —
+  since resolved, see below.
+- [x] **Plant-crop production redesign: per-building state machines
+  (2026-09-04)** — resolved: the shared three-phase model above is replaced
+  by four **genuinely distinct persistent per-site state machines** (see
+  Buildings & Economy's [Plant-Crop Production Model](04_buildings_and_economy.md#plant-crop-production-model) and the four building
+  entries), specifically so the four buildings stop reading as
+  color-tinted versions of one shape: **Grain Field / Fiber Field**
+  (`unprepared → plowed → growing → harvestable → unprepared → …`, replants
+  every harvest — an annual-crop shape, 7s/8s full cycle); **Fruit Orchard**
+  (one-time `unprepared → planted → mature`, 31s, then a repeating
+  `mature ⇄ fruiting` loop forever, 4–6s per Fruit with `k` re-rolled every
+  cycle — a tree-crop shape); **Timber Grove** (one-time
+  `unprepared → growing → cycle-harvestable`, 16s, then a
+  `cycle-harvestable → cycle-harvestable` self-loop forever, 5s/Wood — a
+  managed-woodlot shape, with a unique completion gate: the self-loop's
+  timer progresses without a worker, but only actually completes — adding
+  Wood, restarting the loop — once a worker is present, so a fully-grown
+  batch can sit ready-and-waiting rather than producing for free).
+  **General rules established**: every transition is either short/worker-
+  active (**restarts** from zero if interrupted at a season boundary) or
+  long/passive-biological-wait (**pauses**, progress held); Water is drawn
+  during every passive/biological-wait transition and only those (folded
+  into the same random-shortfall pool as the Growing-phase draw always
+  was); Alien Soil applies to the same passive set; every transition away
+  from `unprepared` gets a drastic (≥50%, TBD exact) speed-up from a Wooden
+  Plow (settler / All-Purpose Drone) or **inherently, no Plow needed, for a
+  Farming-Specialized Drone** (stacks on top of its Effort multiplier — see
+  Buildings & Economy's [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly)). **Still open**: the production-progress
+  overlay's color/icon mapping needs authoring per building now that each
+  has its own distinct state count and shape, rather than one shared
+  three-phase brown/green/gold mapping (an Art Design item); the four
+  animal-based buildings' still-undefined Water draw and production model
+  — a design pass for those is the immediate next step.
 - [x] **Production building UI (planning phase)** — resolved: selecting
   any built production site (staffed or not) opens a **Site Panel** on the
   right edge, mirroring the Worker Roster's placement on the left (see

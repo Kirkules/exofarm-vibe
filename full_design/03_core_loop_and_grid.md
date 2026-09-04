@@ -374,9 +374,15 @@ dominant one.
   Bakery, modified by external effects (weather, fertilizer) instead of
   requiring a settler to walk over and tend it, as in the original design.
   **Exception**: the four plant-crop buildings (Grain Field, Fruit Orchard,
-  Fiber Field, Timber Grove) instead run a three-phase
-  Planting/Growing/Harvesting cycle, each phase driven by different factors
-  — see Buildings & Economy's [Farm/Production](04_buildings_and_economy.md#farmproduction) for the full mechanism.
+  Fiber Field, Timber Grove) instead each track a **persistent per-site
+  state**, advancing through a named sequence of transitions rather than one
+  uniform cycle — and each building's sequence is genuinely different
+  (an annual replant-every-harvest shape for Grain/Fiber, a one-time
+  establishment followed by a repeating fruit-bearing loop for the Orchard,
+  a one-time establishment followed by a repeating harvest self-loop for
+  Timber Grove) so the four don't just read as color-tinted versions of the
+  same building — see Buildings & Economy's [Farm/Production](04_buildings_and_economy.md#farmproduction) for the full
+  per-building mechanism.
 
 ### Assignment
 
@@ -673,9 +679,11 @@ role above).
   later completes).
 - **Mid-Sim** — the only place real time actually passes. What actually
   runs here:
-  - **Production, landing live.** Every production cycle (continuous-rate
-    or the plant-crop three-phase cycle) writes its output to the general
-    inventory **the instant that cycle completes** — not batched to
+  - **Production, landing live.** Every production cycle (continuous-rate,
+    or a plant-crop building's own persistent state-transition sequence —
+    see Buildings & Economy's [Plant-Crop Production Model](04_buildings_and_economy.md#plant-crop-production-model)) writes its
+    output to the general inventory **the instant that cycle completes** —
+    not batched to
     Post-Sim. This repeats every time a short cycle finishes within the
     30s window. A Fuel-based Generator's Fuel draw is likewise live, so it
     can burn Wood/Fossil Fuel arriving from a concurrent Clear-Cutting or
@@ -684,7 +692,8 @@ role above).
   - **The Energy/Water live-rate machinery** (see Buildings & Economy's
     [Resources](04_buildings_and_economy.md#resources) and [Water](04_buildings_and_economy.md#water)): continuous Income/Consumption recomputation,
     the random un-powering/un-watering pass on a shortfall, and the
-    plant-crop Growing-phase Water-reservation pool all run here,
+    plant-crop buildings' Water-reservation pool (drawn during each
+    building's passive/biological-wait transitions) all run here,
     recomputed on every event that changes the totals.
   - **Discrete events** with a genuine reason to occupy a specific interval
     rather than resolving instantly — In-Simulation Hazard Events are the
@@ -779,17 +788,21 @@ real job is slow, retrospective understanding of what happened, especially
 after fast/skipped playback, not moment-to-moment legibility. The overlay
 carries that moment-to-moment job instead.
 
-**Farm-specific variant: phase-colored fill.** The four plant-crop
-buildings (see Buildings & Economy's Farm/Production) run a three-phase
-Planting/Growing/Harvesting cycle instead of one continuous-rate cycle, so
-their overlay differs in two ways: the fill **resets to empty and refills
-from 0% at the start of each phase** rather than one continuous 0–100% arc
-across the whole cycle, and the fill color changes per phase — **brown**
-(Planting), **green** (Growing), **gold** (Harvesting). Per Design
-Principles' "color is never the sole channel of information" rule, each
-phase also shows a small **icon badge** on the site (e.g. a seed / sprout /
-sheaf icon) so the phase reads without relying on the color alone. Every
-other production site — the four animal-based buildings and all non-farm
+**Farm-specific variant: state-colored fill.** The four plant-crop
+buildings (see Buildings & Economy's Farm/Production) each track a
+persistent per-site state sequence instead of one continuous-rate cycle
+(and the sequence genuinely differs per building — see Production Model,
+above), so their overlay differs from every other production site in two
+ways: the fill **resets to empty and refills from 0% at the start of each
+transition** rather than one continuous 0–100% arc across the whole cycle,
+and the fill color changes per transition, per Design Principles' "color is
+never the sole channel of information" rule paired with a small **icon
+badge** per transition (e.g. a plow / seed / sprout / sheaf icon) so it
+reads without relying on color alone. **Open**: the exact color/icon
+mapping needs to be authored per building now that each one has its own
+distinct state count and shape, rather than one shared three-phase
+brown/green/gold mapping — see `DESIGN_TODO.md`. Every other production
+site — the four animal-based buildings (for now) and all non-farm
 infrastructure — keeps the single continuous fill described above,
 unaffected.
 
