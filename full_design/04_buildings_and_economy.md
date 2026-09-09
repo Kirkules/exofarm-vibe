@@ -196,7 +196,9 @@ keeping the catalog from exploding as more planet types are added:
 - **Stone** — mined raw material. Refines at Stone Processing into **Concrete**
   (base tier — the other universal base construction material, alongside
   Lumber) and, once upgraded to Stone Processing II, **Silicon** (electronics
-  fabrication) — see Fabrication.
+  fabrication) and **Glass** (optics/screens — used by High-Tech Components,
+  PPE, hazard-resistant gear, and Biological Lab Materials; broader uses an
+  open thread, see `DESIGN_TODO.md`) — see Fabrication.
 - **Rare metals** — findable on any planet, but with probability strongly biased by
   planet type. Needed for high-tech applications, including energy-shielding
   devices. Governed by a standing planet-design principle (see Planet Types below):
@@ -552,6 +554,8 @@ elsewhere in this catalog.*
 | Concrete / Lumber (each) | 0 |
 | Iron / Copper (smelted, each) | 1 |
 | Silicon | 2 |
+| Glass | 2 |
+| Biological Lab Materials | 2 |
 | Fabric | 1 |
 | Leather | 1 |
 | Leather Boots | 2 |
@@ -1635,6 +1639,10 @@ pair of starting buildings resolves)*
   one rather than something the player builds.
 - Upgrades to **Stone Processing II**, which additionally unlocks:
   - Silicon ← Stone
+  - **Glass ← Stone** — a refined material used by High-Tech Components
+    (cameras/screens), PPE, and specialized hazard-resistant gear (see
+    Medical Bay and Fabrication below). Broader uses for Glass are an open
+    thread — see `DESIGN_TODO.md`.
 - Upgrade cost: TBD.
 - `TechAchievement`: 0 (Stone Processing I) / 2 (Stone Processing II) — see
   [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)
@@ -1692,11 +1700,14 @@ pair of starting buildings resolves)*
 - `TechAchievement` (the building itself): 2 — see the [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)'s
   Fabrication — items table for each recipe's own value
 - Selectable recipes (base tier):
-  - High-Tech Components ← Copper + Silicon + Iron — used as a construction-cost
-    input for Protection-tier shield structures and other advanced buildings,
-    creating a real multi-tier fabrication chain (Iron/Copper/Silicon → High-Tech
-    Components → advanced buildings) without reintroducing merge-space
-    complexity, since each step is still automatic single-recipe production
+  - High-Tech Components ← Copper + Silicon + Iron + Glass — used as a
+    construction-cost input for Protection-tier shield structures and other
+    advanced buildings, creating a real multi-tier fabrication chain
+    (Iron/Copper/Silicon/Glass → High-Tech Components → advanced buildings)
+    without reintroducing merge-space complexity, since each step is still
+    automatic single-recipe production. (Silicon and Glass both come from
+    Stone Processing II, so it is squarely the mid-game keystone — a
+    deliberate single chokepoint, see `DESIGN_TODO.md`.)
   - High-Resolution Screens ← Silicon + Copper — a Luxury Good; no functional
     use yet beyond `TechAchievement`/faction-reward value, left open
   - Portable High-Powered Scanning Equipment ← Silicon + Copper + a rare metal
@@ -1706,7 +1717,7 @@ pair of starting buildings resolves)*
     balloon, atmospheric probe, bio-survey, sentience-detection)
 - Selectable recipes (**requires further-Upgraded Tinkerer's Workshop**):
   - Temperature-Resistant Gear ← (Fabric **or** Leather, player selects
-    which) + a rare metal + High-Tech Components — **one
+    which) + a rare metal + High-Tech Components + Glass — **one
     universal item covering both hot and cold** (no separate variants),
     distinct from `MatchedPreparedness` (which is about the settlement's
     structures, not what an individual carries). Exploration-task settlers

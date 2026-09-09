@@ -152,8 +152,15 @@ Exploration Tasks never build or benefit from Experience.
 **Groups** (fixed, not player-adjustable) — a settler tracks one stack
 count per group, and that count's bonus applies uniformly across every
 task within it, not just wherever it was earned:
-- **Farming** — Grain Field, Fruit Orchard, Dairy Pasture, Poultry Coop,
-  Sheep Pasture, Fiber Field, Timber Grove.
+- **Farming** — the four plant-crop buildings (Grain Field, Fruit Orchard,
+  Fiber Field, Timber Grove). *(The current Dairy/Poultry/Sheep buildings
+  are slated to move to the Husbandry group below when the native-fauna
+  design pass replaces them — see `DESIGN_TODO.md`.)*
+- **Husbandry** — native-animal work: the Capture and Domesticate steps
+  and the husbandry production buildings (members pending the animal
+  husbandry design — see `DESIGN_TODO.md`). Kept separate from Farming:
+  learning to grow crops shouldn't teach a settler to handle animals or
+  spot a parasite in a herd.
 - **Mining** — Mine, Quarry, Rare Metal Extractor.
 - **Kitchen**, **Trapping**, and **Clear-Cutting** — each its own group.
 - **Surveys** — Basic Deposit Survey and Deep Survey, shared with each
@@ -194,7 +201,9 @@ zero meaning no aptitude either way.
 **Buckets** — coarser than Experience's groups, and never crossing an
 Experience group's boundary (each Experience group belongs to exactly one
 bucket):
-- Farming, Trapping, Clear-Cutting
+- Farming, Clear-Cutting *(plant & land work)*
+- Trapping, Husbandry *(animal work — split from the plant bucket so a
+  clear-cutter can't innately diagnose a herd)*
 - Mining, Stone Processing, Smelter
 - Textile Workshop, Carpenter's Shop, Kitchen
 - Robotics Assembly, Tinkerer's Workshop, Medical Bay, Research Lab
