@@ -356,12 +356,14 @@ tracks what's needed *underneath* them.
 
 ## Other Fabrication-Adjacent Gaps
 
-- [ ] **Livestock vaccines** — back-burner idea, recorded not designed:
-  protecting animal-production buildings (Dairy Pasture, Poultry Coop, Sheep
-  Pasture) from Bio-hazard (and maybe Weather) via a produced vaccine *item*
-  distinct from the human Vaccine Production unlock — would imply an actual
-  recurring manufactured good rather than a one-time settlement-wide fact.
-  Low-overhead, flavorful, not urgent.
+- [x] **Livestock vaccines** — *superseded* by the Animal System brainstorm
+  below (husbandry-animal parasites, settlement-wide per type, resolved by
+  the unified Medical Bay countermeasure with permanent auto-immunity).
+- [ ] **Glass — broader uses** — Glass is currently input only to High-Tech
+  Components, Temperature-Resistant Gear, PPE, and Biological Lab Materials.
+  Worth 1–2 more homes so it isn't a one-purpose material — candidates:
+  further hazard-resistant gear, a Luxury Good, Scanner Station optics.
+  Surfaced 2026-09-09 when Glass was added as a Stone Processing II output.
 - [ ] **Hydroelectric Generator + River feature** — surfaced as a side note
   during the Energy Pool redesign, not yet designed. Would need a new
   **River** grid feature first — checked, and confirmed this was only ever
@@ -399,6 +401,164 @@ tracks what's needed *underneath* them.
     written into Buildings & Economy's Fabrication)
   - Exact legend-value-scaling formula shape (inverse of success
     probability, magnitude TBD)
+
+---
+
+## Animal System (brainstorm 2026-09-08/09 — pending consolidated write-in)
+
+A large redesign worked out in discussion, **not yet in `full_design/`**
+except where noted. The plan: finish the **farm-raider / interloper vector**
+(the delivery mechanism for parasites-into-animals and disease-into-settlers,
+and what fencing counters), then write the whole animal system in one
+coherent pass. Supersedes the "Livestock vaccines" item above.
+
+### The pivot
+
+Earth livestock is **dropped** — an expedition mass-constrained enough to
+ration seed stock realistically can't bring herds. Milk/Eggs/Wool go away as
+Earth-animal products; nutrition/textiles rehome onto crops, hunted meat
+(Trapping already exists), and **native-fauna analogs**. Animal husbandry
+becomes discovery-gated and planet-dependent, which is the point — it makes
+runs diverge while crops + Trapping + Rations stay a reliable learnable core
+on every planet type.
+
+### Two paths
+
+- **Husbandry** — common. Pipeline: **Discover** (survey/Site-Reveal:
+  "species X present here") → **Capture** (exploration task / Standing
+  Assignment yielding live specimens, possibly risk-bearing) → **Domesticate**
+  (build a husbandry structure, seed it with N captured specimens; research
+  vs. build-and-seed still TBD) → **Produce** (a production cycle for the
+  species' product). Cycle structure not yet designed — so whether husbandry
+  buildings sit inside the production-queue system is also TBD.
+- **Pet / Companion** — rare. Found via a rare exploration outcome, **bonds
+  permanently to the finding settler** (acquisition = luck × that settler's
+  Exploration Aptitude). One pet per settler; no run cap, probabilities
+  tuned for 0–2 per run. Provides an *effect*, not a good — a mix of
+  passive/settlement-wide and bonded-settler-activity-specific; pets follow
+  their settler on exploration (a settlement-wide passive effect lapses
+  while the pet is away). Bonded settler dies → pet lost (released), and
+  befriending adds `legend_value` (Frontier Legends). Pets are immune to
+  parasites/diseases and generally act like a buff on their settler. Pets
+  can gate **non-systematized content** (e.g. a water-source exploration
+  task that only ever appears if a water-diviner pet exists).
+
+### Archetype value rule
+
+Outcome values are **constant across all instances of an archetype** (a
+Fiber beast is 1 Wool/cycle, always). Variety = naming + small % differences
+on *secondary* attributes (grows 10% slower; lumbering, 20% easier to
+capture). Planet-gen picks each type's roster, Seasoning-style.
+
+### Rosters
+
+- **Husbandry**: Grazer/herd (meat + milk-analog + droppings → Fertilizer +
+  hide → Leather); Fiber beast (wool-analog → Fabric; insulating fiber →
+  Temperature-Resistant Gear); Burrower (suppresses Alien Soil for
+  plant-crop buildings while active — an alternative to Fertilizer/
+  Hybridization); Pollinator hive (amplifies plant yield settlement-wide;
+  honey-analog).
+- **Pets**: Water-diviner (unlocks a unique water-source exploration task,
+  flags aquifer tiles); Sentinel flyer (telegraphs a scheduled Storm/Temp
+  event earlier than weather `Confidence` would); Draft animal (multiplies
+  the bonded settler's Effort on hard-labor Outdoor tasks); Chem-scavenger
+  (dual-mode: in-settlement, a pure-variance random-loot forage cycle —
+  Seasonings, a small catch → 1 Pelt; on exploration, a serendipitous-
+  discovery bonus).
+
+### Parasites & diseases (settler + animal)
+
+- **Parasites** populate the **Toxic/Parasitic Organism Threat** sub-factor.
+  Infect **settlers** (per-settler, not communicable) or **husbandry animals**
+  (settlement-wide per animal type; production debuff regardless of
+  visibility; only interloper animals introduce it, or infection-at-capture).
+  Do not spread building-to-building.
+- **Diseases** populate the **Pathogen Threat** sub-factor. Settler-only
+  except via a chosen **disease-carrier interloper** (blocked entirely if
+  fencing/deterrence keeps raiders/predators out). **Communicable
+  settler-to-settler** at the quarter-season tick if any infected settler is
+  in the settlement and no vaccine exists. No food interaction.
+- **Countermeasures** — one unified Medical Bay capability (vaccines +
+  anti-parasitics). A countermeasure-assigned worker's cycle clears **one
+  threat at random** from the list of *encountered/confirmed* threats
+  (settler case, expert-witnessed food/animal case, or exploration report —
+  never mere planet presence); each completed research permanently removes
+  that threat. Vaccine = immunity + guaranteed recovery. Anti-parasitic =
+  guaranteed/faster settler recovery (no immunity) + **permanent
+  auto-immunity for husbandry animals** (existing infections instantly
+  cleared).
+- **Recovery** — parasites/diseases behave like a minor injury needing
+  Medical Bay recovery. New **Recovery capacity** building property: 1
+  (base) / 2 (upgraded Medical Bay, which becomes a **2-slot footprint** —
+  the first concrete footprint-expanding upgrade, per `1-B2`). A recovering
+  settler (slotted or overflow-queued) **cannot work**, cannot be sent
+  exploring; slotted = recovery progresses, queued = it doesn't; **both face
+  a death roll at each quarter-season epidemiology tick** (same tick as the
+  disease-spread check) unless a countermeasure/vaccine exists. Triage is
+  severity-ordered (not surfaced to the player). Any number of concurrent
+  parasites + injuries + a disease. Explorers resolve injury/infection only
+  at task completion — no mid-task affliction state. A held-but-recovering
+  settler's site produces nothing; the Site Panel should say "worker
+  recovering".
+- **Infected food** — a property of animal-derived food items (`normal` vs
+  `parasite-infected(type)`, Meals inherit, **Rations do not** — the Ration
+  Press sanitizes; Food Storage is now sanitized-content-only, see the
+  committed rework). Visible only via (a) that countermeasure researched, or
+  a non-exploring settler with (b) max Kitchen/Medical *Experience* or (c)
+  max Kitchen/Medical *Aptitude*. When visible: splits into its own
+  inventory entry, auto-excluded from nutrition, manual-assign only. When
+  *not* visible and used in the seasonal pool → every non-exploring settler
+  infected. Two-tier knowledge: a threat can be *confirmed* (on the research
+  list) while its infected items/animals are still *invisible*.
+- **Cook-out** — a Kitchen worker who can see the infection auto-produces
+  safe output, at a reduced success chance (illustrative 75%, scales with
+  Kitchen skill; failure = ingredients destroyed, cycle output lost), shown
+  alongside the recipe's production rate; a recipe-selection toggle lets the
+  player knowingly cook infected output instead.
+- **Cull / release** infected husbandry — a worker-action production task at
+  the site (earns Husbandry Experience); low chance of a clean population,
+  high chance of just ending domestication (restartable from the same
+  infected wild source); odds scale with that worker. Cull yields Pelt/meat
+  (infected meat if the herd was); release doesn't. Or: just don't produce
+  from the site until a countermeasure exists.
+- **Reveal beat** — the moment a countermeasure finishes *or* a settler
+  crosses the Experience threshold to identify infection, every infected
+  item in inventory splits out at once; both moments come with a
+  Transmission that names the information source.
+- **Beat-the-odds legend** — a settler who survives a no-countermeasure
+  recovery roll gains `legend_value`.
+
+### Medical Bay / materials (partly committed)
+
+- **Biological Lab Materials** (Grain + Glass, made at the Medical Bay,
+  `TechAchievement` 2 — catalog entry added) **replaces High-Tech
+  Components** for the Medical Bay's countermeasure research tier only; PPE
+  and Emergency Medical Kit keep their own recipes. The 1-worker Medical Bay
+  now juggles BLM / research / PPE / EMK via the production queue — an
+  intended bottleneck (build a second one).
+- **PPE** recipe → Fabric + **Glass** (was gated behind HTC); `TechAchievement`
+  likely 1 → 2.
+- **Emergency Medical Kit** → drop HTC, becomes low-tier; new role: an
+  optional item on **any** exploration task, consumed when taken, that
+  prevents a would-be **minor injury or infection** outcome (not permanent
+  injury or death) — a one-time field cure. Recipe + tier need rework.
+- **Glass** (committed) — Stone Processing II output; used by HTC,
+  Temperature-Resistant Gear, PPE, BLM. **Broader uses TBD** (its own
+  design-todo): more hazard-resistant gear, luxury goods, Scanner optics.
+- **`06` bio-hazard reframe** (pending) — strike every "bio-hazard
+  sub-factors only resolve via exploration encounters, never a
+  settlement-wide event" reference; add the quarter-season epidemiology
+  tick; planet-gen picks the parasite/disease roster; couples to `11-B1`/
+  `11-B2` (the survey-vs-fixed-schedule reconciliation).
+
+### Structure-upgrade rule (pending)
+
+Every building upgrade includes a **free optional relocation** — the
+construction robot rebuilds the (possibly larger) building, on its current
+cell(s) or elsewhere, in one action. Upgrade-in-place is just choosing the
+current location in the same placement UI. Deposit/feature-gated upgrades
+are forced to stay on their deposit. Resolves the two-robot-action trap
+in `1-B2`/`1-SF5`.
 
 ---
 
