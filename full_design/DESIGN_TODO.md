@@ -129,10 +129,27 @@ tracks what's needed *underneath* them.
   Loop & Grid's Production Model / Site Panel and Buildings & Economy's
   Building Schema. **Still open**: whether animal-husbandry buildings sit
   inside this system (deferred to the husbandry cycle design).
+- [x] **Food Storage / Rations / Ration Press rework (2026-09-09)** —
+  resolved (surfaced by the parasite/infected-food design): long-term
+  storage now holds **bulk sanitized Ration-content only**, fed exclusively
+  by a Ration Press's new **Stockpile Fill** recipe — raw food, meat, and
+  Meals can no longer be deposited directly, which dissolves the
+  "invisible infected food into storage" problem by construction. The
+  Ration Press becomes cycle-based (not instant), unstaffed, with
+  player-selectable inputs (default-all + opt-out blacklist), two recipes
+  (packaged Rations / Stockpile Fill), and its old `min(P,F,C,V)/2` formula
+  dropped — Rations are now **flat sustenance** with no axis profile.
+  Stockpiling is **reversible with friction**: a staffed Food Storage runs
+  a poor-rate extraction (bulk → packaged Rations) as a last-resort valve.
+  `NutritionStockpile` becomes a flat quantity (`sqrt`-flattened) measured
+  at a **run-end snapshot**. `03` Planning Lock-in no longer lists Food
+  Storage deposits. **Still open**: exact conversion ratios and extraction
+  rate (balancing); Emergency Medical Kit recipe/role and PPE tier (see
+  small-gaps items in the animal-system brainstorm).
 - [ ] **Planning-phase undo/redo** — add a planning-wide undo/redo action
   covering every reversible planning choice (placement, assignment, queue
-  edits, food-for-consumption, Food Storage deposits, construction
-  queuing): redo available after an undo only while nothing new has
+  edits, food-for-consumption, construction queuing): redo available after
+  an undo only while nothing new has
   changed, undo reachable back to the start of the planning phase. Surfaced
   during the production-queue design pass (2026-09-09).
 - [x] **Energy Pool per-building powered state** — resolved via a full
@@ -178,11 +195,11 @@ tracks what's needed *underneath* them.
   in-fiction; playback speed stays a pure time-multiplier); three resolution
   moments — **Planning Lock-in** (instantaneous, right before the Mid-Sim
   clock starts; reversible planning choices simply freeze into fixed
-  inputs — Food Storage deposits, food-for-consumption selection,
-  construction/upgrade/relocate queuing — no consequence computed, nothing
-  revealed), **Mid-Sim** (the only place real time passes — continuous
-  production plus any discrete event with a genuine reason to occupy a
-  specific interval, e.g. hazard events), and **Post-Sim** (instantaneous,
+  inputs — food-for-consumption selection, per-building production-queue
+  step order, construction/upgrade/relocate queuing — no consequence
+  computed, nothing revealed), **Mid-Sim** (the only place real time passes
+  — continuous production plus any discrete event with a genuine reason to
+  occupy a specific interval, e.g. hazard events), and **Post-Sim** (instantaneous,
   merges the moment right after the clock ends with the top of the next
   planning phase, since neither involves real time passing — renamed from
   the old single "Outside-Sim" now that the pre-clock moment has its own

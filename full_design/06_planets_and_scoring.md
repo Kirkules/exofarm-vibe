@@ -399,9 +399,10 @@ rather than repeated per faction below.
   it means "can it support a large population at all." Sustainability is the core
   value. Backs the **Food Security** sub-metric (see [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition)):
   `FoodSecurity = normalize(NutritionStockpile) + normalize(NutritionIncome)` —
-  `NutritionStockpile` is `sum of sqrt(stockpiled amount)` across the four nutrient
-  axes, counting only food actually committed to a Food Storage building (see
-  [Storage](04_buildings_and_economy.md#storage)) — uncommitted food in general inventory contributes nothing;
+  `NutritionStockpile` is a flattening function (`sqrt`, tunable) of the flat
+  sustenance held in Food Storage (see [Storage](04_buildings_and_economy.md#storage)) at a **run-end snapshot** —
+  bulk Ration-content routed there via a Ration Press, nothing else counts,
+  and anything extracted back out before run end isn't scored;
   `NutritionIncome` mirrors Development Bloc's `ResourceIncome` — a linear
   average production rate over the run's last 5 seasons, across the same four
   axes, unaffected by storage status since it measures productive capacity

@@ -783,14 +783,20 @@ there is no building filling that old "Matter Manipulator" nutrition role.
   hard countdown, creating more natural, legible pressure to establish real
   Kitchen/Farm food production early, rather than a Matter tax that could
   always be paid indefinitely.
-- **Can be manually replenished** at a **Ration Press** (see Buildings &
-  Economy's [Food/Meal Conversion](04_buildings_and_economy.md#foodmeal-conversion)) — an unstaffed, instant-conversion building
-  that turns fresh food ingredients into more Rations at a lossy rate
-  (`floor(min(P,F,C,V) / 2)`, with any axis imbalance beyond the matched
-  minimum discarded). This is a genuine, felt inefficiency versus consuming
-  fresh food directly — Rations are valuable specifically for portability
-  (required for certain exploration tasks — see [Assignment](05_settlers_and_exploration.md#assignment) above), not as a
-  strictly better choice than fresh consumption.
+- **Can be manually produced** at a **Ration Press** (see Buildings &
+  Economy's [Food/Meal Conversion](04_buildings_and_economy.md#foodmeal-conversion)) — an unstaffed, cycle-based building that
+  turns player-selected fresh food into Rations, at a **lossy** rate (a
+  Ration is worth meaningfully less sustenance than eating the input
+  fresh). Rations carry **no per-axis nutrient profile** — they are flat
+  sustenance — so they cover the Tier-1 bulk check but do nothing for
+  Tier-2 axis balance. Valuable specifically for portability (required for
+  certain exploration tasks — see [Assignment](05_settlers_and_exploration.md#assignment) above), not a strictly better
+  choice than fresh consumption. The press has two output modes: packaged
+  Rations, or a bulk **Stockpile Fill** feeding Food Storage (see Buildings
+  & Economy's [Storage](04_buildings_and_economy.md#storage)) — and a **Food Storage building, when staffed, can
+  run the reverse**, extracting bulk stock back into packaged Rations at a
+  deliberately poor rate, a last-resort valve for a season the settlement
+  would otherwise lose settlers.
 - If total available nutrition (Rations plus any meals) can't cover the
   settler headcount at all, the shortfall causes **settler deaths** (the
   original mechanic, unchanged) — a confirmation dialog gates confirming a
@@ -860,18 +866,19 @@ it's a projection layered on the existing once-a-season check.
 ### End-of-Run Food Security Score
 `FoodSecurity = normalize(NutritionStockpile) + normalize(NutritionIncome)`
 
-`NutritionStockpile` is `sum of sqrt(stockpiled amount)` across the four axes
-(flattening function tunable later via playtesting, once it can be felt in actual
-play) — deliberately not a hard bottleneck/minimum-of-the-four: a large stockpile in
-one axis should still feel meaningful and impactful, not nullified by a weak axis
-elsewhere. Because `sqrt` flattens at high values, the *marginal* value of further
-stacking an already-large axis shrinks, so diversifying naturally becomes the more
-efficient move at the margin once one axis is deep into diminishing returns —
-without ever making a large single-axis investment feel wasted or capped.
-**"Stockpiled amount" specifically means food committed to a Food Storage
-building (see [Storage](04_buildings_and_economy.md#storage))** — food merely sitting in general inventory doesn't
-count. This makes deliberate storage a real, felt tradeoff (locking food away
-from active use) rather than a passive byproduct of surplus production.
+`NutritionStockpile` is a flattening function (`sqrt`, tunable later via
+playtesting) of a **single flat sustenance quantity** — the bulk
+Ration-content held in Food Storage. It is **not** a per-axis sum anymore:
+long-term storage now holds homogenized, sanitized Ration-content with no
+nutrient-axis profile (see Buildings & Economy's [Ration Press](04_buildings_and_economy.md#ration-press) / [Storage](04_buildings_and_economy.md#storage)),
+so per-axis balance lives entirely in the *in-run* Tier-2 check where it
+belongs, not double-counted in the end-of-run reserve. Because `sqrt`
+flattens at high values, the marginal value of further stacking shrinks —
+the reserve is worth building, with diminishing returns.
+**The counted amount is what sits in Food Storage at a run-end snapshot**
+— routed there via a Ration Press's Stockpile Fill, nothing else; food in
+general inventory doesn't count, and anything extracted back out (a
+last-resort crisis move — see [Storage](04_buildings_and_economy.md#storage)) simply stops being scored.
 
 `NutritionIncome` mirrors Development Bloc's `ResourceIncome` — a linear average
 production rate over the run's last 5 seasons, across the same four axes, a

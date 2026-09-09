@@ -1464,28 +1464,33 @@ finds, same spirit as everything else in the catalog.
 
 ### Ration Press
 
-Produces **Rations** — the replacement for the removed Nutrient Paste
-mechanic (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition)). Rations are
-conceptually analogous to Nutrient Paste: densely packed, unappetizing,
-meant only to sustain life — but unlike Nutrient Paste, they're a genuine
-player-produced item, not an automatic settlement-wide conversion rule.
+Turns fresh food into **Rations** (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition)) —
+densely packed, flavorless, **flat sustenance** with no per-axis nutrient
+profile of its own. Its processing is aggressive enough that the input is
+not left intact — which is why every Ration is interchangeable regardless
+of what went in, and why anything that passes through it comes out
+thoroughly sanitized (a mildly reassuring property on a frontier).
 
-- Staffing: Unstaffed — the conversion process is
-  meant to feel automatic, not labor-intensive
-- **Instant conversion** (see [Building Schema](04_buildings_and_economy.md#building-schema)): the player selects a set of
-  input food items during planning; resolves immediately, with output
-  available the **same season** — including for exploration tasks being
-  planned that same season. Repeatable within a single planning phase, no
-  cap, no cooldown. Ordinary reversibility applies: selecting inputs and
-  converting is undoable like any other planning action until Next Season is
-  confirmed.
-- Formula: `Rations = floor(min(Protein, Fat, Carbs, Vitamins across
-  selected inputs) / 2)` — a real, felt inefficiency: converting to Rations
-  costs roughly half the input's nutrition value versus consuming it fresh,
-  and any imbalance beyond the matched minimum across the four axes is
-  discarded entirely. This makes Rations valuable specifically for
-  portability (required for certain exploration tasks — see Exploration
-  Tasks' Assignment), not a strictly better choice than fresh consumption.
+- Staffing: Unstaffed — the conversion is meant to feel automatic, not
+  labor-intensive — but **cycle-based** now, not instant: it runs its
+  selected recipe each cycle during Mid-Sim, consuming inputs at cycle
+  start (see [Building Schema](04_buildings_and_economy.md#building-schema)), and carries a production queue with cycle
+  `limits` like any other production building.
+- **Input selection.** The player picks which food types the press is
+  allowed to consume; the default is "everything," with an opt-out
+  **blacklist** as the common case (protect Fruit for meals, say). A
+  whitelist mode is available for finer control.
+- **Two recipes:**
+  - **Packaged Rations** — output: portable Ration units, usable
+    immediately (including for exploration tasks planned the same season).
+  - **Stockpile Fill** — output: bulk Ration-content routed into the
+    settlement's Food Storage (see [Storage](04_buildings_and_economy.md#storage)) toward its capacity, not into
+    general inventory. Same content as a packaged Ration, just unpackaged
+    and in bulk.
+- **Lossy either way** — a Ration (packaged or stockpiled) is worth
+  meaningfully less sustenance than eating the input fresh would have been;
+  Rations earn their place through portability and shelf stability, not
+  efficiency. Exact conversion ratio TBD, deferred to balancing.
 - Construction cost: TBD, same as other basic-tier buildings
 - `TechAchievement`: 0 | Repeatable: yes | Upgrade path: none currently
   proposed
@@ -1994,30 +1999,35 @@ Storage**, which exists specifically to give the Sustenance Bloc's
 of surplus production.
 
 ### Food Storage
-- Staffing: Unstaffed (depositing food is a
-  planning-phase action, not ongoing labor)
-- Accepts food items (raw ingredients + prepared meals) deposited into it,
-  reusing the existing "assign food" planning-action pattern rather than
-  inventing new UI. Depositing is a normal **reversible planning action until
-  the season is confirmed** — but once simulation runs, that food is genuinely
-  committed: **removed from the general available/usable pool for the rest of
-  the run** (no longer usable for consumption or anything else).
-- Once stored, individual food identity is discarded — only the **sum of
-  nutrient values** (across the four PFCV axes) is retained, feeding directly
-  into `NutritionStockpile`.
-- **Uncommitted food sitting in general inventory contributes nothing to
-  `NutritionStockpile`** — only food actually deposited here counts. This
-  makes Food Storage a hard requirement for any real Sustenance score, not an
-  optional bonus. (`NutritionIncome`, the other half of the Food Security
-  formula, is unaffected by this — it measures raw production rate regardless
-  of what becomes of the output, since it represents productive *capacity*,
-  not a secured reserve.)
-- **Storage contribution**: a real, limited capacity (in nutrient-value units),
+
+A long-term reserve of **bulk Ration-content** — the same flat, sanitized
+sustenance a Ration is, just unpackaged and in bulk. Its only input is the
+**Stockpile Fill** recipe of a [Ration Press](04_buildings_and_economy.md#ration-press); raw crops, meat, and Meals
+cannot be put here directly, so nothing entering long-term storage has
+skipped the Ration Press's sanitizing processing.
+
+- **Held bulk feeds `NutritionStockpile`** (see Planets & Scoring's [SEED Factions](06_planets_and_scoring.md#seed-factions))
+  — a single flat quantity now, not a four-axis sum; measured as a
+  **run-end snapshot**, so anything drawn back out before the run ends
+  simply isn't scored. General inventory contributes nothing, so a real
+  Sustenance score still requires committing production into storage via
+  the press.
+- **Reversible, with friction.** Assigning a worker makes Food Storage run
+  an **extraction** recipe: bulk held content → packaged Rations, at a
+  deliberately poor rate and pace — it exists for the season a settlement
+  would otherwise lose settlers because normal food income and Ration
+  production fell short, not as a routine tap. (It should never feel good
+  to watch the crew die because you were hoarding a reserve to look
+  impressive back on Earth.) With no worker assigned, the building just
+  holds and scores.
+- **Storage contribution**: a real, limited capacity (in sustenance units),
   **deliberately scaled so the unupgraded building cannot reach a maximum
   `NutritionStockpile` score even completely full** — forcing upgrades (or
   multiple Food Storage buildings) as a genuine ongoing investment, not a
-  one-time build-and-forget structure. Exact capacity numbers TBD, deferred to
-  a balancing pass.
+  one-time build-and-forget structure. Exact capacity numbers TBD, deferred
+  to a balancing pass.
+- Staffing: Staffed (Settler or drone) — only when extracting; holding and
+  scoring need no worker.
 - Construction cost: Lumber/Concrete (ratio TBD) | `TechAchievement`: 0 (base) /
   2 (upgraded tiers) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog) | Repeatable: yes | Upgrade path: yes, raises
   capacity

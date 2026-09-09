@@ -681,11 +681,10 @@ role above).
 - **Planning Lock-in** — instantaneous, right before the Mid-Sim clock
   starts. Purely a freeze: reversible planning-phase choices become fixed
   inputs for the season. No consequence is computed and nothing is revealed
-  to the player here — that's Post-Sim's job, below. Hosts: Food Storage
-  deposits becoming committed (per Storage's Food Storage, removed from the
-  general pool for the rest of the run from this instant on), the
-  food-for-consumption selection becoming fixed for the season, and
-  construction/upgrade/relocate actions being queued (a robot is consumed
+  to the player here — that's Post-Sim's job, below. Hosts: the
+  food-for-consumption selection becoming fixed for the season, production
+  queues freezing into their season's step order (see Production Model),
+  and construction/upgrade/relocate actions being queued (a robot is consumed
   from the available pool the instant the action is queued, not when it
   later completes).
 - **Mid-Sim** — the only place real time actually passes. What actually
