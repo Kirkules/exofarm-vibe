@@ -118,6 +118,23 @@ tracks what's needed *underneath* them.
   worker's Effort/Experience/Aptitude readout lives, and where the
   production-rate summary's full breakdown lives. **Still open**: any
   status-section content beyond power is unaddressed.
+- [x] **Production queue & limit-amounts (2026-09-09)** — resolved: every
+  production building runs an ordered queue of `(recipe, limit)` steps
+  instead of one recipe/season (limit = cycle count or unlimited),
+  advancing circularly, skipping steps whose inputs are unavailable
+  (skip ≠ remove; limit-hit = remove for the season), going dormant with
+  its worker idle if every step skips, and re-checking dormant queues each
+  quarter-season. Inputs consumed and any success roll made at cycle start.
+  Fuel-based Generator's fuel-limit is subsumed as a step `limit`. See Core
+  Loop & Grid's Production Model / Site Panel and Buildings & Economy's
+  Building Schema. **Still open**: whether animal-husbandry buildings sit
+  inside this system (deferred to the husbandry cycle design).
+- [ ] **Planning-phase undo/redo** — add a planning-wide undo/redo action
+  covering every reversible planning choice (placement, assignment, queue
+  edits, food-for-consumption, Food Storage deposits, construction
+  queuing): redo available after an undo only while nothing new has
+  changed, undo reachable back to the start of the planning phase. Surfaced
+  during the production-queue design pass (2026-09-09).
 - [x] **Energy Pool per-building powered state** — resolved via a full
   redesign of Energy itself (see Buildings & Economy's Resources' Energy
   Income/Consumption Rates): the old Cap/Income/Draws accumulated-balance

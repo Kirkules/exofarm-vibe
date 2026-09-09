@@ -352,17 +352,58 @@ the following properties. Working through the catalog category-by-category (see
   upgrade action rather than new construction
 
 **A building's Input/Output is usually one fixed pairing, but some buildings
-define more than one — "recipes."** When a building has multiple recipes,
-the player selects one as the single active pairing, as a normal, reversible
-planning-phase choice — distinct from (and doesn't reintroduce) the
-earlier-flagged risky "automatic alternative output based on ingredient
-availability" idea, since selection here is always explicit and
-player-driven, never automatic/reactive to stock levels. No further
-taxonomy of recipe shapes is needed: whether recipes differ in output item
-(Robotics Assembly), input item (Diplomatic Gear), or output rate for the
-same input/output types (Fuel-based Generator), they're all just
-alternative Input/Output pairings the player chooses between — the schema
-doesn't need a name for each shape.
+define more than one — "recipes."** Recipes are always chosen explicitly by
+the player during planning, never selected automatically in reaction to
+stock levels (which was the earlier-flagged risky "automatic alternative
+output" idea, and stays rejected). No further taxonomy of recipe shapes is
+needed: whether recipes differ in output item (Robotics Assembly), input
+item (Diplomatic Gear), or output rate for the same input/output types
+(Fuel-based Generator), they're all just alternative Input/Output pairings —
+the schema doesn't need a name for each shape.
+
+**Production queue.** Rather than one active recipe per season, every
+production building carries an ordered **queue** of steps, each a
+`(recipe, limit)` pair where `limit` is a completed-cycle count or
+**unlimited**. It is a normal reversible planning-phase choice — edited like
+any other planning action, reset fresh each season (all steps present,
+cycle-counts zeroed, limits restored). The player uses it to sequence a
+season's production without needing to intervene mid-season ("make 3
+Biological Lab Materials, then research countermeasures the rest of the
+season"; "make 3 Bread, then 1 Gourmet dish"). A single-recipe building has
+no ordering to set but can still take a bare `limit` ("make only 5 Concrete,
+then idle").
+
+- **Advancement.** The active step ends by either **hitting its limit** —
+  removed from the queue for the rest of the season — or being **skipped**
+  because its inputs aren't available at the moment it is selected. Control
+  then passes to the **next list position, circularly**: past the last
+  remaining step, back to the first.
+- **Skipped ≠ removed.** A skipped step stays in the queue, retains its
+  cycle-count (a skip never resets progress toward a limit), and is
+  re-attempted on later passes.
+- **Whole-queue skip → dormant.** If advancement goes all the way around and
+  every remaining step is skipped, the building goes **dormant** instead of
+  spinning — its worker held idle at the site (see [Assignment](03_core_loop_and_grid.md#assignment), and the
+  parallel un-powered-building rule under [Resources](04_buildings_and_economy.md#resources)). A dormant queue is
+  re-checked every quarter-season and restarts from the top of the list the
+  moment any step has inputs.
+- Net effect: planned limits are always respected, and production otherwise
+  continues through any missing-input situation rather than stalling on it.
+- Skip is distinct from **pause**: inputs-out *skips* (advance the queue);
+  an un-powered or Water-denied building *pauses* (the current step and the
+  whole queue state freeze until it resumes). A step hitting its limit, a
+  step being skipped, and a queue going dormant each emit a simulation-log
+  line with cause.
+
+**Input consumption and any success roll both happen at cycle start.**
+Inputs for a cycle leave inventory when that cycle begins (not on
+completion); for a recipe with a non-guaranteed output (see e.g. Food/Meal
+Conversion's parasite cook-out), the success/failure roll is made then too,
+so the outcome is settled up front rather than at the end. "Inputs ran out
+on cycle 3 of 5" therefore means cycle 3 never starts and the step is
+skipped with a cycle-count of 2. Fuel-based Generator's planning-phase
+fuel-limit control is just a `limit` on its own queue step — no separate
+mechanism.
 
 **Conditional properties** (apply depending on category/function):
 - **Production cap** — max per-cycle output requiring multiple workers'/drones'
@@ -1105,12 +1146,14 @@ grid slot, no construction cost, no staffing in the sticky sense.
   Energy Income/Consumption Rates) — contributes **zero** Income while
   inactive or out of fuel, unlike Solar Array and Geothermal Generator's
   constant Reliable contribution.
-- **Planning-phase control**: the player sets this building **active or
-  inactive** for the season, plus a **fuel limit** — the maximum Wood/Fossil
-  Fuel it's allowed to consume that season. During Mid-Sim, if active, it
-  burns for a duration determined by that limit (or by however much fuel is
-  actually available, whichever binds first) against its burn efficiency —
-  it doesn't necessarily run the whole season. While actively burning, it
+- **Planning-phase control**: the active/inactive toggle every building has,
+  plus a **fuel limit** — the maximum Wood/Fossil Fuel it's allowed to
+  consume that season, which is just a cycle `limit` on its production-queue
+  step (see [Building Schema](04_buildings_and_economy.md#building-schema)'s "Production queue"), not a separate mechanism.
+  During Mid-Sim, if active, it burns for a duration determined by that
+  limit (or by however much fuel is actually available, whichever binds
+  first) against its burn efficiency — it doesn't necessarily run the whole
+  season. While actively burning, it
   contributes an **additional** Energy income rate on top of the constant-rate
   producers; once its fuel limit or supply is exhausted, that contribution
   drops to zero for the remainder of the season. Draws from the same pooled

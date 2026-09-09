@@ -369,6 +369,15 @@ dominant one.
   not a countdown — a cycle 50% complete when a boost hits finishes at half the
   remaining time, and subsequent cycles run at the boosted rate until the effect ends.
   No discrete timer resets, no exploitable edge cases from boost timing.
+  **Inputs are consumed, and any non-guaranteed-output success roll is made,
+  at cycle *start*** — the outcome is committed up front, not at completion.
+- **Every production building runs an ordered production queue** of
+  `(recipe, limit)` steps rather than one recipe per season — the player
+  sequences a season's output ahead of time (limits, ordering, an
+  "unlimited" tail), and it advances on its own through missing-input cases
+  without stalling. Full mechanic in Buildings & Economy's [Building Schema](04_buildings_and_economy.md#building-schema)
+  ("Production queue"); the queue advances during Mid-Sim as cycles
+  complete.
 - **Farm and infrastructure production are largely unified under this same
   model.** Most farm buildings run the same continuous-rate production as a
   Bakery, modified by external effects (weather, fertilizer) instead of
@@ -490,12 +499,14 @@ choice to make at that particular site. Contents, always in this order:
 
 - **Name/icon** — the site's identity, same icon used everywhere else it
   appears (grid tile, Worker Roster highlight, etc.).
-- **Recipe section — always present.** A single-recipe building shows a
-  plain, non-interactive indicator of its one Input/Output pairing. A
-  multi-recipe building (per Building Schema's recipe concept) instead
-  shows a **selector**: a short row of its available recipes, current
-  selection highlighted, click to switch — an ordinary reversible
-  planning-phase choice, same as any other planning action.
+- **Recipe / queue section — always present.** Shows the building's
+  **production queue** (see Buildings & Economy's Building Schema) as an
+  ordered list of `(recipe, limit)` steps. A single-recipe building shows
+  its one recipe with an optional cycle `limit`; a multi-recipe building
+  shows the full editable ordered list — add/remove/reorder steps, set each
+  step's limit or mark it unlimited. An ordinary reversible planning-phase
+  choice, same as any other planning action; a building with a single
+  unlimited step reads as "just runs this," no different from before.
 - **Assigned worker slot — always present**, including for **unstaffed**
   buildings, where it's shown but **visibly disabled** (greyed out, not
   simply absent) rather than omitted — so the panel's layout never shifts
