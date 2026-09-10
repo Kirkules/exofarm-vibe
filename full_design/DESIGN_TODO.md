@@ -296,6 +296,24 @@ tracks what's needed *underneath* them.
     robot" (see Core Loop & Grid's Run-Start Flow), and any cross-run
     variation on it belongs to this redesign rather than a separate axis.
   Sequenced **after** the initial-run-state work.
+- [ ] **Run length — definiteness & motivation** — a run is currently
+  **15 seasons**, but this number has no diegetic justification and the
+  length should be revisited: does it want a clearer in-fiction reason
+  (supply windows, the hypervelocity-star timeline, a SEED mandate), and is
+  15 the right value — should some planets/factions/modes shorten or extend
+  it? Surfaced 2026-09-10 during the wild-animal-population design.
+- [ ] **Story mode vs. Atemporal mode** — two cross-run modes in the
+  meta-progression frame:
+  - **Story mode** — a real countdown of years to the **hypervelocity
+    star's arrival** (the doomsday the whole expedition exists to outrun),
+    plus faction-driven story events and special curated planets to target.
+    Runs are finite in number; the countdown ending is the end of the game.
+  - **Atemporal mode** — meta-progression but **no countdown**: the
+    doomsday looms permanently, and the player takes as many runs as they
+    want. The endless/practice framing.
+  Needs design of what the countdown actually gates/changes, how story
+  events slot in, what "curated planets" are, and how meta-progression
+  differs (if at all) between the two. Surfaced 2026-09-10.
 
 ## Newly Surfaced Ideas (recorded, not yet designed in detail)
 
@@ -1119,6 +1137,17 @@ and Planets & Scoring (In-Simulation Hazard Events, Critical Failure).
   Atmospheric Hazard also becomes a scheduled event or stays continuous
   (`11-B5`); the non-shield Indoor temperature/energy coupling and the
   `06` "scales with how extreme" reconciliation (`5-B1`).
+- **Shields + active hazard events — focused revisit wanted** (surfaced
+  2026-09-10 during the wild-animal design). The shield Energy model was
+  updated again: shields draw a **flat baseline whenever powered** (like any
+  building) — powered = protecting against temperature, storms, *and*
+  animals of all sizes — **plus an elevated draw during an active hazard
+  event**. Still to design: a strong-enough weather event should be able to
+  **break a shield regardless of how much power is supplied**; stronger
+  events should demand **more power** to shield against; and it may be
+  cleanest if **only stronger events** incur any elevated shield cost at
+  all (mild events shielded on the flat baseline). This subsumes the
+  `5-B1` strategy-dimension-D coupling question.
 
 ### Addressed by the Post-Sim resolution-order pass (2026-09-04) — in progress
 
