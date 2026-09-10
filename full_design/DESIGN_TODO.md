@@ -296,6 +296,21 @@ tracks what's needed *underneath* them.
     robot" (see Core Loop & Grid's Run-Start Flow), and any cross-run
     variation on it belongs to this redesign rather than a separate axis.
   Sequenced **after** the initial-run-state work.
+- [ ] **Construction as a Mid-Sim progressive activity** — surfaced
+  2026-09-10 during the fence design. Building construction (and fence
+  construction) should stop resolving instantly "the following season" and
+  instead **progress over Mid-Sim time**, like plant-crop growth: partial
+  progress preserved and resumed if it doesn't finish by Mid-Sim end. A
+  single unupgraded construction robot should take **less than a full
+  season but long enough that it can't build two buildings in one season**
+  — though it *should* be able to build one building *and* fence a small
+  area in the same season. Fence tiles build one at a time,
+  deterministically top-to-bottom / left-to-right, ~1s Mid-Sim each; a
+  painted (planned) fence provides no protection until built. Robot
+  upgrades and multiple robots raise throughput. This reworks `03`
+  Construction (the "N build/upgrade actions per season" cap, the "resolve
+  the following season" rule) and the Post-Sim "construction completions"
+  sub-step, and touches audit items `1-SF1`/`2-SF2`/`1-SF7`/`1-SF8`.
 - [ ] **Run length — definiteness & motivation** — a run is currently
   **15 seasons**, but this number has no diegetic justification and the
   length should be revisited: does it want a clearer in-fiction reason
@@ -798,7 +813,11 @@ Findings are cited as `system-B/SFn` (e.g. `5-B3`, `11-SF14`); `7a`/`7b` and
   undefined — only `severely under-covered → destroyed` is pinned.
 - `11-B4` — Vaccine-Production gate granularity is ambiguous — axis-level
   `Confidence(Bio-hazard)` vs. per-discovered-pathogen; number of distinct
-  pathogens per run undefined.
+  pathogens per run undefined. **Resolved (2026-09-10, parasite/disease
+  write pass):** the *tier* (renamed Biological Countermeasures) is
+  axis-gated by `Confidence(Bio-hazard)`; individual vaccines/anti-parasitics
+  are researched one confirmed threat at a time thereafter. Roster count is
+  set by planet-gen (Animal System item above).
 - `11-B5` — Atmospheric Hazard's exposure trigger is undefined — called a
   "continuous check with no event" yet the status effect "triggers on
   exposure"; no cause, frequency, or weighting given.

@@ -558,16 +558,13 @@ built building** to a different valid, empty slot (or slots, for a multi-slot
 building) — all three resolve the *following* season, consistent with how
 production/crafting already resolves during simulation rather than instantly.
 
-Relocation exists specifically to resolve a real edge case: an upgrade that expands a
-building's footprint (see [Building Schema](04_buildings_and_economy.md#building-schema)'s multi-slot buildings, e.g. Upgraded
-Kitchen) is only offered/confirmable if the required adjacent cell(s) are actually
-free — the same placement-validity check used for new construction, just applied to
-the upgrade action. If a neighboring built building is in the way, relocating it is
-the way to clear space. Since relocation costs one full robot-action (a season), this
-makes "not leaving room to grow" a real, felt strategic misstep — clearing the space
-and then performing the upgrade costs two robot-actions total (two seasons with one
-robot, or one season if a second robot is available to do both at once) — without
-ever permanently locking the upgrade out.
+Standalone relocation moves a building the player simply wants elsewhere.
+The **footprint-expanding upgrade** case is handled differently: **every
+upgrade bundles a free relocation** (see [Building Schema](04_buildings_and_economy.md#building-schema)'s Upgrade
+path) — the one upgrade action rebuilds the larger building on its current
+cell(s) or on any other valid empty slot(s), so a lack of adjacent free
+cells never blocks or double-charges the upgrade. Deposit/feature-gated
+buildings stay on their deposit.
 
 **Relocation reuses the building — it doesn't re-charge its construction
 cost.** The resources spent building the original structure aren't spent

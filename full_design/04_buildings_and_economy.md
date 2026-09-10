@@ -351,7 +351,14 @@ the following properties. Working through the catalog category-by-category (see
   building should be capped at one instance is an open question)
 - **Upgrade path** — none, or a defined sequence of tiers, each tier really being
   its own bundle of these same properties, unlocked via a construction-robot
-  upgrade action rather than new construction
+  upgrade action rather than new construction. **Every upgrade bundles a
+  free relocation**: the same one robot-action rebuilds the (possibly
+  larger) building either on its current cell(s) or on any other valid,
+  empty slot(s), placed through the same UI as new construction — so a
+  footprint-expanding upgrade is never blocked by a lack of adjacent free
+  cells and never costs a second action to clear space. Upgrade-in-place is
+  just choosing the current location. **Deposit/feature-gated buildings**
+  (Mine, Quarry, etc.) are forced to stay on their deposit.
 
 **A building's Input/Output is usually one fixed pairing, but some buildings
 define more than one — "recipes."** Recipes are always chosen explicitly by
@@ -428,6 +435,10 @@ mechanism.
   inventory is uncapped (see [Inventory](04_buildings_and_economy.md#inventory)) and has no storage-contribution
   property; this only applies to buildings implementing a deliberate,
   limited-capacity commitment mechanic.
+- **Recovery capacity** — the number of settlers who can actively recover
+  from an injury or infection at once (Medical Bay only so far: 1 base / 2
+  upgraded — see [Medical Bay](04_buildings_and_economy.md#medical-bay) and Settlers & Exploration's [Injuries](05_settlers_and_exploration.md#injuries)). Distinct
+  from the worker slot — recovering settlers aren't workers.
 
 ---
 
@@ -454,8 +465,8 @@ demanding its own prerequisites/inputs are:
 - **3 — Compound-advanced or gate-locked.** Needs multiple advanced inputs
   together (a rare metal plus High-Tech Components, or two Tier-2 items at
   once), or is gated behind a Confidence threshold rather than materials
-  (Medical Bay's Vaccine Production tier), or requires a further-Upgraded
-  building tier beyond the first.
+  (Medical Bay's Biological Countermeasures tier), or requires a
+  further-Upgraded building tier beyond the first.
 - **4 — Rarest tier.** The catalog's actual ceiling items.
 
 **Counting rule** (see Win/Lose Conditions' [SEED Factions](06_planets_and_scoring.md#seed-factions) for the full
@@ -595,9 +606,9 @@ catalog entry)
 | Weather Shield (upgraded) | 2 |
 | Row Shield | 1 |
 | Medical Bay (base) | 2 |
-| Medical Bay (Vaccine Production) | 3 |
-| PPE | 1 |
-| Emergency Medical Kit | 2 |
+| Medical Bay (Biological Countermeasures) | 3 |
+| PPE | 2 |
+| Emergency Medical Kit | 1 |
 
 **Storage**
 
@@ -1860,72 +1871,90 @@ principle that a planet/strategy shouldn't reduce to one correct approach)*
 - `TechAchievement`: 1 — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog) | Repeatable: yes
 
 ### Medical Bay
-- Staffing: Staffed — Settler, Advanced All-Purpose Drone, or a
-  Medical-Bay-Specialized Drone (see [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly)) for PPE and Vaccine
-  Production; medical research specifically stays settler-only, the same
-  rule as Research Lab
+- Staffing: Staffed, **1 worker** — Settler, Advanced All-Purpose Drone, or
+  a Medical-Bay-Specialized Drone (see [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly)) for the Biological
+  Lab Materials / PPE / Emergency Medical Kit recipes; **countermeasure
+  research stays settler-only**, the same rule as Research Lab. The one
+  worker chooses among these via the production queue (see [Building Schema](04_buildings_and_economy.md#building-schema)) —
+  a deliberate bottleneck on a high-hazard run (the answer is a second
+  Medical Bay).
 - **Base tier**: provides baseline `Preparedness(Bio-hazard)` credit
   (general medical readiness — illustrative: 0.2) — available immediately,
-  no data prerequisite.
-- **Vaccine Production tier**: a **genuine functional gate**, not just a
-  scoring nuance — only buildable once `Confidence(Bio-hazard)` (from
-  Safeguard's Beta-distribution data-gathering mechanism, see Exoplanet
-  Types) crosses a threshold (illustrative: 0.5, TBD). This directly
-  realizes the earlier-established rule that an effective, pathogen-specific
-  vaccine can't be produced without first characterizing the actual
-  pathogen. Once unlocked, provides substantially higher Preparedness credit
-  (illustrative: 0.7). This is deliberately **not** implemented as
-  `Preparedness` itself continuously scaling with `Confidence` — that would
-  double-apply the same gating the `Score(hazard)` formula's own
-  `MatchedRisk × MatchedPreparedness` term already provides. Instead it's a
-  discrete build-order gate: a tier either exists (available) or doesn't.
-  **A static one-time unlock, not a recurring production/consumption
-  item** — once unlocked, the settlement is assumed fully vaccinated against
-  that specific pathogen (vaccines are always targeted to the pathogen a
-  specific bio-survey exploration task discovered), and the building simply
-  provides its Preparedness credit from then on with no ongoing cost.
-  Unlocking a vaccine for a given pathogen also triggers a **new exploration
-  escalation** — a task to explore the specific region where that pathogen
-  was originally found, previously too dangerous, now safe (see Exploration
-  Tasks' [Escalation Chains](05_settlers_and_exploration.md#escalation-chains) for the worked example).
-  **The unlock is a permanent settlement-wide fact, not tied to the Medical
-  Bay's continued existence** — everyone is already vaccinated the moment it
-  unlocks, so even if the building is later destroyed (see In-Simulation
-  Hazard Events' Storm consequences), that fact doesn't un-happen. Rebuilding
-  Medical Bay afterward restores its Preparedness/PPE functions, not the
-  vaccine itself, since there's nothing to restore.
+  no data prerequisite. Also hosts the recurring PPE and Emergency Medical
+  Kit recipes and the **Biological Lab Materials** recipe (below).
+- **Recovery capacity** (a conditional Building Schema property): the number
+  of settlers who can be actively recovering from an injury or a
+  parasite/disease infection at once — **1 at the base tier, 2 upgraded**.
+  Recovering settlers are not this building's worker and can't be assigned
+  to other work while recovering (see Settlers & Exploration's [Injuries](05_settlers_and_exploration.md#injuries));
+  demand beyond capacity queues, still infected. When infected settlers
+  outnumber slots, the deadliest infections take the slots first (not
+  surfaced to the player). A held-but-recovering settler's assigned site
+  produces nothing — the Site Panel shows "worker recovering."
+- **Biological Countermeasures tier** (upgrade) — a **functional gate**:
+  only buildable once `Confidence(Bio-hazard)` (from Safeguard's
+  Beta-distribution data-gathering, see Exoplanet Types) crosses a threshold
+  (illustrative: 0.5, TBD) — you can't develop targeted countermeasures
+  without first characterizing the planet's biology at all. Provides an
+  elevated `Preparedness(Bio-hazard)` credit while it exists (illustrative:
+  0.7). Beyond the tier gate, individual countermeasures are researched
+  **one threat at a time** (this is the resolution to the axis-vs-pathogen
+  granularity question):
+  - **Countermeasure research** is a recurring recipe: a settler on this
+    recipe completes a cycle (consuming **Biological Lab Materials**) that
+    resolves **one bio-threat, chosen at random**, from the list of
+    *encountered or confirmed* threats not yet countered — a settler or
+    animal case, an expert-witnessed infected food/animal, or an
+    exploration/survey report; never a threat that merely exists on the
+    planet unseen. Each completed research **permanently removes** that
+    threat from the list. Needing a researcher assigned every season is the
+    signal of an unusually high-hazard run.
+  - **Against a disease (Pathogen Threat):** the result is a **vaccine** —
+    a permanent settlement-wide fact. From then on no settler is infected
+    by that disease, and any active case's recovery always succeeds. Not
+    tied to the building's continued existence (a destroyed-and-rebuilt
+    Medical Bay restores its Preparedness/recipes, not the vaccine — there's
+    nothing to restore). Unlocking a vaccine also triggers a **new
+    exploration escalation** to the region the disease was found in, now
+    safe (see Exploration Tasks' [Escalation Chains](05_settlers_and_exploration.md#escalation-chains)).
+  - **Against a parasite (Toxic/Parasitic Organism Threat):** the result is
+    an **anti-parasitic**. Settlers gain **no immunity** — they can still
+    contract it — but recovery from then on always succeeds and is faster.
+    Husbandry animals gain **permanent auto-immunity**: every currently
+    infected husbandry population of that parasite is cleared on research
+    completion and can never re-contract it (diegetically, ongoing
+    small-scale treatment of the herd as it grows — mechanically, a
+    settlement-wide fact).
+  - See Settlers & Exploration's [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition) (infected food) and
+    Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events) (the quarter-season
+    epidemiology tick, spread, death rolls) for the rest.
 - **Energy upkeep**: ordinary flat per-season baseline, same rule as every
-  other building (see [Basic Resources](04_buildings_and_economy.md#basic-resources) above) — Medical Bay isn't one of the
-  two AOE shield structures, so it doesn't get the variable event-driven cost.
-- **PPE recipe** (Personal Protective Equipment — breathing masks, hazard
-  suits, etc.): Fabric → PPE, an ordinary **recurring** staffed production
-  recipe, available from the base tier with no `Confidence`-gating (PPE is
-  generic protective gear, not pathogen-specific, unlike Vaccine
-  Production). Addresses **Atmospheric Hazard** specifically — the one
-  Weather sub-factor with no preparedness mitigation until now. Doesn't
-  compete with Vaccine Production for a "slot," since Vaccine Production is
-  a permanent tier unlock, not a recurring recipe.
-  - **Fully resolved** — see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)
-    for the complete mechanism. Summary: farm-based settlers are protected by
-    a passive stock check (any PPE in general inventory, not consumed);
-    exploration-task settlers require explicitly electing to send PPE when
-    initiating the task (consumed, a real optional cost distinct from
-    mandatory prerequisites like Diplomatic Gear or Portable Scanning
-    Equipment). Exposure without PPE in either context inflicts a status
-    effect: fixed duration, halves the settler's effectiveness in all tasks,
-    and locks them out of exploration-task assignment while active.
-- **Emergency Medical Kit recipe** (new): Fabric + High-Tech Components →
-  Emergency Medical Kit, an ordinary **recurring** staffed production
-  recipe alongside PPE, no `Confidence`-gating (generic rescue/trauma
-  gear, not pathogen-specific). Consumed on use; brought optionally on the
-  Unknown Radio Signal exploration task (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's Task
-  Catalog) to guarantee a successful rescue if the signal turns out to be
-  a genuine distress call.
+  other building — Medical Bay isn't one of the two AOE shield structures.
+- **Biological Lab Materials recipe**: Grain + Glass → Biological Lab
+  Materials — the advanced-input for countermeasure research (replacing
+  High-Tech Components in that role; PPE and Emergency Medical Kit keep
+  their own recipes). Meant to be quick per cycle — an input-cost gate more
+  than a time gate.
+- **PPE recipe** (Personal Protective Equipment): **Fabric + Glass → PPE**,
+  a recurring recipe available from the base tier, no `Confidence`-gating.
+  Addresses **Atmospheric Hazard** (see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)
+  for the full mechanism: passive stock check for farm-based settlers;
+  explicitly elected and consumed for exploration-task settlers; exposure
+  without it inflicts the halving status effect).
+- **Emergency Medical Kit recipe**: a low-tier recurring recipe, **no
+  High-Tech Components** (recipe otherwise TBD — Fabric plus a basic
+  input). An **optional item on any exploration task**, consumed when
+  taken: if that task's outcome would have inflicted a **minor injury or a
+  parasite/disease infection**, the kit prevents it (it does nothing
+  against a permanent injury or death). One kit covers that task's whole
+  "came back hurt" outcome.
 - Construction cost: Fabric + Lumber/Concrete (ratio TBD) + High-Tech
-  Components (base tier); Vaccine
-  Production tier requires **additional High-Tech Components** on top
-- `TechAchievement`: 2 (base) / 3 (Vaccine Production tier) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog); PPE 1,
-  Emergency Medical Kit 2 |
+  Components (base tier); the Biological Countermeasures tier requires
+  **Biological Lab Materials** instead of additional High-Tech Components.
+  The upgraded tier occupies a **2-slot footprint** (any two-tile
+  rectangle) — the upgrade bundles a free relocation, per [Building Schema](04_buildings_and_economy.md#building-schema).
+- `TechAchievement`: 2 (base) / 3 (Biological Countermeasures tier) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog);
+  PPE 2, Emergency Medical Kit 1 |
   Repeatable: yes | Upgrade path: yes, as described above
 
 ---

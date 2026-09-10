@@ -347,8 +347,8 @@ Four categories of positive result:
 - **Farm-wide Upgrade outcome** — rare, unlocks a permanent settlement-wide
   passive improvement not tied to one specific building, reusing the shape
   already established for Water Processing Plant's Reclamation tier and
-  Medical Bay's Vaccine Production — a second, exploration-specific pathway
-  to that same reward shape, not a replacement for the existing
+  Medical Bay's vaccines/anti-parasitics — a second, exploration-specific
+  pathway to that same reward shape, not a replacement for the existing
   tech/resource-gated one.
 
 Many tasks yield only a windfall; the other three are less common, with
