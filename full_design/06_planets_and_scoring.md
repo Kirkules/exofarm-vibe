@@ -166,11 +166,13 @@ Medical Bay's PPE recipe was designed (see Buildings & Economy's [Protection](04
 **Occurrence — a fixed per-run schedule, not a per-season draw.** This
 applies to every **non-reactive** hazard — one that manifests at a time of
 its own rather than in response to a player action. Storm and Temperature
-Extremity are the two such hazards here; Bio-hazard's sub-factors (Pathogen
-Threat, Toxic/Parasitic Organism Threat) are *reactive* — they resolve only
-through exploration-task encounters — and are outside this model, and
-whether Atmospheric Hazard stays a continuous check or joins the scheduled
-model is still open (see `DESIGN_TODO.md` `11-B5`).
+Extremity are the two such hazards here. Bio-hazard's sub-factors —
+**Pathogen Threat** (diseases) and **Toxic/Parasitic Organism Threat**
+(parasites) — are **not exploration-gated**: which disease and parasite
+*types* a run has is fixed at planet generation, and they reach the
+settlement through several routes (see Bio-hazard, below). Whether
+Atmospheric Hazard stays a continuous check or joins the scheduled model is
+still open (see `DESIGN_TODO.md` `11-B5`).
 
 At **run generation** the game rolls, once and for the rest of the run:
 which seasons carry a Storm and/or a Temperature Extremity event, and each
@@ -228,12 +230,13 @@ meaning below, instead of consequence being driven purely by the
 settlement's static Preparedness coverage as before.
 
 **Concurrency.** Storm and Temperature Extremity are the only two hazard
-sub-factors that manifest as a discrete Mid-Sim event at all — Atmospheric
-Hazard (also Weather) is a continuous passive-stock/PPE check with no
-start/duration event, and Bio-hazard's two sub-factors (Pathogen Threat,
-Toxic/Parasitic Organism Threat) only ever resolve through individual
-exploration-task encounters, never a settlement-wide event. Each scheduled
-season carries **at most one Storm and at most one Temperature Extremity**
+sub-factors that manifest as a **scheduled discrete Mid-Sim event** —
+Atmospheric Hazard (also Weather) is a continuous passive-stock/PPE check
+with no start/duration event, and Bio-hazard (Pathogen Threat / diseases,
+Toxic/Parasitic Organism Threat / parasites) is a **settlement-facing
+standing risk** resolved on the quarter-season epidemiology tick (below),
+not a scheduled event. Each scheduled season carries **at most one Storm
+and at most one Temperature Extremity**
 event; there's no scenario where the same hazard type fires twice in one
 season. That leaves a ceiling of at most two discrete events in a season —
 one Storm, one Temperature Extremity — each independently scheduled and
@@ -354,6 +357,41 @@ top-severity consequence:
 > **Resolved**: the per-settler tracking system this needed is now fully
 > designed — see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Settler State](05_settlers_and_exploration.md#settler-state), [Injuries](05_settlers_and_exploration.md#injuries), and
 > [Storied](05_settlers_and_exploration.md#storied) subsections.
+
+*Bio-hazard* — diseases (**Pathogen Threat**) and parasites
+(**Toxic/Parasitic Organism Threat**), a settlement-facing standing risk
+rather than a scheduled event. Which disease and parasite **types** a run
+has is fixed at planet generation (count and roster weighted by
+`TrueRisk(Bio-hazard)`). Their per-settler and infected-food mechanics live
+in Settlers & Exploration's [Infections](05_settlers_and_exploration.md#infections) and [Infected Food](05_settlers_and_exploration.md#infected-food); what belongs
+here is the settlement-level machinery:
+
+- **The quarter-season epidemiology tick.** Four times a season, one pass
+  handles all bio-infection resolution: (1) for each disease with at least
+  one infected settler present in the settlement and **no vaccine**, every
+  uninfected settler in the settlement rolls a spread chance; (2) every
+  infected settler — recovering, queued, or working — rolls for **death**
+  (probability per type) unless a **countermeasure** (vaccine for a
+  disease, anti-parasitic for a parasite) exists for that infection at that
+  tick; (3) Medical Bay recovery progresses for the settlers occupying its
+  Recovery-capacity slots (see Buildings & Economy's [Medical Bay](04_buildings_and_economy.md#medical-bay)).
+- **Contraction routes**, all applying their infection at **Post-Sim** (the
+  settler works the affected season normally, then carries it):
+  - **Exploration** — a task's outcome roll (an Emergency Medical Kit taken
+    on the task blocks a would-be minor injury or infection).
+  - **Carrier wild populations** — a carrier grazer at a crop site infects
+    the settler working it; a carrier predator at a husbandry site infects
+    the settler there and any surviving targeted animals. Fencing or an
+    Energy shield that keeps the population out of the site blocks this.
+    (Full wild-population mechanics — sizes, tiers, fencing — are pending;
+    see `DESIGN_TODO.md`'s Animal System item.)
+  - **Infected husbandry animals** — tending an infected husbandry
+    population.
+  - **Infected food** — see Settlers & Exploration's [Infected Food](05_settlers_and_exploration.md#infected-food).
+- **Countermeasures** are researched at a Medical Bay (see [Medical Bay](04_buildings_and_economy.md#medical-bay)):
+  a vaccine ends a disease permanently and settlement-wide; an
+  anti-parasitic guarantees settler recovery (no immunity) and grants
+  husbandry animals permanent auto-immunity.
 
 ---
 

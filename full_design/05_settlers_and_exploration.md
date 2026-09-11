@@ -29,10 +29,11 @@ Each settler carries:
     nothing to default from; the settler comes out unassigned.
   - **Standing Assignment** — stays one-shot, no stickiness, unaffected.
 - `status_effect` — a list of concurrently-possible entries (not a single
-  field): Injury (see below), Atmospheric Hazard, Temperature Extremity
-  (slowed), Storied, and Sleep quality (Poor / Good / Great — a
-  settlement-wide Effort modifier on on-site work, set by the best crew
-  quarters standing; see Buildings & Economy's [Habitation](04_buildings_and_economy.md#habitation)).
+  field): Injury (see below), **Infection** (one entry per parasite or
+  disease type carried — see [Infections](05_settlers_and_exploration.md#infections) below), Atmospheric Hazard,
+  Temperature Extremity (slowed), Storied, and Sleep quality (Poor / Good /
+  Great — a settlement-wide Effort modifier on on-site work, set by the
+  best crew quarters standing; see Buildings & Economy's [Habitation](04_buildings_and_economy.md#habitation)).
 - `legend_value` — a list of completed sites/achievements, not just a
   scalar; the Frontier Legends formula (see Win/Lose Conditions) sums it,
   and the list itself feeds personnel-file/end-of-run report display.
@@ -117,6 +118,64 @@ elsewhere in this design. Two categories:
   Hybridization opportunities, most Planet exclusives — see Risk
   Spectrum) — those tasks have no failure state to gate on, and keep
   their existing independent roll unchanged.
+
+### Infections
+
+**Parasites and diseases** are the concrete form of the two Bio-hazard
+sub-factors — parasites are *Toxic/Parasitic Organism Threat*, diseases are
+*Pathogen Threat* (see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)
+for the settlement-facing side and the quarter-season epidemiology tick).
+Which parasite and disease **types** exist on a run is fixed at planet
+generation. A settler carries one `status_effect` **Infection** entry per
+type. Mechanically an infection behaves like a minor injury with an
+outsized tail risk.
+
+**Contraction.** A settler can be infected by:
+- an **exploration task** whose outcome roll includes it (resolved only at
+  task completion — no mid-task affliction; an Emergency Medical Kit taken
+  on the task prevents a would-be minor injury or infection);
+- **working an affected site** — a carrier wild population (grazers at a
+  crop site, predators at a husbandry site) infecting the present worker,
+  or tending a parasite-infected husbandry population (see Buildings &
+  Economy's forthcoming Animal Husbandry, and `DESIGN_TODO.md`);
+- **eating infected food** — if infected animal-derived food is used in the
+  seasonal nutrition pool, **every non-exploring settler** is infected (see
+  [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition) below);
+- for **diseases only**, catching it from another infected settler (see
+  spread, below).
+
+All of these **begin at Post-Sim** — a settler working an affected site
+produces normally that season, then carries the infection into the next.
+**Drones can't be infected.** Any number of infections stack, alongside any
+number of injuries.
+
+**Recovery** happens at a Medical Bay, gated by its **Recovery capacity**
+(1 base / 2 upgraded — see Buildings & Economy's [Medical Bay](04_buildings_and_economy.md#medical-bay)). A settler
+needing recovery **cannot work** (a held assigned site produces nothing)
+and cannot be sent on an exploration task. Beyond capacity, settlers queue —
+still infected, not recovering. A worker who spends a whole season in the
+Medical Bay isn't infected by exposure at their nominal assigned site; only
+if they recover mid-season and return to it.
+
+**The tail risk.** At each quarter-season **epidemiology tick**, every
+infected settler — recovering, queued, or working — rolls for **death**
+(probability per type), unless a countermeasure exists for that infection
+at that tick:
+- **With the countermeasure** (a researched vaccine for a disease, or
+  anti-parasitic for a parasite — see Medical Bay): no death roll, and
+  recovery always succeeds.
+- **Without it:** a recovery cycle may fail (still infected) and the death
+  roll is live. A settler who recovers from an un-countermeasured infection
+  **gains `legend_value`** for beating the odds.
+
+**Disease vs. parasite:**
+- A **disease** is communicable settler-to-settler: at each epidemiology
+  tick, if any infected settler is in the settlement and no vaccine for
+  that disease exists, every uninfected settler in the settlement rolls a
+  chance to catch it. A **vaccine confers permanent immunity**.
+- A **parasite** never spreads settler-to-settler, and an **anti-parasitic
+  confers no immunity** — a cured settler can contract it again — it only
+  guarantees and speeds recovery.
 
 ### Storied
 
@@ -871,6 +930,40 @@ about it at all; it only becomes an active decision point on a genuinely
 tight plan, which is exactly when it should. This adds no new mechanic to
 nutrition itself — no per-tick consumption, no new tracked quantities —
 it's a projection layered on the existing once-a-season check.
+
+### Infected Food
+
+Every **animal-derived food item** (meat, organs, and any product of a
+parasite-infected husbandry population) exists in two forms — `normal` and
+**`parasite-infected(type)`** — that are **visually identical by default**.
+A Meal cooked from an infected ingredient is itself infected; **Rations are
+never infected** (the Ration Press's processing sanitizes its input — see
+Buildings & Economy's [Ration Press](04_buildings_and_economy.md#ration-press)), and neither is anything in Food
+Storage.
+
+**Visibility.** The player can tell infected from normal only when one of:
+(a) the countermeasure for that parasite has been researched, (b) a
+non-exploring settler has **max Kitchen or Medical Experience**, or (c) a
+non-exploring settler has **max Kitchen or Medical Aptitude**. This is
+distinct from a threat being merely *confirmed* (on the countermeasure
+research list): a parasite can be known to exist while its infected items
+stay invisible.
+
+- **While visible**, infected food splits into its **own inventory entry**
+  (e.g. "3 Meat" and "2 Meat (infected — Taenia analog)"), is **excluded
+  by default** from the food-for-consumption selection, and can only be
+  eaten by **explicit manual assignment** — the desperation choice
+  (infected food or starvation) stays available, just never automatic.
+- **While invisible**, infected food is indistinguishable and gets pulled
+  into the seasonal pool like any other — and if it does, **every
+  non-exploring settler is infected at Post-Sim** (the planning-phase
+  nutrition prediction can't warn of this — it counts invisible infected
+  food as normal).
+- **The reveal beat.** The moment a countermeasure finishes *or* a settler
+  first crosses the Experience threshold to identify infection, every
+  infected item already in inventory splits out at once; both moments come
+  with a **Transmission** that names how the settlement learned (lab
+  analysis / a specific settler's expertise).
 
 ### End-of-Run Food Security Score
 `FoodSecurity = normalize(NutritionStockpile) + normalize(NutritionIncome)`

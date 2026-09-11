@@ -437,13 +437,23 @@ tracks what's needed *underneath* them.
 
 ---
 
-## Animal System (brainstorm 2026-09-08/09 — pending consolidated write-in)
+## Animal System (brainstorm 2026-09-08 onward — partly written in)
 
-A large redesign worked out in discussion, **not yet in `full_design/`**
-except where noted. The plan: finish the **farm-raider / interloper vector**
-(the delivery mechanism for parasites-into-animals and disease-into-settlers,
-and what fencing counters), then write the whole animal system in one
-coherent pass. Supersedes the "Livestock vaccines" item above.
+A large redesign worked out in discussion. **Written in so far (2026-09-10/11):**
+the parasite/disease/countermeasure/recovery mechanics (Settlers &
+Exploration's [Infections](05_settlers_and_exploration.md#infections) and [Infected Food](05_settlers_and_exploration.md#infected-food); Buildings & Economy's Medical
+Bay's Biological Countermeasures tier, Recovery capacity, Biological Lab
+Materials; Kitchen's parasite cook-out; the quarter-season epidemiology
+tick and Bio-hazard reframe in Planets & Scoring's In-Simulation Hazard
+Events); the free-relocation-on-upgrade rule; Glass; the Husbandry
+Experience group / Aptitude bucket split. **Still brainstormed but not yet
+written**, below and in the Wild Animal Populations section further down:
+the Earth-livestock → native-fauna pivot itself (Milk/Eggs/Wool removal,
+the archetype rosters), the Discover→Capture→Domesticate→Produce pipeline
+and domestic-animal cycle structure, the pet/companion path, and the
+farm-raider/interloper delivery mechanics the written parasite/disease
+rules currently forward-reference. Supersedes the "Livestock vaccines"
+item above.
 
 ### The pivot
 

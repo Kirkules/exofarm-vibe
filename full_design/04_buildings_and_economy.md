@@ -1465,6 +1465,17 @@ finds, same spirit as everything else in the catalog.
   option within a **Trade Agreement** (see Settlers & Exploration's
   Escalation Chains) — the resolution to this recipe's previously-open
   sourcing question.
+- **Parasite cook-out.** When the Kitchen worker **can see** a parasite
+  infection in an ingredient (per the visibility conditions in Settlers &
+  Exploration's [Infected Food](05_settlers_and_exploration.md#infected-food)), the recipe **automatically cooks it out** —
+  the Meal comes out `normal` — at a **reduced success chance** (illustrative
+  75%, better with higher Kitchen Experience/Aptitude), shown next to that
+  recipe's production rate. On a failed cycle the infected ingredient is
+  destroyed and the cycle produces nothing. A **recipe-selection toggle**
+  lets the player instead knowingly cook the infected ingredient into an
+  infected Meal (for the desperation or Ration-laundering cases). If the
+  worker *can't* see the infection, no cook-out happens and an infected
+  ingredient silently yields an infected Meal.
 - Construction cost: Lumber/Concrete (ratio TBD).
 - `TechAchievement`: 0 (base tier) / 2 (upgraded tier) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog); Gourmet tier 2 per
   invented recipe, Local Delicacy 3 (both non-material-gated, see the
