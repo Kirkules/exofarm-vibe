@@ -113,27 +113,20 @@ comparison of these two numbers, never a depleting reserve.
 **Baseline Energy upkeep.** Every building — staffed or not, and regardless
 of category — draws a flat per-season Energy **consumption rate** just for
 existing on the grid (lights, climate-neutral operation, idle machinery
-draw), with exactly one exception: **Weather Shield and Row Shield** (only
-these two — not the rest of Protection, so Medical Bay follows the ordinary
-flat-baseline rule like any other staffed building). A shield draws
-**nothing at all when it is inactive**, and draws only while **active** —
-its activation is automatic, never player-managed: a shield is active
-exactly when either a Storm or Temperature Extremity event is affecting its
-coverage area, **or** the site's ambient temperature sits outside the 72°F
-comfort band and needs continuous mitigating for the settlers or crops
-there (see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)). While
-active its draw is **banded** — a lower rate for ambient mitigation or a
-mild event, a higher rate for an extreme event. This is still a deliberate
-simplicity choice: no individual building's own baseline rate ever needs
-re-examining once built, fixed the moment it's placed — but the *aggregate*
-relationship between total Consumption and total Income genuinely can shift
-over a season now, both because Conditional Income sources can fall short
-of plan and because shield draw comes and goes with events. Juggling
-Energy in response to short-lived threats (via the two shield buildings,
-drone recharge, and Conditional-source risk) is meant to be a real,
-occasional consideration; juggling it just to keep the lights on everywhere
-else is not. Exact per-building values TBD, deferred to balancing like
-other numeric values in this design.
+draw). **Weather Shield and Row Shield** (only these two — not the rest of
+Protection, so Medical Bay follows the ordinary rule) follow the same
+flat-baseline rule as everything else — same toggle mechanics too — with
+one addition: their draw **elevates** while an active Storm or Temperature
+Extremity event affects their coverage area, on top of the flat baseline
+(exact bands TBD — see `DESIGN_TODO.md`'s shield/hazard-events revisit for
+the still-open questions: a strong enough event breaking a shield
+regardless of power, and stronger events needing more power). **A shield
+provides its full protection — temperature, storm, and keeping out wild
+animals of every size (see Planets & Scoring's [Wild Animal Populations](06_planets_and_scoring.md#wild-animal-populations)) —
+for as long as it is powered**, whether or not an event happens to be
+active; toggled off or shed in an Energy shortfall, it protects nothing.
+Exact per-building values TBD, deferred to balancing like other numeric
+values in this design.
 
 ### Building Categories
 1. **Basic Resource Production** — Energy generation, always
@@ -1880,6 +1873,53 @@ principle that a planet/strategy shouldn't reduce to one correct approach)*
 - Construction cost: strictly between Weather Shield's base cost and
   (Weather Shield base + Advanced upgrade) combined — exact numbers TBD
 - `TechAchievement`: 1 — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog) | Repeatable: yes
+
+### Fencing
+*(not a traditional building — a planning-phase modification of individual
+grid tiles, described here since it's Protection's other structural
+counter to a planetary danger, alongside the two shields above)*
+
+Keeps [Wild Animal Populations](06_planets_and_scoring.md#wild-animal-populations) of certain size classes off protected
+tiles — see there for the full reachability and wall-destruction mechanic.
+Two tiers:
+
+| Tier | Blocks sizes | Cost | Vulnerable to |
+|---|---|---|---|
+| Wood | medium, large | 1 Lumber per 4 enclosed tiles | huge (guaranteed/tick), titan (guaranteed) |
+| Concrete | medium, large, huge | 1 Concrete per 3 enclosed tiles | huge (25%/tick), titan (guaranteed) |
+
+Neither tier stops tiny or small animals (an open counter — see
+`DESIGN_TODO.md`); nothing stops a titan except an active Energy shield
+(see [Weather Shield](04_buildings_and_economy.md#weather-shield)).
+
+- **A per-tile property, not a structure occupying a slot** — a fenced
+  tile's site functions normally.
+- **Painting is a planning-phase action** (materials cost, no
+  construction-robot action), selecting any set of tiles. Cost is
+  `ceil(tiles / N)` per **new, contiguous area** painted — a connected
+  block is cheaper than the same tile count scattered — and **every**
+  enclosed tile counts, including impassable or fixed-feature ones.
+  **Explicitly re-tiering** an existing tile costs the new tier's full
+  rate for that tile, ignoring whatever was there before (no partial
+  credit for the old material); replacing Concrete with Wood shows a light
+  downgrade warning. **No forced merging or retiering from simple
+  adjacency** — different tiers can sit right next to each other with no
+  side effects, because the reachability algorithm (see [Wild Animal Populations](06_planets_and_scoring.md#wild-animal-populations))
+  already handles mixed-tier layouts correctly on its own. **No free pass
+  at the map edge** — enclosing a corner site still needs fence on every
+  side, including the ones facing off-grid.
+- **Construction**: fence tiles build **one at a time**, in a fixed order
+  (top-to-bottom, left-to-right within the painted selection), by a
+  construction robot, over a short span of Mid-Sim time per tile
+  (illustrative ~1s) — a planned fence provides **zero protection** until
+  each of its tiles is actually built. Fencing the whole settlement is
+  possible but takes a long time; a robot can typically also complete one
+  ordinary building in the same season it fences a modest area. (This
+  anticipates construction generally becoming a Mid-Sim progressive
+  activity — see `DESIGN_TODO.md`.)
+- **Stewardship**: see Planets & Scoring's [SEED Factions](06_planets_and_scoring.md#seed-factions) `DisruptionFootprint` —
+  a built fence tile counts as disrupted regardless of what's underneath;
+  a planned-but-unbuilt one counts for half.
 
 ### Medical Bay
 - Staffing: Staffed, **1 worker** — Settler, Advanced All-Purpose Drone, or

@@ -437,23 +437,24 @@ tracks what's needed *underneath* them.
 
 ---
 
-## Animal System (brainstorm 2026-09-08 onward — partly written in)
+## Animal System (brainstorm 2026-09-08 onward — mostly written in)
 
-A large redesign worked out in discussion. **Written in so far (2026-09-10/11):**
-the parasite/disease/countermeasure/recovery mechanics (Settlers &
-Exploration's [Infections](05_settlers_and_exploration.md#infections) and [Infected Food](05_settlers_and_exploration.md#infected-food); Buildings & Economy's Medical
-Bay's Biological Countermeasures tier, Recovery capacity, Biological Lab
-Materials; Kitchen's parasite cook-out; the quarter-season epidemiology
-tick and Bio-hazard reframe in Planets & Scoring's In-Simulation Hazard
-Events); the free-relocation-on-upgrade rule; Glass; the Husbandry
-Experience group / Aptitude bucket split. **Still brainstormed but not yet
-written**, below and in the Wild Animal Populations section further down:
-the Earth-livestock → native-fauna pivot itself (Milk/Eggs/Wool removal,
-the archetype rosters), the Discover→Capture→Domesticate→Produce pipeline
-and domestic-animal cycle structure, the pet/companion path, and the
-farm-raider/interloper delivery mechanics the written parasite/disease
-rules currently forward-reference. Supersedes the "Livestock vaccines"
-item above.
+A large redesign worked out in discussion. **Written in so far
+(2026-09-10/11):** the parasite/disease/countermeasure/recovery mechanics
+(Settlers & Exploration's [Infections](05_settlers_and_exploration.md#infections) and [Infected Food](05_settlers_and_exploration.md#infected-food); Buildings & Economy's
+Medical Bay's Biological Countermeasures tier, Recovery capacity,
+Biological Lab Materials, PPE/Emergency Medical Kit; Kitchen's parasite
+cook-out; the quarter-season epidemiology tick and Bio-hazard reframe in
+Planets & Scoring's In-Simulation Hazard Events); the free-relocation-on-
+upgrade rule; Glass; the Husbandry Experience group / Aptitude bucket
+split; and — the whole point of this pass — **wild animal populations and
+Fencing in full** (Planets & Scoring's [Wild Animal Populations](06_planets_and_scoring.md#wild-animal-populations); Buildings &
+Economy's [Fencing](04_buildings_and_economy.md#fencing); the shield Energy model corrected to match — see
+below). **Still brainstormed but not yet written:** the Earth-livestock →
+native-fauna pivot itself (Milk/Eggs/Wool removal, the archetype rosters,
+below), the Discover→Capture→Domesticate→Produce pipeline and
+domestic-animal cycle structure, and the pet/companion path. Supersedes
+the "Livestock vaccines" item above.
 
 ### The pivot
 
@@ -571,30 +572,21 @@ capture). Planet-gen picks each type's roster, Seasoning-style.
 - **Beat-the-odds legend** — a settler who survives a no-countermeasure
   recovery roll gains `legend_value`.
 
-### Medical Bay / materials (partly committed)
+### Medical Bay / materials — committed
 
-- **Biological Lab Materials** (Grain + Glass, made at the Medical Bay,
-  `TechAchievement` 2 — catalog entry added) **replaces High-Tech
-  Components** for the Medical Bay's countermeasure research tier only; PPE
-  and Emergency Medical Kit keep their own recipes. The 1-worker Medical Bay
-  now juggles BLM / research / PPE / EMK via the production queue — an
-  intended bottleneck (build a second one).
-- **PPE** recipe → Fabric + **Glass** (was gated behind HTC); `TechAchievement`
-  likely 1 → 2.
-- **Emergency Medical Kit** → drop HTC, becomes low-tier; new role: an
-  optional item on **any** exploration task, consumed when taken, that
-  prevents a would-be **minor injury or infection** outcome (not permanent
-  injury or death) — a one-time field cure. Recipe + tier need rework.
-- **Glass** (committed) — Stone Processing II output; used by HTC,
-  Temperature-Resistant Gear, PPE, BLM. **Broader uses TBD** (its own
-  design-todo): more hazard-resistant gear, luxury goods, Scanner optics.
-- **`06` bio-hazard reframe** (pending) — strike every "bio-hazard
-  sub-factors only resolve via exploration encounters, never a
-  settlement-wide event" reference; add the quarter-season epidemiology
-  tick; planet-gen picks the parasite/disease roster; couples to `11-B1`/
-  `11-B2` (the survey-vs-fixed-schedule reconciliation).
+Biological Lab Materials (Grain + Glass, made at the Medical Bay,
+`TechAchievement` 2) replaces High-Tech Components for the countermeasure
+research tier only; PPE (now Fabric + Glass, tier 2) and Emergency Medical
+Kit (now low-tier, no HTC, a one-time field cure preventing a would-be
+minor injury/infection on any exploration task) keep their own recipes.
+Glass — the Stone Processing II output behind all of this — has TBD
+**broader uses** left as its own item: more hazard-resistant gear, a
+luxury good, Scanner optics. The `06` bio-hazard reframe (no more
+"exploration-gated" language; the quarter-season epidemiology tick; the
+planet-gen roster) is in; the deeper survey-vs-fixed-schedule reconciliation
+(`11-B1`/`11-B2`) is still deferred to the Hazards & Data-Gathering theme.
 
-### Structure-upgrade rule (pending)
+### Structure-upgrade rule — committed
 
 Every building upgrade includes a **free optional relocation** — the
 construction robot rebuilds the (possibly larger) building, on its current
@@ -602,6 +594,41 @@ cell(s) or elsewhere, in one action. Upgrade-in-place is just choosing the
 current location in the same placement UI. Deposit/feature-gated upgrades
 are forced to stay on their deposit. Resolves the two-robot-action trap
 in `1-B2`/`1-SF5`.
+
+### Wild Animal Populations & Fencing — committed (2026-09-11)
+
+The full system is written — see Planets & Scoring's
+[Wild Animal Populations](06_planets_and_scoring.md#wild-animal-populations) and Buildings & Economy's [Fencing](04_buildings_and_economy.md#fencing) for the
+mechanic in full (tracked populations by kind/size/tier/diet-or-prey/
+carrier flag; grazer harvest-range reduction; predator site destruction +
+settler kills + carrier infection; the predator↔prey growth/suppression
+loop with its verified guaranteed-decay property; planet-gen and
+season-by-season seeding; per-size reachability and wall destruction,
+including the "outermost barrier first, never simultaneous" resolution for
+deliberate double fencing; live Energy-shield exclusion from the
+reachability graph). Along the way, the **shield Energy model was
+corrected**: shields now draw a flat baseline whenever powered — providing
+full protection (temperature, storm, and all-size animal blocking)
+throughout, not just during an active event — plus an elevated draw while
+an event is active (see Buildings & Economy's [Resources](04_buildings_and_economy.md#resources) and Planets & Scoring's
+[In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)); `DisruptionFootprint` was extended to cover built and
+planned fence tiles (Planets & Scoring's [SEED Factions](06_planets_and_scoring.md#seed-factions)).
+
+**Still open, deliberately deferred:**
+- A counter for **tiny/small** animals — fencing does nothing against
+  them; no concrete idea yet, flagged to revisit soon.
+- **Guards, traps, and hunt/remove-population exploration tasks** —
+  real but undesigned active counters (mentioned in discussion, never
+  specified).
+- **Farm-site archetypes** biasing wild-population generation — its own
+  item, not detailed.
+- **Construction as a Mid-Sim progressive activity**, generally — fence
+  tiles' own build behavior (one at a time, deterministic order, ~1s
+  Mid-Sim each) is specified, but the general building-construction rework
+  it anticipates is not — see the Core Loop / Structural Gaps item above.
+- The **shield/hazard-events focused revisit** (unbreakable-shield limits,
+  stronger-event power scaling) — see the Post-Sim resolution-order pass
+  section below.
 
 ---
 

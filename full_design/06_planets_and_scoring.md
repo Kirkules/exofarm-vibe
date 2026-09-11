@@ -267,16 +267,16 @@ already empty, not destroyed twice.
   Average Temperature for the event's duration — same temporariness as a
   storm, never permanent on its own.
 - **Consequence is decided by Energy funding, not a coverage tier**: a
-  Weather Shield or Row Shield covering the site becomes **active** for the
-  event and draws Energy banded by the event's severity band (more for a
-  mild event, more still for an extreme one — banded, not continuous, per
-  Buildings & Economy's Resources' Energy Income/Consumption Rates; a shield
-  draws nothing when inactive). If the settlement's total Income rate covers
-  total Consumption including that draw — i.e. the shield is **not one of
-  the buildings left un-powered by a shortfall**, see Resources — the shield
-  **fully maintains the comfort target** — zero effect on covered
-  production, regardless of how extreme the event got outside. If there's no
-  shield covering the site, or the shield couldn't be powered:
+  Weather Shield or Row Shield covering the site draws its flat baseline
+  always, plus an **elevated** draw for the event's duration, banded by
+  severity (more for a mild event, more still for an extreme one — per
+  Buildings & Economy's Resources' Energy Income/Consumption Rates). If the
+  settlement's total Income rate covers total Consumption including that
+  elevated draw — i.e. the shield is **not one of the buildings left
+  un-powered by a shortfall**, see Resources — the shield **fully maintains
+  the comfort target** — zero effect on covered production, regardless of
+  how extreme the event got outside. If there's no shield covering the
+  site, or the shield couldn't be powered:
   - **Mild event** → production **slowed** for the event's duration.
   - **Extreme event** → production **stopped** entirely for the event's
     duration.
@@ -382,9 +382,8 @@ here is the settlement-level machinery:
   - **Carrier wild populations** — a carrier grazer at a crop site infects
     the settler working it; a carrier predator at a husbandry site infects
     the settler there and any surviving targeted animals. Fencing or an
-    Energy shield that keeps the population out of the site blocks this.
-    (Full wild-population mechanics — sizes, tiers, fencing — are pending;
-    see `DESIGN_TODO.md`'s Animal System item.)
+    Energy shield that keeps the population out of the site blocks this —
+    see [Wild Animal Populations](06_planets_and_scoring.md#wild-animal-populations), below, for the full mechanic.
   - **Infected husbandry animals** — tending an infected husbandry
     population.
   - **Infected food** — see Settlers & Exploration's [Infected Food](05_settlers_and_exploration.md#infected-food).
@@ -392,6 +391,191 @@ here is the settlement-level machinery:
   a vaccine ends a disease permanently and settlement-wide; an
   anti-parasitic guarantees settler recovery (no immunity) and grants
   husbandry animals permanent auto-immunity.
+
+### Wild Animal Populations
+
+A third kind of threat, distinct from the scheduled Storm/Temperature
+Extremity events and the standing Bio-hazard risk above: wild animals near
+the settlement are tracked as **populations**, not discrete events, and —
+through carrier variants — are a delivery vector for the diseases and
+parasites described in Bio-hazard, above.
+
+**Tracking & size.** The settlement tracks nearby wild populations of
+gameplay-relevant size (diegetically there's more wildlife around than
+this tracks — just what's close and plentiful enough to matter). Each
+tracked population has: a **kind** — **grazer/scavenger** (raids standing
+crops) or **predator** (preys on husbandry animals, and can kill
+settlers); a **size class** — tiny, small, medium, large, huge, or titan
+(insect- to largest-dinosaur-scaled), fixed per population, governing
+which fence tiers and shields stop it (see Buildings & Economy's
+[Fencing](04_buildings_and_economy.md#fencing)); a **size tier** — low / moderate / high / overrunning — how big it
+currently is, rising or falling each season (see Growth & Decay, below);
+for a grazer, a **diet** drawn from {Grain, Fruit, Vegetation} (Vegetation
+covers both Timber Grove and Fiber Field); for a predator, a **prey list**
+of husbandry archetypes; and a **carrier flag** per bio-threat type —
+binary, not a fraction, rolled once at introduction. **Reach is ambient** —
+a population can reach any settlement tile not protected by fencing or an
+active Energy shield; there is no spatial position beyond "near enough to
+reach the settlement," and no travel time. (An off-grid visual, with
+decorative nearby topography, exists purely for legibility — see UI,
+below.)
+
+**Grazers/scavengers.** A reachable grazer population affects **every
+completed cycle** of every plant-crop building matching its diet, at the
+**pre-harvest growth step** (Grain/Fiber Field's `growing→harvestable`;
+Fruit Orchard's `mature→fruiting`; Timber Grove's
+`cycle-harvestable→cycle-harvestable` self-loop — see Buildings &
+Economy's [Plant-Crop Production Model](04_buildings_and_economy.md#plant-crop-production-model)), computed at that step's
+completion:
+
+| Tier | Effect on that cycle's harvest |
+|---|---|
+| low | −1 to the harvest range's **minimum** |
+| moderate | −1 to the **rolled** harvest amount |
+| high | −2 to the rolled amount |
+| overrunning | harvest → 0 |
+
+(clamped ≥ 0). **Titan** grazers act **one tier higher** for this effect
+only (a titan-sized high population behaves as overrunning) — their
+growth-target tier is unaffected. **Every plant-crop yield is a range
+`[min, max]`, rolled uniformly** — a value that was a flat `v` is `[v,
+v]`; whether building upgrades widen the range is TBD, deferred to
+balancing. If a fence protecting a matching site is breached mid-season,
+that site is exposed to grazing for the rest of Mid-Sim immediately, not
+just from the following season.
+
+**Predators.** A reachable predator population, for each prey archetype
+with a **reachable domesticated site**, rolls once per site (at Post-Sim,
+after carrier infections and before population growth — see below) for a
+**chance — scaling with tier — to destroy that site** (the husbandry
+building reverts to a built-but-empty state; see Buildings & Economy's
+forthcoming Animal Husbandry). **Titan** predators succeed automatically
+against any reachable site. A predator only ever "affects" domesticated
+animal sites of its prey archetypes — never crop sites, and never a
+settler directly *except* the one working a site it's actively preying
+on: if present, and the predator is **large, huge, or titan**, there is
+also a chance it kills that settler (medium and smaller predators never
+kill settlers). Predators are drawn **only by prey**, never by settlers
+alone; it's meant to be common for a predator population to exist nearby
+without ever touching the settlement in a given season, if it has no
+reachable prey.
+
+**Carrier infection.** If a carrier population affects a site with a
+present, infectable worker or animal, that infection is applied **at
+Post-Sim**, resolved **before** site destruction and population growth
+(so destruction doesn't need to track which sites were exposed in order
+to also infect them): a carrier **grazer** at a crop site infects the
+settler working it; a carrier **predator** at a husbandry site infects the
+settler there and any domesticated prey animals that survive that
+season's destruction roll. A researched countermeasure (vaccine or
+anti-parasitic — see Buildings & Economy's [Medical Bay](04_buildings_and_economy.md#medical-bay)) for that specific
+type blocks the infection entirely — see Settlers & Exploration's
+[Infections](05_settlers_and_exploration.md#infections) for what happens after. **Domesticating an infected wild
+grazer population inherits its infection into the new herd** — the only
+other wild route parasites reach husbandry stock, alongside an existing
+herd being targeted by a carrier predator.
+
+**Growth & decay.** Resolved at **Post-Sim**, after harvest/production
+resolution, in this order: **carrier infections → site destruction →
+population growth.** Each population's **target tier** is set by an
+effective site count, then it moves **at most one tier** toward that
+target:
+
+| Effective site count | Target tier |
+|---|---|
+| 0 (or negative) | none — dropped from tracking |
+| 1 | low |
+| 2 | moderate |
+| 3 | high |
+| 4+ | overrunning |
+
+A **grazer's** site count = the number of reachable matching plant-crop
+sites that completed a growth step this season (whether or not the
+resulting harvest was actually reduced to 0 — the food was there either
+way). A **predator's** site count = (reachable domesticated prey sites
+this season) + (the size-**stage** of every wild population of one of its
+prey archetypes, low=1 … overrunning=4, summed) — a predator preys on
+**all** its sources, wild and domestic, simultaneously. Each predator's
+tier, in turn, **subtracts** that same amount from **each of its prey
+archetypes' own wild-population** site count (clamped at 0) — predators
+suppress the wild prey they hunt, though they have no effect on
+domesticated stock's own numbers (husbandry growth/production isn't
+modeled this way at all — see `DESIGN_TODO.md`).
+
+**A fully-mitigated population (site count driven to 0, by fencing,
+shielding, or predator suppression) always disappears within 4 seasons**
+— one tier per season from overrunning down through none. A population
+that keeps receiving a constant nonzero count settles at that tier
+indefinitely (an equilibrium, not decay). A **dropped** population that
+later regains matching exposure returns only via a **fresh introduction
+roll** (a new carrier status rolled too, independent of before).
+
+**Seeding.** Planet generation may place initial populations
+(Crew-Selection-style archetype/reroll balancing, a wider range of
+outcomes) — always including the possibility of none — up to a **high**
+tier (never overrunning), with count and size-class roster weighted by
+`TrueRisk(Bio-hazard)` (the same "biological richness" correlation already
+governing Trapping yield and Fossil Fuel frequency). Each season
+thereafter carries a chance of a **new** population appearing, generally
+**falling** as more populations already exist, and **starting small and
+scaling up over the run's seasons** — early seasons are kept from
+compounding multiple new threats at once. A newly-introduced prey
+population has a chance to arrive together with an accompanying predator,
+**one tier smaller**, that hunts it. Which farm-site *archetypes* bias
+this further is a separate open item — see `DESIGN_TODO.md`.
+
+**Reachability & wall destruction.** Whether a population of a given size
+class can reach a tile is computed **per size**, never by a single
+tier-agnostic "fenced or not": a tile is **passable** to that size if it's
+unfenced, or fenced with a tier that doesn't block it (see [Fencing](04_buildings_and_economy.md#fencing)) —
+a size untroubled by a fence tier walks through tiles of that tier exactly
+as if unfenced, and never targets them for destruction. An active
+**Energy shield's** coverage is different in kind: it is **excluded
+entirely** from the passable graph for every size, evaluated **live, at
+the moment of each check**, from the shield's current power state (see
+[Resources](04_buildings_and_economy.md#resources)) — never a barrier to attempt destroying, since nothing can
+destroy it, and reverting instantly to whatever fence (if any) sits under
+it the moment it drops.
+
+For a population that wants to reach a site, the game finds the
+**shortest path, through tiles passable to its size, connecting the site
+to the edge of the grid**. Every tile that path crosses which *is* a
+barrier for that size is a real obstacle, attacked **nearest-to-the-site
+first**, resolved on the quarter-season hazard ticks per the destruction
+rule below. This is computed purely from the current grid layout, never
+from what a barrier's enclosed area happens to contain — a barrier
+guarding nothing of direct interest is still a genuine target if a wanted
+site lies behind a further, separate barrier beyond it. Two full,
+separate, non-touching barriers of a tier that blocks the same size are
+fought **one at a time, outermost first** — the inner one is never even
+reachable, and so never targeted, until the outer falls; deliberate double
+investment in protection buys a longer siege, never a simultaneous double
+fight.
+
+Destruction, checked on the quarter-season ticks, for **huge** and
+**titan** only (no smaller size ever attempts it — they're simply excluded
+if blocked):
+
+| Attacker | vs. Wood | vs. Concrete |
+|---|---|---|
+| Huge | guaranteed | 25% per tick |
+| Titan | guaranteed | guaranteed |
+
+Once a barrier tile is destroyed, that site is exposed to **every**
+population (not only the one that broke it) immediately, for the rest of
+Mid-Sim.
+
+**UI.** Wild populations get a dedicated readout in the assessment panel —
+current size tier and a **predicted trajectory** (planning-responsive: a
+queued fence removes those sites from the projection; optimistic, doesn't
+account for breakage) — the same "prediction, not a guarantee" role used
+elsewhere (see [Resources](04_buildings_and_economy.md#resources)). A **carrier's status is visible under the same
+gates as infected food/animals** (see Settlers & Exploration's [Infected Food](05_settlers_and_exploration.md#infected-food))
+— a population can be *confirmed* present without its carrier status
+being *visible*. Transmissions report committed changes (a tier rising, a
+new population, a destroyed site); off-grid visual representations of
+nearby populations, with decorative surrounding topography, are clickable
+and open the same panel.
 
 ---
 
@@ -551,7 +735,11 @@ rather than repeated per faction below.
     already visible from Season 1 (Surface-tier deposits, Forest tiles,
     which were never hidden and so never get this extra weight). Exact
     weighting TBD, deferred to balancing like other numeric values in this
-    design.
+    design. **Fencing extends this beyond fixed/environmental slots**: a
+    built fence tile (see Buildings & Economy's [Fencing](04_buildings_and_economy.md#fencing)) counts as disrupted
+    the same as a changed fixed/environmental slot, whatever the tile
+    underneath; a **planned-but-not-yet-built** fence tile counts for
+    **half** that.
   - `ExtractionRestraint` — penalized by cumulative volume of **non-sustainable**
     resources extracted: Iron Ore, Copper Ore, Stone, rare metals (both bounded and
     effectively-infinite deposit sub-types incur it at the same rate — neither

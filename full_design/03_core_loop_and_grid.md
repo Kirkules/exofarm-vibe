@@ -732,13 +732,18 @@ role above).
     resolution, (3.5) Trade Agreement resolution — deliberately right after
     nutrition, so survival needs get first claim on any resource an
     agreement also happens to use (Rations, most notably), before trade
-    obligations are paid — (4) construction/upgrade/relocate completions,
-    (5) Exploration Task confirmation UI (start of next planning phase),
-    (6) Vaccine unlock threshold check — placed **last, unconditionally**,
+    obligations are paid — (3.6) wild animal population resolution, itself
+    ordered **carrier infections → husbandry-site destruction → population
+    growth** (see Planets & Scoring's [Wild Animal Populations](06_planets_and_scoring.md#wild-animal-populations); infections land
+    here since a carrier case can itself be what confirms a bio-threat for
+    step 6, below) — (4) construction/upgrade/relocate completions, (5)
+    Exploration Task confirmation UI (start of next planning phase), (6)
+    Vaccine/countermeasure threshold check — placed **last, unconditionally**,
     after every `Confidence`-feeding source for the season has landed
-    (including exploration-driven ones), rather than branching on which
-    data source pushed `Confidence` over the threshold. Steps 1, 2, and 4
-    have no dependencies on each other; their relative order is arbitrary.
+    (including exploration-driven and carrier-infection-driven ones), rather
+    than branching on which source pushed it over the threshold. Steps 1, 2,
+    3.6, and 4 have no dependencies on each other; their relative order is
+    arbitrary except that 3.6 must precede 6.
   - **Why nutrition consumption waits for Post-Sim** rather than resolving
     at Planning Lock-in alongside the food-for-consumption selection: food
     produced *during* the season should itself be consumable that same
