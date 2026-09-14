@@ -567,6 +567,7 @@ elsewhere in this catalog.*
 | Fine Furniture | 2 |
 | Ornamental/Decorative Items | 2 |
 | Wooden Plow | 2 |
+| Tiny Trap / Small Trap (each) | 2 |
 | High-Tech Components | 2 |
 | High-Resolution Screens | 2 |
 | Portable High-Powered Scanning Equipment | 3 |
@@ -900,6 +901,40 @@ transition. One-time establishment: 16s. Steady state after that: 5s per
 Wood, while staffed. Production cap: 1 (fixed, single tile). Construction
 cost: Lumber/Concrete (ratio TBD).
 
+### Hydroponic Farm
+
+An **Indoor** alternative to two of the four plant-crop buildings — Grain
+Field and Fiber Field only (**non-tree crops**; Fruit Orchard's and Timber
+Grove's tree-scale growth doesn't suit an indoor facility). One building,
+**player-selected recipe** (Grain or Fiber), running the exact same
+persistent-state cycle as its outdoor counterpart (see [Plant-Crop Production Model](04_buildings_and_economy.md#plant-crop-production-model)) —
+same states, same transitions, same Water draw during the passive growth
+step — with these differences:
+
+- **Indoor**, unlike every other Farm/Production building (all of which are
+  Outdoor — see Building Schema's Indoor or Outdoor). This means it
+  inherits Indoor's existing shelter for free: while powered, its worker
+  (and its crop) are outside the reach of Storm and Temperature Extremity's
+  production consequences the same way any Indoor building already is — no
+  Weather/Row Shield funding needed for it specifically. It is also
+  **entirely outside the reach of Wild Animal Populations** — no fencing,
+  trap, or Grazer-immunity hybridization needed; an indoor facility is
+  simply never a target (see Planets & Scoring's [Wild Animal Populations](06_planets_and_scoring.md#wild-animal-populations)).
+- **Immune to Alien Soil** — a controlled growing medium, not native soil,
+  so it never carries or needs removing the penalty, with no Fertilizer or
+  Hybridization required.
+- **Slower than its outdoor counterpart** — a smaller growing footprint
+  than an open field, diegetically. Exact mechanism (a narrower harvest
+  range, longer transition durations, or both) TBD, deferred to balancing.
+- **Gets no Wooden Plow bonus**, and **cannot be worked by a
+  Farming-Specialized Drone at all** (not merely without the bonus — barred
+  from assignment outright); a settler or an All-Purpose Drone works it
+  normally otherwise.
+- Ordinary flat Energy upkeep, same as any building — no event-driven cost.
+
+Construction cost, footprint, and `TechAchievement` tier: TBD, following
+from the plant-crop building schema above once the balancing pass lands.
+
 ### Trapping
 
 Not a building — traps set on a tile for the season are just that, no
@@ -960,10 +995,23 @@ Every hybridized building gets two distinct benefits:
   - **Verdant** — higher yield (production cap and/or faster
     `production_time`) — an adapted species out-competing for abundant
     resources.
+- **Grazer immunity** — a **separate, planet-independent** discovery, not
+  tied to any specific planet type and not a replacement for the
+  signature benefit above: on any planet, a rare exploration outcome (odds
+  boosted by the settler's Exploration Aptitude) has a chance to surface
+  that a specific plant is "consistently avoided by local wildlife."
+  Researching it removes that building type from **every grazer
+  population's diet, settlement-wide, for the rest of the run** — the
+  plant simply stops being a food target at all (see Planets & Scoring's
+  [Wild Animal Populations](06_planets_and_scoring.md#wild-animal-populations)), while staying perfectly safe to harvest and use.
+  A building can hold this **in addition to** whichever planet-specific
+  signature it separately discovers — the two are independent finds, not
+  alternatives.
 
 Exact building↔discovery pairings (which specific find unlocks which
-specific building) are content-authoring-pass detail, same as the rest of
-Exploration Tasks' unwritten flavor content.
+specific building, and Grazer immunity's exact trigger odds/task scope)
+are content-authoring-pass detail, same as the rest of Exploration Tasks'
+unwritten flavor content.
 
 ---
 
@@ -1790,9 +1838,16 @@ Processing I — not something the player constructs)*
     task directly, so it gets this same cut inherently, **stacked on top of**
     its Effort multiplier rather than substituting for it. A settler or an
     **All-Purpose Drone** still needs the item present, same as anyone else
+  - **Tiny Trap** and **Small Trap** ← Wood + Fabric (each) — the
+    settlement's only counter to tiny- and small-sized [Wild Animal Populations](06_planets_and_scoring.md#wild-animal-populations),
+    which no fence tier stops. See there for the full mechanic; in brief,
+    one unit is **auto-consumed at Planning Lock-in**, but only in a season
+    where a matching-size population actually exists nearby to counter —
+    a surplus banks for a season without one.
 - Upgrade cost: TBD.
 - `TechAchievement`: 0 (Sawmill) / 2 (Carpenter's Shop, and each of Fine
-  Furniture/Ornamental/Decorative Items/Wooden Plow) — see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)
+  Furniture/Ornamental/Decorative Items/Wooden Plow/Tiny Trap/Small Trap) —
+  see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)
 
 ---
 
@@ -1888,9 +1943,9 @@ Two tiers:
 | Wood | medium, large | 1 Lumber per 4 enclosed tiles | huge (guaranteed/tick), titan (guaranteed) |
 | Concrete | medium, large, huge | 1 Concrete per 3 enclosed tiles | huge (25%/tick), titan (guaranteed) |
 
-Neither tier stops tiny or small animals (an open counter — see
-`DESIGN_TODO.md`); nothing stops a titan except an active Energy shield
-(see [Weather Shield](04_buildings_and_economy.md#weather-shield)).
+Neither tier stops tiny or small animals — see Carpenter's Shop's **Tiny
+Trap** / **Small Trap**, above, their only counter; nothing stops a titan
+except an active Energy shield (see [Weather Shield](04_buildings_and_economy.md#weather-shield)).
 
 - **A per-tile property, not a structure occupying a slot** — a fenced
   tile's site functions normally.

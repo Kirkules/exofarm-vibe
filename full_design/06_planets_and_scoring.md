@@ -442,7 +442,14 @@ growth-target tier is unaffected. **Every plant-crop yield is a range
 v]`; whether building upgrades widen the range is TBD, deferred to
 balancing. If a fence protecting a matching site is breached mid-season,
 that site is exposed to grazing for the rest of Mid-Sim immediately, not
-just from the following season.
+just from the following season. Two things remove a site from a grazer's
+diet entirely, rather than merely blocking reach: a **Hydroponic Farm**
+(Indoor, never a target at all — see Buildings & Economy's [Hydroponic Farm](04_buildings_and_economy.md#hydroponic-farm)),
+and a plant-crop building whose **Grazer immunity** hybridization has been
+researched (see [Hybridization](04_buildings_and_economy.md#hybridization)) — its building type stops counting as
+that population's food at all, settlement-wide, for the rest of the run.
+Neither site type contributes to a grazer's growth site-count either,
+for the same reason: it was never food to begin with.
 
 **Predators.** A reachable predator population, for each prey archetype
 with a **reachable domesticated site**, rolls once per site (at Post-Sim,
@@ -529,7 +536,13 @@ class can reach a tile is computed **per size**, never by a single
 tier-agnostic "fenced or not": a tile is **passable** to that size if it's
 unfenced, or fenced with a tier that doesn't block it (see [Fencing](04_buildings_and_economy.md#fencing)) —
 a size untroubled by a fence tier walks through tiles of that tier exactly
-as if unfenced, and never targets them for destruction. An active
+as if unfenced, and never targets them for destruction. **No fence tier
+blocks tiny or small populations at all** — their only counter is a **Tiny
+Trap** or **Small Trap** in general inventory (see Buildings & Economy's
+Fabrication), auto-consumed at Planning Lock-in in any season where a
+matching-size population would otherwise have reached a site; while
+consumed, that size class simply cannot reach anything, settlement-wide,
+for the season (feeding the same growth/decay model as fencing). An active
 **Energy shield's** coverage is different in kind: it is **excluded
 entirely** from the passable graph for every size, evaluated **live, at
 the moment of each check**, from the shield's current power state (see

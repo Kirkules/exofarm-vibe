@@ -628,12 +628,25 @@ an event is active (see Buildings & Economy's [Resources](04_buildings_and_econo
 [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)); `DisruptionFootprint` was extended to cover built and
 planned fence tiles (Planets & Scoring's [SEED Factions](06_planets_and_scoring.md#seed-factions)).
 
+**Tiny/small-animal counters — resolved (2026-09-14):** three, together
+covering every animal size. **Tiny Trap / Small Trap** (Carpenter's Shop,
+Wood + Fabric — see Buildings & Economy's [Fabrication](04_buildings_and_economy.md#fabrication)) are the only thing
+that stops tiny/small at all, since no fence tier touches them: one unit
+auto-consumed at Planning Lock-in per season a matching population would
+otherwise reach a site, surplus banking freely. **Grazer immunity**, a new
+planet-independent Hybridization discovery (Buildings & Economy's
+[Hybridization](04_buildings_and_economy.md#hybridization)) — additive to, not a replacement for, the existing
+planet-signature benefit — permanently removes one crop building type from
+every grazer's diet, settlement-wide. The **Hydroponic Farm** (Buildings &
+Economy's [Hydroponic Farm](04_buildings_and_economy.md#hydroponic-farm)), a new Indoor Grain/Fiber alternative, sidesteps
+wild animals (and Storm/Temperature Extremity, and Alien Soil) entirely, at
+the cost of a slower cycle, no Wooden Plow bonus, and being barred to
+Farming-Specialized Drones.
+
 **Still open, deliberately deferred:**
-- A counter for **tiny/small** animals — fencing does nothing against
-  them; no concrete idea yet, flagged to revisit soon.
-- **Guards, traps, and hunt/remove-population exploration tasks** —
-  real but undesigned active counters (mentioned in discussion, never
-  specified).
+- **Guards, traps (the general kind — not the tiny/small-specific Traps
+  above), and hunt/remove-population exploration tasks** — real but
+  undesigned active counters (mentioned in discussion, never specified).
 - **Farm-site archetypes** biasing wild-population generation — its own
   item, not detailed.
 - **Construction as a Mid-Sim progressive activity**, generally — fence
