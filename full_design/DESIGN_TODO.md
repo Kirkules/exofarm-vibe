@@ -332,6 +332,20 @@ tracks what's needed *underneath* them.
 
 ## Newly Surfaced Ideas (recorded, not yet designed in detail)
 
+- [ ] **Multi-item production by skilled workers** — a high-Experience or
+  high-Aptitude worker at certain sites should be able to produce
+  **multiple item types at once** in a single production step, rather than
+  the production queue's normal one-recipe-at-a-time sequencing. Motivation:
+  as a run's commitments compound, the worker count needed to keep every
+  early-tier recipe staffed separately grows fast; letting a skilled worker
+  combine several low-tier outputs into one step is meant to blunt that
+  growth without removing the underlying complexity. Needs careful
+  integration with the production queue (see Buildings & Economy's
+  [Building Schema](04_buildings_and_economy.md#building-schema) "Production queue") — this is a different kind of step
+  (parallel outputs) than the queue's sequencing (ordered outputs) and the
+  two need to compose cleanly. Which sites/tiers/skill thresholds qualify
+  is entirely open. Surfaced 2026-09-14 during the tiny/small-animal-counter
+  design (Traps' Carpenter's Shop recipe).
 - [ ] **Luxury-item catalog & Habitation boosts** — Luxury Living Quarters
   (see Buildings & Economy's Habitation) gives one luxury-item slot per
   settler; each *distinct* luxury item held in a slot grants one
