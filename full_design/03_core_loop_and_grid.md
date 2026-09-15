@@ -601,6 +601,20 @@ build/upgrade actions per season**, where N = robots owned — a rate limit on
 infrastructure *growth*, distinct from the grid's own slot-count cap on
 infrastructure *total*.
 
+**A second, independent per-season budget covers Fencing** (see Buildings
+& Economy's [Fencing](04_buildings_and_economy.md#fencing)): construction robots together contribute up to
+**N fence tiles** (TBD) to a shared settlement-wide pool each season,
+regardless of whether their one build/upgrade/relocate slot is also used
+that season. The two budgets don't compete — a robot can complete its one
+building **and** the settlement can still spend its fence-tile budget in
+the same season, so fencing a modest area never costs a building. More
+robots raise both caps, so a second (or upgraded) robot is noticeably
+more capable at both. A construction robot's tooltip states both
+capacities plainly (illustrative: "1 structure/season, N fence
+tiles/season"). Fence tiles resolve at Post-Sim exactly like any other
+construction completion (see Season Structure, below) — a painted-but-
+unbuilt fence tile provides zero protection until then.
+
 ### Small Set of Impactful Actions (Current Draft)
 
 1. **Queue a building construction or upgrade** — consumes one available construction
@@ -736,7 +750,8 @@ role above).
     ordered **carrier infections → husbandry-site destruction → population
     growth** (see Planets & Scoring's [Wild Animal Populations](06_planets_and_scoring.md#wild-animal-populations); infections land
     here since a carrier case can itself be what confirms a bio-threat for
-    step 6, below) — (4) construction/upgrade/relocate completions, (5)
+    step 6, below) — (4) construction/upgrade/relocate/fence-tile
+    completions, (5)
     Exploration Task confirmation UI (start of next planning phase), (6)
     Vaccine/countermeasure threshold check — placed **last, unconditionally**,
     after every `Confidence`-feeding source for the season has landed
@@ -744,6 +759,17 @@ role above).
     than branching on which source pushed it over the threshold. Steps 1, 2,
     3.6, and 4 have no dependencies on each other; their relative order is
     arbitrary except that 3.6 must precede 6.
+  - **Step (4)'s internal order**: its multiple completions resolve in the
+    same order the player originally queued the underlying actions during
+    planning — the same order already backing planning's undo-history, not
+    a category-based rule (e.g. "relocations before upgrades"). This is
+    what makes a same-season "relocate a blocker off tile T, then
+    build/upgrade onto T" sequence sound at all: the later action could
+    only have been planned without a footprint conflict because the
+    relocation was queued first, so replaying that same order at
+    resolution preserves it for free. Fence tiles (see Buildings &
+    Economy's [Fencing](04_buildings_and_economy.md#fencing)) resolve here too, interleaved in the same
+    planning-queue order as everything else in the step.
   - **Why nutrition consumption waits for Post-Sim** rather than resolving
     at Planning Lock-in alongside the food-for-consumption selection: food
     produced *during* the season should itself be consumable that same

@@ -296,21 +296,29 @@ tracks what's needed *underneath* them.
     robot" (see Core Loop & Grid's Run-Start Flow), and any cross-run
     variation on it belongs to this redesign rather than a separate axis.
   Sequenced **after** the initial-run-state work.
-- [ ] **Construction as a Mid-Sim progressive activity** — surfaced
-  2026-09-10 during the fence design. Building construction (and fence
-  construction) should stop resolving instantly "the following season" and
-  instead **progress over Mid-Sim time**, like plant-crop growth: partial
-  progress preserved and resumed if it doesn't finish by Mid-Sim end. A
-  single unupgraded construction robot should take **less than a full
-  season but long enough that it can't build two buildings in one season**
-  — though it *should* be able to build one building *and* fence a small
-  area in the same season. Fence tiles build one at a time,
-  deterministically top-to-bottom / left-to-right, ~1s Mid-Sim each; a
-  painted (planned) fence provides no protection until built. Robot
-  upgrades and multiple robots raise throughput. This reworks `03`
-  Construction (the "N build/upgrade actions per season" cap, the "resolve
-  the following season" rule) and the Post-Sim "construction completions"
-  sub-step, and touches audit items `1-SF1`/`2-SF2`/`1-SF7`/`1-SF8`.
+- [x] **Construction as a Mid-Sim progressive activity — decided against
+  (2026-09-15).** Surfaced 2026-09-10 during the fence design, which
+  wanted a robot to be able to build one building *and* fence a small area
+  in the same season without one competing against the other. Considered
+  generalizing Fencing's bespoke tile-by-tile Mid-Sim build into a full
+  progressive-construction rework (partial progress carried across
+  Mid-Sim, work costs per building, a new cross-season-carryover question)
+  but chose a lighter model instead: construction robots get a **second,
+  independent per-season budget** of *N* fence tiles (TBD), orthogonal to
+  their one build/upgrade/relocate action, so both can happen the same
+  season without competing for the same slot. Both budgets stay flat and
+  atomic — no progress bars, no partial state, no new cross-season
+  question — and scale with robot count, so an extra/upgraded robot is
+  noticeably better at both; a construction robot's tooltip states both
+  capacities plainly. Fence tiles now resolve at **Post-Sim** like any
+  other construction completion (in the same planning-queue order as
+  everything else in that step — see the Post-Sim resolution-order pass,
+  below) instead of their own bespoke Mid-Sim mechanic; the tile-by-tile
+  fill-in survives only as a purely cosmetic Mid-Sim depiction with no
+  mechanical coupling. See `03` [Construction](03_core_loop_and_grid.md#construction) and `04` [Fencing](04_buildings_and_economy.md#fencing). Also
+  resolves audit items `1-SF1`/`2-SF2` (intra-Post-Sim construction
+  ordering — see the Post-Sim resolution-order pass, below); `1-SF7`/
+  `1-SF8` remain untouched by this decision.
 - [ ] **Run length — definiteness & motivation** — a run is currently
   **15 seasons**, but this number has no diegetic justification and the
   length should be revisited: does it want a clearer in-fiction reason
@@ -658,10 +666,6 @@ Farming-Specialized Drones.
   undesigned active counters (mentioned in discussion, never specified).
 - **Farm-site archetypes** biasing wild-population generation — its own
   item, not detailed.
-- **Construction as a Mid-Sim progressive activity**, generally — fence
-  tiles' own build behavior (one at a time, deterministic order, ~1s
-  Mid-Sim each) is specified, but the general building-construction rework
-  it anticipates is not — see the Core Loop / Structural Gaps item above.
 - The **shield/hazard-events focused revisit** (unbreakable-shield limits,
   stronger-event power scaling) — see the Post-Sim resolution-order pass
   section below.
@@ -1272,10 +1276,19 @@ one issue at a time; this subsection is extended as each is resolved.
   `6-SF4` (see Should-fix by system, above). The four animal-based
   buildings' Water draw is still undefined and is queued as part of the
   upcoming plant-/animal-based production design pass.
+- `1-SF1`/`2-SF2` — **resolved (2026-09-15).** Post-Sim step (4)'s multiple
+  construction/upgrade/relocate/fence-tile completions resolve in the same
+  order the player originally queued the underlying actions during
+  planning, not by a category-based rule — this falls out for free from
+  the undo-history ordering planning already needs to record, and
+  correctly sequences the two-robot "relocate a blocker, then
+  build/upgrade into the freed space" case without a special-cased
+  ordering rule. Decided alongside the "Construction as a Mid-Sim
+  progressive activity" item, above, which folded Fencing's completion
+  into this same step. See Core Loop & Grid's Season Structure.
 - **Still open (this theme):** `4-B3` cross-season in-progress-cycle
-  carryover; `1-SF1`/`2-SF2` intra-Post-Sim construction ordering;
-  `2-SF1`/`2-SF3` Post-Sim's two-part structure; `2-SF5` log-line timing
-  accuracy; `2-SF6` previous-season-outcomes-are-final; `10a-SF3`/`10a-B2`
-  explorer Ration deduction placement + multi-season payment model;
-  `10a-SF4` Standing Assignment output timing; `8-SF5` hazard/injury death
-  vs. nutrition headcount.
+  carryover; `2-SF1`/`2-SF3` Post-Sim's two-part structure; `2-SF5`
+  log-line timing accuracy; `2-SF6` previous-season-outcomes-are-final;
+  `10a-SF3`/`10a-B2` explorer Ration deduction placement + multi-season
+  payment model; `10a-SF4` Standing Assignment output timing; `8-SF5`
+  hazard/injury death vs. nutrition headcount.

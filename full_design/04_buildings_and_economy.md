@@ -2091,15 +2091,21 @@ except an active Energy shield (see [Weather Shield](04_buildings_and_economy.md
   already handles mixed-tier layouts correctly on its own. **No free pass
   at the map edge** — enclosing a corner site still needs fence on every
   side, including the ones facing off-grid.
-- **Construction**: fence tiles build **one at a time**, in a fixed order
-  (top-to-bottom, left-to-right within the painted selection), by a
-  construction robot, over a short span of Mid-Sim time per tile
-  (illustrative ~1s) — a planned fence provides **zero protection** until
-  each of its tiles is actually built. Fencing the whole settlement is
-  possible but takes a long time; a robot can typically also complete one
-  ordinary building in the same season it fences a modest area. (This
-  anticipates construction generally becoming a Mid-Sim progressive
-  activity — see `DESIGN_TODO.md`.)
+- **Construction**: fence tiles draw on construction robots' second,
+  independent per-season budget (see Core Loop & Grid's [Construction](03_core_loop_and_grid.md#construction)) —
+  up to *N* tiles/season (TBD) settlement-wide, separate from and
+  additional to each robot's one build/upgrade/relocate action, so fencing
+  a modest area never costs the settlement a building that season. All
+  fence tiles queued for the season resolve together at **Post-Sim**,
+  exactly like any other construction completion, in the same
+  planning-queue order as everything else in that step (see Season
+  Structure's Post-Sim sub-step order) — a planned fence provides **zero
+  protection** until then. Mid-Sim may still show the fence visually
+  filling in tile by tile (top-to-bottom, left-to-right within the painted
+  selection) for flavor, the same purely-ambient treatment other
+  Post-Sim-resolved activities get elsewhere — it carries no mechanical
+  weight of its own. Fencing the whole settlement in one season is
+  possible in principle but bounded by the shared tile budget.
 - **Stewardship**: see Planets & Scoring's [SEED Factions](06_planets_and_scoring.md#seed-factions) `DisruptionFootprint` —
   a built fence tile counts as disrupted regardless of what's underneath;
   a planned-but-unbuilt one counts for half.
