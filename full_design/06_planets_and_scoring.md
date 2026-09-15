@@ -404,8 +404,9 @@ parasites described in Bio-hazard, above.
 gameplay-relevant size (diegetically there's more wildlife around than
 this tracks — just what's close and plentiful enough to matter). Each
 tracked population has: a **kind** — **grazer/scavenger** (raids standing
-crops) or **predator** (preys on husbandry animals, and can kill
-settlers); a **size class** — tiny, small, medium, large, huge, or titan
+crops), **predator** (preys on husbandry animals, and can kill settlers),
+or **pollinator** (see below — the one *beneficial* kind); a **size
+class** — tiny, small, medium, large, huge, or titan
 (insect- to largest-dinosaur-scaled), fixed per population, governing
 which fence tiers and shields stop it (see Buildings & Economy's
 [Fencing](04_buildings_and_economy.md#fencing)); a **size tier** — low / moderate / high / overrunning — how big it
@@ -454,18 +455,24 @@ for the same reason: it was never food to begin with.
 **Predators.** A reachable predator population, for each prey archetype
 with a **reachable domesticated site**, rolls once per site (at Post-Sim,
 after carrier infections and before population growth — see below) for a
-**chance — scaling with tier — to destroy that site** (the husbandry
-building reverts to a built-but-empty state; see Buildings & Economy's
-forthcoming Animal Husbandry). **Titan** predators succeed automatically
-against any reachable site. A predator only ever "affects" domesticated
-animal sites of its prey archetypes — never crop sites, and never a
-settler directly *except* the one working a site it's actively preying
-on: if present, and the predator is **large, huge, or titan**, there is
-also a chance it kills that settler (medium and smaller predators never
-kill settlers). Predators are drawn **only by prey**, never by settlers
-alone; it's meant to be common for a predator population to exist nearby
-without ever touching the settlement in a given season, if it has no
-reachable prey.
+**chance — scaling with tier — to destroy that site** (the husbandry site
+reverts to an idle, empty state; see Buildings & Economy's [Animal Husbandry](04_buildings_and_economy.md#animal-husbandry)).
+**Titan** predators succeed automatically against any reachable site. A
+predator only ever "affects" domesticated animal sites of its prey
+archetypes — never crop sites, and never a settler directly *except* the
+one working a site it's actively preying on: if present, and the predator
+is **large, huge, or titan**, there is also a chance it kills that settler
+(medium and smaller predators never kill settlers). Predators are drawn
+**only by prey**, never by settlers alone; it's meant to be common for a
+predator population to exist nearby without ever touching the settlement
+in a given season, if it has no reachable prey.
+
+**Pollinators.** The one beneficial kind: a wild pollinator population
+applies the same ambient **crop-yield amplification** a domesticated
+Pollinator hive does (see Buildings & Economy's [Animal Husbandry](04_buildings_and_economy.md#animal-husbandry)) to every
+reachable matching plant-crop site, for as long as it exists at any
+nonzero tier. It has no domesticated-site or diet/prey list at all — see
+its distinct site-count rule under Growth & Decay, below.
 
 **Carrier infection.** If a carrier population affects a site with a
 present, infectable worker or animal, that infection is applied **at
@@ -508,6 +515,17 @@ archetypes' own wild-population** site count (clamped at 0) — predators
 suppress the wild prey they hunt, though they have no effect on
 domesticated stock's own numbers (husbandry growth/production isn't
 modeled this way at all — see `DESIGN_TODO.md`).
+
+A **pollinator's** site count is flat: always **1**, with no domestic-site
+or wild-forage component at all — it has nothing to graze and nothing to
+grow toward. Predator suppression still applies to it exactly like any
+other prey archetype, clamped at 0. Left unpredated, a wild pollinator
+population therefore settles at **low** and stays there indefinitely; any
+predator that lists it as prey readily suppresses it toward **none**.
+World generation may still seed one at any tier up to high like other
+populations (see Seeding, below), but absent a matching predator it drifts
+back down to low within a season or two under the standard
+one-tier-per-season movement rule.
 
 **A fully-mitigated population (site count driven to 0, by fencing,
 shielding, or predator suppression) always disappears within 4 seasons**

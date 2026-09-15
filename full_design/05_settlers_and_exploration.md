@@ -49,8 +49,9 @@ Each settler carries:
 ### Injuries
 
 Designed independently of *where* a settler gets hurt (exploration,
-Atmospheric Hazard, Temperature Extremity) — this taxonomy is shared by all
-of them, referenced rather than repeated wherever injury/death is mentioned
+Atmospheric Hazard, Temperature Extremity, a failed Buildings & Economy's
+[Husbandry](04_buildings_and_economy.md#animal-husbandry) Capture attempt) — this taxonomy is shared by all of them,
+referenced rather than repeated wherever injury/death is mentioned
 elsewhere in this design. Two categories:
 
 - **Semi-permanent (SP)** — broken bones, sprains, moderate burns,
@@ -212,14 +213,14 @@ Exploration Tasks never build or benefit from Experience.
 count per group, and that count's bonus applies uniformly across every
 task within it, not just wherever it was earned:
 - **Farming** — the four plant-crop buildings (Grain Field, Fruit Orchard,
-  Fiber Field, Timber Grove). *(The current Dairy/Poultry/Sheep buildings
-  are slated to move to the Husbandry group below when the native-fauna
-  design pass replaces them — see `DESIGN_TODO.md`.)*
-- **Husbandry** — native-animal work: the Capture and Domesticate steps
-  and the husbandry production buildings (members pending the animal
-  husbandry design — see `DESIGN_TODO.md`). Kept separate from Farming:
-  learning to grow crops shouldn't teach a settler to handle animals or
-  spot a parasite in a herd.
+  Fiber Field, Timber Grove) plus the Hydroponic Farm. *(The current
+  Dairy/Poultry/Sheep buildings are slated to move to the Husbandry group
+  below once the native-fauna pivot actually removes them — see
+  `DESIGN_TODO.md`.)*
+- **Husbandry** — native-animal work: a [Husbandry Site](04_buildings_and_economy.md#animal-husbandry)'s
+  Capture attempts and its ongoing feed/tend cycle. Kept separate from
+  Farming: learning to grow crops shouldn't teach a settler to handle
+  animals or spot a parasite in a herd.
 - **Mining** — Mine, Quarry, Rare Metal Extractor.
 - **Kitchen**, **Trapping**, and **Clear-Cutting** — each its own group.
 - **Surveys** — Basic Deposit Survey and Deep Survey, shared with each
@@ -308,6 +309,27 @@ in sequence. The flat +1/−1 outcome-maximum effect just adds normally with
 Storied's own +1. Tooltip stays plain-language here too — "reduced injury
 chance," "improved chance of success," "up to 1 more item from
 Exploration" (or the negative-direction equivalents), never the formulas.
+
+### Drones, Experience, and Aptitude
+
+A general rule for how any drone relates to this system, resolving it
+everywhere Experience or Aptitude gate something **other than** production
+speed — a probability (Buildings & Economy's [Husbandry](04_buildings_and_economy.md#animal-husbandry) Capture roll), or a
+threshold check (the "max Kitchen/Medical Experience or Aptitude" food/
+animal-infection-visibility gates — see [Infected Food](05_settlers_and_exploration.md#infected-food)):
+
+- A **Basic** drone (of any kind) counts as a settler with **0 Aptitude**
+  in the relevant bucket and **0 Experience stacks** in the relevant
+  group — and **never accrues Experience**, no matter how many seasons it
+  works.
+- An **Advanced** drone counts as **+1 Aptitude and +1 Experience** in the
+  relevant bucket/group — fixed at that value forever, never climbing
+  further with more seasons worked.
+- This is **only** for these non-time-scaling effects. It changes nothing
+  about production **speed**: a drone's contribution there is still its
+  own flat Effort value (see Buildings & Economy's [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly)),
+  entirely separate from — and not summed with — the Experience/Aptitude
+  speed formulas above.
 
 ---
 

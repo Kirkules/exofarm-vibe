@@ -223,13 +223,16 @@ keeping the catalog from exploding as more planet types are added:
 - **Fossil Fuel** exists solely as Fuel-based Generator's upgrade-tier input
   (see [Fuel](04_buildings_and_economy.md#fuel)), from a hidden deposit (see [Deposit Discovery](04_buildings_and_economy.md#deposit-discovery)) — always
   non-sustainable, no Timber-Grove-style renewable source exists for it.
-- **Fertilizer** — produced passively by livestock buildings (Dairy Pasture,
-  Poultry Coop, Sheep Pasture — not Trapping, which harvests wild animals
-  rather than raising livestock, and isn't a building at all) just by
-  existing on the farm, regardless of
-  staffing or whether they're actively producing Milk/Eggs/Wool that season.
-  Consumed automatically, once per *season* (not per production cycle), by
-  plant-crop buildings to offset the Alien Soil penalty (see [Farm/Production](04_buildings_and_economy.md#farmproduction)).
+- **Fertilizer** — a free passive byproduct of a live **Grazer/herd**-
+  archetype [Husbandry](04_buildings_and_economy.md#animal-husbandry) site (not Trapping, which harvests wild animals
+  rather than raising livestock, and isn't a building at all), generated
+  at the completion of each `feed` step — so it needs the herd fed
+  (staffed and working), not merely built. *(Supersedes the old
+  Dairy Pasture/Poultry Coop/Sheep Pasture-sourced version of this bullet
+  — those buildings are slated for removal once the native-fauna pivot's
+  remaining pieces land; see `DESIGN_TODO.md`.)* Consumed automatically,
+  once per *season* (not per production cycle), by plant-crop buildings to
+  offset the Alien Soil penalty (see [Farm/Production](04_buildings_and_economy.md#farmproduction)).
 - **Mining deposits come in two types**: a **high-yield, bounded** site (finite
   total quantity, depletes with use) and a **lower-yield, effectively infinite**
   site (doesn't meaningfully deplete within a run's timescale). Both incur the same
@@ -490,9 +493,12 @@ are each their own distinct entry.
 |---|---|
 | Grain Field / Fruit Orchard / Dairy Pasture / Poultry Coop / Sheep Pasture / Fiber Field / Timber Grove (base, each) | 0 |
 | Same seven, upgraded tier (each) | 2 |
+| Hydroponic Farm | 0 |
 | Trapping | 0 |
 | Hybridization (per-planet signature discovery) | 3 |
+| Hybridization (Grazer immunity discovery) | 3 |
 | Hybridization (meteorite-fragment, planet-independent) | 4 |
+| Husbandry Site (base and Titan-tier — no increase for the upgrade) | 0 |
 
 **Deposit Discovery**
 
@@ -1012,6 +1018,128 @@ Exact building↔discovery pairings (which specific find unlocks which
 specific building, and Grazer immunity's exact trigger odds/task scope)
 are content-authoring-pass detail, same as the rest of Exploration Tasks'
 unwritten flavor content.
+
+---
+
+## Animal Husbandry
+
+Deliberately lighter-weight than farming. The player's involvement is
+three decisions — **build the structure, choose a discovered species for
+it, assign a worker** — after which everything (capture, feeding,
+production) runs automatically from the animal's own stats and the
+assigned worker's ability.
+
+**Discovery is ambient and immediate**, through two independent routes,
+each feeding the same "available to domesticate" list:
+- A domesticatable species that exists as a **tracked wild population**
+  (see Planets & Scoring's [Wild Animal Populations](06_planets_and_scoring.md#wild-animal-populations)) is available the instant
+  that population exists near the settlement.
+- A species surfaced by an **exploration/survey outcome** is available the
+  instant it's found — entirely decoupled from wild-population tracking;
+  it never gets a size tier, diet, or growth/decay of its own, it's simply
+  known to exist and capturable.
+
+Both an animal's husbandry inputs/outputs and a wild population's are shown
+on that animal's info tooltip and on its assessment-panel entry, so the
+player can evaluate a species before ever committing to it.
+
+### Husbandry Site
+
+- Category: Farm/Production | Staffing: Staffed | **Outdoor**
+- One **universal, species-agnostic** structure — repeatable, like other
+  Farm/Production buildings. A given instance is committed to a single
+  chosen species from the moment a Capture attempt is made on it (see
+  below) until that herd ends (see Cull, Release & Neglect).
+- **Upgrade: Titan-tier footprint** — 2 tiles, **required to domesticate a
+  Titan-sized animal** (every smaller size class fits the base 1-tile
+  site). Otherwise functionally identical to the base site — a non-Titan
+  species gains nothing from the larger footprint. Per Building Schema's
+  Upgrade path, this bundles a free relocation. **Deliberately no
+  `TechAchievement` increase for this tier**, and its construction cost is
+  simply the same as building an additional base Husbandry Site — the
+  premium is entirely in what a Titan itself is worth (see Titan
+  Domestication, below), not in the structure.
+- Construction cost: Lumber/Concrete (ratio TBD) | `TechAchievement`: 0 |
+  Repeatable: yes
+
+### Capture
+
+Committing a chosen species to an idle Husbandry Site starts a **Capture**
+attempt — a real risk, not a formality. Every species carries a
+**difficulty-to-domesticate rating**; larger size classes are both harder
+and more dangerous.
+- **Success chance** scales with the assigned worker's **Husbandry
+  Aptitude**. Exact formula (species difficulty × worker Aptitude → %) TBD,
+  deferred to balancing.
+- **Failure inflicts a minor (SP) injury** (see Settlers & Exploration's
+  [Injuries](05_settlers_and_exploration.md#injuries)) on a settler worker, chance scaling with the animal's size and
+  scaling **inversely** with the worker's **Husbandry Experience** — a
+  more experienced handler gets hurt less often, independent of whether
+  the capture itself succeeds. For a **robot worker** (All-Purpose only —
+  no Husbandry-Specialized Drone exists), the equivalent cost is a **full
+  battery drain** instead of an injury.
+- A failed attempt leaves the site idle and available to retry (a new
+  attempt, same or a different species) rather than destroying anything.
+- See Settlers & Exploration's [Drones, Experience, and Aptitude](05_settlers_and_exploration.md#drones-experience-and-aptitude) for how a
+  drone worker's effective Aptitude/Experience for this roll is determined.
+
+### Production Cycle
+
+Once captured, a site runs a fixed, automatic, per-species cycle: **one
+`feed` step, then one `produce` step per output item**, looping forever.
+Every step's base duration and base output scale with the animal's size,
+archetype, and within-archetype variation (see the Animal System's
+archetype value-consistency rule — `DESIGN_TODO.md`).
+
+- **`feed`** consumes the same crop product the species would have grazed
+  as a wild population (e.g. a Grain-eating archetype's `feed` consumes
+  Grain), and draws a **Water** reservation for its duration, the same
+  reservation/shortfall mechanic as plant-crop buildings (see the
+  [Plant-Crop Production Model](04_buildings_and_economy.md#plant-crop-production-model)'s Water reservation & shortfall) —
+  a denied reservation pauses `feed`, no progress lost. A species with no
+  diet-linked crop (an archetype never framed as a wild grazer) has a
+  `feed` step that consumes nothing and is pure time.
+- **Fertilizer** remains a free passive byproduct of a live Grazer/herd-
+  archetype site, generated at the completion of each `feed` step — not
+  its own cycle step.
+- **Ambient effects** (a Pollinator hive's crop-yield amplification, a
+  Burrower's Alien-Soil suppression) stay always-active while the site is
+  fed and staffed, independent of which step is currently running — they
+  are not `produce` steps. An archetype whose entire value is an ambient
+  effect (no item output at all) simply has no `produce` step: its cycle
+  is `{feed}`, looping alone.
+- **One combined worker-effort model, no plant-crop-style pause/restart
+  split**: every step, `feed` included, needs the assigned worker to
+  progress, modified by the usual Effort/Experience/Aptitude framework.
+- **Titan Domestication.** A husbanded Titan produces at a **much larger**
+  scale than smaller size classes of the same archetype/output (the normal
+  size-scaling rule, just at its extreme), grants the capturing/domesticating
+  settler **`legend_value`**, and may eventually get a unique output of its
+  own — TBD, a content hook rather than a mechanic to design now.
+
+### Cull, Release & Neglect
+
+- **Cull** — a worker-action production task at the site (earns Husbandry
+  Experience). Low chance of ending with a clean (uninfected) herd, high
+  chance of simply ending that domestication attempt — the site returns to
+  idle, available to re-commit to any currently-available species,
+  including the same wild source again. Yields Pelt/meat from the culled
+  animals (infected meat, if the herd was) as a going-away bonus; the herd
+  itself is gone for good.
+- **Release** — same odds and worker-action shape as Cull, but instead of
+  yielding goods, the herd becomes a **new nearby wild population at the
+  low size tier**, retaining every other property it had as a herd — size
+  class, archetype, within-archetype variation, and infection/carrier
+  status exactly as it stood at release (including immunity, if a
+  countermeasure had already cleared it).
+- **Species-switching** a site is just Cull or Release followed by a fresh
+  Capture attempt on the newly-chosen species.
+- **Neglect**: if a site's herd does not complete **at least one `feed`
+  step** during a season, the herd dies at Post-Sim, leaving an empty,
+  idle Husbandry Site — the same end-state as a predator destroying it
+  (see [Wild Animal Populations](06_planets_and_scoring.md#wild-animal-populations)). Merely having a worker assigned isn't
+  enough if that worker never actually got to work (e.g. spent the whole
+  season recovering) — it's whether `feed` actually completed.
 
 ---
 

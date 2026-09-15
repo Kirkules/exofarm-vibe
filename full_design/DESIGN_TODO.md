@@ -454,21 +454,28 @@ tracks what's needed *underneath* them.
 ## Animal System (brainstorm 2026-09-08 onward — mostly written in)
 
 A large redesign worked out in discussion. **Written in so far
-(2026-09-10/11):** the parasite/disease/countermeasure/recovery mechanics
+(2026-09-10/14):** the parasite/disease/countermeasure/recovery mechanics
 (Settlers & Exploration's [Infections](05_settlers_and_exploration.md#infections) and [Infected Food](05_settlers_and_exploration.md#infected-food); Buildings & Economy's
 Medical Bay's Biological Countermeasures tier, Recovery capacity,
 Biological Lab Materials, PPE/Emergency Medical Kit; Kitchen's parasite
 cook-out; the quarter-season epidemiology tick and Bio-hazard reframe in
 Planets & Scoring's In-Simulation Hazard Events); the free-relocation-on-
 upgrade rule; Glass; the Husbandry Experience group / Aptitude bucket
-split; and — the whole point of this pass — **wild animal populations and
-Fencing in full** (Planets & Scoring's [Wild Animal Populations](06_planets_and_scoring.md#wild-animal-populations); Buildings &
-Economy's [Fencing](04_buildings_and_economy.md#fencing); the shield Energy model corrected to match — see
-below). **Still brainstormed but not yet written:** the Earth-livestock →
-native-fauna pivot itself (Milk/Eggs/Wool removal, the archetype rosters,
-below), the Discover→Capture→Domesticate→Produce pipeline and
-domestic-animal cycle structure, and the pet/companion path. Supersedes
-the "Livestock vaccines" item above.
+split; **wild animal populations and Fencing in full** (Planets & Scoring's
+[Wild Animal Populations](06_planets_and_scoring.md#wild-animal-populations), including the Pollinator kind and its flat
+site count; Buildings & Economy's [Fencing](04_buildings_and_economy.md#fencing); the shield Energy model
+corrected to match — see below); the tiny/small-animal counters (Traps,
+Grazer-immunity Hybridization, Hydroponic Farm); and the Husbandry
+production-cycle structure itself — Buildings & Economy's [Animal
+Husbandry](04_buildings_and_economy.md#animal-husbandry) (Husbandry Site incl. the two-tile Titan-tier upgrade,
+Capture, the `{feed, produce...}` production cycle, Cull/Release/Neglect)
+plus the general drone-Aptitude/Experience-equivalence rule in Settlers
+& Exploration's [Drones, Experience, and Aptitude](05_settlers_and_exploration.md#drones-experience-and-aptitude). **Still brainstormed but not
+yet written:** the Earth-livestock → native-fauna pivot itself (removing
+Dairy Pasture/Poultry Coop/Sheep Pasture, rehoming Milk/Eggs/Wool onto
+husbandry-animal analogs and Kitchen recipes, the archetype rosters,
+below), and the pet/companion path. Supersedes the "Livestock vaccines"
+item above.
 
 ### The pivot
 
@@ -482,13 +489,15 @@ on every planet type.
 
 ### Two paths
 
-- **Husbandry** — common. Pipeline: **Discover** (survey/Site-Reveal:
-  "species X present here") → **Capture** (exploration task / Standing
-  Assignment yielding live specimens, possibly risk-bearing) → **Domesticate**
-  (build a husbandry structure, seed it with N captured specimens; research
-  vs. build-and-seed still TBD) → **Produce** (a production cycle for the
-  species' product). Cycle structure not yet designed — so whether husbandry
-  buildings sit inside the production-queue system is also TBD.
+- **Husbandry** — common. Pipeline now fully written — see Buildings &
+  Economy's [Animal Husbandry](04_buildings_and_economy.md#animal-husbandry): ambient **Discovery**, a risk-bearing
+  **Capture** attempt (per-species difficulty, success ~ Aptitude, injury ~
+  inverse Experience), a universal **Husbandry Site** seeded with captured
+  specimens, then an automatic `{feed, produce...}` **production cycle**
+  (a specialization of the general production-queue mechanic) until
+  Cull/Release/or Neglect ends it. A two-tile **Titan-tier** site upgrade is
+  required for Titan-sized animals, with `legend_value`, larger output, and
+  possibly unique output as its reward.
 - **Pet / Companion** — rare. Found via a rare exploration outcome, **bonds
   permanently to the finding settler** (acquisition = luck × that settler's
   Exploration Aptitude). One pet per settler; no run cap, probabilities
