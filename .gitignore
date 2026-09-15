@@ -24,3 +24,7 @@ Thumbs.db
 
 # Third-party addons
 addons/gut/
+
+# Generated from full_design/data/*.csv by build_values.py — regenerate on
+# demand, never hand-edited or committed (see full_design/data/build_values.py)
+full_design/data/*.values.csv
