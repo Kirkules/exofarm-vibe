@@ -1,0 +1,32 @@
+Task,Category,Rarity,Risk,Season gate,Base Ration cost,Planet,Strategy flavor,Strategy dimension,Design status,Notes
+Wild Orchard Grove,Windfall,Common,No-risk,1+,1,any,Neutral,,Needs Balancing,Food-cache flavor
+Predator's Larder,Windfall,Common,No-risk,1+,1,any,Neutral,,Needs Balancing,Food-cache flavor
+Abandoned Settlement,Windfall,Uncommon,No-risk,3+,1,any,Neutral,,Needs Balancing,Food-cache flavor; alien-civ escalation chance
+Exposed Mineral Outcrop,Windfall,Common,No-risk,1+,1,any,Neutral,,Needs Balancing,Non-food flavor
+Unusual Rock Formation,Windfall,Common,No-risk,1+,1,any,Neutral,,Needs Balancing,Non-food flavor
+Crashed Debris Field,Windfall,Uncommon,No-risk,3+,1,any,Neutral,,Needs Balancing,Non-food flavor; alien-civ escalation chance
+Unusual Crystalline Growth,Windfall,Uncommon,No-risk,4+,1,any,Neutral,,Needs Balancing,Rare-resource flavor
+Generic Ore/Stone Site Reveal,SiteReveal,Common,No-risk,1+,1,any,Neutral,,Needs Balancing,100% success if attempted
+Generic Aquifer Site Reveal,SiteReveal,Common,No-risk,1+,1,any,Neutral,,Needs Balancing,100% success if attempted
+High Pelt-Population Tile Reveal,SiteReveal,Uncommon,No-risk,2+,1,any,Neutral,,Needs Balancing,100% success if attempted
+Glinting Vein,SiteReveal,Uncommon,No-risk,4+,1,any,Neutral,,Needs Balancing,100% success if attempted
+Reach-the-deepest-X,Legend,Rare,Low-risk,6+,1,any,Neutral,,Needs Balancing,Achievement flavor
+Chart-the-Y,Legend,Rare,Low-risk,6+,1,any,Neutral,,Needs Balancing,Achievement flavor
+Bioluminescent Bloom,Legend,Uncommon,No-risk,3+,1,any,Neutral,,Needs Balancing,"Wonder flavor, guaranteed"
+Aurora Readings,Legend,Uncommon,No-risk,3+,1,any,Neutral,,Needs Balancing,"Wonder flavor, guaranteed; also a Confidence(Weather) burst"
+Crystal Caves,Legend,Uncommon,No-risk,3+,1,any,Neutral,,Needs Balancing,"Wonder flavor, guaranteed; flavor only, non-extractable"
+Weather Anomaly Investigation,ConfidenceBurst,Uncommon,No-risk,3+,1,any,Neutral,,Needs Balancing,"guaranteed Confidence(Weather) burst, no Legend value"
+Ancient Irrigation Technique,FarmUpgrade,Rare,No-risk,6+,2,any,Neutral,,Needs Balancing,moderate alien-civ escalation chance
+Recovered Survey Data,FarmUpgrade,Rare,No-risk,6+,2,any,Neutral,,Needs Balancing,high alien-civ escalation chance
+Symbiotic Soil Microbiome,FarmUpgrade,Rare,No-risk,6+,2,any,Neutral,,Needs Balancing,
+Verdant Reinforcing,Hybridization,Rare,No-risk,6+,1,Verdant/Temperate,Reinforcing,Biosphere Integration,Needs Balancing,
+Verdant Profile-shifting,SiteReveal,Rare,High-risk,6+,1,Verdant/Temperate,Profile-shifting,Protection/Enclosure and Energy Management,Needs Balancing,"guaranteed find, independent risk roll"
+Volcanic Reinforcing,SiteReveal,Rare,High-risk,6+,1,Volcanic,Reinforcing,Protection/Enclosure,Needs Balancing,"guaranteed find, independent risk roll"
+Volcanic Profile-shifting,Hybridization,Rare,Low-risk,6+,1,Volcanic,Profile-shifting,Biosphere Integration,Needs Balancing,lava-tube fungi
+Arid Reinforcing,SiteReveal,Uncommon,Low-risk,3+,1,Arid/Desert,Reinforcing,Synthesis/Self-Sufficiency,Needs Balancing,guaranteed Aquifer find
+Arid Profile-shifting,Hybridization,Rare,No-risk,6+,2,Arid/Desert,Profile-shifting,Biosphere Integration,Needs Balancing,dormant seed bank; moderate alien-civ escalation chance
+Ice Reinforcing,Windfall,Uncommon,Low-risk,3+,1,Frozen/Ice,Reinforcing,Protection/Enclosure and Energy Management,Needs Balancing,insulation flavor rare metal
+Ice Profile-shifting,Hybridization,Rare,Low-risk,6+,1,Frozen/Ice,Profile-shifting,Biosphere Integration,Needs Balancing,warmth-pocket flora
+Meteorite Fragment,Hybridization,Rare,No-risk,8+,2,any,Profile-shifting,Biosphere Integration,Needs Balancing,planet-independent; unlocks all 4 plant buildings' hybridization eligibility at once
+Unknown Radio Signal,Special,Rare,Low-risk,6+,1,any,Neutral,,Needs Balancing,branching resolution; alternate sentience-contact entry point
+Sentience Detection (cold),Escalation,Rare,High-risk,8+,1,any,Neutral,,Needs Balancing,~10% success; see sentience_contact_chain.csv for trigger-specific odds

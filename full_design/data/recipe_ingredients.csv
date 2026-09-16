@@ -1,0 +1,119 @@
+Recipe ID,Item,Role,Quantity,Design status,Notes
+mine.ore,Iron Ore,Output,1 (mixed draw),Needs Balancing,drawn independently per unit from deposit's Iron/Copper percentage split
+mine.ore,Copper Ore,Output,1 (mixed draw),Needs Balancing,drawn independently per unit from deposit's Iron/Copper percentage split
+quarry.stone,Stone,Output,1,Needs Balancing,
+rare_metal_extractor.rare_metal,Rare Metal,Output,1,Needs Balancing,
+dairy_pasture.milk,Milk,Output,1,Needs Balancing,"recipe also draws a flat Water reservation, amount TBD"
+poultry_coop.eggs,Eggs,Output,1,Needs Balancing,"recipe also draws a flat Water reservation, amount TBD"
+sheep_pasture.wool,Wool,Output,1,Needs Balancing,"recipe also draws a flat Water reservation, amount TBD"
+kitchen.bread,Grain,Input,TBD,TBD,
+kitchen.bread,Bread,Output,TBD,TBD,Carbs-heavy
+kitchen.fruit_dish,Fruit,Input,TBD,TBD,
+kitchen.fruit_dish,Fruit Dish,Output,TBD,TBD,Vitamins-heavy
+kitchen.dairy_dish,Milk,Input,TBD,TBD,
+kitchen.dairy_dish,Dairy Dish,Output,TBD,TBD,Protein/Fat/Vitamins
+kitchen.egg_dish,Eggs,Input,TBD,TBD,
+kitchen.egg_dish,Egg Dish,Output,TBD,TBD,Protein/Fat-heavy
+kitchen.sandwich,Grain,Input,TBD,TBD,
+kitchen.sandwich,Eggs,Input,TBD,TBD,
+kitchen.sandwich,Sandwich,Output,TBD,TBD,flavor-name pool: Club/Egg Salad/Breakfast Sandwich/Croque Madame
+kitchen.pasta_dish,Grain,Input,TBD,TBD,
+kitchen.pasta_dish,Milk,Input,TBD,TBD,
+kitchen.pasta_dish,Pasta Dish,Output,TBD,TBD,flavor-name pool: Alfredo/Mac & Cheese/Carbonara/Baked Ziti
+kitchen.fruit_pastry,Grain,Input,TBD,TBD,
+kitchen.fruit_pastry,Fruit,Input,TBD,TBD,
+kitchen.fruit_pastry,Fruit Pastry,Output,TBD,TBD,flavor-name pool: Fruit Pie/Turnover/Strudel/Cobbler
+kitchen.custard_dish,Milk,Input,TBD,TBD,
+kitchen.custard_dish,Eggs,Input,TBD,TBD,
+kitchen.custard_dish,Fruit,Input,TBD,TBD,
+kitchen.custard_dish,Custard Dish,Output,TBD,TBD,flavor-name pool: Custard/Flan/Quiche/Creme Brulee; most PFCV-balanced
+kitchen.gourmet,Gourmet Dish (generic),Output,1,TBD,requires maxed Kitchen Experience + a Seasoning in inventory; 75% brilliance chance
+kitchen.local_delicacy,Local Delicacy,Output,TBD,TBD,ingredient sourced via Trade Agreement
+ration_press.rations,Rations,Output,TBD,TBD,"formula: floor(min(P,F,C,V) across selected inputs), lossy vs. old min/2 formula per rework"
+ration_press.stockpile_fill,Rations,Output,TBD,TBD,"same content as packaged Rations, routed to Food Storage bulk instead"
+food_storage.extraction,Rations,Output,TBD,TBD,deliberately poor extraction rate
+robotics_assembly.construction_robot,Iron,Input,TBD,TBD,
+robotics_assembly.construction_robot,Copper,Input,TBD,TBD,
+robotics_assembly.all_purpose_basic,Iron,Input,TBD,TBD,
+robotics_assembly.all_purpose_basic,Copper,Input,TBD,TBD,
+robotics_assembly.specialized_basic,Iron,Input,TBD,TBD,
+robotics_assembly.specialized_basic,Copper,Input,TBD,TBD,
+robotics_assembly.advance_all_purpose,Silicon,Input,TBD,TBD,
+robotics_assembly.advance_all_purpose,High-Tech Components,Input,TBD,TBD,
+robotics_assembly.advance_specialized,High-Tech Components,Input,TBD,TBD,
+robotics_assembly.harden,High-Tech Components,Input,TBD,TBD,
+stone_processing.concrete,Stone,Input,TBD,TBD,
+stone_processing.concrete,Concrete,Output,TBD,TBD,
+stone_processing.silicon,Stone,Input,TBD,TBD,
+stone_processing.silicon,Silicon,Output,TBD,TBD,
+stone_processing.glass,Stone,Input,TBD,TBD,
+stone_processing.glass,Glass,Output,TBD,TBD,
+smelter.iron,Iron Ore,Input,TBD,TBD,ratio TBD
+smelter.iron,Iron,Output,TBD,TBD,ratio TBD
+smelter.copper,Copper Ore,Input,TBD,TBD,ratio TBD
+smelter.copper,Copper,Output,TBD,TBD,ratio TBD
+textile_workshop.fabric,Wool,Input,TBD,TBD,"player picks Wool, Fiber/Cotton, or Pelts"
+textile_workshop.fabric,Fiber/Cotton,Input,TBD,TBD,"player picks Wool, Fiber/Cotton, or Pelts"
+textile_workshop.fabric,Pelts,Input,TBD,TBD,"player picks Wool, Fiber/Cotton, or Pelts"
+textile_workshop.fabric,Fabric,Output,TBD,TBD,
+textile_workshop.leather,Pelts,Input,TBD,TBD,
+textile_workshop.leather,Leather,Output,TBD,TBD,
+textile_workshop.leather_boots,Leather,Input,TBD,TBD,
+textile_workshop.leather_boots,Fiber/Cotton,Input,TBD,TBD,
+textile_workshop.leather_boots,Leather Boots,Output,TBD,TBD,
+textile_workshop.leather_backpack,Leather,Input,TBD,TBD,
+textile_workshop.leather_backpack,Leather Backpack,Output,TBD,TBD,
+tinkerers_workshop.htc,Copper,Input,TBD,TBD,
+tinkerers_workshop.htc,Silicon,Input,TBD,TBD,
+tinkerers_workshop.htc,Iron,Input,TBD,TBD,
+tinkerers_workshop.htc,Glass,Input,TBD,TBD,
+tinkerers_workshop.htc,High-Tech Components,Output,TBD,TBD,
+tinkerers_workshop.screens,Silicon,Input,TBD,TBD,
+tinkerers_workshop.screens,Copper,Input,TBD,TBD,
+tinkerers_workshop.screens,High-Resolution Screens,Output,TBD,TBD,
+tinkerers_workshop.scanning_equipment,Silicon,Input,TBD,TBD,
+tinkerers_workshop.scanning_equipment,Copper,Input,TBD,TBD,
+tinkerers_workshop.scanning_equipment,Rare Metal,Input,TBD,TBD,
+tinkerers_workshop.scanning_equipment,High-Tech Components,Input,TBD,TBD,
+tinkerers_workshop.scanning_equipment,Portable High-Powered Scanning Equipment,Output,TBD,TBD,
+tinkerers_workshop.temp_gear,Fabric,Input,TBD,TBD,player picks Fabric or Leather
+tinkerers_workshop.temp_gear,Leather,Input,TBD,TBD,player picks Fabric or Leather
+tinkerers_workshop.temp_gear,Rare Metal,Input,TBD,TBD,
+tinkerers_workshop.temp_gear,High-Tech Components,Input,TBD,TBD,
+tinkerers_workshop.temp_gear,Glass,Input,TBD,TBD,
+tinkerers_workshop.temp_gear,Temperature-Resistant Gear,Output,TBD,TBD,"one universal item, covers both hot and cold"
+tinkerers_workshop.diplomatic_gear,Silicon,Input,TBD,TBD,path A: Silicon+Copper
+tinkerers_workshop.diplomatic_gear,Copper,Input,TBD,TBD,path A: Silicon+Copper
+tinkerers_workshop.diplomatic_gear,Fabric,Input,TBD,TBD,path B: Fabric alone
+tinkerers_workshop.diplomatic_gear,Diplomatic Gear,Output,TBD,TBD,
+tinkerers_workshop.armed_kit,Iron,Input,TBD,TBD,
+tinkerers_workshop.armed_kit,Rare Metal,Input,TBD,TBD,
+tinkerers_workshop.armed_kit,Armed Expedition Kit,Output,TBD,TBD,
+tinkerers_workshop.force_package,High-Tech Components,Input,TBD,TBD,first-pass placeholder recipe
+tinkerers_workshop.force_package,Rare Metal,Input,TBD,TBD,first-pass placeholder recipe
+tinkerers_workshop.force_package,Overwhelming Force Package,Output,TBD,TBD,
+sawmill.lumber,Wood,Input,TBD,TBD,
+sawmill.lumber,Lumber,Output,TBD,TBD,
+carpenters_shop.fine_furniture,Lumber,Input,TBD,TBD,
+carpenters_shop.fine_furniture,Fine Furniture,Output,TBD,TBD,
+carpenters_shop.ornamental,Lumber,Input,TBD,TBD,
+carpenters_shop.ornamental,Stone,Input,TBD,TBD,or Concrete
+carpenters_shop.ornamental,Ornamental/Decorative Items,Output,TBD,TBD,
+carpenters_shop.wooden_plow,Lumber,Input,2,Needs Balancing,
+carpenters_shop.wooden_plow,Leather,Input,1,Needs Balancing,
+carpenters_shop.wooden_plow,Wooden Plow,Output,1,Needs Balancing,"passive stock-check item, not consumed once produced"
+carpenters_shop.tiny_trap,Wood,Input,TBD,TBD,
+carpenters_shop.tiny_trap,Fabric,Input,TBD,TBD,
+carpenters_shop.tiny_trap,Tiny Trap,Output,TBD,TBD,
+carpenters_shop.small_trap,Wood,Input,TBD,TBD,
+carpenters_shop.small_trap,Fabric,Input,TBD,TBD,
+carpenters_shop.small_trap,Small Trap,Output,TBD,TBD,
+medical_bay.biological_lab_materials,Grain,Input,TBD,TBD,
+medical_bay.biological_lab_materials,Glass,Input,TBD,TBD,
+medical_bay.biological_lab_materials,Biological Lab Materials,Output,TBD,TBD,
+medical_bay.ppe,Fabric,Input,TBD,TBD,
+medical_bay.ppe,Glass,Input,TBD,TBD,
+medical_bay.ppe,PPE,Output,TBD,TBD,
+medical_bay.emergency_kit,Fabric,Input,TBD,TBD,second input TBD
+medical_bay.emergency_kit,Emergency Medical Kit,Output,TBD,TBD,
+medical_bay.countermeasure_research,Biological Lab Materials,Input,TBD,TBD,

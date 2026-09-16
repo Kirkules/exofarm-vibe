@@ -1,0 +1,54 @@
+Item,Category,Notes
+Grain,Raw Farm Product,
+Fruit,Raw Farm Product,
+Milk,Raw Farm Product,"slated for removal — native-fauna pivot, see DESIGN_TODO"
+Eggs,Raw Farm Product,"slated for removal — native-fauna pivot, see DESIGN_TODO"
+Wool,Raw Farm Product,"slated for removal — native-fauna pivot, see DESIGN_TODO"
+Fiber/Cotton,Raw Farm Product,
+Wood,Raw Material,"two sources (Timber Grove ongoing, Clear-Cutting bounded); one fungible item"
+Pelts,Raw Farm Product,from Trapping
+Meat,Raw Farm Product,from Husbandry Cull; can be parasite-infected
+Iron Ore,Raw Material,
+Copper Ore,Raw Material,
+Stone,Raw Material,
+Rare Metal,Raw Material,generic placeholder — planet-specific named variants not yet authored
+Fossil Fuel,Raw Material,"hidden deposit, Fuel-based Generator upgrade-tier input only"
+Iron,Refined Material,refined from Iron Ore at Smelter
+Copper,Refined Material,refined from Copper Ore at Smelter
+Concrete,Refined Material,universal construction material
+Lumber,Refined Material,universal construction material
+Silicon,Refined Material,
+Glass,Refined Material,
+Fabric,Refined Material,"from Wool, Fiber/Cotton, or Pelts"
+Leather,Refined Material,tanned from Pelts
+Fertilizer,Refined Material,passive Husbandry Grazer/herd byproduct
+Herbs (generic),Seasoning,each planet type has its own roster of 2-3 named Herbs; not yet authored
+Spices (generic),Seasoning,each planet type has its own roster of 2-3 named Spices; not yet authored
+High-Tech Components,Fabricated Good,
+High-Resolution Screens,Fabricated Good,"Luxury Good, no functional use yet"
+Portable High-Powered Scanning Equipment,Fabricated Good,exploration-task consumable
+Leather Boots,Fabricated Good,Luxury Good
+Leather Backpack,Fabricated Good,exploration-task consumable
+Fine Furniture,Fabricated Good,"Luxury Good, no functional use"
+Ornamental/Decorative Items,Fabricated Good,"Luxury Good, no functional use"
+Wooden Plow,Fabricated Good,"passive stock-check item, not consumed"
+Tiny Trap,Fabricated Good,passive stock-check item (auto-consumed at Planning Lock-in)
+Small Trap,Fabricated Good,passive stock-check item (auto-consumed at Planning Lock-in)
+Temperature-Resistant Gear,Fabricated Good,passive stock-check item / exploration-task consumable
+Diplomatic Gear,Fabricated Good,exploration-task consumable (First Contact)
+Armed Expedition Kit,Fabricated Good,exploration-task consumable (Military Exploitation)
+Overwhelming Force Package,Fabricated Good,exploration-task consumable (Military Exploitation)
+Biological Lab Materials,Fabricated Good,Medical Bay countermeasure-research input
+PPE,Fabricated Good,passive stock-check item / exploration-task consumable
+Emergency Medical Kit,Fabricated Good,exploration-task consumable
+Bread,Meal,"base Kitchen recipe, Carbs-heavy"
+Fruit Dish,Meal,"base Kitchen recipe, Vitamins-heavy"
+Dairy Dish,Meal,base Kitchen recipe; slated for removal with Milk
+Egg Dish,Meal,base Kitchen recipe; slated for removal with Eggs
+Sandwich,Meal,upgraded Kitchen combo recipe
+Pasta Dish,Meal,upgraded Kitchen combo recipe
+Fruit Pastry,Meal,upgraded Kitchen combo recipe
+Custard Dish,Meal,upgraded Kitchen combo recipe (3-ingredient premium)
+Gourmet Dish (generic),Meal,"settler-specific invented recipe, one per Seasoning"
+Local Delicacy,Meal,unlocked via Peaceful Contact alliance
+Rations,Consumable,"flat sustenance, no PFCV profile; packaged output of Ration Press"

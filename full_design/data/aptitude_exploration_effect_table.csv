@@ -1,0 +1,7 @@
+Level,Effect,Design status,Notes
+1,Bad-outcome/injury chance reduced (r_new = 0.75 x r_old),Needs Balancing,
+2,Keeps effect of level 1; adds success-chance increase (p_new = p + 0.25(1-p)),Needs Balancing,
+3,Keeps effect of levels 1 and 2; adds +1 to resource-outcome maximums,Needs Balancing,
+-1,"Bad-outcome/injury chance increased instead (r_new = min(1.25 x r_old, 1.0))",Needs Balancing,
+-2,Keeps effect of level -1; adds success-chance decrease instead (p_new = 0.75 x p),Needs Balancing,
+-3,Keeps effect of levels -1 and -2; subtracts 1 from resource-outcome maximums instead,Needs Balancing,

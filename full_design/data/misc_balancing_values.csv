@@ -1,0 +1,43 @@
+Mechanic,Value name,Value,Design status,Notes
+Alien Soil,Growth-rate penalty (plant-crop passive transitions),-30%,Illustrative,removed for a season Fertilizer is available; permanently removed once hybridized
+Ration Press,Conversion ratio (fresh food -> Rations),TBD,TBD,lossy either way (packaged or Stockpile Fill); exact ratio TBD
+Food Storage,Capacity (base tier),TBD,TBD,deliberately scaled so base tier can't reach max NutritionStockpile alone
+Water Processing Plant (Reclamation),Water consumption-rate reduction,-20%,Illustrative,"farming-throughput upgrade, not settler-safety"
+Basic Deposit Survey,Guaranteed Mid-depth reveal,1,Needs Balancing,"within the chosen rectangle, if any exist"
+Basic Deposit Survey,Chance per remaining Mid-depth deposit,0.6,Illustrative,
+Deep Survey,Guaranteed Mid-depth reveal,1,Needs Balancing,scoped to flagged tiles
+Deep Survey,Guaranteed Deep reveal,1,Needs Balancing,scoped to flagged tiles
+Deep Survey,Chance per remaining Mid-depth deposit,0.9,Illustrative,
+Deep Survey,Chance per remaining Deep deposit,0.5,Illustrative,
+Scanner Station,"Deposit Scanning chance, Mid-depth",0.4,Illustrative,"per active season, any depth tier, no guarantee"
+Scanner Station,"Deposit Scanning chance, Deep",0.3,Illustrative,
+Medical Bay,"Preparedness(Bio-hazard), base tier",0.2,Illustrative,"available immediately, no data prerequisite"
+Medical Bay,"Preparedness(Bio-hazard), Biological Countermeasures tier",0.7,Illustrative,
+Medical Bay,Biological Countermeasures unlock threshold,Confidence(Bio-hazard) >= 0.5,Illustrative,"functional gate, not just a scoring nuance"
+Medical Bay,"Recovery capacity, base",1,Needs Balancing,
+Medical Bay,"Recovery capacity, upgraded",2,Needs Balancing,
+Weather Shield,"Preparedness contribution, base",0.3,Illustrative,
+Weather Shield,"Preparedness contribution, upgraded",0.6,Illustrative,
+Row Shield,Preparedness contribution,same as Weather Shield base,Illustrative,
+Robotics Assembly (drones),Battery recharge duration,~3s,Illustrative,roughly a fifth of a season; varies by drone type
+Kitchen,Gourmet 'moment of brilliance' chance,75%,Illustrative,one roll per distinct available Seasoning; scales with Kitchen skill
+Kitchen,Parasite cook-out success chance,75%,Illustrative,scales with Kitchen Experience/Aptitude; failure destroys ingredient
+Wooden Plow,Planting/prep-transition speedup,at least -50%,Illustrative,"Farming-Specialized Drone gets this inherently, stacked with its Effort multiplier"
+Husbandry,Capture success-chance formula,TBD,TBD,species difficulty x worker Husbandry Aptitude -> %; no species-difficulty data authored yet
+Trapping,Per-settler yield rate,TBD,TBD,scales with planet biological richness and Forest presence
+Clear-Cutting,Per-settler speed rate,TBD,TBD,
+Exploration Tasks,Manual reroll cost,TBD,TBD,flat Rations amount; Scanner Station upgrades may reduce it
+Exploration Tasks,"Pool size, base",3,Needs Balancing,
+Exploration Tasks,"Pool size, max",5,Needs Balancing,"+1 from a Scanner Station upgrade tier, +1 from Research Lab's Expanded Reconnaissance Doctrine"
+Storm,"Severely-under-covered building destruction chance (extreme severity, other buildings)",TBD,TBD,"small chance, per unprotected building"
+Temperature Extremity,"Settler death probability, extreme exposure",TBD,TBD,explicitly open in DESIGN_TODO
+Atmospheric Hazard,Status-effect duration after exposure,~3s,Illustrative,"roughly, Mid-Sim time"
+Run Structure,Run length,15 seasons,Needs Balancing,no diegetic justification yet; flagged for revisit in DESIGN_TODO
+Crew Selection,Starting crew size,5,Needs Balancing,"resolved this session, was 3-4"
+Storied,legend_value threshold,TBD,TBD,explicitly open in DESIGN_TODO
+Construction,"Fence-tile robot budget (N per season, settlement-wide)",TBD,TBD,
+Escalation Chains,Concurrent Trade Agreement cap,3,Needs Balancing,
+Specialization,Base mass budget,affords exactly 1 atomic pool element,Needs Balancing,grows via Meta-progression redesign (not yet designed)
+Rations,Starting stock quantity,TBD,TBD,"fixed, non-replenishable"
+Risk Spectrum,"Legends bonus, injury (any risk-bearing task)",TBD,TBD,"large; general reward whenever a task's independent risk roll injures a settler, not just Legend-flavor tasks; stacks separately with any task-specific legend_value"
+Risk Spectrum,"Legends bonus, death (any risk-bearing task)",TBD,TBD,"moderate; smaller than the injury bonus since the settler survives injury to keep contributing to the colony's story, but doesn't after death"

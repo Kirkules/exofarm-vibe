@@ -1,0 +1,29 @@
+Planet,Sub-factor,Value,Design status,Notes
+Volcanic,Storm Severity/Frequency,0.5,Needs Balancing,
+Volcanic,Temperature Extremity,0.6,Needs Balancing,
+Volcanic,Atmospheric Hazard,0.5,Needs Balancing,
+Volcanic,TrueRisk(Weather),"=ROUND((C2+C3+C4)/3,2)",Needs Balancing,(arithmetic mean of the three Weather sub-factors above)
+Verdant/Temperate,Storm Severity/Frequency,0.1,Needs Balancing,
+Verdant/Temperate,Temperature Extremity,0.05,Needs Balancing,
+Verdant/Temperate,Atmospheric Hazard,0.05,Needs Balancing,
+Verdant/Temperate,TrueRisk(Weather),"=ROUND((C6+C7+C8)/3,2)",Needs Balancing,(arithmetic mean of the three Weather sub-factors above)
+Arid/Desert,Storm Severity/Frequency,0.3,Needs Balancing,
+Arid/Desert,Temperature Extremity,0.4,Needs Balancing,
+Arid/Desert,Atmospheric Hazard,0.15,Needs Balancing,
+Arid/Desert,TrueRisk(Weather),"=ROUND((C10+C11+C12)/3,2)",Needs Balancing,(arithmetic mean of the three Weather sub-factors above)
+Frozen/Ice,Storm Severity/Frequency,0.2,Needs Balancing,
+Frozen/Ice,Temperature Extremity,0.65,Needs Balancing,
+Frozen/Ice,Atmospheric Hazard,0.2,Needs Balancing,
+Frozen/Ice,TrueRisk(Weather),"=ROUND((C14+C15+C16)/3,2)",Needs Balancing,(arithmetic mean of the three Weather sub-factors above)
+Volcanic,Pathogen Threat,0.1,Needs Balancing,
+Volcanic,Toxic/Parasitic Organism Threat,0.1,Needs Balancing,
+Volcanic,TrueRisk(Bio-hazard),"=ROUND((C18+C19)/2,2)",Needs Balancing,(arithmetic mean of the two Bio-hazard sub-factors above)
+Verdant/Temperate,Pathogen Threat,0.4,Needs Balancing,
+Verdant/Temperate,Toxic/Parasitic Organism Threat,0.45,Needs Balancing,
+Verdant/Temperate,TrueRisk(Bio-hazard),"=ROUND((C21+C22)/2,2)",Needs Balancing,(arithmetic mean of the two Bio-hazard sub-factors above)
+Arid/Desert,Pathogen Threat,0.15,Needs Balancing,
+Arid/Desert,Toxic/Parasitic Organism Threat,0.2,Needs Balancing,
+Arid/Desert,TrueRisk(Bio-hazard),"=ROUND((C24+C25)/2,2)",Needs Balancing,(arithmetic mean of the two Bio-hazard sub-factors above)
+Frozen/Ice,Pathogen Threat,0.1,Needs Balancing,
+Frozen/Ice,Toxic/Parasitic Organism Threat,0.05,Needs Balancing,
+Frozen/Ice,TrueRisk(Bio-hazard),"=ROUND((C27+C28)/2,2)",Needs Balancing,(arithmetic mean of the two Bio-hazard sub-factors above)

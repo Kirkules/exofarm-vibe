@@ -1,0 +1,85 @@
+Building,Item,Quantity,Design status,Notes
+Solar Array,Lumber,TBD,TBD,"doc also lists 'Energy' as a cost input — stale, Energy has no stockpile to spend; see audit 5-SF3"
+Solar Array,Concrete,TBD,TBD,
+Geothermal Generator,Lumber,TBD,TBD,ratio TBD
+Geothermal Generator,Concrete,TBD,TBD,ratio TBD
+Geothermal Generator,Iron,TBD,TBD,
+Fuel-based Generator I,Lumber,TBD,TBD,"deliberately cheap, common materials only"
+Fuel-based Generator I,Concrete,TBD,TBD,
+Fuel-based Generator I,Iron,TBD,TBD,
+Grain Field,Lumber,TBD,TBD,ratio TBD
+Grain Field,Concrete,TBD,TBD,ratio TBD
+Fiber Field,Lumber,TBD,TBD,ratio TBD
+Fiber Field,Concrete,TBD,TBD,ratio TBD
+Fruit Orchard,Lumber,TBD,TBD,ratio TBD
+Fruit Orchard,Concrete,TBD,TBD,ratio TBD
+Timber Grove,Lumber,TBD,TBD,ratio TBD
+Timber Grove,Concrete,TBD,TBD,ratio TBD
+Dairy Pasture,Lumber,TBD,TBD,ratio TBD; slated for removal
+Dairy Pasture,Concrete,TBD,TBD,ratio TBD; slated for removal
+Poultry Coop,Lumber,TBD,TBD,ratio TBD; slated for removal
+Poultry Coop,Concrete,TBD,TBD,ratio TBD; slated for removal
+Sheep Pasture,Lumber,TBD,TBD,ratio TBD; slated for removal
+Sheep Pasture,Concrete,TBD,TBD,ratio TBD; slated for removal
+Husbandry Site,Lumber,TBD,TBD,ratio TBD
+Husbandry Site,Concrete,TBD,TBD,ratio TBD
+Mine,Lumber,TBD,TBD,ratio TBD
+Mine,Concrete,TBD,TBD,ratio TBD
+Mine,Stone,1,Needs Balancing,
+Quarry,Lumber,small amount,TBD,deliberately cheap — bootstrapping building
+Rare Metal Extractor,Lumber,TBD,TBD,ratio TBD
+Rare Metal Extractor,Concrete,TBD,TBD,ratio TBD
+Rare Metal Extractor,Stone,2,Needs Balancing,
+Water Reclamation Plant,Lumber,TBD,TBD,
+Water Reclamation Plant,Concrete,TBD,TBD,
+Water Reclamation Plant,High-Tech Components,TBD,TBD,
+Water Condenser,Lumber,TBD,TBD,ratio TBD
+Water Condenser,Concrete,TBD,TBD,ratio TBD
+Ice Melter,Lumber,TBD,TBD,ratio TBD
+Ice Melter,Concrete,TBD,TBD,ratio TBD
+Cistern,Lumber,TBD,TBD,ratio TBD
+Cistern,Concrete,TBD,TBD,ratio TBD
+Well,Lumber,TBD,TBD,ratio TBD
+Well,Concrete,TBD,TBD,ratio TBD
+Scanner Station,Stone,TBD,TBD,
+Scanner Station,Iron,TBD,TBD,
+Scanner Station,Copper,TBD,TBD,
+Scanner Station,High-Tech Components,TBD,TBD,
+Scanner Station,High-Resolution Screens,TBD,TBD,
+Research Lab,Lumber,TBD,TBD,ratio TBD
+Research Lab,Concrete,TBD,TBD,ratio TBD
+Research Lab,High-Tech Components,TBD,TBD,
+Cafeteria,Lumber,TBD,TBD,ratio TBD
+Cafeteria,Concrete,TBD,TBD,ratio TBD
+Ration Press,Lumber,TBD,TBD,same tier as other starting-adjacent buildings
+Ration Press,Concrete,TBD,TBD,
+Robotics Assembly,Lumber,TBD,TBD,ratio TBD
+Robotics Assembly,Concrete,TBD,TBD,ratio TBD
+Robotics Assembly,Iron,TBD,TBD,
+Robotics Assembly,Copper,TBD,TBD,
+Smelter,Lumber,TBD,TBD,ratio TBD
+Smelter,Concrete,TBD,TBD,ratio TBD
+Smelter,Stone,TBD,TBD,
+Textile Workshop,Lumber,TBD,TBD,ratio TBD
+Textile Workshop,Concrete,TBD,TBD,ratio TBD
+Tinkerer's Workshop,Lumber,TBD,TBD,ratio TBD
+Tinkerer's Workshop,Concrete,TBD,TBD,ratio TBD
+Tinkerer's Workshop,Iron,TBD,TBD,
+Tinkerer's Workshop,Copper,TBD,TBD,
+Tinkerer's Workshop,Silicon,TBD,TBD,most materially demanding Fabrication building cost
+Weather Shield,Concrete,TBD,TBD,
+Weather Shield,Iron,TBD,TBD,
+Weather Shield II,High-Tech Components,TBD,TBD,"additional, on top of base cost"
+Row Shield,Concrete,TBD,TBD,strictly between Weather Shield base and (base+upgrade) combined
+Row Shield,Iron,TBD,TBD,strictly between Weather Shield base and (base+upgrade) combined
+Medical Bay,Fabric,TBD,TBD,ratio TBD
+Medical Bay,Lumber,TBD,TBD,ratio TBD
+Medical Bay,Concrete,TBD,TBD,ratio TBD
+Medical Bay,High-Tech Components,TBD,TBD,
+Hospital,Biological Lab Materials,TBD,TBD,replaces additional High-Tech Components
+Food Storage,Lumber,TBD,TBD,ratio TBD
+Food Storage,Concrete,TBD,TBD,ratio TBD
+Crew Quarters,Lumber,modest,TBD,ratio TBD
+Crew Quarters,Concrete,modest,TBD,ratio TBD
+Luxury Living Quarters,Lumber,"Crew Quarters cost, plus refined goods",TBD,exact refined-goods set TBD
+Luxury Living Quarters,Concrete,"Crew Quarters cost, plus refined goods",TBD,exact refined-goods set TBD

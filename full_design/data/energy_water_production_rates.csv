@@ -1,0 +1,12 @@
+Building,Resource,Income type,Rate,Design status,Notes
+Settlement Base,Energy,Reliable,TBD,TBD,rate varies by planet type
+Solar Array,Energy,Reliable,TBD,TBD,rate varies by planet type
+Solar Array II,Energy,Reliable,TBD,TBD,higher than base
+Geothermal Generator,Energy,Reliable,TBD,TBD,meaningfully above Solar Array's Volcanic-tier rate
+Geothermal Generator II,Energy,Reliable,TBD,TBD,
+Fuel-based Generator I,Energy,Conditional,TBD,TBD,contributes only while actively burning
+Fuel-based Generator II,Energy,Conditional,TBD,TBD,meaningfully higher return per unit than Wood
+Water Condenser,Water,N/A,TBD,TBD,best on Volcanic
+Ice Melter,Water,N/A,TBD,TBD,Frozen-exclusive
+Cistern,Water,N/A,TBD,TBD,best on Verdant
+Well,Water,N/A,TBD,TBD,"relatively low rate; on a detected-aquifer tile auto-becomes Deep Well at a higher rate (same building, no separate build choice, rate TBD separately)"

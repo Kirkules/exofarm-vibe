@@ -1,0 +1,5 @@
+Best quarters standing,Status,Effort multiplier,Design status,Notes
+no quarters building stands at all,Poor Sleep,0.75,Needs Balancing,on-site work only; drones unaffected
+Settlement Base only (powered or not),"(neutral, no status)",1.0,Needs Balancing,baseline
+"Crew Quarters, powered",Good Sleep,1.10,Needs Balancing,"un-powered falls back to neutral, not Poor"
+"Luxury Living Quarters, powered",Great Sleep,1.15,Needs Balancing,"un-powered falls back to neutral, not Poor"

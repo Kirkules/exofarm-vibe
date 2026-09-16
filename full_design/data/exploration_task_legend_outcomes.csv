@@ -1,0 +1,6 @@
+Task,Flavor,Base success chance,Legend value,Design status,Notes
+Reach-the-deepest-X,Achievement,"40-50% baseline, higher with gear",TBD,Illustrative,"on failure: chance of injury, else nothing"
+Chart-the-Y,Achievement,"40-50% baseline, higher with scanner",TBD,Illustrative,"on failure: chance of injury, else nothing"
+Bioluminescent Bloom,Wonder,guaranteed (100%),TBD,Needs Balancing,no attempt to fail
+Aurora Readings,Wonder,guaranteed (100%),TBD,Needs Balancing,also a Confidence(Weather) burst
+Crystal Caves,Wonder,guaranteed (100%),TBD,Needs Balancing,"flavor only, non-extractable"

@@ -1,0 +1,13 @@
+Task,Reward group,Item,Min,Max,Condition,Receipt Probability,Design status,Notes
+Wild Orchard Grove,A,Fruit,2,5,Base,TBD,Illustrative,co-occurs with Grain (same reward group: fires together or not at all)
+Wild Orchard Grove,A,Grain,2,5,Base,TBD,Illustrative,
+Predator's Larder,A,Milk,2,5,Base,TBD,Illustrative,co-occurs with Eggs (same reward group); slated for removal
+Predator's Larder,A,Eggs,2,5,Base,TBD,Illustrative,slated for removal
+Abandoned Settlement,A,Rations,2,4,Base,TBD,Illustrative,preserved food
+Exposed Mineral Outcrop,A,Iron Ore,3,6,Base,TBD,Illustrative,mixed with Copper Ore
+Exposed Mineral Outcrop,A,Copper Ore,3,6,Base,TBD,Illustrative,
+Unusual Rock Formation,A,Stone,3,6,Base,TBD,Illustrative,
+Crashed Debris Field,A,Rare Metal,2,4,Base,1,Illustrative,the only Receipt Probability value decided so far; own reward group since it doesn't always co-occur with High-Tech Components
+Crashed Debris Field,B,High-Tech Components,1,2,Optional-item-brought,TBD,Illustrative,only rolled if scanner brought
+Unusual Crystalline Growth,A,Rare Metal,1,3,Base,TBD,Illustrative,
+Ice Reinforcing,A,Rare Metal,2,4,Base,TBD,Illustrative,insulation flavor

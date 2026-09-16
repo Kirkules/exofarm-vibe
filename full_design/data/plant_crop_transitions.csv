@@ -1,0 +1,16 @@
+Building,Initial State,Resulting State,Base duration (s),Design status,Notes
+Grain Field,unprepared,plowed,2,Needs Balancing,Effort-driven; Wooden Plow / Farming-Specialized Drone bonus
+Grain Field,plowed,growing,1,Needs Balancing,Effort-driven
+Grain Field,growing,harvestable,3,Needs Balancing,Alien Soil/Hybridization-driven; draws Water
+Grain Field,harvestable,unprepared,1,Needs Balancing,Effort-driven; 1 Grain added on completion
+Fiber Field,unprepared,plowed,2,Needs Balancing,Effort-driven; Wooden Plow / Farming-Specialized Drone bonus
+Fiber Field,plowed,growing,1,Needs Balancing,Effort-driven
+Fiber Field,growing,harvestable,4,Needs Balancing,Alien Soil/Hybridization-driven; draws Water
+Fiber Field,harvestable,unprepared,1,Needs Balancing,Effort-driven; 1 Fiber/Cotton added on completion
+Fruit Orchard,unprepared,planted,1,Needs Balancing,Effort-driven; Wooden Plow / Farming-Specialized Drone bonus
+Fruit Orchard,planted,mature,30,Needs Balancing,one-time establishment; draws Water
+Fruit Orchard,mature,fruiting,3-5 (re-rolled each cycle),Needs Balancing,draws Water; 1 Fruit added on completion of fruiting->mature
+Fruit Orchard,fruiting,mature,1,Needs Balancing,Effort-driven
+Timber Grove,unprepared,growing,1,Needs Balancing,Effort-driven; Wooden Plow / Farming-Specialized Drone bonus
+Timber Grove,growing,cycle-harvestable,15,Needs Balancing,one-time establishment; draws Water
+Timber Grove,cycle-harvestable,cycle-harvestable,5,Needs Balancing,"self-loop; progresses without a worker; only completes (adds 1 Wood, restarts) with a worker present"

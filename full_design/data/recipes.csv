@@ -1,0 +1,56 @@
+Recipe ID,Building,Recipe name,Production time (s),Design status,Notes
+mine.ore,Mine,Ore extraction,4,Needs Balancing,output mix drawn from deposit's Iron/Copper percentage split
+quarry.stone,Quarry,Stone extraction,3,Needs Balancing,
+rare_metal_extractor.rare_metal,Rare Metal Extractor,Rare metal extraction,8,Needs Balancing,"slower, reflecting rarity"
+dairy_pasture.milk,Dairy Pasture,Milk,5,Needs Balancing,slated for removal
+poultry_coop.eggs,Poultry Coop,Eggs,3,Needs Balancing,slated for removal
+sheep_pasture.wool,Sheep Pasture,Wool,5,Needs Balancing,slated for removal
+water_condenser.water,Water Condenser,Water collection,TBD,TBD,rate TBD
+ice_melter.water,Ice Melter,Water collection,TBD,TBD,rate TBD
+cistern.water,Cistern,Water collection,TBD,TBD,rate TBD
+well.water,Well,Water collection,TBD,TBD,"relatively low rate; Deep Well is a higher rate, same recipe"
+kitchen.bread,Cafeteria,Bread,TBD,TBD,base recipe
+kitchen.fruit_dish,Cafeteria,Fruit Dish,TBD,TBD,base recipe
+kitchen.dairy_dish,Cafeteria,Dairy Dish,TBD,TBD,base recipe; slated for removal with Milk
+kitchen.egg_dish,Cafeteria,Egg Dish,TBD,TBD,base recipe; slated for removal with Eggs
+kitchen.sandwich,Kitchen,Sandwich,TBD,TBD,upgraded-tier combo recipe
+kitchen.pasta_dish,Kitchen,Pasta Dish,TBD,TBD,upgraded-tier combo recipe
+kitchen.fruit_pastry,Kitchen,Fruit Pastry,TBD,TBD,upgraded-tier combo recipe
+kitchen.custard_dish,Kitchen,Custard Dish,TBD,TBD,"upgraded-tier combo recipe, 3-ingredient premium"
+kitchen.gourmet,Kitchen,Gourmet Dish (generic),TBD,TBD,settler-specific; one per invented Seasoning; 75% brilliance chance
+kitchen.local_delicacy,Kitchen,Local Delicacy,TBD,TBD,unlocked via Peaceful Contact alliance
+ration_press.rations,Ration Press,Packaged Rations,TBD,TBD,lossy conversion; player-selected inputs
+ration_press.stockpile_fill,Ration Press,Stockpile Fill,TBD,TBD,routes bulk sustenance to Food Storage
+food_storage.extraction,Food Storage,Extraction (bulk -> Rations),TBD,TBD,deliberately poor rate; last-resort valve
+robotics_assembly.construction_robot,Robotics Assembly,Construction Robot,TBD,TBD,base tier
+robotics_assembly.all_purpose_basic,Robotics Assembly,All-Purpose Drone (Basic),TBD,TBD,base tier
+robotics_assembly.specialized_basic,Robotics Assembly,Specialized Drone (Basic),TBD,TBD,one recipe per Experience group; base tier; requires matching structure already built
+robotics_assembly.advance_all_purpose,Robotics Assembly,Advance All-Purpose Drone (upgrade-in-place),TBD,TBD,requires Upgraded Robotics Assembly
+robotics_assembly.advance_specialized,Robotics Assembly,Advance Specialized Drone (upgrade-in-place),TBD,TBD,requires Upgraded Robotics Assembly
+robotics_assembly.harden,Robotics Assembly,Harden (upgrade-in-place),TBD,TBD,applies to either tier of either line
+stone_processing.concrete,Stone Processing I,Concrete,TBD,TBD,
+stone_processing.silicon,Stone Processing II,Silicon,TBD,TBD,
+stone_processing.glass,Stone Processing II,Glass,TBD,TBD,
+smelter.iron,Smelter,Iron,TBD,TBD,ratio TBD
+smelter.copper,Smelter,Copper,TBD,TBD,ratio TBD
+textile_workshop.fabric,Textile Workshop,Fabric,TBD,TBD,"player selects Wool, Fiber/Cotton, or Pelts as input"
+textile_workshop.leather,Textile Workshop,Leather (tanning),TBD,TBD,
+textile_workshop.leather_boots,Textile Workshop,Leather Boots,TBD,TBD,requires Upgraded Textile Workshop
+textile_workshop.leather_backpack,Textile Workshop,Leather Backpack,TBD,TBD,
+tinkerers_workshop.htc,Tinkerer's Workshop,High-Tech Components,TBD,TBD,mid-game chokepoint — sole consumer of both Silicon and Glass
+tinkerers_workshop.screens,Tinkerer's Workshop,High-Resolution Screens,TBD,TBD,
+tinkerers_workshop.scanning_equipment,Tinkerer's Workshop,Portable High-Powered Scanning Equipment,TBD,TBD,
+tinkerers_workshop.temp_gear,Inventor's Workshop,Temperature-Resistant Gear,TBD,TBD,player selects Fabric or Leather as one input
+tinkerers_workshop.diplomatic_gear,Inventor's Workshop,Diplomatic Gear,TBD,TBD,player selects (Silicon+Copper) or (Fabric) input path
+tinkerers_workshop.armed_kit,Inventor's Workshop,Armed Expedition Kit,TBD,TBD,
+tinkerers_workshop.force_package,Inventor's Workshop,Overwhelming Force Package,TBD,TBD,first-pass placeholder recipe
+sawmill.lumber,Sawmill,Lumber,TBD,TBD,
+carpenters_shop.fine_furniture,Carpenter's Shop,Fine Furniture,TBD,TBD,"Luxury Good, no functional use"
+carpenters_shop.ornamental,Carpenter's Shop,Ornamental/Decorative Items,TBD,TBD,"Luxury Good, no functional use"
+carpenters_shop.wooden_plow,Carpenter's Shop,Wooden Plow,TBD,TBD,
+carpenters_shop.tiny_trap,Carpenter's Shop,Tiny Trap,TBD,TBD,
+carpenters_shop.small_trap,Carpenter's Shop,Small Trap,TBD,TBD,
+medical_bay.biological_lab_materials,Medical Bay,Biological Lab Materials,TBD,TBD,meant to be quick per cycle
+medical_bay.ppe,Medical Bay,PPE,TBD,TBD,no Confidence-gating
+medical_bay.emergency_kit,Medical Bay,Emergency Medical Kit,TBD,TBD,"low-tier, no HTC"
+medical_bay.countermeasure_research,Hospital,Countermeasure research,TBD,TBD,resolves one random encountered/confirmed threat per cycle

@@ -1,0 +1,3 @@
+Tier,Blocks sizes,Cost,Vulnerable to,Design status,Notes
+Wood,"medium, large",1 Lumber per 4 enclosed tiles,"huge (guaranteed/tick), titan (guaranteed)",Needs Balancing,
+Concrete,"medium, large, huge",1 Concrete per 3 enclosed tiles,"huge (25%/tick), titan (guaranteed)",Needs Balancing,

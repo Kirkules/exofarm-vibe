@@ -1,0 +1,6 @@
+Sub-factor,Data source,Success condition,Failure condition,Player text (success),Player text (failure),Design status,Notes
+Storm Severity/Frequency,"Scanner Station Weather Sensing (staffed, base tier) or a weather balloon (exploration task)",Storm event detected in the window,Calm conditions,Storm activity detected,Conditions calm.,Needs Balancing,one reading/season while active
+Temperature Extremity,"Scanner Station Weather Sensing, or a dedicated probe",Window registered a temperature swing extreme enough to threaten human safety,Temperatures stayed within safe range,Extreme temperature swing recorded,Temperatures within safe range.,Needs Balancing,
+Atmospheric Hazard,Atmospheric sampling (exploration task),Sample contained toxic/corrosive compounds above a safe threshold,Clean sample,Atmospheric sample: hazardous compounds detected,Atmospheric sample: clean.,Needs Balancing,
+Pathogen Threat,Bio-survey exploration task or Medical/Research facility,Sampled organism/environment tested positive for a dangerous pathogen,Clean sample,Pathogen detected in sample,No pathogens detected.,Needs Balancing,
+Toxic/Parasitic Organism Threat,Exploration tasks encountering wildlife,Encountered organism proved dangerous (venomous/toxic),Organisms encountered were benign,Dangerous organism encountered,Wildlife encountered was benign.,Needs Balancing,

@@ -11,6 +11,11 @@ by Claude — never the formula source directly, and never by hand.
 *.values.csv is gitignored and regenerated on demand; only the source CSVs
 and this script are committed.
 
+Every data row is required to have the same field count as the header row
+(a hard error otherwise) — this catches an unquoted comma inside a cell
+value silently shifting that row's columns, which csv.reader alone would
+parse without complaint.
+
 Supported formula subset (deliberately small — anything needing more than
 this should just be a plain authored value instead):
   - Arithmetic: + - * / ( ) and unary minus
@@ -240,6 +245,22 @@ def apply_op(op, a, b):
     raise FormulaError(f"unknown operator {op!r}")
 
 
+def round_half_up(value, digits):
+    """Python's builtin round() rounds half-to-even on the float's exact
+    binary value, so e.g. round(0.85 / 2, 2) gives 0.42, not the 0.43 a
+    human doing the arithmetic in decimal would expect (0.85/2 is exactly
+    0.425 in decimal, but not exactly representable in binary floating
+    point). Routing through Decimal(repr(value)) recovers the shortest
+    decimal string that produced that float — which is what a spreadsheet
+    formula's author actually meant — then rounds half-away-from-zero on
+    that, matching ordinary decimal-rounding expectations.
+    """
+    from decimal import Decimal, ROUND_HALF_UP
+    quantum = Decimal(1).scaleb(-digits)
+    result = Decimal(repr(value)).quantize(quantum, rounding=ROUND_HALF_UP)
+    return float(result) if digits > 0 else int(result)
+
+
 def call_function(name, args):
     if name == "SUM":
         return sum(args)
@@ -249,7 +270,7 @@ def call_function(name, args):
         return max(args)
     if name == "ROUND":
         value, digits = args
-        return round(value, int(digits))
+        return round_half_up(value, int(digits))
     if name == "CEILING":
         import math
         sig = args[1] if len(args) > 1 else 1
@@ -272,9 +293,34 @@ def format_value(value):
     return str(value)
 
 
-def process_file(path):
+def check_row_shape(grid):
+    """Every data row must have the same field count as the header row.
+    Raises FormulaError naming the offending row otherwise — this catches an
+    unquoted comma inside a cell value silently shifting that row's columns,
+    which csv.reader alone would parse without complaint. Shared with
+    check_data.py so the same rule applies whether a file is being built
+    into *.values.csv or just being integrity-checked on its own.
+    """
+    if not grid:
+        return
+    width = len(grid[0])
+    for i, row in enumerate(grid[1:], start=2):
+        if row and len(row) != width:
+            raise FormulaError(
+                f"row {i} has {len(row)} fields, expected {width} (header has "
+                f"{width}) — likely an unquoted comma inside a cell value: {row!r}"
+            )
+
+
+def read_grid(path):
     with open(path, newline="", encoding="utf-8") as f:
-        grid = list(csv.reader(f))
+        return list(csv.reader(f))
+
+
+def process_file(path):
+    grid = read_grid(path)
+    check_row_shape(grid)
+
     evaluator = Evaluator(grid)
     out_grid = []
     for r, row in enumerate(grid):

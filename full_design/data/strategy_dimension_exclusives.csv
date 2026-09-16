@@ -1,0 +1,9 @@
+Planet,Type,Description,Strategy dimension,Design status,Notes
+Verdant/Temperate,Reinforcing,"Efficiently-farmable, broad-nutritive-value native plants",Biosphere Integration,Needs Balancing,
+Verdant/Temperate,Profile-shifting,Concentrated mineral vein in deep jungle/cave exploration,Protection/Enclosure and Energy Management,Needs Balancing,
+Volcanic,Reinforcing,Exceptionally potent shielding-material vein in active volcanic zones; unlocks high-grade protection tier,Protection/Enclosure,Needs Balancing,
+Volcanic,Profile-shifting,Hardy fungi/lichen thriving in lava-tube caves,Biosphere Integration,Needs Balancing,
+Arid/Desert,Reinforcing,"Hidden aquifer/oasis, dramatically boosts synthesis/hydroponic efficiency",Synthesis/Self-Sufficiency,Needs Balancing,
+Arid/Desert,Profile-shifting,"Dormant seed bank preserved by desert conditions, revives ancient native flora",Biosphere Integration,Needs Balancing,
+Frozen/Ice,Reinforcing,Ice-core samples yielding exotic cold-adapted insulation material,Protection/Enclosure and Energy Management,Needs Balancing,
+Frozen/Ice,Profile-shifting,"Subsurface geothermal vents (cryovolcanism), warmth-pocket life or synthesis opportunities",Biosphere Integration or Synthesis/Self-Sufficiency,Needs Balancing,

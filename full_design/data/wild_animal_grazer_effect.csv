@@ -1,0 +1,5 @@
+Tier,Effect on that cycle's harvest,Design status,Notes
+low,-1 to the harvest range's minimum,Needs Balancing,clamped >= 0
+moderate,-1 to the rolled harvest amount,Needs Balancing,clamped >= 0
+high,-2 to the rolled amount,Needs Balancing,clamped >= 0
+overrunning,harvest -> 0,Needs Balancing,

@@ -1,0 +1,54 @@
+Building,Category,Staffing,Indoor/Outdoor,Grid slots,Repeatable,Upgrade of,Design status,Notes
+Settlement Base,Basic Resource Production / Habitation,Unstaffed,N/A,1,No,,Needs Balancing,also houses crew quarters; cannot be rebuilt if destroyed
+Settlement Base II,Basic Resource Production / Habitation,Unstaffed,N/A,1,No,Settlement Base,Needs Balancing,keeps quarters
+Solar Array,Basic Resource Production,Unstaffed,N/A,1,Yes,,Needs Balancing,
+Solar Array II,Basic Resource Production,Unstaffed,N/A,1,Yes,Solar Array,Needs Balancing,path toward eventual Fusion Generator
+Geothermal Generator,Basic Resource Production,Unstaffed,N/A,1,Yes (capped by Thermal Vents),,Needs Balancing,"Volcanic-exclusive, built on Thermal Vent"
+Geothermal Generator II,Basic Resource Production,Unstaffed,N/A,1,Yes (capped by Thermal Vents),Geothermal Generator,Needs Balancing,
+Fuel-based Generator I,Basic Resource Production,Unstaffed,N/A,1,Yes,,Needs Balancing,Conditional Energy income; burns Wood
+Fuel-based Generator II,Basic Resource Production,Unstaffed,N/A,1,Yes,Fuel-based Generator I,Needs Balancing,unlocks burning Fossil Fuel; no further upgrade path
+Grain Field,Farm/Production,Staffed,Outdoor,1,Yes,,Needs Balancing,"4-state persistent cycle, see plant_crop_transitions.csv"
+Fruit Orchard,Farm/Production,Staffed,Outdoor,1,Yes,,Needs Balancing,one-time establishment + repeating fruit loop
+Fiber Field,Farm/Production,Staffed,Outdoor,1,Yes,,Needs Balancing,same shape as Grain Field
+Timber Grove,Farm/Production,Staffed,Outdoor,1,Yes,,Needs Balancing,one-time establishment + self-loop harvest
+Hydroponic Farm,Farm/Production,Staffed,Indoor,1,Yes,,TBD,Grain or Fiber recipe; slower than outdoor; no Wooden Plow bonus
+Dairy Pasture,Farm/Production,Staffed,Outdoor,1,Yes,,Needs Balancing,slated for removal — native-fauna pivot
+Poultry Coop,Farm/Production,Staffed,Outdoor,1,Yes,,Needs Balancing,slated for removal — native-fauna pivot
+Sheep Pasture,Farm/Production,Staffed,Outdoor,1,Yes,,Needs Balancing,slated for removal — native-fauna pivot
+Husbandry Site,Farm/Production,Staffed,Outdoor,1,Yes,,Needs Balancing,species-agnostic; committed to one species per Capture
+Husbandry Site (Titan-tier),Farm/Production,Staffed,Outdoor,2,Yes,Husbandry Site,Needs Balancing,required for Titan-sized animals only; free relocation on upgrade
+Mine,Deposit Discovery,Staffed,Outdoor,1,Yes,,Needs Balancing,built on Iron/Copper Ore deposit
+Quarry,Deposit Discovery,Staffed,Outdoor,1,Yes,,Needs Balancing,built on Stone deposit; deliberately cheap (bootstrap)
+Rare Metal Extractor,Deposit Discovery,Staffed,Outdoor,1,Yes,,Needs Balancing,built on rare-metal deposit
+Water Processing Plant,Water (Utilities),N/A,N/A,1,No,,Needs Balancing,starting building; prerequisite for all Water collection
+Water Reclamation Plant,Water (Utilities),N/A,N/A,1,No,Water Processing Plant,Needs Balancing,settlement-wide Water consumption reduction
+Water Condenser,Water (Utilities),Staffed,Outdoor,1,Yes,,Needs Balancing,best on Volcanic
+Ice Melter,Water (Utilities),Staffed,Outdoor,1,Yes,,Needs Balancing,Frozen-exclusive
+Cistern,Water (Utilities),Staffed,Outdoor,1,Yes,,Needs Balancing,best on Verdant
+Well,Water (Utilities),Staffed,Outdoor,1,Yes,,Needs Balancing,auto-becomes Deep Well on a detected aquifer tile
+Scanner Station,Utilities,Staffed,Indoor,1,Yes,,Needs Balancing,multi-recipe: Weather Sensing / Deposit Scanning
+Scanner Station II,Utilities,Unstaffed,N/A,1,Yes,Scanner Station,Needs Balancing,still one active mode at a time
+Scanner Station III,Utilities,Unstaffed,N/A,1,Yes,Scanner Station II,Needs Balancing,all modes simultaneously
+Research Lab,Utilities,Staffed,Indoor,1,Yes,,Needs Balancing,"resource-gated, not research-points-gated"
+Cafeteria,Food/Meal Conversion,Staffed,Indoor,1,Yes,,Needs Balancing,N simultaneous recipe slots = grid footprint
+Kitchen,Food/Meal Conversion,Staffed,Indoor,2,Yes,Cafeteria,Needs Balancing,"2 slots, unlocks combo recipes"
+Ration Press,Food/Meal Conversion,Unstaffed,N/A,1,Yes,,Needs Balancing,"cycle-based, two recipes (Packaged Rations / Stockpile Fill)"
+Robotics Assembly,Fabrication,Staffed,Indoor,1,Yes,,Needs Balancing,Settler or All-Purpose Drone
+Robotics Assembly II,Fabrication,Staffed,Indoor,1,Yes,Robotics Assembly,Needs Balancing,gates Advance/Harden upgrade-in-place recipes
+Stone Processing I,Fabrication,Staffed,Indoor,1,Yes,,Needs Balancing,starting building
+Stone Processing II,Fabrication,Staffed,Indoor,1,Yes,Stone Processing I,Needs Balancing,"unlocks Silicon, Glass"
+Smelter,Fabrication,Staffed,Indoor,1,Yes,,Needs Balancing,"Iron Ore -> Iron, Copper Ore -> Copper"
+Textile Workshop,Fabrication,Staffed,Indoor,1,Yes,,Needs Balancing,
+Tinkerer's Workshop,Fabrication,Staffed,Indoor,1,Yes,,Needs Balancing,Advanced All-Purpose Drone or Tinkerer's-Specialized Drone eligible
+Inventor's Workshop,Fabrication,Staffed,Indoor,1,Yes,Tinkerer's Workshop,Needs Balancing,"gates Temperature-Resistant Gear, Diplomatic Gear, kits, packages"
+Sawmill,Fabrication,Staffed,Indoor,1,Yes,,Needs Balancing,starting building
+Carpenter's Shop,Fabrication,Staffed,Indoor,1,Yes,Sawmill,Needs Balancing,"unlocks luxury goods, Wooden Plow, Tiny/Small Trap"
+Weather Shield,Protection,Unstaffed,N/A,1,Yes,,Needs Balancing,"Manhattan-radius AOE, any building type"
+Weather Shield II,Protection,Unstaffed,N/A,1,Yes,Weather Shield,Needs Balancing,larger radius
+Row Shield,Protection,Unstaffed,N/A,2,Yes,,Needs Balancing,"2-tile footprint, full-row AOE, no upgrade path"
+Medical Bay,Protection,Staffed,Indoor,1,Yes,,Needs Balancing,1 worker; recipes chosen via production queue
+Hospital,Protection,Staffed,Indoor,2,Yes,Medical Bay,Needs Balancing,Confidence(Bio-hazard)-gated; 2-slot footprint; Recovery capacity 2
+Food Storage,Storage,Staffed (extraction only),N/A,1,Yes,,Needs Balancing,holds only via Ration Press's Stockpile Fill
+Food Storage II,Storage,Staffed (extraction only),N/A,1,Yes,Food Storage,Needs Balancing,raises capacity
+Crew Quarters,Habitation,Unstaffed,N/A,1,No,,Needs Balancing,settlement-wide Good Sleep; non-stacking
+Luxury Living Quarters,Habitation,Unstaffed,N/A,1,No,Crew Quarters,Needs Balancing,Great Sleep + one luxury-item slot per settler

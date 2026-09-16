@@ -1,0 +1,13 @@
+Modifier,Effect type,Value,Design status,Notes
+Aptitude per-level (standard 5 buckets),Multiplicative speed,"+-15% per level, cap +-45% (3 levels)",Needs Balancing,"innate, fixed at Crew Selection"
+Experience per-stack,Multiplicative speed,"+15% per stack, cap +45% (3 stacks)",Needs Balancing,earned; currently equal to Aptitude's constant but tracked separately for future divergence
+Storied - production speed,Multiplicative speed,+15%,Needs Balancing,applies to Production-building assignments and Trapping/Clear-Cutting
+Storied - exploration outcome max,Flat max-add,+1,Needs Balancing,to any numeric-range exploration outcome
+Storied - success-chance constant,Relative success-chance,p_new = p + 0.25(1-p),Needs Balancing,stacks additively (not sequentially) with Exploration Aptitude +2
+Storied - bad-outcome reduction constant,Relative risk-reduction,r_new = 0.75 x r_old,Needs Balancing,
+Injury - Loss of Arm,Multiplicative speed,x0.5,Needs Balancing,all assignments except the non-manual set; also reduces any probabilistic exploration success chance
+Injury - Severe Burns,Multiplicative speed,x0.75,Needs Balancing,Manual Labor tasks only
+"Injury - SP, No-risk exploration",Relative success-chance,small penalty,TBD,applies only to No-risk tasks with a probabilistic success chance
+Habitation - Good Sleep,Multiplicative speed,x1.10,Needs Balancing,see habitation_sleep_tiers.csv
+Habitation - Great Sleep,Multiplicative speed,x1.15,Needs Balancing,see habitation_sleep_tiers.csv
+Habitation - Poor Sleep,Multiplicative speed,x0.75,Needs Balancing,see habitation_sleep_tiers.csv

@@ -1,0 +1,18 @@
+Task,Item,Requirement,Design status,Notes
+Wild Orchard Grove,Leather Backpack,Optional,Needs Balancing,guarantees top of range
+Predator's Larder,Leather Backpack,Optional,Needs Balancing,guarantees top of range
+Abandoned Settlement,Leather Backpack,Optional,Needs Balancing,guarantees top of range
+Exposed Mineral Outcrop,Leather Backpack,Optional,Needs Balancing,guarantees top of range
+Unusual Rock Formation,Leather Backpack,Optional,Needs Balancing,guarantees top of range
+Crashed Debris Field,Portable High-Powered Scanning Equipment,Optional,Needs Balancing,also yields High-Tech Components
+Unusual Crystalline Growth,Leather Backpack,Optional,Needs Balancing,guarantees top of range
+Reach-the-deepest-X,Temperature-Resistant Gear,Optional,Needs Balancing,planet-appropriate gear; boosts success chance
+Chart-the-Y,Portable High-Powered Scanning Equipment,Optional,Needs Balancing,boosts success chance
+Ancient Irrigation Technique,Portable High-Powered Scanning Equipment,Mandatory,Needs Balancing,
+Recovered Survey Data,Portable High-Powered Scanning Equipment,Mandatory,Needs Balancing,
+Verdant Profile-shifting,Portable High-Powered Scanning Equipment,Mandatory,Needs Balancing,
+Volcanic Reinforcing,Temperature-Resistant Gear,Mandatory,Needs Balancing,
+Volcanic Profile-shifting,Temperature-Resistant Gear,Mandatory,Needs Balancing,
+Ice Reinforcing,Leather Backpack,Optional,Needs Balancing,guarantees top of range
+Meteorite Fragment,Portable High-Powered Scanning Equipment,Mandatory,Needs Balancing,
+Unknown Radio Signal,Emergency Medical Kit,Optional,Needs Balancing,guarantees rescue if the signal is a genuine distress call

@@ -1,0 +1,5 @@
+Name,Description,Design status,Notes
+Protection/Enclosure,"Weather-protection shielding, indoor/enclosed tech (Advanced Greenhouse-tier investment)",Illustrative,couples with Energy Management on extreme-temperature planets (Temperature/Protection/Energy coupling); see strategy_dimension_exclusives.csv for what is exclusive to this dimension per planet
+Biosphere Integration,"The Local Agriculture path — hybridizing with native flora/fauna, open-air farming that works with the planet's ecosystem",Illustrative,see strategy_dimension_exclusives.csv for what is exclusive to this dimension per planet
+Synthesis/Self-Sufficiency,"Heavy fabrication/synthesized production (deep fabrication chains, hydroponics, drone-driven output) to compensate for a poor natural substrate",Illustrative,see strategy_dimension_exclusives.csv for what is exclusive to this dimension per planet
+Energy Management,Energy production diversity and budgeting under scarcity,Illustrative,given real teeth by the temperature-control mechanic; couples with Protection/Enclosure on extreme-temperature planets; see strategy_dimension_exclusives.csv for what is exclusive to this dimension per planet

@@ -1,0 +1,10 @@
+Trigger task,Unlocks,Design status,Notes
+Abandoned Settlement,Sentience Detection (elevated ~30% tier),Needs Balancing,see sentience_contact_chain.csv
+Crashed Debris Field,Sentience Detection (elevated ~30% tier),Needs Balancing,see sentience_contact_chain.csv
+Ancient Irrigation Technique,Sentience Detection (elevated ~30% tier),Needs Balancing,see sentience_contact_chain.csv
+Recovered Survey Data,Sentience Detection (elevated ~60% tier),Needs Balancing,see sentience_contact_chain.csv
+Arid Profile-shifting,Sentience Detection (elevated ~30% tier),Needs Balancing,see sentience_contact_chain.csv
+"Unknown Radio Signal (rescue failed, 'too late')",Sentience Detection (elevated ~85-90% tier),Needs Balancing,see sentience_contact_chain.csv
+Unknown Radio Signal (rescue succeeded),First Contact (direct entry),Needs Balancing,skips Sentience Detection and Observe entirely
+Medical Bay vaccine unlock (per-pathogen),Region-reveal exploration task,Needs Balancing,"a building unlock triggering an escalation, not an exploration outcome"
+"Native-fruit-stockpile find (Verdant, worked example)",Habitat-seeking task -> animal alliance,Needs Balancing,"illustrative worked example from the Escalation Chains intro, not a named catalog task"
