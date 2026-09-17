@@ -1305,6 +1305,15 @@ there's no longer a settler-need figure to calibrate against, collection
 rates and the plant-crop buildings' passive-transition draw amounts have no
 shared numeric anchor between them anymore — each stays independently TBD.)
 
+**Planning-phase UI**: a horizontal bar mirroring Energy's exactly (see
+[Resources](04_buildings_and_economy.md#resources)' Energy Income/Consumption Rates) — **0 to the season's
+optimistic max Water Income rate**, with two indicator lines on it,
+current planned Income and current planned peak demand (the largest set of
+reservations that can be active at once). Same best-case framing and same
+hover tooltip caveat: a denial can still happen if Income comes in lower
+than planned. Per-building prediction follows the same three-state shape as
+the power indicator (see Core Loop & Grid's Site Panel (UI)).
+
 **Water transport is deliberately unmodeled** — no pipes, irrigation, or
 distribution system to design. Collection buildings and consumption sites
 don't need spatial adjacency; the player can imagine whatever transportation

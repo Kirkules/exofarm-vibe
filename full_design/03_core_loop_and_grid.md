@@ -526,8 +526,15 @@ choice to make at that particular site. Contents, always in this order:
   (illustrative: a filled circle for Green, a half-filled triangle for
   Yellow, an empty/crossed square for Red — exact shapes TBD, just
   confirmed to be shape-distinct, not color-distinct, alongside color).
-  Other status-section content (beyond power) is left open for whatever
-  future mechanics turn out to need a per-site status readout.
+  A **Water-sufficiency indicator** sits alongside it for any site that
+  draws Water (see Buildings & Economy's [Water](04_buildings_and_economy.md#water)), with the same
+  three states, the same shape-plus-color treatment, and the same
+  prediction-not-status framing. Other status-section content is left open
+  for whatever future mechanics turn out to need a per-site status readout.
+- **Both indicators also appear on the building's own grid tile** as a small
+  icon, so a shortfall is visible while scanning the farm rather than only
+  after selecting each site in turn — same shapes as in the panel, per the
+  color-accessibility rule.
 - **Every element has its own hover tooltip** (a separate small box, not a
   single panel-wide tooltip) surfacing that element's key details in
   plain language — this is specifically where the assigned worker's

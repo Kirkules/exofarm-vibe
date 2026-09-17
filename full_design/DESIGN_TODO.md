@@ -24,6 +24,17 @@ tracks what's needed *underneath* them.
 
 ## Open Items
 
+- [ ] **Landing-windfall candidate for the turn-one bootstrap (theme 8).**
+  Proposed 2026-09-17 while resolving failure legibility: give the
+  settlement a small **random windfall of Stone and Wood** at the start of
+  Season 1 planning, framed in a Transmission as scattered material freed
+  by the landing itself. Would directly address the bootstrap-deadlock
+  blockers (`7a-A-S1`/`A-S2`, `7b-B-S1`) — no guaranteed turn-one Wood, and
+  the Surface-deposit guarantee not guaranteeing Stone — by making turn one
+  self-sufficient without relying on what the site happens to hold. To be
+  decided with the rest of theme 8, together with whether a deadlock still
+  needs an in-game legibility signal (`7a-A-P1`, `7b-B-P2`) once it can no
+  longer occur.
 - [ ] **Peaceful Contact's base alliance reward — no shape (`10b-B1`).**
   First Contact's Peaceful approach succeeds and grants... something. Only
   "specific rewards TBD" is written. This is structural, not numeric:
@@ -1450,3 +1461,22 @@ Theme 7 (referenced as real, never designed).
   under Open Items.
 - `10b-B1`/`10b-B2` and `11-SF9` — **promoted to Open Items** as real
   undesigned content.
+
+### Addressed by the failure-legibility pass (2026-09-17)
+
+Theme 4 (failure legibility thin across systems).
+
+- `6-B3` — **resolved.** Water gets a planning-phase bar mirroring
+  Energy's exactly, same best-case framing and caveat.
+- `4-SF7`/`6-SF6` — **resolved.** A Water-sufficiency indicator joins the
+  power indicator in the Site Panel's Status section, and both now also
+  appear as a small icon on the building's own grid tile.
+- `9-SF7`/`10a-SF1` — **resolved.** The results dialog reports the find and
+  what happened to the settler on separate lines, so a hurt settler on a
+  guaranteed find never reads as a failed task.
+- `2-SF8`/`11-SF12` — **closed for now.** Whether the player can tell
+  certainty from bad luck depends on message text that doesn't exist yet;
+  revisit during the message-authoring / TBD-filling pass.
+- `7a-A-P1`/`7b-B-P2` — **deferred to theme 8**, which decides whether the
+  bootstrap deadlock can occur at all; see the landing-windfall candidate
+  under Open Items.

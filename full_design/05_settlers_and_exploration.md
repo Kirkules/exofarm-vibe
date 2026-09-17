@@ -777,7 +777,13 @@ itself succeeded. The two rolls never interact — a negative-Aptitude
 settler failing the discovery doesn't change their odds on the danger
 roll, and vice versa. This roll fires on *every* attempt rather than only
 after a failure, so it carries its own far gentler weights (see
-`data/injury_outcome_weights.csv`'s "Independent risk roll" rows). When that happens, the settler earns a **Frontier
+`data/injury_outcome_weights.csv`'s "Independent risk roll" rows).
+
+Because the two rolls are independent, the results dialog (see Core Loop &
+Grid's Season Structure, Post-Sim step 5) **reports them on separate
+lines** — what the task found, and what happened to the settler — rather
+than merging them into one verdict. A settler hurt on a task whose find was
+never in doubt must not read as a failed task. When that happens, the settler earns a **Frontier
 Legends bonus** (see `data/misc_balancing_values.csv`'s "Risk Spectrum"
 rows) for every task of this shape, not just Profile-shifting-flavored
 ones: a settler who's hurt or lost expanding the settlement's strategic
