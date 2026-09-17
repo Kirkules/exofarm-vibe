@@ -2,26 +2,52 @@
 
 ## Platform & Core Loop Redesign (In Progress)
 
-This section is a working checkpoint of an active redesign that **supersedes** several
-sections below (The Grid's polyomino/multi-slot-piece content, Power System in its
-entirety, Crafting & Merge Spaces' merge-space UI, Interaction Hierarchy's
-double-tap-to-toggle-power gesture, and the mobile-tuned Screen Layout / UI Layout
-content in Art Design). Those sections are left in place as reference material —
-marked superseded inline — rather than deleted, since some of their content (e.g.
-grid coordinate conventions, general resource/settler concepts) still applies. This
-section will be reconciled with them once the redesign settles. **More is still in
-flux; treat this whole section as provisional.**
+**At a glance:**
+- **Platform** — PC first, landscape; FTL/Into the Breach-style pixel art
+  reference, warmer palette.
+- **The Grid** — one unified grid, single-cell placement, no
+  polyominoes/rotation; fixed/environmental slots (terrain, deposits,
+  Forest) set at run start.
+- **Run-Start Flow** — Hub → Crew Selection → Specialization → wormhole
+  confirmation (1st point of no return) → Farm Site Selection → Starting
+  Settlement Placement → land-at-site confirmation (2nd point of no
+  return) → Season 1.
+- **Crew Selection** — starting crew, each settler independently rolled an
+  Average/Jack-of-several-trades/Savant Aptitude archetype; free, uncapped
+  reroll.
+- **Specialization** — one-time pre-run mass-budget allocation (Extra
+  Rations / extra worker / orbital probe), additive on top of the base
+  loadout.
+- **Farm Site Selection** — pick 1 of 3 candidate grid instances;
+  Ration-cost reroll; locks terrain/deposit seeding for the run.
+- **Starting Settlement Placement** — the four starting buildings land as
+  one rigid T-tetromino, freely repositioned until land-at-site
+  confirmation.
+- **Production Model** — continuous-rate cycles plus an ordered
+  production queue; plant-crop buildings run a persistent state machine
+  instead.
+- **Assignment** — one worker to one of three target kinds (Production
+  building / Exploration Task / Standing Assignment); settlers universal,
+  drones built at Robotics Assembly.
+- **Worker Roster / Site Panel (UI)** — collapsed per-type counts during
+  planning, per-worker icons during Mid-Sim; Site Panel always shows
+  recipe queue, worker slot, rate summary, status.
+- **Construction** — one robot = one build/upgrade/relocate action per
+  season, plus a separate settlement-wide fence-tile budget.
+- **Small Set of Impactful Actions** — construction, worker assignment,
+  shield placement, exploration-task assignment, food-for-consumption
+  adjustment.
+
+**More is still in flux; treat this whole section as provisional.**
 
 ### Why This Redesign
 
-Early playtesting of the original (mobile, portrait) design surfaced a core problem:
-too many low-impact, fiddly actions per season (precise polyomino placement/rotation,
-manual merge-space ingredient arrangement, power-network management) diluted the few
-decisions that actually mattered. The redesign's goal is a **small set of impactful
-actions per season**, per the "difficulty from breadth of tradeoffs, not execution
-precision" and "a passable plan should always be quick to reach" design principles —
-both already established, now being applied more aggressively than the original
-design achieved in practice.
+The core loop targets a **small set of impactful actions per season**, per
+the "difficulty from breadth of tradeoffs, not execution precision" and "a
+passable plan should always be quick to reach" design principles —
+deliberately minimizing low-impact, fiddly per-season actions (precise
+spatial placement, manual ingredient arrangement, network management) that
+would otherwise dilute the few decisions that actually matter.
 
 ### Platform
 
@@ -46,9 +72,6 @@ design achieved in practice.
 
 ### The Grid (Unified)
 
-*(originally designed as two separate grids — Base/Infrastructure and
-Farm/Production — later unified into one; see below for why)*
-
 A single grid holds every building, crop, animal pen, and mining site, using
 **uniform single-cell placement — no polyominoes, no rotation** (multi-slot
 buildings still exist — see [Building Schema](04_buildings_and_economy.md#building-schema) — but as fixed, non-rotatable
@@ -61,30 +84,18 @@ placement rules already established elsewhere (e.g. a Mine requires an Ore
 deposit cell; fixed/environmental terrain is immovable) — there is no
 zone-based restriction on what can be built where.
 
-The grid has **one total size**, which is now the single lever controlling
+The grid has **one total size**, which is the single lever controlling
 overall settlement density: buildings, crops, and mining sites all compete
 for the same finite pool of cells, so infrastructure investment directly
-costs farmland and vice versa — a more consequential tradeoff than the old
-two-grid split's independently-tunable scarcity. **Working target: 10×8**
-(80 cells) — landscape-shaped to match the PC platform pivot, and sized from
-a rough building/deposit density pass (see `DESIGN_TODO.md`'s resolved
-farm-site-selection entry) showing the old 8×6 mobile grid would already be
-short of a late-game building count even before accounting for deposit
-cells, while 10×8 leaves comfortable slack. Still nominally subject to
-revision in a real balancing pass, but no longer a completely open unknown.
+costs farmland and vice versa. Size: see
+`data/misc_balancing_values.csv`'s "The Grid" row — landscape-shaped to
+match the PC platform pivot, and sized from a rough building/deposit
+density pass showing a smaller grid would already be short of a late-game
+building count even before accounting for deposit cells.
 
-**Why unified, not split:** the original two-grid split existed mostly for
-conceptual clarity ("base" vs. "fields") and independently-tunable slot
-scarcity — neither of which is a hard mechanical requirement, especially once
-the design moved away from spatial-arrangement-driven difficulty entirely (no
-polyominoes, no rotation). A concrete wrinkle exposed the seam: Weather Shield
-and Row Shield are Protection-category buildings, but needed to sit on the
-Farm/Production grid specifically so their area-of-effect could reach the
-crops they protect — meaning the category↔grid mapping was already not clean.
-Unifying removes that wrinkle (a Protection structure now meaningfully covers
-whatever's nearby, farm or infrastructure alike) and removes a
-building-placement classification step that didn't map onto a real
-strategic decision.
+**Weather Shield and Row Shield** (Protection-category buildings) cover
+whatever's nearby on the single grid, farm or infrastructure alike — their
+area-of-effect isn't restricted by building category or zone.
 
 **Fixed/environmental slots.** Some cells on the grid are fixed/environmental
 rather than placeable:
@@ -102,14 +113,14 @@ World's [Meta-Progression](02_story_and_world.md#meta-progression) & Earth Hub.
 
 1. **Hub** — the player picks a planet from the candidate pool. The pool is
    rerollable *here, in the hub*, and nowhere later.
-2. **[Crew Selection](03_core_loop_and_grid.md#crew-selection)** — settle on the starting crew of 5.
+2. **[Crew Selection](03_core_loop_and_grid.md#crew-selection)** — settle on the starting crew.
 3. **[Specialization](03_core_loop_and_grid.md#specialization)** — allocate the wormhole mass budget.
 4. **Wormhole confirmation** — an explicit, deliberate confirm and the
    **first point of no return:** the planet is now locked and can never be
    rerolled. Nothing about the specific planet has been shown yet; it is
    revealed only from here on.
 5. **[Farm Site Selection](03_core_loop_and_grid.md#farm-site-selection)** — choose the grid instance from 3
-   candidates (the candidate set is rerollable here, 1 Ration per reroll).
+   candidates (the candidate set is rerollable here, for a Ration cost).
 6. **[Starting Settlement Placement](03_core_loop_and_grid.md#starting-settlement-placement)** — position the starting
    buildings on the chosen grid.
 7. **Land-at-site confirmation** — a second explicit confirm and the
@@ -134,9 +145,9 @@ transmission (see Planets & Scoring's [In-Simulation Hazard Events](06_planets_a
 near-zero-`Confidence` telegraphing), which arrives at the **top of Season
 1 planning**, once the settlement is on the grid.
 
-**Starting loadout.** A run begins with: the crew of 5; whatever
-[Specialization](03_core_loop_and_grid.md#specialization) added on top; a starting Rations stock (amount
-TBD, deferred to balancing); one **Settlement Base** plus the three other
+**Starting loadout.** A run begins with: the crew (see [Crew Selection](03_core_loop_and_grid.md#crew-selection));
+whatever [Specialization](03_core_loop_and_grid.md#specialization) added on top; a starting Rations stock
+(see Settlers & Exploration's [Rations](05_settlers_and_exploration.md#rations-basic-sustenance)); one **Settlement Base** plus the three other
 starting buildings — Water Processing Plant, Sawmill, and Stone Processing
 (see Buildings & Economy's [Basic Resource Production](04_buildings_and_economy.md#basic-resource-production), [Water](04_buildings_and_economy.md#water), and
 [Fabrication](04_buildings_and_economy.md#fabrication)); and one construction robot.
@@ -148,7 +159,7 @@ the planet is picked in the hub and before anything about the planet is
 shown. It is followed by [Specialization](03_core_loop_and_grid.md#specialization), then the wormhole
 confirmation, then [Farm Site Selection](03_core_loop_and_grid.md#farm-site-selection) (see [Run-Start Flow](03_core_loop_and_grid.md#run-start-flow)
 for the full ordering). The player settles here on their starting crew of
-5 settlers.
+settlers (size: see `data/misc_balancing_values.csv`'s "Crew Selection" row).
 
 **What it determines.** Each candidate crew is a full set of settlers with
 independently-rolled Aptitude profiles (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's
@@ -158,8 +169,8 @@ crew locks in every settler's Aptitude levels, across all six buckets, for
 the entire run; Aptitude never changes afterward.
 
 **Archetypes.** Each settler in a candidate crew is independently assigned
-one of three archetypes, weighted **Average 70% / Jack-of-several-trades
-20% / Savant 10%**:
+one of three archetypes (weights: see `data/misc_balancing_values.csv`'s
+"Crew Selection" row):
 - **Average** — every bucket's level falls within [−1, +1], and the total
   across all six buckets also falls within [−1, +1]. Low variance, safe,
   no guaranteed extremes either direction.
@@ -208,7 +219,8 @@ reroll — it is pure allocation, freely filled, rearranged, or emptied, and ful
 reversible up to the wormhole confirmation (backing out to Crew Selection and
 re-confirming the crew starts Specialization fresh).
 
-**Base budget** affords exactly one atomic element, so at the start of the game
+**Base budget** (see `data/misc_balancing_values.csv`'s "Specialization" row)
+affords exactly one atomic element, so at the start of the game
 this is effectively a single mutually-exclusive pick; specializing in more than
 one direction at once is a meta-progression reward (a larger budget, plus a
 wider and cheaper pool — see Story & World's [Meta-Progression](02_story_and_world.md#meta-progression)). Whatever is
@@ -216,10 +228,10 @@ chosen is **additive** on top of the base starting loadout (the crew, a starting
 Rations stock, the starting buildings, and one construction robot).
 
 **Base pool.**
-- **Extra Rations** — one fixed additional Rations unit (larger bundles are a
-  later meta-progression option). Intended to be enough to fund early
-  exploration without an immediate pivot to farming; exact amount TBD, deferred
-  to balancing.
+- **Extra Rations** — a fixed additional Rations amount (see
+  `data/misc_balancing_values.csv`'s "Specialization" row; larger bundles are
+  a later meta-progression option), intended to fund early exploration
+  without an immediate pivot to farming.
 - **Extra worker** — one additional worker, the player choosing a **construction
   robot** or a basic **all-purpose drone** (see Buildings & Economy's
   [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly)).
@@ -236,8 +248,9 @@ Rations stock, the starting buildings, and one construction robot).
     sharpens the lead-time window and severity readout by one step (capped at
     the exact-lead-time tier). It adds no separate channel — it advances the
     player along the existing `Confidence`-scaled telegraph.
-  - **Civilization scan.** Once, early in the run, the probe rolls an **80%**
-    chance to detect organized life on the planet. On success the player
+  - **Civilization scan.** Once, early in the run, the probe rolls a chance
+    (see `data/misc_balancing_values.csv`'s "Specialization" row) to detect
+    organized life on the planet. On success the player
     receives a Transmission and a **guaranteed slot in the Exploration Task
     pool to initiate contact** — feeding the sentience-contact chain (see
     Settlers & Exploration's [Escalation Chains](05_settlers_and_exploration.md#escalation-chains)) exactly as a completed
@@ -258,7 +271,8 @@ and **before** [Starting Settlement Placement](03_core_loop_and_grid.md#starting
 (see [Run-Start Flow](03_core_loop_and_grid.md#run-start-flow)).
 
 **What varies by site vs. by planet type.** Planet-type-level values —
-Hazard Priors, the A/B/C/D strategy-dimension pressures — are fixed once the
+Hazard Priors, the four strategy-dimension pressures (Protection/Enclosure,
+Biosphere Integration, Synthesis/Self-Sufficiency, Energy Management) — are fixed once the
 planet type is chosen at the filament-scan stage; site selection never
 touches them. What a specific site *does* determine is the grid instance
 itself: its terrain shape (impassable cells) and where every deposit
@@ -291,10 +305,10 @@ World generation guarantees every candidate admits at least one legal
 Starting Settlement Placement (below).
 
 **Reroll.** The player may discard all 3 candidates and generate 3 entirely
-new ones, at a cost of **1 Ration** (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's
-[Rations](05_settlers_and_exploration.md#rations-basic-sustenance)) —
-flavored as the additional orbital scanning taking enough time that the
-settlers eat while they wait, though not a full season's worth. Rerolling
+new ones, at a Ration cost (see `data/misc_balancing_values.csv`'s "Farm
+Site Selection" row) — flavored as the additional orbital scanning taking
+enough time that the settlers eat while they wait, though not a full
+season's worth. Rerolling
 is uncapped other than by the player's Ration stock, so it draws on the same
 scarcity already established for Rations rather than introducing a new
 limiting resource.
@@ -338,32 +352,11 @@ carries a small `DisruptionFootprint` — there is no zero-impact way to
 settle an alien world — and it is deliberately a minor term, not a
 dominant one.
 
-### What Got Cut
-
-- **The power grid system, entirely** — no broadcast range, no networks, no shared
-  pools, no batteries, no on/off toggling. Removed as a whole layer of low-impact
-  management overhead.
-- **General neighbor-effect synergies** — removed, with one specific exception that
-  remains as an area-of-effect system: **force-field/weather-protection coverage**.
-  (An earlier draft of this cut also carved out a **drone service footprint**
-  exception — a Specialized Drone servicing a multi-cell area — but that idea
-  was superseded once drones got a full Effort/eligibility system of their own;
-  see Buildings & Economy's [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly). Every worker, settler or drone,
-  is assigned to exactly one site.)
-- **Manual merge-space ingredient crafting** — no more dragging ingredients into a
-  mini-grid to discover/confirm recipes. See [Production Model](03_core_loop_and_grid.md#production-model) below for what replaces
-  it.
-
 ### Production Model
 
-- Every production site has **one primary input→output conversion**. An idea for
-  automatic higher-value alternative outputs when secondary ingredients happen to be
-  in stock (e.g. an Advanced Bakery producing Garlic Butter Bread instead of Bread
-  when Butter is available) was floated but is **not resolved** — it's vulnerable to
-  race conditions when multiple sites complete a cycle simultaneously and compete for
-  the same scarce secondary ingredient, and needs a conflict-resolution mechanism (or
-  a simpler alternative, like making "better recipe" a separate building rather than
-  smarter automatic selection) before it's viable.
+- Every production site has **one primary input→output conversion** (see
+  `DESIGN_TODO.md`'s Newly Surfaced Ideas for an automatic-alternative-
+  output idea that remains unresolved).
 - **Production runs on a continuous rate, not a discrete timer.** Progress accumulates
   at `100% / production_time` per second. A boost or penalty modifies that *rate*,
   not a countdown — a cycle 50% complete when a boost hits finishes at half the
@@ -379,9 +372,9 @@ dominant one.
   ("Production queue"); the queue advances during Mid-Sim as cycles
   complete.
 - **Farm and infrastructure production are largely unified under this same
-  model.** Most farm buildings run the same continuous-rate production as a
-  Bakery, modified by external effects (weather, fertilizer) instead of
-  requiring a settler to walk over and tend it, as in the original design.
+  model.** Most farm buildings run the same continuous-rate production as
+  any other building, modified by external effects (weather, fertilizer)
+  rather than requiring a settler to walk over and tend it.
   **Exception**: the four plant-crop buildings (Grain Field, Fruit Orchard,
   Fiber Field, Timber Grove) instead each track a **persistent per-site
   state**, advancing through a named sequence of transitions rather than one
@@ -602,8 +595,9 @@ infrastructure *growth*, distinct from the grid's own slot-count cap on
 infrastructure *total*.
 
 **A second, independent per-season budget covers Fencing** (see Buildings
-& Economy's [Fencing](04_buildings_and_economy.md#fencing)): construction robots together contribute up to
-**N fence tiles** (TBD) to a shared settlement-wide pool each season,
+& Economy's [Fencing](04_buildings_and_economy.md#fencing)): construction robots together contribute a
+per-season fence-tile budget (see `data/misc_balancing_values.csv`'s
+"Construction" row) to a shared settlement-wide pool,
 regardless of whether their one build/upgrade/relocate slot is also used
 that season. The two budgets don't compete — a robot can complete its one
 building **and** the settlement can still spend its fence-tile budget in
@@ -632,6 +626,20 @@ unbuilt fence tile provides zero protection until then.
 
 ## Season Structure
 
+**At a glance:**
+- **Planning Phase** — fully reversible; grid placement, worker
+  assignment, small set of impactful actions.
+- **Simulation Phase** — passive; fixed real-time window per season,
+  player-adjustable playback speed (0×–5×). Three resolution moments:
+  Planning Lock-in (freeze) → Mid-Sim (live production, hazard events) →
+  Post-Sim (discrete outcome resolution, in a fixed sub-step order).
+- **Log/event-feed** — one live-updating aggregated line per resource
+  type, plus individual timestamped lines for noteworthy events; separate
+  from the persistent Transmissions channel.
+- **Production progress overlay** — a per-site fill gauge driven by the
+  same continuous-rate value as production itself; plant-crop buildings
+  get a per-transition color/icon variant instead of one continuous fill.
+
 Each game round = one **season** on the planet.
 
 ### Planning Phase
@@ -657,13 +665,13 @@ Each game round = one **season** on the planet.
 - Results feed into the next planning phase
 
 **Fixed real-time window.** A season corresponds to a fixed length of real
-time in the story-world — **30 seconds at 1× playback** — so the simulation
-window has a fixed duration regardless of what's built; playback speed is a
-pure time-multiplier that compresses (or stretches, below 1×) wall-clock
-time without changing what happens. (30s, not a shorter value, specifically
-to give unhurried 1× playback room to not feel rushed.) Production
-`production_time` values and event occurrence rates are all calibrated
-against this same fixed window.
+time in the story-world (see `data/misc_balancing_values.csv`'s "Season
+Structure" row, chosen to give unhurried 1× playback room to not feel
+rushed) — so the simulation window has a fixed duration regardless of
+what's built; playback speed is a pure time-multiplier that compresses (or
+stretches, below 1×) wall-clock time without changing what happens.
+Production `production_time` values and event occurrence rates are all
+calibrated against this same fixed window.
 
 **Playback Speed.** Legibility of Mid-Sim visuals (the production progress
 overlay, hazard event visuals, ambient depictions) is targeted at **1×
@@ -675,11 +683,11 @@ things play out can do so, at the explicit cost of missing visuals (the
 log remains available afterward regardless, per its retrospective-catch-up
 role above).
 
-- **Range: 0× to 5×**, snapping to 0.1 increments. At the 5× ceiling, the
-  full 30-second window compresses to 6 wall-clock seconds — fast enough
-  that no separate "skip simulation" affordance exists; cranking the
-  slider to its max **is** the rush-to-next-season option. (Supersedes the
-  prior implementation's standalone Skip button.)
+- **Range** (see `data/misc_balancing_values.csv`'s "Season Structure"
+  row): at the top of the range, the full simulation window compresses to
+  a handful of wall-clock seconds — fast enough that no separate "skip
+  simulation" affordance exists; cranking the slider to its max **is** the
+  rush-to-next-season option.
 - **Default per-season speed is sticky-carried**, the same pattern as
   food-for-consumption and other planning defaults elsewhere in this
   design: whatever speed the player last used persists automatically as
@@ -728,9 +736,9 @@ role above).
   right after the Mid-Sim clock ends. Merges what could otherwise be two
   separate moments (right after the clock ends, and the top of the next
   planning phase) into one mechanically-equivalent bucket, since neither
-  involves real time passing. (Named for when it happens, not "Outside-Sim"
-  — unlike Planning Lock-in, Post-Sim never occurs before a season's Mid-Sim
-  has actually run.) This is where the season's actual outcomes resolve:
+  involves real time passing. (Post-Sim is named for when it happens —
+  unlike Planning Lock-in, it never occurs before a season's Mid-Sim has
+  actually run.) This is where the season's actual outcomes resolve:
   Vaccine unlock threshold checks, pooled nutrition consumption resolution,
   Scanner Station report resolution (the mechanical `Confidence`/`MatchedRisk`
   update), Deposit Discovery survey mechanical resolution, Trade Agreement
@@ -785,13 +793,11 @@ role above).
     the same "optimistic estimate, not a guarantee" role the Energy bar
     already plays.
 
-**The log/event-feed system.** Replaces the old live-log-overlay/outcome-log
-split with a single, simpler structure:
+**The log/event-feed system** is a single, live-updating log:
 - **No separate always-visible overlay.** The default simulation view has no
   forced log clutter — just ambient visuals and the progress bar. A single
-  log is opened via a button/icon (as the old outcome log was), but now it
-  can be opened **during** simulation too, live-updating in real time, not
-  just reviewed after the fact.
+  log is opened via a button/icon, and can be opened **during** simulation
+  too, live-updating in real time, not just reviewed after the fact.
 - **Routine production is aggregated, not logged tick-by-tick.** One running,
   live-updating log line **per resource type** (not per building) — e.g. a
   single "+N Grain" line that increments and re-timestamps itself to the most
@@ -837,9 +843,8 @@ and the fill color changes per transition, per Design Principles' "color is
 never the sole channel of information" rule paired with a small **icon
 badge** per transition (e.g. a plow / seed / sprout / sheaf icon) so it
 reads without relying on color alone. **Open**: the exact color/icon
-mapping needs to be authored per building now that each one has its own
-distinct state count and shape, rather than one shared three-phase
-brown/green/gold mapping — see `DESIGN_TODO.md`. Every other production
+mapping needs to be authored per building, since each one has its own
+distinct state count and shape — see `DESIGN_TODO.md`. Every other production
 site — the four animal-based buildings (for now) and all non-farm
 infrastructure — keeps the single continuous fill described above,
 unaffected.
@@ -858,6 +863,14 @@ not on this on-site sprite.
 ---
 
 ## Technology & Progression
+
+**At a glance:**
+- **Within a Run** — resource-gated, not time- or research-gated; basic
+  designs need Energy + Lumber/Concrete, advanced designs need
+  planet-side materials.
+- **Agriculture Branching** — Advanced Greenhouse path vs. Local
+  Agriculture path (Hybridization); both converge on the Kitchen.
+- **Across Runs** — meta-progression, not yet designed.
 
 ### Within a Run
 - Progression is **resource-gated, not time-gated or research-gated.**

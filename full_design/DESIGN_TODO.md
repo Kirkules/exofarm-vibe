@@ -2,7 +2,7 @@
 
 Tracks remaining content/system design work in `full_design/`, organized around
 what each SEED Faction's scoring formula still needs to become concrete and
-buildable. All five faction formulas are done (see Win/Lose Conditions); this
+buildable. All five faction formulas are done (see [Win / Lose Conditions](06_planets_and_scoring.md#win--lose-conditions)); this
 tracks what's needed *underneath* them.
 
 > A per-system design audit (2026-09-02) is consolidated in **Design Audit
@@ -24,6 +24,19 @@ tracks what's needed *underneath* them.
 
 ## Open Items
 
+- [ ] **Ration Press's timing model contradicts itself between sections.**
+  Buildings & Economy's Building Schema (Output property) cites Ration
+  Press as *the* example of "instant conversion" (`production_time`-free,
+  no staffing, no rate limit, player selects Input directly during
+  planning). Ration Press's own section instead describes it as
+  **cycle-based**: it runs its selected recipe each cycle during Mid-Sim,
+  consumes inputs at cycle start, and carries an ordinary production queue
+  with cycle limits. These can't both be true as written — flagging rather
+  than resolving, since it's unclear which description reflects the
+  current intent (whether Ration Press should be re-pointed-to as the
+  instant-conversion example is a separate open question from whether the
+  Building Schema's Output property still needs an instant-conversion
+  alternative at all).
 - [ ] **Fabrication chain revisit — still open pieces**: this pass (see
   Buildings & Economy's Resources and Fabrication) replaced Matter with
   Lumber/Concrete as the universal construction-cost materials, split
@@ -340,6 +353,48 @@ tracks what's needed *underneath* them.
 
 ## Newly Surfaced Ideas (recorded, not yet designed in detail)
 
+- [ ] **Automatic higher-value alternative recipe outputs.** An idea for a
+  production site to automatically switch to a better output when a
+  secondary ingredient happens to be in stock (e.g. an Advanced Bakery
+  producing Garlic Butter Bread instead of Bread when Butter is
+  available) — not designed. Vulnerable to race conditions when multiple
+  sites complete a cycle simultaneously and compete for the same scarce
+  secondary ingredient; would need a conflict-resolution mechanism, or a
+  simpler alternative like making "better recipe" a separate building
+  rather than smarter automatic selection. **Possible contradiction to
+  resolve**: Buildings & Economy's Building Schema currently describes
+  this same idea as "the earlier-flagged risky 'automatic alternative
+  output' idea, and stays rejected" (a closed decision), while Core Loop
+  & Grid's Production Model frames it as still open/unresolved pending
+  the race-condition fix above — these two docs currently disagree on
+  whether this is closed or open.
+- [ ] **"Multi-purpose combo buildings" example may be stale.** Core Loop &
+  Grid's Assignment section illustrates a production-building exception
+  with "a Bakery with hydroponic wheat growing in it" — neither "Bakery"
+  nor any multi-purpose/combo-category building exists in the current
+  catalog (Buildings & Economy's buildings.csv), and no building mixes two
+  categories' production in one structure anywhere else in the design.
+  Worth checking whether this example (and the "some sites... are
+  multi-purpose combo buildings" framing around it) is a leftover from
+  before the catalog solidified, or a still-intended mechanic that was
+  never actually built into a real building.
+- [ ] **Rebuilding a demolished starting building.** Once a
+  demolish-building mechanic exists (not yet designed), rebuilding a
+  demolished Water Processing Plant (see Buildings & Economy's
+  [Water Processing Plant](04_buildings_and_economy.md#water-processing-plant)) via normal construction should become
+  possible. A forward dependency, not resolved now.
+- [ ] **Titan Domestication's unique output.** A husbanded Titan (see
+  Buildings & Economy's [Animal Husbandry](04_buildings_and_economy.md#animal-husbandry) Production Cycle) may
+  eventually get a unique output of its own, beyond the normal
+  size-scaled version of its archetype's ordinary output. A content hook,
+  not yet a mechanic to design.
+- [ ] **Fusion Generator — Solar Array's eventual late tier.** A late Solar
+  Array tier is a natural place to pay off the Crash Research Era's
+  controlled-fusion lore (see Buildings & Economy's
+  [Solar Array](04_buildings_and_economy.md#solar-array)), e.g. eventually becoming a
+  distinct Fusion Generator. `TechAchievement` and every other property TBD
+  once this tier is actually designed — currently just a lore hook, not a
+  design.
 - [ ] **Multi-item production by skilled workers** — a high-Experience or
   high-Aptitude worker at certain sites should be able to produce
   **multiple item types at once** in a single production step, rather than
@@ -791,8 +846,8 @@ Findings are cited as `system-B/SFn` (e.g. `5-B3`, `11-SF14`); `7a`/`7b` and
 **5 — Energy** (`audits/05_energy.md`)
 - `5-B1` — The temperature/protection/energy coupling is described as intent, not
   built spec, and four non-agreeing accounts exist of which buildings carry it
-  and whether it is flat-at-placement or event-driven. Strategy dimension D
-  depends on it.
+  and whether it is flat-at-placement or event-driven. Strategy dimension
+  Energy Management depends on it.
 - `5-B2` — The Green/Yellow/Red per-building power prediction requires
   apportioning total Income into a per-building "share", and no apportionment
   rule exists.
@@ -1243,7 +1298,7 @@ and Planets & Scoring (In-Simulation Hazard Events, Critical Failure).
   events should demand **more power** to shield against; and it may be
   cleanest if **only stronger events** incur any elevated shield cost at
   all (mild events shielded on the flat baseline). This subsumes the
-  `5-B1` strategy-dimension-D coupling question.
+  `5-B1` Energy Management strategy-dimension coupling question.
 
 ### Addressed by the Post-Sim resolution-order pass (2026-09-04) — in progress
 

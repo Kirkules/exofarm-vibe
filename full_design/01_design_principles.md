@@ -325,14 +325,108 @@
   total, a count of achievement points, and an average income rate are three
   different *kinds* of numbers with no inherent shared scale, so each must be
   normalized before being added into a single score (see [SEED Factions](06_planets_and_scoring.md#seed-factions)' Development
-  Bloc in Win/Lose Conditions for a worked example).
-- **Design docs describe the current design, not its history.** Content in the
-  numbered design files (Story & World through Roadmap) should read as if the
-  described mechanic always existed this way — no "originally X, but this was
-  changed to Y because..." narration, no self-referential asides about when or
-  why a decision was made or superseded. That kind of process narration doesn't
-  help a reader understand the *current* system, and it goes stale the moment
-  the design changes again, unlike a plain description of how something
-  presently works. `DESIGN_TODO.md` is the deliberate exception — it exists
-  specifically to track what changed and why, and should keep doing exactly
-  that.
+  Bloc in [Win / Lose Conditions](06_planets_and_scoring.md#win--lose-conditions) for a worked example).
+- **Design docs describe the current design, not its history — or its
+  speculative future.** Content in the numbered design files (Story & World
+  through Roadmap) should read as if the described mechanic always existed
+  this way and exists only as currently designed. Two symmetric directions
+  this rules out:
+
+  - **No backward-looking narration.** No "originally X, but this was changed
+    to Y because..." asides, no rename footnotes ("Leather Backpack, renamed
+    from Large Backpack"), no design-process narration ("designed by working
+    backward from what fabrication needs to consume"). That kind of content
+    doesn't help a reader understand the *current* system, and it goes stale
+    the moment the design changes again, unlike a plain description of how
+    something presently works.
+  - **No forward-looking speculation.** A late-game payoff, lore hook, or
+    not-yet-designed tier belongs in `DESIGN_TODO.md`'s Newly Surfaced Ideas,
+    not folded into the spec for the thing that exists today (e.g. a
+    building's eventual, undesigned upgrade tier).
+
+  `DESIGN_TODO.md` is the deliberate exception on both ends — it exists
+  specifically to track what changed, why, and what's still open, and should
+  keep doing exactly that.
+
+  This doesn't forbid rationale for a current design choice — a choice that
+  would otherwise look wrong or invite a plausible rewrite gets to keep its
+  "why." The bar: omitting the rationale must risk a genuinely **more
+  natural** alternative resurfacing, not merely *an* alternative existing in
+  the abstract. ("Random Energy-shedding instead of player-set priority"
+  clears this bar, since player-set priority is the more natural first idea a
+  reader would reach for. "This building was considered as several
+  specialized buildings before being consolidated into one" does not — that a
+  different structure is *possible* isn't enough to earn a footnote defending
+  against it.)
+
+- **State every fact exactly once, owned by whichever place is the natural
+  authority on it — everywhere else references it.** This is the same
+  discipline behind moving balancing values into `data/*.csv` (see
+  `data/schema.csv`), applied to prose and content generally:
+
+  - An item/resource's own entry states only its identity and source. A fact
+    that's really about a *different* entity belongs at that entity's entry,
+    not repeated here (Leather's entry doesn't need to explain Pelts' other
+    uses).
+  - A fact that already follows from an established pattern, a recipe's own
+    notation, or something directly observable in the data doesn't need
+    restating in prose (Lumber's universality is visible by inspecting
+    `data/building_construction_costs.csv`; "`Leather` ← Pelts (tanning)"
+    already implies Leather is pelts' usable refined form — no need to say so
+    again).
+  - **A bare pointer to a data sheet that carries no per-instance
+    specificity belongs at the property's own definition, stated once — not
+    repeated at every entry that has the property.** If a schema-level
+    definition already says a property's values live in `data/foo.csv`
+    (e.g. Building Schema's Universal properties list already says
+    Construction cost's ratios are in `data/building_construction_costs.csv`),
+    a per-building "Construction cost: see `data/building_construction_costs.csv`"
+    with nothing else attached adds nothing beyond confirming that this
+    building has the property every building has — the reader already knew
+    that. Keep a per-instance pointer only when it's paired with something
+    that actually varies per instance (a specific row/ID to look up, a
+    notable exception, an additional-material callout) — the specificity is
+    what earns the repetition, not the pointer itself.
+  - Actual game content — specific values, names, or flavor text meant to
+    appear in the finished game, not illustrative examples for the reader —
+    belongs in a `data/*.csv` sheet with a reference from the doc, the same
+    as a numeric balancing value (e.g. Kitchen's combo-meal flavor-name
+    variants live in `data/kitchen_combo_flavor_names.csv`, not as an inline
+    list).
+  - An open question tracked in `DESIGN_TODO.md` gets referenced by name from
+    the doc, never re-summarized inline — the inline summary and the tracked
+    item drift out of sync the moment one changes without the other.
+  - A cross-reference to another mechanic ("same placement pattern as
+    Mine/Quarry/Well," "reusing the existing `TrueRisk(Bio-hazard)`
+    correlation rather than a new per-planet dial") earns its place only when
+    it stands in for an explanation that would otherwise have to be repeated.
+    If it's merely noting a resemblance without saving any actual
+    re-explanation, cut it.
+
+  Riders on what counts as redundancy here:
+  - **Redundancy within a single passage is worse than redundancy across
+    sections**, since there's no cross-referencing excuse for it at all —
+    e.g. restating "no separate build choice," then "no... upgrade action,"
+    then "not a player decision beyond choosing where to build" for the same
+    fact in one sentence. Tighten to state it once.
+  - **Omission implies absence for a property every entry either has or
+    doesn't — never state the absence explicitly.** A building's Upgrade
+    path is either described (what the upgrade does) or simply not
+    mentioned at all; "No upgrade path" / "Upgrade path: none" is never
+    written out, since a reader who sees no upgrade described already knows
+    there isn't one. Watch for this shape wherever a property is
+    conventionally always addressed one way or the other — the convention
+    of *always* stating a value, including "none," is itself worth
+    reconsidering rather than assuming it must stay just because it's
+    already how the rest of the document does it. An existing pattern
+    earns its place in a restructuring pass on its own merits, not because
+    it's already the pattern.
+  - **A short "not applicable" marker in a structured, templated listing is
+    not exempt from the rule above either — drop it.** A building entry
+    ending with `Area of effect / Energy upkeep / Preparedness / ...: N/A`
+    looks like it's confirming every conditional property was checked, but
+    since applicable properties are already given their own bullet wherever
+    they actually apply, the entries that lack one already tell a reader
+    the property doesn't apply — the trailing marker adds nothing beyond
+    what that omission already says, just condensed into one line. Not
+    needed in design documents.

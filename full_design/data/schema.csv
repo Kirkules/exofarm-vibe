@@ -14,6 +14,7 @@ buildings.csv,Indoor/Outdoor,Value,
 buildings.csv,Grid slots,Value,
 buildings.csv,Repeatable,Value,
 buildings.csv,Upgrade of,FK -> buildings.csv (self-referential),blank for a base tier
+buildings.csv,Baseline Energy upkeep,Value,"flat per-season Energy consumption draw just for existing on the grid, per the Resources section's 'Baseline Energy upkeep' rule; see that row's Notes for a flagged tension with the Eligibility rule for the four Energy-producer buildings"
 buildings.csv,Design status,Value,
 buildings.csv,Notes,Value,
 building_construction_costs.csv,Building,Key + FK -> buildings.csv,
@@ -22,6 +23,10 @@ building_construction_costs.csv,Quantity,Value,
 building_construction_costs.csv,Design status,Value,
 building_construction_costs.csv,Notes,Value,
 recipes.csv,Recipe ID,Key,convention: <building_slug>.<recipe_slug>
+kitchen_combo_flavor_names.csv,Recipe ID,Key + FK -> recipes.csv,
+kitchen_combo_flavor_names.csv,Flavor name,Key,"purely cosmetic; production randomly selects one from this recipe's pool, zero mechanical effect"
+kitchen_combo_flavor_names.csv,Design status,Value,
+kitchen_combo_flavor_names.csv,Notes,Value,
 recipes.csv,Building,FK -> buildings.csv,
 recipes.csv,Recipe name,Value,
 recipes.csv,Production time (s),Value,
@@ -116,6 +121,20 @@ exploration_task_escalations.csv,Trigger task,Key + Soft reference -> exploratio
 exploration_task_escalations.csv,Unlocks,Soft reference -> exploration_task_catalog.csv (Task) or sentience_contact_chain.csv (Step),"not strictly enforceable — names a task, a chain step, or 'First Contact (direct entry)'"
 exploration_task_escalations.csv,Design status,Value,
 exploration_task_escalations.csv,Notes,Value,
+exploration_task_unknown_radio_signal.csv,Branch,Key,the three resolved-cause outcomes for the Unknown Radio Signal task
+exploration_task_unknown_radio_signal.csv,Weight,Value,probability the signal resolves to this Branch
+exploration_task_unknown_radio_signal.csv,Sub-branch,Key,"only populated for the 'Genuine distress signal' branch, which further splits on whether an Emergency Medical Kit was brought"
+exploration_task_unknown_radio_signal.csv,Outcome,Value,
+exploration_task_unknown_radio_signal.csv,Design status,Value,
+exploration_task_unknown_radio_signal.csv,Notes,Value,
+alien_civilization_classes.csv,Class,Key,
+alien_civilization_classes.csv,Ubiquity,Value,which planet type(s) this class is eligible to appear on at all
+alien_civilization_classes.csv,Technology Level,Value,
+alien_civilization_classes.csv,Openness,Value,
+alien_civilization_classes.csv,Economic Stability,Value,
+alien_civilization_classes.csv,Unity,Value,how consolidated the civilization is within the one planet where it is found
+alien_civilization_classes.csv,Design status,Value,
+alien_civilization_classes.csv,Notes,Value,
 strategy_dimension_exclusives.csv,Planet,Key,
 strategy_dimension_exclusives.csv,Type,Key,Reinforcing/Profile-shifting
 strategy_dimension_exclusives.csv,Description,Value,
@@ -166,5 +185,6 @@ plant_crop_transitions.csv,Building,Key + FK -> buildings.csv,
 plant_crop_transitions.csv,Initial State,Key,
 plant_crop_transitions.csv,Resulting State,Key,
 plant_crop_transitions.csv,Base duration (s),Value,
+plant_crop_transitions.csv,Water draw amount,Value,"TBD for the passive/biological-wait transitions that draw Water; N/A for the short worker-active ones, which never draw Water"
 plant_crop_transitions.csv,Design status,Value,
 plant_crop_transitions.csv,Notes,Value,

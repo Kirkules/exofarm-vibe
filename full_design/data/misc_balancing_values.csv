@@ -3,6 +3,8 @@ Alien Soil,Growth-rate penalty (plant-crop passive transitions),-30%,Illustrativ
 Ration Press,Conversion ratio (fresh food -> Rations),TBD,TBD,lossy either way (packaged or Stockpile Fill); exact ratio TBD
 Food Storage,Capacity (base tier),TBD,TBD,deliberately scaled so base tier can't reach max NutritionStockpile alone
 Water Processing Plant (Reclamation),Water consumption-rate reduction,-20%,Illustrative,"farming-throughput upgrade, not settler-safety"
+Basic Deposit Survey,Resource cost (basic tools),TBD,TBD,
+Basic Deposit Survey,Survey rectangle size,TBD,TBD,player-selected at assignment time; not the whole farm
 Basic Deposit Survey,Guaranteed Mid-depth reveal,1,Needs Balancing,"within the chosen rectangle, if any exist"
 Basic Deposit Survey,Chance per remaining Mid-depth deposit,0.6,Illustrative,
 Deep Survey,Guaranteed Mid-depth reveal,1,Needs Balancing,scoped to flagged tiles
@@ -18,6 +20,8 @@ Medical Bay,"Recovery capacity, base",1,Needs Balancing,
 Medical Bay,"Recovery capacity, upgraded",2,Needs Balancing,
 Weather Shield,"Preparedness contribution, base",0.3,Illustrative,
 Weather Shield,"Preparedness contribution, upgraded",0.6,Illustrative,
+Weather Shield,"Area of effect radius, base tier (Manhattan-distance)",2,Illustrative,"matches the original design's ""weather bubble"" precedent"
+Weather Shield,"Area of effect radius, upgraded tier (Manhattan-distance)",TBD,TBD,"doc says only ""a larger radius"" than base; exact value TBD"
 Row Shield,Preparedness contribution,same as Weather Shield base,Illustrative,
 Robotics Assembly (drones),Battery recharge duration,~3s,Illustrative,roughly a fifth of a season; varies by drone type
 Kitchen,Gourmet 'moment of brilliance' chance,75%,Illustrative,one roll per distinct available Seasoning; scales with Kitchen skill
@@ -41,3 +45,20 @@ Specialization,Base mass budget,affords exactly 1 atomic pool element,Needs Bala
 Rations,Starting stock quantity,TBD,TBD,"fixed, non-replenishable"
 Risk Spectrum,"Legends bonus, injury (any risk-bearing task)",TBD,TBD,"large; general reward whenever a task's independent risk roll injures a settler, not just Legend-flavor tasks; stacks separately with any task-specific legend_value"
 Risk Spectrum,"Legends bonus, death (any risk-bearing task)",TBD,TBD,"moderate; smaller than the injury bonus since the settler survives injury to keep contributing to the colony's story, but doesn't after death"
+Seasonings,Herb discovery chance (per applicable action),TBD,TBD,"applies to Clear-Cutting, Basic/Deep Survey, or any Exploration Task"
+Seasonings,Spice discovery chance (per applicable action),TBD,TBD,applies to Mining (Mine/Quarry/Rare Metal Extractor) or any Exploration Task
+Research Lab,`production_time` per project,TBD,TBD,some number of seasons
+Wild Animal Populations,Building-upgrade widening of plant-crop yield range,TBD,TBD,"whether upgraded plant-crop building tiers widen the [min,max] harvest range; open question"
+Stewardship (DisruptionFootprint),Further-disruption weighting (discovered vs. always-visible slots),TBD,TBD,"among disrupted slots, extra weight for ones requiring active discovery (Mid-depth/Deep survey reveal) vs. base-disrupted slots that were never hidden (Surface-tier deposits, Forest tiles)"
+Stewardship (DisruptionFootprint),Planned-but-unbuilt fence tile disruption weight,50% of a built tile's weight,Illustrative,a built fence tile counts as fully disrupted; a planned-but-not-yet-built one counts for half that
+Stewardship (DisruptionFootprint),Settlement-founding baseline disruption,TBD,TBD,a small flat amount added on top of whatever slot the starting settlement happens to cover; kept deliberately minor relative to a run's ongoing extraction
+Stewardship (ContactRestraint),Per-outcome tier values,TBD,TBD,highest for successful alliance; small reward for uncontacted or never-detected (treated the same); small penalty for contact that never resolves into alliance; large penalty for choosing Bluff/Coercive or Military Exploitation regardless of success
+Stewardship,Term weights (EcologicalData/DisruptionFootprint/ExtractionRestraint/EmissionsRestraint/ContactRestraint),TBD,TBD,how much each of the 5 normalized terms contributes to the combined Stewardship score
+Safeguard Coalition,Score(Weather)/Score(Bio-hazard) combination method,TBD,TBD,"sum, average, or other; not yet decided"
+The Grid,Size (working target),10x8 (80 cells),Needs Balancing,landscape-shaped for the PC platform pivot; sized from a rough building/deposit density pass showing the old 8x6 mobile grid would fall short late-game
+Crew Selection,Archetype weights (Average/Jack-of-several-trades/Savant),70%/20%/10%,Needs Balancing,
+Specialization,Extra Rations bonus (base pool element),TBD,TBD,one fixed additional Rations unit; intended to fund early exploration without an immediate pivot to farming
+Specialization,Orbital probe civilization-scan chance,80%,Illustrative,"rolled once, early in the run"
+Farm Site Selection,Reroll cost,1 Ration,Needs Balancing,discards all 3 candidate sites and generates 3 new ones; uncapped other than by Ration stock
+Season Structure,Real-time window duration (1x playback),30s,Needs Balancing,fixed regardless of what is built; production_time values and event rates are calibrated against this window
+Season Structure,Playback speed range,0x-5x (0.1 increments),Needs Balancing,0x pauses the simulation; 5x compresses the 30s window to 6 wall-clock seconds

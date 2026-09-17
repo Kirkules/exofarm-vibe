@@ -1,0 +1,6 @@
+Branch,Weight,Sub-branch,Outcome,Design status,Notes
+Rare ore vein,~40%,,Site Reveal: rare-metal deposit — same shape as Glinting Vein,Illustrative,natural EM/mineral resonance misread as a signal
+Reflected signal,~40%,,"Wonder-flavor Legend outcome, guaranteed — an eerie, ultimately-mundane phenomenon, same register as Crystal Caves",Illustrative,terrain echoing back an altered copy of the settlement's own scans
+Genuine distress signal,~20%,Kit brought: Yes,"Guaranteed rescue; immediate escalation straight to First Contact, skipping Sentience Detection and Observe from a distance",Illustrative,a direct rescue already is first contact
+Genuine distress signal,~20%,"Kit brought: No, rescue succeeds anyway (~20%)",Same immediate step-3 (First Contact) escalation as Kit-brought Yes,Illustrative,
+Genuine distress signal,~20%,"Kit brought: No, too late (~80%)","Escalates into step 1 (Sentience Detection) at a new, higher-than-any-existing-trigger tier",Illustrative,"direct confirmed contact is stronger evidence than any indirect trigger, even though the alien couldn't be saved"

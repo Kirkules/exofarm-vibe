@@ -2,6 +2,25 @@
 
 ## Exoplanet Types
 
+**At a glance:**
+- **Four Strategy Dimensions** — Protection/Enclosure, Biosphere
+  Integration, Synthesis/Self-Sufficiency, Energy Management; every planet
+  has pressure on all four, weighted differently.
+- **Initial Planet Types** — Volcanic, Verdant/Temperate, Arid/Desert,
+  Frozen/Ice; each a distinct dimension-pressure profile.
+- **Hazard Priors** — per-planet `TrueRisk(Weather)`/`TrueRisk(Bio-hazard)`,
+  each the arithmetic mean of 2-3 sub-factors (`data/hazard_priors.csv`).
+- **Data-Gathering Mechanism** — hidden Beta(a,b) per sub-factor;
+  `MatchedRisk = a/(a+b)`, `Confidence = ν/(ν+k)`; reused in simplified
+  form by other factions' data-collection scoring.
+- **In-Simulation Hazard Events** — Storm/Temperature Extremity: fixed
+  per-run schedule, `Confidence`-scaled telegraph, Energy-funded shield
+  coverage decides consequence. Bio-hazard: standing risk, quarter-season
+  epidemiology tick.
+- **Wild Animal Populations** — grazer/predator/pollinator kinds; size
+  class + size tier; site-count-driven growth/decay; per-size
+  fence/shield reachability; huge/titan wall destruction.
+
 ### Design Philosophy
 Each planet type should function like a character class — it should be impossible to
 apply the same general approach to every planet, without any planet reducing to a
@@ -10,48 +29,59 @@ achieved with a **distribution of pressure across four strategy dimensions**, no
 1:1 planet→dimension mapping: every planet type has some pressure on every
 dimension, just weighted differently — a dominant pressure or two, moderate
 pressure elsewhere, minimal pressure on whatever the planet makes easy. This directly
-realizes the "variety comes from different scenarios, not reshuffled numbers"
-replayability idea flagged early in the design-principles work.
+realizes the idea that variety should come from different planet scenarios
+rather than reshuffled numbers (see Design Principles' open replayability
+thread).
 
 ### The Four Strategy Dimensions
-- **A — Protection/Enclosure.** Weather-protection shielding, indoor/enclosed tech
+- **Protection/Enclosure.** Weather-protection shielding, indoor/enclosed tech
   (Advanced Greenhouse-tier investment).
-- **B — Biosphere Integration.** The Local Agriculture path — hybridizing with
+- **Biosphere Integration.** The Local Agriculture path — hybridizing with
   native flora/fauna, open-air farming that works *with* the planet's ecosystem.
-- **C — Synthesis/Self-Sufficiency.** Heavy fabrication/synthesized production
+- **Synthesis/Self-Sufficiency.** Heavy fabrication/synthesized production
   (deep fabrication chains, hydroponics, drone-driven output) to compensate for a
   poor natural substrate.
-- **D — Energy Management.** Energy production diversity and budgeting under
+- **Energy Management.** Energy production diversity and budgeting under
   scarcity. Given real teeth by the temperature-control mechanic below — without
   something to actually manage, this dimension would just be a label.
 
-**Temperature/Protection/Energy coupling:** enclosed or protected structures (A)
-carry a passive Energy upkeep cost (D) that scales with how extreme the planet's
-ambient temperature is — significant on both very hot and very cold planets (keeping
-interiors cool vs. warm), near-zero on temperate ones. Always explicitly listed when
-it has an impact, never a hidden drain. This is what naturally couples A and D
-together on extreme-temperature planets while leaving them mostly uncoupled
-elsewhere, without needing to hand-author that coupling per planet.
+(See `data/strategy_dimensions.csv` for these four alongside what's exclusive
+to each per planet.)
+
+**Temperature/Protection/Energy coupling:** enclosed or protected structures
+(Protection/Enclosure) carry a passive Energy upkeep cost (Energy Management)
+that scales with how extreme the planet's ambient temperature is —
+significant on both very hot and very cold planets (keeping interiors cool
+vs. warm), near-zero on temperate ones. Always explicitly listed when it has
+an impact, never a hidden drain. This is what naturally couples
+Protection/Enclosure and Energy Management together on extreme-temperature
+planets while leaving them mostly uncoupled elsewhere, without needing to
+hand-author that coupling per planet.
 
 ### Initial Planet Types
-Four to start, each with a qualitative identity below; the exact A/B/C/D pressure
-distribution per planet is still to be worked out (open thread — see below).
+Four to start, each with a qualitative identity below; the exact pressure
+distribution per planet across the four strategy dimensions is still to be
+worked out (open thread — see below).
 
 - **Volcanic** — hostile atmosphere, extreme heat, harsh weather. Forces the Advanced
-  Greenhouse path (B is low). High A (constant protection needed) and, via the
-  temperature coupling, high D. Rich in structural/electronics ore and (per the
+  Greenhouse path (Biosphere Integration is low). High Protection/Enclosure
+  (constant protection needed) and, via the temperature coupling, high Energy
+  Management. Rich in structural/electronics ore and (per the
   hazard↔resource correlation principle) shielding-relevant rare materials.
 - **Verdant/Temperate** — hospitable atmosphere, mild hazards, rich native
-  biosphere. Favors the Local Agriculture path (B is high). Low A and low D (little
-  climate control needed). Scarcer rare/advanced materials — tech progression here
+  biosphere. Favors the Local Agriculture path (Biosphere Integration is
+  high). Low Protection/Enclosure and low Energy Management (little climate
+  control needed). Scarcer rare/advanced materials — tech progression here
   has to come from somewhere other than raw material abundance.
 - **Arid/Desert** — poor farming substrate (water/organic scarcity) but abundant
-  baseline Energy (strong sun). High C (heavy reliance on synthesis/hydroponics to
-  compensate for the substrate); likely low D, since abundant Energy offsets what
-  upkeep exists; low B (little native biosphere to integrate with).
-- **Frozen/Ice** — weak/distant sun, extreme cold. High D (Energy is the
-  constrained resource) and high A (enclosure is mandatory, via the same
-  temperature-coupling logic as Volcanic, just for cold instead of heat). Low B.
+  baseline Energy (strong sun). High Synthesis/Self-Sufficiency (heavy
+  reliance on synthesis/hydroponics to compensate for the substrate); likely
+  low Energy Management, since abundant Energy offsets what upkeep exists;
+  low Biosphere Integration (little native biosphere to integrate with).
+- **Frozen/Ice** — weak/distant sun, extreme cold. High Energy Management
+  (Energy is the constrained resource) and high Protection/Enclosure
+  (enclosure is mandatory, via the same temperature-coupling logic as
+  Volcanic, just for cold instead of heat). Low Biosphere Integration.
 
 > **Open questions:** the exact quantitative pressure distribution (dominant /
 > moderate / minimal) per planet across all four dimensions is not yet defined —
@@ -59,8 +89,8 @@ distribution per planet is still to be worked out (open thread — see below).
 > Energy base regeneration rates per planet are also still open.
 
 ### Hazard Priors (Safeguard Coalition's TrueRisk Values)
-Feeds the Safeguard Coalition's Bayesian `MatchedRisk` calculation (see SEED
-Factions in Win/Lose Conditions). Each value is a **probability that the danger
+Feeds the Safeguard Coalition's Bayesian `MatchedRisk` calculation (see [SEED Factions](06_planets_and_scoring.md#seed-factions)
+in [Win / Lose Conditions](06_planets_and_scoring.md#win--lose-conditions)). Each value is a **probability that the danger
 proves insurmountable for humans**, not just a severity/presence rating. Granular
 sub-factors exist to inform event-spawning design (storm frequency, etc.) even
 though the actual scoring formula only uses the two top-level axes
@@ -68,28 +98,12 @@ though the actual scoring formula only uses the two top-level axes
 sub-factors.
 
 **Weather** — Storm Severity/Frequency, Temperature Extremity, Atmospheric Hazard
-(toxic/corrosive/thin atmosphere, distinct from temperature or storms):
-
-| Planet | Storm | Temp | Atmo | **TrueRisk(Weather)** |
-|--------|-------|------|------|------------------------|
-| Volcanic | 0.5 | 0.6 | 0.5 | **0.53** |
-| Verdant/Temperate | 0.1 | 0.05 | 0.05 | **0.07** |
-| Arid/Desert | 0.3 | 0.4 | 0.15 | **0.28** |
-| Frozen/Ice | 0.2 | 0.65 | 0.2 | **0.35** |
-
-**Bio-hazard** — Pathogen Threat (microbial and viral risk merged into one
-sub-factor — they ended up identical in reasoning and value for all four planets, so
-tracking them separately added bookkeeping with no distinction; can be split again
-later if a future planet type ever wants to differentiate them) and
+(toxic/corrosive/thin atmosphere, distinct from temperature or storms).
+**Bio-hazard** — Pathogen Threat (microbial and viral risk, merged into one
+sub-factor since they behave identically for every current planet type) and
 Toxic/Parasitic Organism Threat (contact-based danger from native life, distinct
-from infection-based Pathogen Threat):
-
-| Planet | Pathogen | Toxic/Parasitic | **TrueRisk(Bio-hazard)** |
-|--------|----------|------------------|----------------------------|
-| Volcanic | 0.1 | 0.1 | **0.10** |
-| Verdant/Temperate | 0.4 | 0.45 | **0.43** |
-| Arid/Desert | 0.15 | 0.2 | **0.18** |
-| Frozen/Ice | 0.1 | 0.05 | **0.08** |
+from infection-based Pathogen Threat). Per-planet values for both axes: see
+`data/hazard_priors.csv`.
 
 Extreme physical environments (Volcanic, Frozen) suppress biological complexity and
 thus bio-risk, while the mild/lush Verdant planet trades weather-safety for
@@ -134,15 +148,8 @@ statistics library needed at runtime:
 - **Implementation footprint**: just two running counters per sub-factor (ten total
   across all five). No distribution objects, no sampling.
 
-**Per-sub-factor data sources, success/failure definitions, and player-facing text:**
-
-| Sub-factor | Data source | Success | Failure | Player sees |
-|---|---|---|---|---|
-| Storm Severity/Frequency | Scanner Station's Weather Sensing mode (see [Farm/Production](04_buildings_and_economy.md#farmproduction); staffed at base tier, one reading/season active) or a weather balloon (exploration task) | Storm event detected in the window | Calm conditions | *"Storm activity detected"* / *"Conditions calm."* |
-| Temperature Extremity | Same Scanner Station Weather Sensing mode, or a dedicated probe | Window registered a temperature swing extreme enough to threaten human safety | Temperatures stayed within safe range | *"Extreme temperature swing recorded"* / *"Temperatures within safe range."* |
-| Atmospheric Hazard | Atmospheric sampling (exploration task) | Sample contained toxic/corrosive compounds above a safe threshold | Clean sample | *"Atmospheric sample: hazardous compounds detected"* / *"Atmospheric sample: clean."* |
-| Pathogen Threat | Bio-survey exploration task or Medical/Research facility | Sampled organism/environment tested positive for a dangerous pathogen | Clean sample | *"Pathogen detected in sample"* / *"No pathogens detected."* |
-| Toxic/Parasitic Organism Threat | Exploration tasks encountering wildlife | Encountered organism proved dangerous (venomous/toxic) | Organisms encountered were benign | *"Dangerous organism encountered"* / *"Wildlife encountered was benign."* |
+**Per-sub-factor data sources, success/failure definitions, and player-facing
+text:** see `data/data_gathering_sources.csv`.
 
 Individual reports appear as short log entries (fits the Transmissions record or
 simulation log, consistent with existing UI patterns). The derived
@@ -151,8 +158,8 @@ per hazard sub-factor (e.g. in a Planetary Assessment panel), updating quietly a
 reports accumulate — never something the player calculates themselves.
 
 **This same underlying mechanism is reused for other factions' data-collection
-scoring**, not just Safeguard — Stewardship Caucus's `EcologicalData` (see SEED
-Factions in Win/Lose Conditions) applies it in simplified form, needing only the
+scoring**, not just Safeguard — Stewardship Caucus's `EcologicalData` (see [SEED Factions](06_planets_and_scoring.md#seed-factions)
+in [Win / Lose Conditions](06_planets_and_scoring.md#win--lose-conditions)) applies it in simplified form, needing only the
 evidence-count term (no `MatchedRisk`-style mean), since some data-gathering
 factions care about reaching a confident answer regardless of what that answer is.
 
@@ -211,13 +218,10 @@ not whether the event happens:
   the warning **one tier better** than the player's current data-`Confidence`
   alone would give (capped at the exact-lead-time tier).
 
-All delivered via the existing **Transmissions** mechanic, which was already
-specifically designed for this purpose — this section is that mechanic's
-concrete realization, not a new system layered on top of it. (How a survey
-now accrues `Confidence` against a fixed schedule rather than a per-season
-coin-flip, and how that feeds the Safeguard score, is being reconciled in
-the Hazards & Data-Gathering design pass — see `DESIGN_TODO.md` `11-B1` /
-`11-B2`.)
+All delivered via the existing **Transmissions** mechanic — this section is
+that mechanic's concrete realization, not a new system layered on top of
+it. (See `DESIGN_TODO.md` `11-B1` / `11-B2` for open reconciliation work
+on how this feeds the Safeguard score.)
 
 **Event severity — a coarse band, shared by Storm and Temperature
 Extremity.** Each scheduled event carries one of two severity bands,
@@ -297,7 +301,8 @@ already empty, not destroyed twice.
     site *and* the current in-sim temperature — which fluctuates through
     Mid-Sim — is outside the 72°F comfort range, clearing the instant
     either condition stops holding.
-  - **Extreme event** → a probability roll (chance TBD) on death, the same
+  - **Extreme event** → a probability roll (see `data/misc_balancing_values.csv`'s
+    "Temperature Extremity" row) on death, the same
     roster-removal mechanic used everywhere else a settler can die.
   - Protection is shared with the production-side consequence: a funded
     Weather/Row Shield covers both crops and any settler working that
@@ -315,15 +320,13 @@ top-severity consequence:
   outdoor Farm/Production site is **destroyed** — removed from the grid
   entirely, not merely paused — requiring an ordinary construction-robot
   build action to reconstruct from scratch on the now-empty slot, per
-  Platform & Core Loop Redesign's Construction. (This tier already meant
-  destruction under the hood; it's stated explicitly now that the
-  distinction from "paused" actually matters.)
+  Platform & Core Loop Redesign's Construction.
 - When a storm event is scheduled at **extreme** severity, every *other*
   unprotected building on the grid (any category, not just the
   directly-targeted Farm/Production site — "unprotected" reuses the same
   Weather/Row Shield coverage check) independently rolls a small chance of
-  the same fate. Chance value TBD, deferred to balancing like other numeric
-  values in this design.
+  the same fate. Chance value: see `data/misc_balancing_values.csv`'s
+  "Storm" row.
 - **Settler and drone casualties.** At an affected site with no shield
   coverage, a Storm can also **kill an unprotected outdoor settler** and
   **destroy an unprotected outdoor worker drone** — the same roster-removal
@@ -353,10 +356,6 @@ top-severity consequence:
   effectiveness in all tasks (their worker-effort contributes 0.5 instead
   of 1, per Worker Assignment's effort-stacking mechanic), and locks them
   out of exploration-task assignment entirely while active.
-
-> **Resolved**: the per-settler tracking system this needed is now fully
-> designed — see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Settler State](05_settlers_and_exploration.md#settler-state), [Injuries](05_settlers_and_exploration.md#injuries), and
-> [Storied](05_settlers_and_exploration.md#storied) subsections.
 
 *Bio-hazard* — diseases (**Pathogen Threat**) and parasites
 (**Toxic/Parasitic Organism Threat**), a settlement-facing standing risk
@@ -429,19 +428,13 @@ Fruit Orchard's `mature→fruiting`; Timber Grove's
 Economy's [Plant-Crop Production Model](04_buildings_and_economy.md#plant-crop-production-model)), computed at that step's
 completion:
 
-| Tier | Effect on that cycle's harvest |
-|---|---|
-| low | −1 to the harvest range's **minimum** |
-| moderate | −1 to the **rolled** harvest amount |
-| high | −2 to the rolled amount |
-| overrunning | harvest → 0 |
-
-(clamped ≥ 0). **Titan** grazers act **one tier higher** for this effect
-only (a titan-sized high population behaves as overrunning) — their
-growth-target tier is unaffected. **Every plant-crop yield is a range
-`[min, max]`, rolled uniformly** — a value that was a flat `v` is `[v,
-v]`; whether building upgrades widen the range is TBD, deferred to
-balancing. If a fence protecting a matching site is breached mid-season,
+Per-tier effect on that cycle's harvest (clamped ≥ 0): see
+`data/wild_animal_grazer_effect.csv`. **Titan** grazers act **one tier
+higher** for this effect only (a titan-sized high population behaves as
+overrunning) — their growth-target tier is unaffected. **Every plant-crop
+yield is a range `[min, max]`, rolled uniformly** — a value that was a
+flat `v` is `[v, v]`; whether building upgrades widen the range is TBD
+(see `data/misc_balancing_values.csv`'s "Wild Animal Populations" row). If a fence protecting a matching site is breached mid-season,
 that site is exposed to grazing for the rest of Mid-Sim immediately, not
 just from the following season. Two things remove a site from a grazer's
 diet entirely, rather than merely blocking reach: a **Hydroponic Farm**
@@ -493,15 +486,8 @@ herd being targeted by a carrier predator.
 resolution, in this order: **carrier infections → site destruction →
 population growth.** Each population's **target tier** is set by an
 effective site count, then it moves **at most one tier** toward that
-target:
-
-| Effective site count | Target tier |
-|---|---|
-| 0 (or negative) | none — dropped from tracking |
-| 1 | low |
-| 2 | moderate |
-| 3 | high |
-| 4+ | overrunning |
+target — see `data/wild_animal_growth_tiers.csv` for the site-count-to-tier
+mapping.
 
 A **grazer's** site count = the number of reachable matching plant-crop
 sites that completed a growth step this season (whether or not the
@@ -585,12 +571,8 @@ fight.
 
 Destruction, checked on the quarter-season ticks, for **huge** and
 **titan** only (no smaller size ever attempts it — they're simply excluded
-if blocked):
-
-| Attacker | vs. Wood | vs. Concrete |
-|---|---|---|
-| Huge | guaranteed | 25% per tick |
-| Titan | guaranteed | guaranteed |
+if blocked): see `data/wild_animal_wall_destruction.csv` for per-attacker
+odds against each fence material.
 
 Once a barrier tile is destroyed, that site is exposed to **every**
 population (not only the one that broke it) immediately, for the rest of
@@ -611,6 +593,17 @@ and open the same panel.
 ---
 
 ## Win / Lose Conditions
+
+**At a glance:**
+- **Success** — survive to the season limit; score = a multi-sub-metric
+  viability report, not one opaque number.
+- **SEED Factions** — Sustenance, Safeguard, Stewardship, Development,
+  Frontier Legends; each 0-100%, a normalized sum of that faction's own
+  terms.
+- **Critical Failure** — exactly one trigger: every settler dead
+  (starvation, no Water infrastructure, or hazard casualties).
+- **Gradual Decline** — a run can be lost slowly, with no single
+  critical event.
 
 ### Success
 - Survive the maximum number of seasons
@@ -699,17 +692,17 @@ rather than repeated per faction below.
     hazard forces the data-gathering that unlocks dealing with it anyway, so
     information-gathering isn't an artificial side-quest bolted onto survival.
   - Total Safeguard score = some combination of `Score(Weather)` and
-    `Score(Bio-hazard)` — exact combination (sum, average, etc.) not yet decided.
-    Both are the same kind of quantity (a Score(hazard) value on the same scale),
+    `Score(Bio-hazard)` — see `data/misc_balancing_values.csv`'s "Safeguard
+    Coalition" row for the combination method. Both are the same kind of quantity (a Score(hazard) value on the same scale),
     so no additional cross-normalization is needed to combine them, unlike
     Stewardship's and Development's formulas below.
 - **Stewardship Caucus** *(name undecided — alternative: Non-Intervention Bloc)*.
   Conservation-minded: opposes humans acting as a colonial force, wants to "do
   things right this time" — both to avoid repeating Earth's mistake and out of
   genuine concern for colonized life/planets. Likely pulls against the Development
-  Bloc mechanically — probably rewards leaning into strategy dimension **B
-  (Biosphere Integration)** and penalizes aggressive extraction/dimension **C**
-  play.
+  Bloc mechanically — probably rewards leaning into strategy dimension
+  **Biosphere Integration** and penalizes aggressive extraction/strategy
+  dimension **Synthesis/Self-Sufficiency** play.
 
   **Mechanically defined**, across three axes, weighted more heavily toward data
   than Safeguard — Stewardship's job is fundamentally assessment ("how hard would
@@ -756,21 +749,22 @@ rather than repeated per faction below.
     fixed/environmental type (deposits, Forest tiles, all of it);
     untouched slots don't count. The starting settlement's own placement
     is the first change measured this way; on top of any slot it happens
-    to cover, **founding the settlement adds a small flat amount** — there
-    is no zero-impact way to settle an alien world — kept deliberately
-    minor relative to a run's ongoing extraction. **Further
-    disruption**: among disrupted slots, ones whose underlying feature
-    required active discovery (a Mid-depth or Deep tier survey reveal)
-    before being acted on contribute more than a base-disrupted slot does —
-    surfacing something genuinely hidden is worse than using something
-    already visible from Season 1 (Surface-tier deposits, Forest tiles,
-    which were never hidden and so never get this extra weight). Exact
-    weighting TBD, deferred to balancing like other numeric values in this
-    design. **Fencing extends this beyond fixed/environmental slots**: a
-    built fence tile (see Buildings & Economy's [Fencing](04_buildings_and_economy.md#fencing)) counts as disrupted
-    the same as a changed fixed/environmental slot, whatever the tile
-    underneath; a **planned-but-not-yet-built** fence tile counts for
-    **half** that.
+    to cover, **founding the settlement adds a small flat amount** (see
+    `data/misc_balancing_values.csv`'s "Stewardship (DisruptionFootprint)"
+    rows) — there is no zero-impact way to settle an alien world.
+    **Further disruption**: among disrupted slots, ones whose underlying
+    feature required active discovery (a Mid-depth or Deep tier survey
+    reveal) before being acted on contribute more than a base-disrupted
+    slot does — surfacing something genuinely hidden is worse than using
+    something already visible from Season 1 (Surface-tier deposits, Forest
+    tiles, which were never hidden and so never get this extra weight).
+    Exact weighting: see `data/misc_balancing_values.csv`'s "Stewardship
+    (DisruptionFootprint)" rows. **Fencing extends this beyond
+    fixed/environmental slots**: a built fence tile (see Buildings &
+    Economy's [Fencing](04_buildings_and_economy.md#fencing)) counts as disrupted the same as a changed
+    fixed/environmental slot, whatever the tile underneath; a
+    **planned-but-not-yet-built** fence tile counts for less (see the same
+    rows).
   - `ExtractionRestraint` — penalized by cumulative volume of **non-sustainable**
     resources extracted: Iron Ore, Copper Ore, Stone, rare metals (both bounded and
     effectively-infinite deposit sub-types incur it at the same rate — neither
@@ -815,8 +809,9 @@ rather than repeated per faction below.
     into alliance, whether attempted-and-failed or simply never pursued
     past initial contact; a large penalty for choosing Bluff/Coercive or
     Military Exploitation at First Contact, applied for making that choice
-    regardless of whether the attempt itself succeeds. Exact tier values
-    TBD, deferred to balancing like other numeric values in this design.
+    regardless of whether the attempt itself succeeds. Exact tier values:
+    see `data/misc_balancing_values.csv`'s "Stewardship (ContactRestraint)"
+    row.
   - These five are genuinely different *kinds* of quantities (a
     data-completeness percentage, a spatial ratio, two differently-shaped
     extraction/emissions penalties, and a discrete per-run tier), so each
@@ -824,14 +819,15 @@ rather than repeated per faction below.
     "normalize before combining unrelated values" design principle:
     `Stewardship = normalize(EcologicalData) + normalize(DisruptionFootprint) +
     normalize(ExtractionRestraint) + normalize(EmissionsRestraint) +
-    normalize(ContactRestraint)` (weights TBD)
+    normalize(ContactRestraint)` (term weights: see
+    `data/misc_balancing_values.csv`'s "Stewardship" row)
   - A fifth axis — rewarding informed integration of native species over
     Earth-imported ones, gated by whether that species has actually been studied —
     was considered but dropped as too mechanically complex alongside these four.
 - **Development Bloc.** Prioritizes resource access for advanced technology —
   rewards stockpiles of non-food resources (especially rare ones) and achieving
   more advanced technology tiers as evidence those resources are available. Likely
-  ties to strategy dimension **C (Synthesis)** and the rare-metals/Ore economy. A
+  ties to strategy dimension **Synthesis/Self-Sufficiency** and the rare-metals/Ore economy. A
   "number go up = good" faction in spirit — rewards raw capacity even without a
   clear use for it, unlike Safeguard's requirement that preparedness be justified
   by data.
@@ -901,8 +897,6 @@ rather than repeated per faction below.
     exploration task at all, keeping `StandoutSettlerRecord` at zero. This
     faction specifically rewards choosing to risk real settlers rather than
     avoiding exploration altogether.
-
-All five SEED Factions now have real formulas.
 
 > **Open question:** whether/how the five sub-metrics combine into any single
 > comparable figure across runs, if at all, is still open.

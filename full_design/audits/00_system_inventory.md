@@ -270,10 +270,11 @@ against each (mostly in §4–6):
   text-legibility ceiling; failure legibility; difficulty from breadth of
   tradeoffs; forgiving of mistakes / punishing of neglect; normalize before
   combining unrelated values; docs describe current design not its history.
-- **SEED Faction scoring** — `06` Win/Lose Conditions. Does the system feed the
+- **SEED Faction scoring** — `06` Win / Lose Conditions. Does the system feed the
   formulas it's meant to (Sustenance / Safeguard / Stewardship / Development /
   Frontier Legends), with the right quantities, at the right time, normalized?
-- **Planet Types & strategy dimensions A/B/C/D** — `06` Exoplanet Types. Does
+- **Planet Types & strategy dimensions (Protection/Enclosure, Biosphere
+  Integration, Synthesis/Self-Sufficiency, Energy Management)** — `06` Exoplanet Types. Does
   the system express meaningfully different pressure across planet types without
   reducing any planet to one correct strategy?
 - **Narrative / Transmissions integration** — `02` Gameplay-Story Integration.

@@ -251,7 +251,7 @@ the same lockout rule her death first proved — no expedition has ever
 followed her, or ever will.
 
 Naveen Kiran is, by any reasonable account, the first human being to ever
-set foot on another world. See Win/Lose Conditions' SEED Factions for how
+set foot on another world. See [Win / Lose Conditions](06_planets_and_scoring.md#win--lose-conditions)' [SEED Factions](06_planets_and_scoring.md#seed-factions) for how
 her name lives on.
 
 **Seed-Ships.** Following a successful expedition, if a planet's viability is high

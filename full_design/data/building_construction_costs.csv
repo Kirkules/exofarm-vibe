@@ -7,6 +7,8 @@ Geothermal Generator,Iron,TBD,TBD,
 Fuel-based Generator I,Lumber,TBD,TBD,"deliberately cheap, common materials only"
 Fuel-based Generator I,Concrete,TBD,TBD,
 Fuel-based Generator I,Iron,TBD,TBD,
+Fuel-based Generator II,Lumber,TBD,TBD,"additional, on top of base cost"
+Fuel-based Generator II,Concrete,TBD,TBD,"additional, on top of base cost"
 Grain Field,Lumber,TBD,TBD,ratio TBD
 Grain Field,Concrete,TBD,TBD,ratio TBD
 Fiber Field,Lumber,TBD,TBD,ratio TBD
@@ -23,6 +25,8 @@ Sheep Pasture,Lumber,TBD,TBD,ratio TBD; slated for removal
 Sheep Pasture,Concrete,TBD,TBD,ratio TBD; slated for removal
 Husbandry Site,Lumber,TBD,TBD,ratio TBD
 Husbandry Site,Concrete,TBD,TBD,ratio TBD
+Hydroponic Farm,Lumber,TBD,TBD,"ratio TBD; Indoor alternative to Grain Field/Fiber Field, same base-material shape"
+Hydroponic Farm,Concrete,TBD,TBD,ratio TBD
 Mine,Lumber,TBD,TBD,ratio TBD
 Mine,Concrete,TBD,TBD,ratio TBD
 Mine,Stone,1,Needs Balancing,
@@ -46,6 +50,10 @@ Scanner Station,Iron,TBD,TBD,
 Scanner Station,Copper,TBD,TBD,
 Scanner Station,High-Tech Components,TBD,TBD,
 Scanner Station,High-Resolution Screens,TBD,TBD,
+Scanner Station II,Lumber,TBD,TBD,"additional, on top of base cost"
+Scanner Station II,Concrete,TBD,TBD,"additional, on top of base cost"
+Scanner Station III,Lumber,TBD,TBD,"additional, on top of base cost"
+Scanner Station III,Concrete,TBD,TBD,"additional, on top of base cost"
 Research Lab,Lumber,TBD,TBD,ratio TBD
 Research Lab,Concrete,TBD,TBD,ratio TBD
 Research Lab,High-Tech Components,TBD,TBD,
@@ -57,6 +65,10 @@ Robotics Assembly,Lumber,TBD,TBD,ratio TBD
 Robotics Assembly,Concrete,TBD,TBD,ratio TBD
 Robotics Assembly,Iron,TBD,TBD,
 Robotics Assembly,Copper,TBD,TBD,
+Robotics Assembly II,Lumber,TBD,TBD,"additional, on top of base cost"
+Robotics Assembly II,Concrete,TBD,TBD,"additional, on top of base cost"
+Stone Processing II,Lumber,TBD,TBD,"additional, on top of base cost; Stone Processing I is a free starting building with no cost row of its own"
+Stone Processing II,Concrete,TBD,TBD,"additional, on top of base cost"
 Smelter,Lumber,TBD,TBD,ratio TBD
 Smelter,Concrete,TBD,TBD,ratio TBD
 Smelter,Stone,TBD,TBD,
@@ -67,6 +79,8 @@ Tinkerer's Workshop,Concrete,TBD,TBD,ratio TBD
 Tinkerer's Workshop,Iron,TBD,TBD,
 Tinkerer's Workshop,Copper,TBD,TBD,
 Tinkerer's Workshop,Silicon,TBD,TBD,most materially demanding Fabrication building cost
+Carpenter's Shop,Lumber,TBD,TBD,"additional, on top of base cost; Sawmill is a free starting building with no cost row of its own"
+Carpenter's Shop,Concrete,TBD,TBD,"additional, on top of base cost"
 Weather Shield,Concrete,TBD,TBD,
 Weather Shield,Iron,TBD,TBD,
 Weather Shield II,High-Tech Components,TBD,TBD,"additional, on top of base cost"
