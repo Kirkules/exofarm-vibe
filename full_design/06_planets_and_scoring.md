@@ -316,7 +316,7 @@ already empty, not destroyed twice.
 
 **Storm** — preparedness-coverage tiers, same shape as before, plus a new
 top-severity consequence:
-- Adequately covered (Weather Shield/Row Shield with sufficient
+- Adequately **Shielded** (Weather Shield/Row Shield with sufficient
   `Preparedness` relative to the hazard) → no effect
 - Under-covered → production paused for the event's duration
 - Severely under-covered (`MatchedPreparedness` near zero) → the affected

@@ -36,6 +36,44 @@ Testing conventions moved to [Testing Strategy](07_production_and_technical.md#t
 > see [Platform](03_core_loop_and_grid.md#platform) & Core Loop Redesign above (PC/landscape, FTL/Into the Breach visual
 > reference) — and are to be resolved in a full Art Design pass.
 
+**Shared status-cue vocabulary.** Design Principles' "color is never the
+sole channel of information" rule is satisfied through one shared set of
+cues reused everywhere, rather than a bespoke treatment invented per
+surface. Any UI element that encodes a state draws its redundant,
+non-color channel from this vocabulary:
+
+- **Three-state sufficiency indicators** (covered / at-risk / not covered)
+  use one fixed, shape-distinct icon set alongside color — illustrative:
+  a filled circle, a half-filled triangle, an empty crossed square.
+  Reused by the Site Panel's power and Water indicators and their grid-tile
+  counterparts (see Core Loop & Grid's [Site Panel (UI)](03_core_loop_and_grid.md#site-panel-ui)).
+- **Paired lines on a bar** (planned Income vs. planned Consumption/demand,
+  on both the Energy and Water bars — see Buildings & Economy's
+  [Resources](04_buildings_and_economy.md#resources)) are distinguished by stroke, not hue: **Income is dashed
+  and thicker**, **Consumption/demand is solid and drawn in front**, so both
+  stay readable when they coincide exactly. Both carry a text label.
+- **Category glyphs** lead every entry in a mixed list, so its kind reads
+  without parsing the text — used by the simulation log's line types and
+  the Transmissions record's categories.
+- **Binary tile markers** on the grid are their own glyph: one for "a
+  detected deposit is under this tile," one for "a detected aquifer is under
+  this tile." Deliberately binary — type, depth, and reveal state live in
+  the tile's Site Panel detail and hover tooltip, not in the grid marker.
+- **A shortfall within a set of parallel values** (the four nutrition axes)
+  is marked with a glyph on the short value, alongside its always-present
+  text label — never a tint alone.
+- **Worker state** uses motion and iconography: animated for actively
+  working, static for idle, an overlay icon for a hazard effect (see Core
+  Loop & Grid's [Worker Roster (UI)](03_core_loop_and_grid.md#worker-roster-ui)).
+
+**Distinct words for distinct protections.** "Protected" means three
+unrelated things, so the UI never uses the bare word: a tile inside a
+Weather/Row Shield's area is **Shielded**; a worker inside a powered Indoor
+building is **Sheltered**; a settler covered by a carried item is **has
+PPE** or **has Temperature-Resistant Gear**. Each is a different mechanism
+with a different failure mode, and collapsing them into one word hides which
+one actually applies.
+
 **Ambient Mid-Sim visuals for Post-Sim-resolved activities.** An activity whose
 mechanical resolution lives at Post-Sim (see Core Loop & Grid's [Season Structure](03_core_loop_and_grid.md#season-structure))
 can still get a purely ambient visual depiction during the Mid-Sim window, for

@@ -382,7 +382,11 @@ that search.
 **Transmissions (in-run).** A "Transmissions" record, accessible via a mail-evoking
 icon in the HUD, collects messages received over the FTL communication trace across
 the whole run (persistent, unlike the per-season simulation log). Reviewing it is
-mostly optional, consistent with the minimal-UI-interaction principle. Content is
+mostly optional, consistent with the minimal-UI-interaction principle. Each
+entry leads with a **category glyph** (per the shared status-cue vocabulary
+— see Production & Technical's [Art Design](07_production_and_technical.md#art-design)), since a run's worth of
+accumulated transmissions is otherwise too much to re-parse each season to
+find the one that matters. Content is
 mixed: Earth/SEED political and world-state flavor, exploration task outcomes and
 Mission Report content framed in the Herald's own voice (a report the player-character
 is filing, not neutral narrator text), and — importantly — diegetically-framed game

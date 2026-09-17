@@ -24,6 +24,17 @@ tracks what's needed *underneath* them.
 
 ## Open Items
 
+- [ ] **Every game element needs a hover tooltip.** Tooltips are specified
+  ad hoc today — the Site Panel gives each of its elements one, food items
+  have a nutrient-profile tooltip, the Energy bar has a caveat tooltip —
+  but there's no blanket rule, so new surfaces keep having to decide
+  individually. Wanted: hover detail on *every* element carrying state a
+  player might question, grid tiles included (deposit/aquifer type, depth,
+  what's still unrevealed — the detail deliberately kept out of the binary
+  grid glyph). Needs a consistent content convention (plain language, no
+  formulas, per the existing Site Panel precedent) and a decision on
+  touch-equivalent access. Surfaced 2026-09-17 during the color-channel
+  pass.
 - [ ] **Landing-windfall candidate for the turn-one bootstrap (theme 8).**
   Proposed 2026-09-17 while resolving failure legibility: give the
   settlement a small **random windfall of Stone and Wood** at the start of
@@ -1480,3 +1491,30 @@ Theme 4 (failure legibility thin across systems).
 - `7a-A-P1`/`7b-B-P2` — **deferred to theme 8**, which decides whether the
   bootstrap deadlock can occur at all; see the landing-windfall candidate
   under Open Items.
+
+### Addressed by the color-channel pass (2026-09-17)
+
+Theme 5 ("color is never the sole channel" recorded for no overlay or
+indicator) — fixed once, as a **shared status-cue vocabulary** in
+Production & Technical's Art Design, referenced by each surface rather
+than re-specified per surface.
+
+- `1-SF4` — **resolved.** Grid overlays draw from the shared vocabulary;
+  three-state indicators reuse one fixed shape set.
+- `2-SF7` — **resolved.** Every log line leads with a category glyph;
+  Transmissions entries get the same treatment, since a run's accumulated
+  transmissions are otherwise too much to re-parse each season.
+- `3-SF4` — **closed, already satisfied.** Worker states already use motion
+  and iconography (animated / static / overlay icon), not color.
+- `5-SF6` — **resolved.** Income is dashed and thicker, Consumption/demand
+  solid and drawn in front, so both read when they coincide.
+- `7b-B-P1` — **resolved.** One binary glyph for a detected deposit, one
+  for a detected aquifer; type, depth and reveal state move to the Site
+  Panel detail and tile tooltip.
+- `8-SF9` — **resolved.** A short nutrition axis is marked with a glyph
+  beside its label. The food-for-consumption picker's own UI design stays
+  open under `8-SF1`.
+- `11-SF15` — **resolved.** Shielded (tile inside a shield), Sheltered
+  (worker in a powered Indoor building), and has PPE / has
+  Temperature-Resistant Gear (carried item) replace the overloaded word
+  "protected".

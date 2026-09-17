@@ -951,7 +951,10 @@ in any food item's info tooltip.
     the settler headcount at all → settler deaths, as described above.
   - **Tier 2 — axis imbalance (soft):** bulk need is covered, but one or more axes
     falls short of pooled need → **no in-run consequence** — tracked only for the
-    end-of-run Food Security score below.
+    end-of-run Food Security score below. A short axis is marked with a
+    glyph beside its always-present label (per the shared status-cue
+    vocabulary — see Production & Technical's [Art Design](07_production_and_technical.md#art-design)), never a tint
+    alone.
 - **No penalty for excess** in any axis — surplus simply accumulates in the shared
   inventory stockpile, feeding the score below.
 

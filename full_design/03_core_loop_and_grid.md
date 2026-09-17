@@ -817,6 +817,10 @@ the most recent season and its following Post-Sim:
 - **Post-Sim outcomes go in an after-the-season section** at the end of the
   log, stamped at season end: vaccine unlocks, Deposit Discovery reveals,
   exploration escalations unlocking, and similar.
+- **Every line leads with its category glyph** — aggregated production,
+  noteworthy Mid-Sim event, after-the-season outcome — per the shared
+  status-cue vocabulary (see [Art Design](07_production_and_technical.md#art-design)), so line kinds stay
+  distinguishable without color.
 - **Transmissions stays fully separate** — the persistent, cross-season,
   narrative-flavored channel (see Story & World's Gameplay-Story
   Integration) serves a distinct purpose (advance warnings, flavor, Herald's-

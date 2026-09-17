@@ -95,7 +95,9 @@ between them, never a depleting reserve.
   max Income rate** (sum of every currently-placed producer's maximum
   rate — Reliable plus Conditional, assuming every Conditional source runs
   its full planned window uninterrupted), with two indicator lines on it:
-  current planned Income rate and current planned Consumption rate. This is
+  current planned Income rate and current planned Consumption rate,
+  distinguished by stroke rather than hue per the shared status-cue
+  vocabulary (see Production & Technical's [Art Design](07_production_and_technical.md#art-design)). This is
   explicitly a best-case estimate, not a guarantee — the bar's hover
   tooltip states plainly that actual results can come in lower if fuel runs
   out early or a hazard disrupts production, so the player never mistakes
@@ -1100,6 +1102,14 @@ player later relocates the built structure elsewhere. A Forest tile with a
 hidden deposit underneath doesn't force that same choice, since
 Clear-Cutting isn't a building and doesn't consume the tile — harvesting
 the Wood doesn't cost later access to whatever's underneath.
+
+**Grid marking.** A tile with a detected deposit under it carries one
+binary glyph, and a tile with a detected aquifer carries another (per the
+shared status-cue vocabulary — see Production & Technical's
+[Art Design](07_production_and_technical.md#art-design)). Deliberately binary: which deposit type, which depth
+tier, and what's still unrevealed all live in the tile's Site Panel detail
+and hover tooltip rather than in the grid marker, so the farm view stays
+scannable.
 
 **Three depth tiers:**
 - **Surface** — visible from run start, immediately buildable with no discovery
