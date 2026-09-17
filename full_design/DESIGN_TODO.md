@@ -24,6 +24,33 @@ tracks what's needed *underneath* them.
 
 ## Open Items
 
+- [ ] **Peaceful Contact's base alliance reward — no shape (`10b-B1`).**
+  First Contact's Peaceful approach succeeds and grants... something. Only
+  "specific rewards TBD" is written. This is structural, not numeric:
+  several designed things hang off whatever shape it takes — the
+  deepening-alliance arc (whose per-tier rewards are meant to extend it),
+  Trade Agreement availability, Local Delicacy ingredient sourcing, and
+  the zero-staffing passive-benefit reward tier the fruit-animal alliance
+  already set a precedent for. Needed: what a *base* alliance grants
+  before any deepening, and whether that's a standing passive benefit, a
+  one-time payout, an unlock, or some mix. Also open: the deepening arc's
+  tier count and cadence (`10b-B2`), which sets arc length and how many
+  guaranteed-escalation pool slots it generates. Surfaced by the design
+  audit; re-tagged structural 2026-09-17.
+- [ ] **The recurring data-gathering exploration tasks are unauthored
+  (`11-SF9`).** `data/data_gathering_sources.csv` and Planets & Scoring's
+  Data-Gathering Mechanism name a weather balloon, atmospheric sampling, a
+  bio-survey, and a dedicated probe as data sources — and for three of the
+  five hazard sub-factors (Atmospheric Hazard, Pathogen Threat,
+  Toxic/Parasitic Organism Threat) they are the **only** source, since no
+  building generates reports for them. None exist in
+  `data/exploration_task_catalog.csv`. Until they're authored,
+  `Confidence` for those three sub-factors can never rise, which in turn
+  gates Medical Bay's Biological Countermeasures tier and leaves the
+  Safeguard score's `Data` term permanently near its floor. Needed: each
+  task's rarity, risk tier, season gate, Ration cost, required item (if
+  any), repeatability, and how much evidence one completion contributes.
+  Surfaced by the design audit.
 - [ ] **Clear-Cutting / Trapping tile richness — undesigned.** Both are
   production-speed-based Standing Assignments (see Settlers &
   Exploration's Standing Assignments), but the per-tile quantity each one
@@ -368,31 +395,6 @@ tracks what's needed *underneath* them.
 
 ## Newly Surfaced Ideas (recorded, not yet designed in detail)
 
-- [ ] **Automatic higher-value alternative recipe outputs.** An idea for a
-  production site to automatically switch to a better output when a
-  secondary ingredient happens to be in stock (e.g. an Advanced Bakery
-  producing Garlic Butter Bread instead of Bread when Butter is
-  available) — not designed. Vulnerable to race conditions when multiple
-  sites complete a cycle simultaneously and compete for the same scarce
-  secondary ingredient; would need a conflict-resolution mechanism, or a
-  simpler alternative like making "better recipe" a separate building
-  rather than smarter automatic selection. **Possible contradiction to
-  resolve**: Buildings & Economy's Building Schema currently describes
-  this same idea as "the earlier-flagged risky 'automatic alternative
-  output' idea, and stays rejected" (a closed decision), while Core Loop
-  & Grid's Production Model frames it as still open/unresolved pending
-  the race-condition fix above — these two docs currently disagree on
-  whether this is closed or open.
-- [ ] **"Multi-purpose combo buildings" example may be stale.** Core Loop &
-  Grid's Assignment section illustrates a production-building exception
-  with "a Bakery with hydroponic wheat growing in it" — neither "Bakery"
-  nor any multi-purpose/combo-category building exists in the current
-  catalog (Buildings & Economy's buildings.csv), and no building mixes two
-  categories' production in one structure anywhere else in the design.
-  Worth checking whether this example (and the "some sites... are
-  multi-purpose combo buildings" framing around it) is a leftover from
-  before the catalog solidified, or a still-intended mechanic that was
-  never actually built into a real building.
 - [ ] **Rebuilding a demolished starting building.** Once a
   demolish-building mechanic exists (not yet designed), rebuilding a
   demolished Water Processing Plant (see Buildings & Economy's
@@ -1431,3 +1433,20 @@ Core Loop & Grid (Assignment), and three new data sheets.
   without a data migration; source-flavored weighting of *which* injury
   type a given hazard or task tends to inflict is a possible later
   balancing lever, deliberately not taken now.
+
+### Addressed by the phantom-scope pass (2026-09-17)
+
+Theme 7 (referenced as real, never designed).
+
+- `4-B1` — **cut.** Multi-purpose combo buildings had one mention, no
+  catalog entry, and contradicted one-conversion-per-building.
+- `4-SF1` — **cut.** Automatic alternative output is settled as rejected;
+  Core Loop & Grid's competing "unresolved" pointer is removed.
+- `3-B1` — **cut.** Effort-stacking toward a per-site cap had no building
+  instance, so Effort is now just a per-worker rate multiplier and the
+  **Production cap** property is gone; this also obsoletes `3-SF8` and
+  `4-SF8`.
+- `12-B2` — **overtaken.** Covered by the Meta-progression redesign item
+  under Open Items.
+- `10b-B1`/`10b-B2` and `11-SF9` — **promoted to Open Items** as real
+  undesigned content.

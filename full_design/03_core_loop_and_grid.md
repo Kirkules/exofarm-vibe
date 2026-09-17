@@ -354,9 +354,7 @@ dominant one.
 
 ### Production Model
 
-- Every production site has **one primary input→output conversion** (see
-  `DESIGN_TODO.md`'s Newly Surfaced Ideas for an automatic-alternative-
-  output idea that remains unresolved).
+- Every production site has **one primary input→output conversion**.
 - **Production runs on a continuous rate, not a discrete timer.** Progress accumulates
   at `100% / production_time` per second. A boost or penalty modifies that *rate*,
   not a countdown — a cycle 50% complete when a boost hits finishes at half the
@@ -398,12 +396,8 @@ reversible planning-phase action until Next Season is confirmed.
   across seasons until explicitly reassigned, so a stable layout requires no
   repeated action; can be revisited each planning phase but never must be.
   Accepts settlers or drones (see Worker types below). Every production site
-  needs a worker assigned to produce at all (with exceptions: some sites
-  need no staffing, and some are multi-purpose combo buildings — e.g. a
-  Bakery with hydroponic wheat growing in it, staffed by one worker,
-  producing its own wheat *and* baking it, though the wheat-growing side
-  runs slower than a dedicated wheat field). An unstaffed site produces zero
-  output for the season.
+  needs a worker assigned to produce at all, apart from the sites that need
+  no staffing. An unstaffed site produces zero output for the season.
 - **Exploration Task** (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration) — one-shot: the settler
   is gone for the season and returns with a result. Drawn from a small
   pool, always available (not gated to a periodic window), refreshed on
@@ -435,13 +429,12 @@ and Buildings & Economy's [Robotics Assembly](04_buildings_and_economy.md#roboti
   Basic/Advanced Specialized, their Effort values, task eligibility, and
   battery system) lives in Buildings & Economy's Robotics Assembly rather
   than here.
-- **Effort stacks toward a per-site production cap.** A site has a maximum
-  per-cycle output (scaling with its tier/upgrades); each worker contributes
-  their own Effort value toward that cap — 1.0 for an unmodified settler,
-  varying by tier for drones (see [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly)). A single worker might
-  only realize part of an advanced site's potential output, requiring a
-  second worker to reach the cap — creating a spread-thin-vs-concentrate
-  tradeoff on top of the basic staffing decision.
+- **Effort is a rate multiplier, not a pooled quantity.** A worker's Effort
+  scales the rate of the site they're assigned to — 1.0 for an unmodified
+  settler, varying by tier for drones (see [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly)). Sites take
+  one worker per slot; a building wanting genuine parallel work gets
+  multiple slots, each running its own recipe independently (Kitchen is the
+  model — see Buildings & Economy's [Kitchen](04_buildings_and_economy.md#kitchen)).
 - **Every worker-speed modifier is a multiplicative factor** on that
   worker's base rate — Aptitude, Experience, Storied, permanent injuries,
   and sleep quality alike (see `data/settler_modifiers.csv`). They combine

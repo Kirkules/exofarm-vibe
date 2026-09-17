@@ -263,7 +263,7 @@ keeping the catalog from exploding as more planet types are added:
   auto-selected.
 - **Production queue** — ordered `(recipe, limit)` steps; Advancement/
   Skip/Dormant rules; inputs + success roll resolve at cycle start.
-- **Conditional properties** — Production cap, Area of effect, Energy
+- **Conditional properties** — Area of effect, Energy
   upkeep, Preparedness contribution, Data-gathering contribution, Storage
   contribution, Recovery capacity.
 
@@ -421,10 +421,6 @@ site's `feed`/`produce` steps; plant-crop buildings follow their own rule
 instead (see [Plant-Crop Production Model](04_buildings_and_economy.md#plant-crop-production-model)).
 
 **Conditional properties** (apply depending on category/function):
-- **Production cap** — max per-cycle output requiring multiple workers'/drones'
-  effort to reach (effort-stacking, per Worker Assignment). Only meaningful for
-  **staffed** sites, since it's inherently about worker effort reaching a
-  ceiling — unstaffed buildings just produce a flat per-tier rate.
 - **Area of effect** — coverage radius/shape for Protection buildings
   specifically.
 - **Energy upkeep** — passive per-season Energy cost, usually 0; nonzero
@@ -618,8 +614,8 @@ tiles and Clear-Cutting — its category is still Basic Resource Production.)*
 Numbers below are a **first-pass illustrative draft**, not balanced — following
 "numbers stay small," exact values are meant to be tuned empirically via
 playtesting later, not over-engineered now. All buildings in this section:
-Repeatable: yes, Upgrade path: yes (higher tiers reduce duration and/or raise
-the effort-stacking production cap), `TechAchievement` 0 at base tier / 2
+Repeatable: yes, Upgrade path: yes (higher tiers reduce duration),
+`TechAchievement` 0 at base tier / 2
 upgraded (see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)). **Water**: the four animal-based
 buildings ([Dairy Pasture](04_buildings_and_economy.md#dairy-pasture), [Poultry Coop](04_buildings_and_economy.md#poultry-coop), [Sheep Pasture](04_buildings_and_economy.md#sheep-pasture)) draw a flat
 amount per cycle (see `data/recipe_ingredients.csv`; insufficient-Water
@@ -628,10 +624,8 @@ the four plant-crop
 buildings instead draw Water only during specific transitions of their own
 persistent per-site state (see [Plant-Crop Production Model](04_buildings_and_economy.md#plant-crop-production-model), below) —
 never a flat per-cycle amount. Every building in this section stays a
-**single 1-tile footprint** with a correspondingly fixed **1-worker cap**
-(per Core Loop & Grid's Assignment "one worker, one slot" default) —
-upgrades here only ever reduce duration, never raise the effort-stacking
-cap, unlike the general per-building upgrade note above.
+**single 1-tile footprint** taking **one worker** (per Core Loop & Grid's
+Assignment "one worker, one slot" default).
 
 ### Plant-Crop Production Model
 
@@ -672,7 +666,7 @@ detail is below; what's shared across all four:
   draw. Permanently removed, with no further Fertilizer need at all, once a
   plant type has been hybridized (see [Hybridization](04_buildings_and_economy.md#hybridization), below).
 - **Worker effects on the short, active transitions** follow the general
-  Effort-stacking model (see Core Loop & Grid's [Assignment](03_core_loop_and_grid.md#assignment)), same as
+  Effort model (see Core Loop & Grid's [Assignment](03_core_loop_and_grid.md#assignment)), same as
   ordinary production. **Every transition away from a building's
   `unprepared` state is additionally, drastically sped up** by a **Wooden
   Plow** (a passive settlement-wide stock check, not consumed — see
@@ -720,7 +714,7 @@ this redesign trades the prior flat single-step `production_time` for a
 slower, distinct, multi-step cycle.
 
 **1 Grain is added to inventory at the completion of `harvestable →
-unprepared`.** Production cap: 1 (fixed, single tile). 
+unprepared`.** 
 
 ### Fruit Orchard
 
@@ -732,22 +726,22 @@ for each transition's base duration, including `mature → fruiting`'s `k`
 reroll range.
 
 **1 Fruit is added to inventory at the completion of `fruiting →
-mature`.** Production cap: 1 (fixed, single tile). 
+mature`.** 
 
 ### Dairy Pasture
 - Staffing: Staffed | Input/Output/`production_time`: see
   `data/recipes.csv` and `data/recipe_ingredients.csv` (`dairy_pasture.milk`)
-  | Production cap: 1 (fixed, single tile) 
+  
 
 ### Poultry Coop
 - Staffing: Staffed | Input/Output/`production_time`: see
   `data/recipes.csv` and `data/recipe_ingredients.csv` (`poultry_coop.eggs`)
-  | Production cap: 1 (fixed, single tile) 
+  
 
 ### Sheep Pasture
 - Staffing: Staffed | Input/Output/`production_time`: see
   `data/recipes.csv` and `data/recipe_ingredients.csv` (`sheep_pasture.wool`)
-  | Production cap: 1 (fixed, single tile) 
+  
 
 ### Fiber Field
 
@@ -756,7 +750,7 @@ harvestable → unprepared → …`, replanting every cycle. See
 `data/plant_crop_transitions.csv` for each transition's base duration.
 
 **1 Fiber/Cotton is added to inventory at the completion of `harvestable →
-unprepared`.** Production cap: 1 (fixed, single tile). Construction cost:
+unprepared`.** Construction cost:
 see `data/building_construction_costs.csv`.
 
 ### Timber Grove
@@ -775,7 +769,7 @@ maturing on its own), but the loop only actually **completes** — adding
 **1 Wood** to inventory and restarting its timer — the next time a
 worker is present. A Timber Grove held at 100%-pending-worker carries that
 exact state across a season boundary, same as any other in-progress passive
-transition. Production cap: 1 (fixed, single tile). Construction cost: see
+transition. Construction cost: see
 `data/building_construction_costs.csv`.
 
 ### Hydroponic Farm
@@ -1155,21 +1149,19 @@ settler-performed surveys, not building-based scanning.
 - Built directly on an Iron/Copper Ore deposit slot (any depth tier, once
   discovered) | Staffing: Staffed | Input/Output/`production_time`: see
   `data/recipes.csv` and `data/recipe_ingredients.csv` (`mine.ore`) — drawn
-  independently per unit from the deposit's percentage mix | Production
-  cap: 1 (base)
+  independently per unit from the deposit's percentage mix
 
 ### Quarry
 - Built directly on a Stone deposit slot (any depth tier, once discovered) |
   Staffing: Staffed | Input/Output/`production_time`: see `data/recipes.csv`
-  and `data/recipe_ingredients.csv` (`quarry.stone`) | Production cap: 1
-  (base)
+  and `data/recipe_ingredients.csv` (`quarry.stone`)
 
 ### Rare Metal Extractor
 - Built directly on a rare-metal deposit slot (any depth tier, once
   discovered) | Staffing: Staffed | Input/Output/`production_time`: see
   `data/recipes.csv` and `data/recipe_ingredients.csv`
   (`rare_metal_extractor.rare_metal`) — slower than Mine/Quarry, reflecting
-  rarity | Production cap: 1 (base)
+  rarity
 
 ---
 
@@ -1489,7 +1481,7 @@ exploration finds, same as everything else in the catalog.
 ### Kitchen
 - Category: Food/Meal Conversion | Staffing: Staffed
 - **Deviates from the standard multi-recipe pattern**: instead of one active
-  recipe with effort stacking toward a shared cap, Kitchen has **N simultaneous
+  recipe per building, Kitchen has **N simultaneous
   recipe slots**, each independently staffed by one worker who selects which
   recipe *that slot* runs from the full available list — letting one Kitchen
   produce several different meals in parallel. Grid footprint scales with slot
