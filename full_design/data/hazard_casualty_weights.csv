@@ -1,0 +1,16 @@
+Hazard,Severity,Outcome,Weight,Design status,Notes
+Storm,Mild,Nothing (unharmed),70%,Illustrative,rolled per unprotected outdoor settler at an affected site
+Storm,Mild,SP injury,25%,Illustrative,
+Storm,Mild,Permanent injury,4%,Illustrative,
+Storm,Mild,Death,1%,Illustrative,
+Storm,Extreme,Nothing (unharmed),40%,Illustrative,
+Storm,Extreme,SP injury,35%,Illustrative,
+Storm,Extreme,Permanent injury,17%,Illustrative,
+Storm,Extreme,Death,8%,Illustrative,the harshest casualty roll in the design; a storm happens to the settlement rather than being a risk anyone opted into
+Temperature Extremity,Extreme,Nothing (unharmed),55%,Illustrative,mild events have no casualty roll at all — their consequence is the slowing status effect
+Temperature Extremity,Extreme,SP injury,30%,Illustrative,
+Temperature Extremity,Extreme,Permanent injury,10%,Illustrative,
+Temperature Extremity,Extreme,Death,5%,Illustrative,supersedes the former misc_balancing_values.csv death-probability row
+Atmospheric Hazard,N/A,Nothing (unharmed),90%,Illustrative,"a continuous per-exposure check rather than a scheduled event, so no severity bands"
+Atmospheric Hazard,N/A,SP injury,9%,Illustrative,
+Atmospheric Hazard,N/A,Permanent injury,1%,Illustrative,"no death row: exposure without PPE inflicts the halving status effect and can injure, but a death channel here would be new design rather than a filled gap"

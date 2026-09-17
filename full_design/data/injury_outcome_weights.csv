@@ -1,0 +1,13 @@
+Roll type,Risk tier,Outcome,Weight,Design status,Notes
+Failure-gated,Low-risk,Nothing (no reward),70%,Illustrative,"rolled only after a failed attempt, for tasks with a real success/failure split"
+Failure-gated,Low-risk,SP injury,30%,Illustrative,
+Failure-gated,High-risk,Nothing (no reward),45%,Illustrative,
+Failure-gated,High-risk,SP injury,35%,Illustrative,
+Failure-gated,High-risk,Permanent injury,15%,Illustrative,
+Failure-gated,High-risk,Death,5%,Illustrative,Military Exploitation overrides this upward — see exploration_task_injury_weights.csv
+Independent risk roll,Low-risk,Nothing (unharmed),90%,Illustrative,"rolled on every attempt of a guaranteed-success risk-tagged task, so deliberately far gentler than the failure-gated rates"
+Independent risk roll,Low-risk,SP injury,10%,Illustrative,
+Independent risk roll,High-risk,Nothing (unharmed),80%,Illustrative,
+Independent risk roll,High-risk,SP injury,13%,Illustrative,
+Independent risk roll,High-risk,Permanent injury,5%,Illustrative,
+Independent risk roll,High-risk,Death,2%,Illustrative,

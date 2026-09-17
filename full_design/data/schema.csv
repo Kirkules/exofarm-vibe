@@ -69,6 +69,24 @@ settler_modifiers.csv,Effect type,Value,
 settler_modifiers.csv,Value,Value,
 settler_modifiers.csv,Design status,Value,
 settler_modifiers.csv,Notes,Value,
+injury_outcome_weights.csv,Roll type,Key,Failure-gated (rolled only on a failed attempt) or Independent risk roll (rolled on every attempt of a guaranteed-success risk-tagged task)
+injury_outcome_weights.csv,Risk tier,Key,"Low-risk or High-risk; No-risk has no rows, since no roll happens at all"
+injury_outcome_weights.csv,Outcome,Key,
+injury_outcome_weights.csv,Weight,Value,weights within one (Roll type; Risk tier) pair sum to 100% — exactly one outcome per roll
+injury_outcome_weights.csv,Design status,Value,
+injury_outcome_weights.csv,Notes,Value,
+exploration_task_injury_weights.csv,Task,Key + Soft reference -> exploration_task_catalog.csv (Task) or sentience_contact_chain.csv (Step),"per-task effective values, seeded from injury_outcome_weights.csv's base values; First Contact's branches are chain steps rather than catalog tasks"
+exploration_task_injury_weights.csv,Roll type,Value,which base table row set this task draws from
+exploration_task_injury_weights.csv,Outcome,Key,
+exploration_task_injury_weights.csv,Weight,Value,"Notes says whether the row is the category base value or a deliberate per-task override"
+exploration_task_injury_weights.csv,Design status,Value,
+exploration_task_injury_weights.csv,Notes,Value,
+hazard_casualty_weights.csv,Hazard,Key,
+hazard_casualty_weights.csv,Severity,Key,"Mild/Extreme for scheduled events; N/A for Atmospheric Hazard, a continuous check with no bands"
+hazard_casualty_weights.csv,Outcome,Key,
+hazard_casualty_weights.csv,Weight,Value,weights within one (Hazard; Severity) pair sum to 100% — exactly one outcome per exposed settler per event
+hazard_casualty_weights.csv,Design status,Value,
+hazard_casualty_weights.csv,Notes,Value,
 aptitude_exploration_effect_table.csv,Level,Key,
 aptitude_exploration_effect_table.csv,Effect,Value,
 aptitude_exploration_effect_table.csv,Design status,Value,

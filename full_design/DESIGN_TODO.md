@@ -24,6 +24,21 @@ tracks what's needed *underneath* them.
 
 ## Open Items
 
+- [ ] **Clear-Cutting / Trapping tile richness — undesigned.** Both are
+  production-speed-based Standing Assignments (see Settlers &
+  Exploration's Standing Assignments), but the per-tile quantity each one
+  works against doesn't exist yet. Needed: a per-tile **richness** value
+  that, for a Forest tile, sets how many Clear-Cutting cycles it yields
+  before the tile is depleted, and for a Trapping tile sets the per-cycle
+  Pelt output rate. The two differ in kind: Clear-Cutting **draws its tile
+  down** toward depletion, Trapping **doesn't deplete** its tile at all —
+  so richness is a consumable stock in the first case and a standing rate
+  multiplier in the second. Also open: how richness is set at world
+  generation, whether it varies by planet type, and whether it's visible
+  to the player before assigning a worker. Blocks `10a-SF4` (Standing
+  Assignment output timing), since when output lands can't be settled
+  before what a cycle produces is. Surfaced 2026-09-17 during the
+  Post-Sim resolution-order pass.
 - [ ] **Ration Press's timing model contradicts itself between sections.**
   Buildings & Economy's Building Schema (Output property) cites Ration
   Press as *the* example of "instant conversion" (`production_time`-free,
@@ -1341,9 +1356,78 @@ one issue at a time; this subsection is extended as each is resolved.
   ordering rule. Decided alongside the "Construction as a Mid-Sim
   progressive activity" item, above, which folded Fencing's completion
   into this same step. See Core Loop & Grid's Season Structure.
-- **Still open (this theme):** `4-B3` cross-season in-progress-cycle
-  carryover; `2-SF1`/`2-SF3` Post-Sim's two-part structure; `2-SF5`
-  log-line timing accuracy; `2-SF6` previous-season-outcomes-are-final;
-  `10a-SF3`/`10a-B2` explorer Ration deduction placement + multi-season
-  payment model; `10a-SF4` Standing Assignment output timing; `8-SF5`
-  hazard/injury death vs. nutrition headcount.
+- `4-B3` — **resolved (2026-09-17).** A recipe cycle or Husbandry
+  `feed`/`produce` step unfinished at Mid-Sim end carries over: held
+  progress (inputs already spent) resumes and completes first next season,
+  outside the new queue's limits — forfeit if a staffed building has no
+  worker assigned next season. Plant-crop buildings keep their own existing
+  rule. A Water reservation releases at Mid-Sim end and a still-running
+  transition re-requests it next season. See Buildings & Economy's Building
+  Schema and Plant-Crop Production Model.
+- `2-SF1`/`2-SF3` — **resolved (2026-09-17).** Post-Sim stays one merged
+  moment (end of season + top of next planning); "instantaneous" reworded
+  to "no running simulation", since step 5 is a player-facing dialog.
+- `2-SF5` — **resolved (2026-09-17).** Post-Sim outcomes appear in an
+  after-the-season section at the end of the log, stamped at season end;
+  the log covers only the most recent season and its Post-Sim. See Core
+  Loop & Grid's Season Structure.
+- `10a-SF3`/`10a-B2` — **resolved (2026-09-17).** A task's **full** Ration
+  cost plus any required item is consumed at Planning Lock-in for the
+  task's **first** season, not per season across its duration — the settler
+  carries the whole trip's supplies, so a mid-task Ration shortage can't
+  strand them. Added to Lock-in's hosts list. See Core Loop & Grid's Season
+  Structure and Settlers & Exploration's Assignment.
+- `8-SF5` — **resolved (2026-09-17).** The pooled nutrition check counts
+  whoever is alive when it runs at Post-Sim; a settler who died earlier in
+  the season consumes nothing, and since food only leaves inventory at that
+  check, there is nothing to refund. A deliberate lightweight non-realism
+  in keeping with the cozy register. See Settlers & Exploration's Food &
+  Nutrition.
+- **Still open (this theme):** `2-SF6` previous-season-outcomes-are-final
+  (leaning no doc change — finality mostly follows from mechanics' shape;
+  the one unclear case is whether a choice made in the Post-Sim
+  confirmation dialog — which Trade Agreement offer to accept, which First
+  Contact approach to take — stays changeable until the season is
+  confirmed); `10a-SF4` Standing Assignment output timing, blocked on the
+  Clear-Cutting/Trapping tile-richness item under Open Items, above.
+
+### Addressed by the injury-acquisition pass (2026-09-17)
+
+Theme 9 (injury acquisition undefined) — written into Settlers &
+Exploration (Injuries), Planets & Scoring (In-Simulation Hazard Events),
+Core Loop & Grid (Assignment), and three new data sheets.
+
+- `9-B1` — **resolved.** Outcome weights now live in
+  `data/injury_outcome_weights.csv` (base values by roll type × risk
+  tier) and `data/exploration_task_injury_weights.csv` (per-task values,
+  seeded from those bases; Military Exploitation is the one deliberate
+  override, carrying the catalog's largest death chance). Two roll types
+  are distinguished, with very different weights: the **failure-gated**
+  roll fires only after a failed attempt, the **independent risk roll**
+  fires on every attempt of a guaranteed-success risk-tagged task and is
+  therefore far gentler. Exactly one outcome per roll. The specific injury
+  type is drawn uniformly from the types that settler doesn't already
+  carry; a settler holding all four of a category simply keeps them and
+  the injury **fizzles**.
+- `9-B2` — **resolved.** Concurrent permanent injuries stack
+  multiplicatively on work speed and their assignment bars intersect. No
+  protective rule is needed against a total lockout: the worst pairing
+  (lost leg + brain damage) still leaves the indoor manual sites.
+- `9-SF1` — **resolved.** Hazards *do* inflict injuries, on the same
+  shared taxonomy, with weights in `data/hazard_casualty_weights.csv` —
+  Storm (banded mild/extreme) and extreme Temperature Extremity can
+  produce nothing / SP / permanent / death, and Atmospheric Hazard
+  exposure can injure but never kill. Injury is deliberately the common
+  result and death the rare one, replacing the former flat kill-or-nothing
+  wording. Supersedes and removes the `misc_balancing_values.csv`
+  Temperature-Extremity death-probability row.
+- `3-SF1` — **resolved**, as a side effect. Every worker-speed modifier
+  (Aptitude, Experience, Storied, permanent injuries, sleep quality) was
+  already multiplicative, so the combination order the audit asked for
+  doesn't exist to define — stated explicitly in Core Loop & Grid's
+  Assignment.
+- **Still open (this theme):** SP types stay flavor-only differentiated
+  for now, tracked individually so future design can differentiate them
+  without a data migration; source-flavored weighting of *which* injury
+  type a given hazard or task tends to inflict is a possible later
+  balancing lever, deliberately not taken now.

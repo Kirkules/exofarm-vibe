@@ -73,8 +73,11 @@ Atmospheric Hazard, Temperature Extremity, a failed Buildings & Economy's
 referenced rather than repeated wherever injury/death is mentioned
 elsewhere in this design. Two categories:
 
-- **Semi-permanent (SP)** — broken bones, sprains, moderate burns,
-  concussions. No standalone debuff number of its own — its entire
+- **Semi-permanent (SP)** — four types: broken bones, sprains, moderate
+  burns, concussions. Tracked individually, but **differentiated only in
+  flavor** for now: the four behave identically, and the type is carried
+  so future design can differentiate them without a data migration. No
+  standalone debuff number of its own — its entire
   mechanical expression *is* the eligibility and delay rules below;
   inventing an additional debuff on top would be functionally irrelevant,
   since it would disappear the moment it could matter. Heals automatically:
@@ -84,7 +87,9 @@ elsewhere in this design. Two categories:
   quarter-season per injury, but in parallel, so Medical Bay's entire value
   is collapsing N×(quarter-season) down to one quarter-season when a
   settler has more than one SP injury at once. (With exactly one SP injury,
-  Medical Bay makes no difference.)
+  Medical Bay makes no difference.) Since a settler never holds two of the
+  same type (see Acquisition, below), four is the ceiling — at worst one
+  full season of serial healing.
   - **Exploration eligibility**: ineligible for Low-risk or High-risk
     exploration tasks; eligible for No-risk tasks, with a success-chance
     penalty (see `data/settler_modifiers.csv`'s "Injury - SP, No-risk
@@ -136,11 +141,31 @@ elsewhere in this design. Two categories:
   Contact's Bluff/Military branches): on failure, roll a negative-outcome
   type from {nothing but no reward, SP injury} for Low-risk tasks, or
   {nothing but no reward, SP injury, permanent injury, death} for
-  High-risk tasks. This does **not** apply to the separate
+  High-risk tasks — exactly one outcome per roll; see
+  `data/injury_outcome_weights.csv` for the per-tier weights and
+  `data/exploration_task_injury_weights.csv` for per-task values. This does **not** apply to the separate
   guaranteed-success-with-independent-risk shape (Site Reveals,
   Hybridization opportunities, most Planet exclusives — see Risk
   Spectrum) — those tasks have no failure state to gate on, and keep
   their existing independent roll unchanged.
+
+**Acquisition.** Once a roll lands on "SP injury" or "permanent injury",
+the specific type is drawn **uniformly at random from the types that
+settler doesn't already carry** — a settler never holds two of the same
+type, in either category. A duplicate would be mechanically inert, which
+would quietly turn the harshest outcome into the mildest one.
+
+- **A settler already carrying all four types of that category simply
+  keeps them** — the injury fizzles, changing nothing. This is the one
+  case where a rolled injury has no effect, and it's preferred over
+  re-rolling into the other category (which would let SP saturation
+  manufacture permanent injuries) or escalating to death.
+- Concurrent permanent injuries **stack multiplicatively** on work speed
+  (see `data/settler_modifiers.csv`), and their assignment bars simply
+  intersect.
+- Hazards inflict injuries on the same taxonomy, with their own weights —
+  see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events) and
+  `data/hazard_casualty_weights.csv`.
 
 ### Infections
 
@@ -422,8 +447,11 @@ mechanics:
   settler is assigned to a task, they're removed from the settlement's
   pooled nutrition headcount for that season (see [Food & Nutrition](05_settlers_and_exploration.md#food--nutrition)'s
   Consumption), and their sustenance instead becomes that task's Ration
-  cost, consumed at season-simulation-start alongside any other consumable
-  the task requires (below).
+  cost. A multi-season task's **full** Ration cost, and any item it
+  requires, is consumed at Planning Lock-in for the task's **first** season
+  — the settler carries the whole trip's supplies out with them, rather
+  than drawing a Ration per season from a settlement that might run dry
+  mid-task and strand them.
 - **Cost, most tasks**: 1 Ration base (see Seasons to complete, above),
   plus an optional or mandatory consumable item depending on the specific
   task — an optional item typically guarantees the top of an outcome's
@@ -747,7 +775,9 @@ dangerous environment they found it in (an active volcanic zone, a deep
 cave) can still injure or kill them regardless of whether the discovery
 itself succeeded. The two rolls never interact — a negative-Aptitude
 settler failing the discovery doesn't change their odds on the danger
-roll, and vice versa. When that happens, the settler earns a **Frontier
+roll, and vice versa. This roll fires on *every* attempt rather than only
+after a failure, so it carries its own far gentler weights (see
+`data/injury_outcome_weights.csv`'s "Independent risk roll" rows). When that happens, the settler earns a **Frontier
 Legends bonus** (see `data/misc_balancing_values.csv`'s "Risk Spectrum"
 rows) for every task of this shape, not just Profile-shifting-flavored
 ones: a settler who's hurt or lost expanding the settlement's strategic
@@ -891,7 +921,12 @@ in any food item's info tooltip.
   the settlement that season** — a settler assigned to an Exploration Task
   (see [Exploration Tasks](05_settlers_and_exploration.md#exploration-tasks)' Assignment) is excluded from it for the season(s)
   they're away, since their sustenance is covered separately by that task's
-  strict Ration cost instead.
+  strict Ration cost instead. A settler who **died earlier in the season**
+  (a hazard event, an injury) isn't counted either — the check runs at
+  Post-Sim against whoever is alive when it runs, and nothing was set aside
+  for them beforehand, so the settlement simply eats less and the surplus
+  stays in inventory. A deliberate, lightweight departure from realism that
+  suits the cozy register better than tracking partial-season meals.
 - **Food-for-consumption is assigned during planning** (not fully automatic), but
   defaults intelligently each season in this priority order:
   1. If the food types consumed **last season** are available and sufficient on

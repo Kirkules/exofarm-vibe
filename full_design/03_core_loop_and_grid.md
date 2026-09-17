@@ -442,6 +442,10 @@ and Buildings & Economy's [Robotics Assembly](04_buildings_and_economy.md#roboti
   only realize part of an advanced site's potential output, requiring a
   second worker to reach the cap — creating a spread-thin-vs-concentrate
   tradeoff on top of the basic staffing decision.
+- **Every worker-speed modifier is a multiplicative factor** on that
+  worker's base rate — Aptitude, Experience, Storied, permanent injuries,
+  and sleep quality alike (see `data/settler_modifiers.csv`). They combine
+  as a single product, so no application order needs defining.
 - Left open: whether some special worker type could break the "one worker, one slot"
   default (settlers) or otherwise behave outside these rules.
 
@@ -703,9 +707,10 @@ role above).
   to the player here — that's Post-Sim's job, below. Hosts: the
   food-for-consumption selection becoming fixed for the season, production
   queues freezing into their season's step order (see Production Model),
-  and construction/upgrade/relocate actions being queued (a robot is consumed
+  construction/upgrade/relocate actions being queued (a robot is consumed
   from the available pool the instant the action is queued, not when it
-  later completes).
+  later completes), and an Exploration Task's Ration cost and required item
+  being consumed (see Settlers & Exploration's [Assignment](05_settlers_and_exploration.md#assignment)).
 - **Mid-Sim** — the only place real time actually passes. What actually
   runs here:
   - **Production, landing live.** Every production cycle (continuous-rate,
@@ -732,7 +737,7 @@ role above).
     for legibility/immersion (see [Art Design](07_production_and_technical.md#art-design)) — e.g. a Scanner Station's
     radio-wave pulse, or a survey settler wandering the grid — with no
     coupling to the actual mechanical resolution.
-- **Post-Sim** — instantaneous, discrete resolution with no clock running,
+- **Post-Sim** — discrete resolution with no running simulation,
   right after the Mid-Sim clock ends. Merges what could otherwise be two
   separate moments (right after the clock ends, and the top of the next
   planning phase) into one mechanically-equivalent bucket, since neither
@@ -793,7 +798,8 @@ role above).
     the same "optimistic estimate, not a guarantee" role the Energy bar
     already plays.
 
-**The log/event-feed system** is a single, live-updating log:
+**The log/event-feed system** is a single, live-updating log covering only
+the most recent season and its following Post-Sim:
 - **No separate always-visible overlay.** The default simulation view has no
   forced log clutter — just ambient visuals and the progress bar. A single
   log is opened via a button/icon, and can be opened **during** simulation
@@ -805,10 +811,12 @@ role above).
   This avoids a dozen-plus simultaneous production sites spamming the log
   with individual tick entries. Aggregated production lines are still fully
   legible entries, not hidden or deprioritized — they're just consolidated.
-- **Noteworthy events get their own individual, timestamped lines**,
-  interspersed with the aggregated production lines: hazard occurrences,
-  settler deaths, vaccine unlocks, Deposit Discovery reveals, exploration
-  escalations unlocking, and similar.
+- **Noteworthy Mid-Sim events get their own individual, timestamped
+  lines**, interspersed with the aggregated production lines: hazard
+  occurrences, settler deaths, and similar.
+- **Post-Sim outcomes go in an after-the-season section** at the end of the
+  log, stamped at season end: vaccine unlocks, Deposit Discovery reveals,
+  exploration escalations unlocking, and similar.
 - **Transmissions stays fully separate** — the persistent, cross-season,
   narrative-flavored channel (see Story & World's Gameplay-Story
   Integration) serves a distinct purpose (advance warnings, flavor, Herald's-

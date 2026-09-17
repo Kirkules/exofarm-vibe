@@ -34,7 +34,6 @@ Exploration Tasks,Manual reroll cost,TBD,TBD,flat Rations amount; Scanner Statio
 Exploration Tasks,"Pool size, base",3,Needs Balancing,
 Exploration Tasks,"Pool size, max",5,Needs Balancing,"+1 from a Scanner Station upgrade tier, +1 from Research Lab's Expanded Reconnaissance Doctrine"
 Storm,"Severely-under-covered building destruction chance (extreme severity, other buildings)",TBD,TBD,"small chance, per unprotected building"
-Temperature Extremity,"Settler death probability, extreme exposure",TBD,TBD,explicitly open in DESIGN_TODO
 Atmospheric Hazard,Status-effect duration after exposure,~3s,Illustrative,"roughly, Mid-Sim time"
 Run Structure,Run length,15 seasons,Needs Balancing,no diegetic justification yet; flagged for revisit in DESIGN_TODO
 Crew Selection,Starting crew size,5,Needs Balancing,"resolved this session, was 3-4"

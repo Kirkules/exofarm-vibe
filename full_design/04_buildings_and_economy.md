@@ -411,6 +411,15 @@ skipped with a cycle-count of 2. Fuel-based Generator's planning-phase
 fuel-limit control is just a `limit` on its own queue step — no separate
 mechanism.
 
+**A cycle still in progress when Mid-Sim ends carries over.** Its progress
+(and the inputs already spent on it) is held, and next season it resumes
+and completes before the building's new queue starts; it doesn't count
+toward any of the new queue's limits. For a staffed building, the
+carry-over requires a worker assigned there next season — with none, the
+held progress is forfeit. This covers every recipe cycle and a Husbandry
+site's `feed`/`produce` steps; plant-crop buildings follow their own rule
+instead (see [Plant-Crop Production Model](04_buildings_and_economy.md#plant-crop-production-model)).
+
 **Conditional properties** (apply depending on category/function):
 - **Production cap** — max per-cycle output requiring multiple workers'/drones'
   effort to reach (effort-stacking, per Worker Assignment). Only meaningful for
@@ -693,8 +702,9 @@ building relinquishes its consumption-rate reservation.
   picture (a request starting/ending, Water Income changing). 
 - **A denied transition pauses** — holds its progress, no loss — and
   re-enters the pool at the next recompute. Once granted, a reservation
-  holds for the transition's whole duration and releases back to available
-  capacity the instant it ends.
+  holds until the transition ends or Mid-Sim ends, whichever comes first. A
+  transition still running at season end re-requests its reservation at the
+  start of next season's Mid-Sim, pausing if denied like any other request.
 - A manual **"turn Water off at this site"** toggle exists, on the same
   footing as Energy's active/inactive toggle: an available mitigation, not
   something else in the design is built to expect routine use of.

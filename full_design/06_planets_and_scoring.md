@@ -301,9 +301,12 @@ already empty, not destroyed twice.
     site *and* the current in-sim temperature — which fluctuates through
     Mid-Sim — is outside the 72°F comfort range, clearing the instant
     either condition stops holding.
-  - **Extreme event** → a probability roll (see `data/misc_balancing_values.csv`'s
-    "Temperature Extremity" row) on death, the same
-    roster-removal mechanic used everywhere else a settler can die.
+  - **Extreme event** → a casualty roll (see
+    `data/hazard_casualty_weights.csv`) resolving to nothing, an SP
+    injury, a permanent injury, or death, on the shared taxonomy in
+    Settlers & Exploration's [Injuries](05_settlers_and_exploration.md#injuries). Injury is the common result and death
+    the rare one; death uses the same roster-removal mechanic as
+    everywhere else.
   - Protection is shared with the production-side consequence: a funded
     Weather/Row Shield covers both crops and any settler working that
     site via one shared coverage check. Settlers additionally have a
@@ -328,9 +331,12 @@ top-severity consequence:
   the same fate. Chance value: see `data/misc_balancing_values.csv`'s
   "Storm" row.
 - **Settler and drone casualties.** At an affected site with no shield
-  coverage, a Storm can also **kill an unprotected outdoor settler** and
-  **destroy an unprotected outdoor worker drone** — the same roster-removal
-  / unit-loss mechanics used elsewhere. Outdoor workers on a shielded tile
+  coverage, an unprotected outdoor settler takes a **casualty roll** (see
+  `data/hazard_casualty_weights.csv`, which bands by the event's severity)
+  resolving to nothing, an SP injury, a permanent injury, or death, on the
+  shared taxonomy in Settlers & Exploration's [Injuries](05_settlers_and_exploration.md#injuries) — injury is the
+  common result, death the rare one. An unprotected outdoor worker drone is
+  **destroyed** — the same unit-loss mechanic used elsewhere. Outdoor workers on a shielded tile
   are covered by that shield the same way crops and buildings are; Indoor
   workers in a powered building are sheltered.
 - **Never a direct run-ender.** Storm losses — buildings, crops, settlers,
@@ -355,7 +361,12 @@ top-severity consequence:
   for roughly 3 seconds of Mid-Sim time afterward, halves the settler's
   effectiveness in all tasks (their worker-effort contributes 0.5 instead
   of 1, per Worker Assignment's effort-stacking mechanic), and locks them
-  out of exploration-task assignment entirely while active.
+  out of exploration-task assignment entirely while active. Exposure also
+  carries a small **casualty roll** (see
+  `data/hazard_casualty_weights.csv`) that can leave an SP or permanent
+  injury on the shared taxonomy in Settlers & Exploration's [Injuries](05_settlers_and_exploration.md#injuries) —
+  corrosive/toxic atmosphere doing lasting harm. Unlike the two scheduled
+  events, it has no death outcome.
 
 *Bio-hazard* — diseases (**Pathogen Threat**) and parasites
 (**Toxic/Parasitic Organism Threat**), a settlement-facing standing risk

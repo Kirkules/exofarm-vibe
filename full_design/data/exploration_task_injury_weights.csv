@@ -1,0 +1,37 @@
+Task,Roll type,Outcome,Weight,Design status,Notes
+Reach-the-deepest-X,Failure-gated,Nothing (no reward),70%,Illustrative,base value
+Reach-the-deepest-X,Failure-gated,SP injury,30%,Illustrative,base value
+Chart-the-Y,Failure-gated,Nothing (no reward),70%,Illustrative,base value
+Chart-the-Y,Failure-gated,SP injury,30%,Illustrative,base value
+Sentience Detection (cold),Failure-gated,Nothing (no reward),45%,Illustrative,base value
+Sentience Detection (cold),Failure-gated,SP injury,35%,Illustrative,base value
+Sentience Detection (cold),Failure-gated,Permanent injury,15%,Illustrative,base value
+Sentience Detection (cold),Failure-gated,Death,5%,Illustrative,base value
+3b. First Contact - Bluff/Coercive Exploitation,Failure-gated,Nothing (no reward),45%,Illustrative,"base value; chain step, not a catalog task"
+3b. First Contact - Bluff/Coercive Exploitation,Failure-gated,SP injury,35%,Illustrative,"base value; chain step, not a catalog task"
+3b. First Contact - Bluff/Coercive Exploitation,Failure-gated,Permanent injury,15%,Illustrative,"base value; chain step, not a catalog task"
+3b. First Contact - Bluff/Coercive Exploitation,Failure-gated,Death,5%,Illustrative,"base value; chain step, not a catalog task"
+Verdant Profile-shifting,Independent risk roll,Nothing (unharmed),80%,Illustrative,"base value; guaranteed find; the roll is the environment, not the discovery"
+Verdant Profile-shifting,Independent risk roll,SP injury,13%,Illustrative,"base value; guaranteed find; the roll is the environment, not the discovery"
+Verdant Profile-shifting,Independent risk roll,Permanent injury,5%,Illustrative,"base value; guaranteed find; the roll is the environment, not the discovery"
+Verdant Profile-shifting,Independent risk roll,Death,2%,Illustrative,"base value; guaranteed find; the roll is the environment, not the discovery"
+Volcanic Reinforcing,Independent risk roll,Nothing (unharmed),80%,Illustrative,"base value; guaranteed find; the roll is the environment, not the discovery"
+Volcanic Reinforcing,Independent risk roll,SP injury,13%,Illustrative,"base value; guaranteed find; the roll is the environment, not the discovery"
+Volcanic Reinforcing,Independent risk roll,Permanent injury,5%,Illustrative,"base value; guaranteed find; the roll is the environment, not the discovery"
+Volcanic Reinforcing,Independent risk roll,Death,2%,Illustrative,"base value; guaranteed find; the roll is the environment, not the discovery"
+Volcanic Profile-shifting,Independent risk roll,Nothing (unharmed),90%,Illustrative,base value
+Volcanic Profile-shifting,Independent risk roll,SP injury,10%,Illustrative,base value
+Arid Reinforcing,Independent risk roll,Nothing (unharmed),90%,Illustrative,base value
+Arid Reinforcing,Independent risk roll,SP injury,10%,Illustrative,base value
+Ice Reinforcing,Independent risk roll,Nothing (unharmed),90%,Illustrative,base value
+Ice Reinforcing,Independent risk roll,SP injury,10%,Illustrative,base value
+Ice Profile-shifting,Independent risk roll,Nothing (unharmed),90%,Illustrative,base value
+Ice Profile-shifting,Independent risk roll,SP injury,10%,Illustrative,base value
+Unknown Radio Signal,Independent risk roll,Nothing (unharmed),90%,Illustrative,base value; branching resolution rather than a success/failure split
+Unknown Radio Signal,Independent risk roll,SP injury,10%,Illustrative,base value; branching resolution rather than a success/failure split
+3a. First Contact - Peaceful Contact,Independent risk roll,Nothing (unharmed),90%,Illustrative,"base value; chain step, not a catalog task; guaranteed attempt"
+3a. First Contact - Peaceful Contact,Independent risk roll,SP injury,10%,Illustrative,"base value; chain step, not a catalog task; guaranteed attempt"
+3c. First Contact - Military Exploitation,Failure-gated,Nothing (no reward),30%,Illustrative,"override, not the base High-risk value"
+3c. First Contact - Military Exploitation,Failure-gated,SP injury,25%,Illustrative,"override, not the base High-risk value"
+3c. First Contact - Military Exploitation,Failure-gated,Permanent injury,20%,Illustrative,"override, not the base High-risk value"
+3c. First Contact - Military Exploitation,Failure-gated,Death,25%,Illustrative,"override: the largest death chance in the catalog, per its design intent; chain step, not a catalog task"
