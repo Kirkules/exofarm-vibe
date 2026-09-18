@@ -413,6 +413,13 @@ skipped with a cycle-count of 2. Fuel-based Generator's planning-phase
 fuel-limit control is just a `limit` on its own queue step — no separate
 mechanism.
 
+**A completing cycle emits more than its output.** Alongside writing output
+to inventory, it tallies that season's production toward the Sustenance and
+Development income terms, and increments `ExtractionRestraint` if the recipe
+extracts a non-renewable or `EmissionsRestraint` if it burns fuel (see
+Planets & Scoring's [SEED Factions](06_planets_and_scoring.md#seed-factions)). Every scoring term's emission
+point is listed in `data/scoring_emission_points.csv`.
+
 **A cycle still in progress when Mid-Sim ends carries over.** Its progress
 (and the inputs already spent on it) is held, and next season it resumes
 and completes before the building's new queue starts; it doesn't count
@@ -1804,7 +1811,10 @@ pair of starting buildings resolves)*
     Stone Processing II, so it is squarely the mid-game keystone — a
     deliberate single chokepoint, see `DESIGN_TODO.md`.)
   - High-Resolution Screens ← Silicon + Copper — a Luxury Good; no functional
-    use yet beyond `TechAchievement`/faction-reward value, left open
+    use yet beyond `TechAchievement`, which scores it once, the first time
+    one is ever produced. Further copies matter only as Luxury Living
+    Quarters slot items (see [Habitation](04_buildings_and_economy.md#habitation)); no faction formula has a
+    luxury term, so stockpiling them scores nothing.
   - Portable High-Powered Scanning Equipment ← Silicon + Copper + a rare metal
     + High-Tech Components —
     an exploration task initiation cost, likely gating access to higher-tier/

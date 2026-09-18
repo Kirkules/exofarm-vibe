@@ -1,0 +1,6 @@
+Sub-factor,Axis,Max-needed data units,Design status,Notes
+Storm Severity/Frequency,Weather,TBD,TBD,collected units at or above this count score full marks for this sub-factor
+Temperature Extremity,Weather,TBD,TBD,
+Atmospheric Hazard,Weather,TBD,TBD,
+Pathogen Threat,Bio-hazard,TBD,TBD,
+Toxic/Parasitic Organism Threat,Bio-hazard,TBD,TBD,

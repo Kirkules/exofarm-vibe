@@ -53,7 +53,6 @@ Stewardship (DisruptionFootprint),Planned-but-unbuilt fence tile disruption weig
 Stewardship (DisruptionFootprint),Settlement-founding baseline disruption,TBD,TBD,a small flat amount added on top of whatever slot the starting settlement happens to cover; kept deliberately minor relative to a run's ongoing extraction
 Stewardship (ContactRestraint),Per-outcome tier values,TBD,TBD,highest for successful alliance; small reward for uncontacted or never-detected (treated the same); small penalty for contact that never resolves into alliance; large penalty for choosing Bluff/Coercive or Military Exploitation regardless of success
 Stewardship,Term weights (EcologicalData/DisruptionFootprint/ExtractionRestraint/EmissionsRestraint/ContactRestraint),TBD,TBD,how much each of the 5 normalized terms contributes to the combined Stewardship score
-Safeguard Coalition,Score(Weather)/Score(Bio-hazard) combination method,TBD,TBD,"sum, average, or other; not yet decided"
 The Grid,Size (working target),10x8 (80 cells),Needs Balancing,landscape-shaped for the PC platform pivot; sized from a rough building/deposit density pass showing the old 8x6 mobile grid would fall short late-game
 Crew Selection,Archetype weights (Average/Jack-of-several-trades/Savant),70%/20%/10%,Needs Balancing,
 Specialization,Extra Rations bonus (base pool element),TBD,TBD,one fixed additional Rations unit; intended to fund early exploration without an immediate pivot to farming
@@ -61,3 +60,7 @@ Specialization,Orbital probe civilization-scan chance,80%,Illustrative,"rolled o
 Farm Site Selection,Reroll cost,1 Ration,Needs Balancing,discards all 3 candidate sites and generates 3 new ones; uncapped other than by Ration stock
 Season Structure,Real-time window duration (1x playback),30s,Needs Balancing,fixed regardless of what is built; production_time values and event rates are calibrated against this window
 Season Structure,Playback speed range,0x-5x (0.1 increments),Needs Balancing,0x pauses the simulation; 5x compresses the 30s window to 6 wall-clock seconds
+Safeguard Coalition,Score term weight - Data(Weather),0.3,Needs Balancing,"the four term weights sum to 1, so the raw score is already 0-1"
+Safeguard Coalition,Score term weight - Data(Bio-hazard),0.3,Needs Balancing,
+Safeguard Coalition,Score term weight - MatchedRisk x MatchedPreparedness (Weather),0.2,Needs Balancing,data deliberately outweighs the matched terms; see the formula rationale in 06
+Safeguard Coalition,Score term weight - MatchedRisk x MatchedPreparedness (Bio-hazard),0.2,Needs Balancing,

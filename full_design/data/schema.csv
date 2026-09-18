@@ -87,6 +87,16 @@ hazard_casualty_weights.csv,Outcome,Key,
 hazard_casualty_weights.csv,Weight,Value,weights within one (Hazard; Severity) pair sum to 100% — exactly one outcome per exposed settler per event
 hazard_casualty_weights.csv,Design status,Value,
 hazard_casualty_weights.csv,Notes,Value,
+data_gathering_targets.csv,Sub-factor,Key + Soft reference -> hazard_priors.csv (Sub-factor),the same five sub-factors the Beta counters track
+data_gathering_targets.csv,Axis,Value,Weather or Bio-hazard
+data_gathering_targets.csv,Max-needed data units,Value,"the m in Data_norm = min(collected / m, 1); linear progress below it, full marks at or above it"
+data_gathering_targets.csv,Design status,Value,
+data_gathering_targets.csv,Notes,Value,
+scoring_emission_points.csv,Term,Key,"one row per SEED scoring term: what feeds it and when it accrues. Structural, like schema.csv itself — no Design status column, since these are mappings rather than balancing values"
+scoring_emission_points.csv,Faction,Value,
+scoring_emission_points.csv,When it accrues,Value,
+scoring_emission_points.csv,What emits it,Value,
+scoring_emission_points.csv,Notes,Value,
 aptitude_exploration_effect_table.csv,Level,Key,
 aptitude_exploration_effect_table.csv,Effect,Value,
 aptitude_exploration_effect_table.csv,Design status,Value,

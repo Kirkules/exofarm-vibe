@@ -11,7 +11,7 @@
 - **Hazard Priors** — per-planet `TrueRisk(Weather)`/`TrueRisk(Bio-hazard)`,
   each the arithmetic mean of 2-3 sub-factors (`data/hazard_priors.csv`).
 - **Data-Gathering Mechanism** — hidden Beta(a,b) per sub-factor;
-  `MatchedRisk = a/(a+b)`, `Confidence = ν/(ν+k)`; reused in simplified
+  `MatchedRisk = a/(a+b)`, `Confidence = min(ν/m, 1)`; reused in simplified
   form by other factions' data-collection scoring.
 - **In-Simulation Hazard Events** — Storm/Temperature Extremity: fixed
   per-run schedule, `Confidence`-scaled telegraph, Energy-funded shield
@@ -132,19 +132,20 @@ statistics library needed at runtime:
 - **`MatchedRisk(hazard) = a / (a+b)`** — the Beta posterior mean, converging
   toward the true value as reports accumulate. This is what actually feeds the
   Safeguard `Score(hazard)` formula.
-- **`Confidence(hazard) = ν / (ν+k)`**, where `ν = a+b` (total evidence, prior
-  included) and `k` is a tunable constant (playtestable, same as other flattening
-  constants in this design) controlling how many reports it takes to reach a given
-  confidence level. **Deliberately based on `ν` (evidence count) rather than raw
+- **`Confidence(sub-factor) = min(ν / m, 1)`**, where `ν = a+b` (total evidence,
+  prior included) and `m` is that sub-factor's **max-needed data count** (see
+  `data/data_gathering_targets.csv`) — linear progress toward a ceiling, full
+  at `ν ≥ m`. **Deliberately based on `ν` (evidence count) rather than raw
   distribution variance** — variance conflates "how much data has been gathered"
   with "how far the mean sits from 0.5" (`Var = μ(1-μ)/(ν+1)`), meaning an obvious
   extreme hazard would appear falsely confident with very little data, for reasons
   the player can't perceive since the true value is hidden — a legibility problem.
-  Basing Confidence on `ν` alone means every report contributes predictably and
-  equally, regardless of which way it leans or what the hidden true value is.
-  `Confidence(hazard)` is what actually feeds the `Data(hazard)` term in
-  `Score(hazard) = Data(hazard) + MatchedRisk(hazard) × MatchedPreparedness(hazard)`
-  from [SEED Factions](06_planets_and_scoring.md#seed-factions) below — i.e. `Data(hazard)` **is** `Confidence(hazard)`.
+  Basing it on `ν` alone means every report contributes predictably and
+  equally, regardless of which way it leans or what the hidden true value is —
+  and the linear-to-`m` shape means that contribution stays *visibly* even,
+  rather than tapering asymptotically where the player can't tell whether more
+  data is still worth gathering. `Confidence(sub-factor)` is exactly what the
+  `Data(axis)` term in [SEED Factions](06_planets_and_scoring.md#seed-factions) below aggregates.
 - **Implementation footprint**: just two running counters per sub-factor (ten total
   across all five). No distribution objects, no sampling.
 
@@ -663,7 +664,17 @@ rather than repeated per faction below.
   `NutritionIncome` mirrors Development Bloc's `ResourceIncome` — a linear
   average production rate over the run's last 5 seasons, across the same four
   axes, unaffected by storage status since it measures productive capacity
-  rather than a secured reserve. Normalized before combining, per the
+  rather than a secured reserve. **What counts as production**, for both
+  terms: anything a **timed cycle produces during season simulation** —
+  buildings and Standing Assignments alike — tallied as each cycle completes
+  and recorded per season at Post-Sim. Exploration windfalls, Trade Agreement
+  income, and the run-start loadout are **excluded**: they're luck, diplomacy
+  and a gift respectively, not evidence this planet can sustain production.
+  Consumption never reduces either term. For `NutritionIncome`, a cycle
+  contributes its output's axes **minus any food it consumed**, so a Kitchen
+  is credited for the nutritional improvement it makes rather than
+  re-credited for the ingredients a farm already scored — raw ingredients and
+  cooked meals both count, without the same food counting twice. Normalized before combining, per the
   "normalize before combining unrelated values" design principle.
 - **Safeguard Coalition** *(name tentative)*. Prioritizes safety disjoint from raw
   sustenance — resilience against climate/weather, medical safety (including depth
@@ -673,40 +684,70 @@ rather than repeated per faction below.
 
   **Mechanically defined**, for two initial hazard axes — **Weather** and
   **Bio-hazards** (more could be added later):
-  - `Data(hazard)` — displayed to the player as a percentage (0–100%), but used in
-    the formula below as a **0–1 fraction**, so it shares a scale with
-    `MatchedRisk × MatchedPreparedness` (both naturally capped at 1) per the
-    "normalize before combining unrelated values" design principle. How much of the
-    possible data on that hazard has been collected — different efforts contribute
-    different amounts (early weather-monitoring structures accumulating data points
-    over time, settler-crewed exploration data-gathering missions, e.g. a
-    weather balloon). 100%/1.0 means as confident as possible in the picture
-    gathered.
-  - `MatchedRisk(hazard)` — a Bayesian "sureness" that this hazard is actually
-    significant on *this specific* planet, computed directly from Bayes' theorem
-    using a **prior based on planet type** (e.g. Volcanic planets have a low prior
-    for bio-hazard risk — not intuitively likely, even though a specific instance
-    could still turn out high) updated by `Data(hazard)`. Being a probability, it's
-    naturally normalized to [0,1].
+  - `Data(axis)` — how complete the picture is on that axis, built up from
+    its sub-factors and **normalized at every stage**, so each level is
+    bounded to [0,1] before anything is combined (per the "normalize before
+    combining unrelated values" design principle):
+    - Each sub-factor has a **max-needed data count** `m` (see
+      `data/data_gathering_targets.csv`) — the point past which more data
+      stops adding understanding. Its normalized value is linear progress
+      toward that ceiling: `Data_norm(sub-factor) = min(collected / m, 1)`.
+      Collecting more than `m` earns nothing further, so dropping everything
+      else to over-sample one sub-factor is never the scoring play.
+      Diegetically `m` is the data volume at which human weather/biology
+      modeling reaches useful predictive error on this planet; the player
+      never needs that explanation, only the visible linear progress.
+    - The axis value is its sub-factors' normalized values at **equal
+      weight** — `1/3` each for Weather's three, `1/2` each for
+      Bio-hazard's two — so `Data(axis)` is itself bounded to [0,1]. Equal
+      weighting is what makes the final score legible as a call for
+      *balanced* coverage: a player who knows what they focused on during
+      the run can read the shortfall straight off the score.
+    - Displayed to the player as a percentage (0–100%). Sources include
+      passive structures accumulating readings over time and settler-crewed
+      data-gathering missions (weather balloon, atmospheric sampling,
+      bio-survey — see `data/data_gathering_sources.csv`).
+  - `MatchedRisk(axis)` — a Bayesian "sureness" that this hazard is actually
+    significant on *this specific* planet, computed from a **prior based on
+    planet type** (e.g. Volcanic planets have a low prior for bio-hazard
+    risk — not intuitively likely, even though a specific instance could
+    still turn out high) updated by the reports collected. Tracked per
+    sub-factor, then aggregated to the axis as the **mean of its
+    sub-factors** — the same aggregation `TrueRisk(axis)` itself uses (see
+    Hazard Priors), so the estimate and the quantity it estimates are built
+    the same way. Being a probability, it's naturally bounded to [0,1].
   - `MatchedPreparedness(hazard)` — built preparedness (Weather Shield for
     Weather; Medical Bay for Bio-hazards — see Buildings & Economy's
     [Protection](04_buildings_and_economy.md#protection) category) normalized against the *true* risk level, capped at
     1: `min(Preparedness / TrueRisk, 1)`.
-  - **`Score(hazard) = Data(hazard) + MatchedRisk(hazard) × MatchedPreparedness(hazard)`**
-    — pure data-gathering has a real floor value on its own (SEED wants the
-    information regardless of outcome); preparedness only earns its multiplier once
-    there's enough sureness to credit it as intentional and verified, not lucky.
+  - **The Safeguard score** is one weighted sum across both axes, every term
+    already bounded to [0,1], with weights that sum to 1 (see
+    `data/misc_balancing_values.csv`'s "Safeguard Coalition" rows):
+
+    ```
+    Safeguard = 0.3 × Data(Weather)
+              + 0.3 × Data(Bio-hazard)
+              + 0.2 × MatchedRisk(Weather)    × MatchedPreparedness(Weather)
+              + 0.2 × MatchedRisk(Bio-hazard) × MatchedPreparedness(Bio-hazard)
+    ```
+
+    The two kinds of term answer different questions, which is why data
+    deliberately outweighs the matched terms. **The data terms support a
+    decision independent of how this particular expedition went** — humanity
+    gets one experiment per exoplanet, so knowing the planet is worth
+    something regardless of whether this crew thrived. **The matched terms
+    treat the expedition as representative**, reading viability as the match
+    between human capability and the planet, which is what makes finding a
+    genuinely liveable world before time runs out worth anything. Pairing
+    `MatchedPreparedness` with `MatchedRisk` is also what keeps preparedness
+    from being credited as luck: it counts once there's enough sureness to
+    read it as a deliberate, verified response to a known hazard.
   - This isn't only a scoring abstraction — some preparedness actions have a
     **functional data prerequisite** in-fiction, not just a scoring one (e.g. an
     effective vaccine can't be produced without first collecting enough bio-data to
     characterize the actual pathogen). A planet with a genuinely high, surprising
     hazard forces the data-gathering that unlocks dealing with it anyway, so
     information-gathering isn't an artificial side-quest bolted onto survival.
-  - Total Safeguard score = some combination of `Score(Weather)` and
-    `Score(Bio-hazard)` — see `data/misc_balancing_values.csv`'s "Safeguard
-    Coalition" row for the combination method. Both are the same kind of quantity (a Score(hazard) value on the same scale),
-    so no additional cross-normalization is needed to combine them, unlike
-    Stewardship's and Development's formulas below.
 - **Stewardship Caucus** *(name undecided — alternative: Non-Intervention Bloc)*.
   Conservation-minded: opposes humans acting as a colonial force, wants to "do
   things right this time" — both to avoid repeating Earth's mistake and out of

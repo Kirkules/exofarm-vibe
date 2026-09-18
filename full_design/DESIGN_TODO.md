@@ -1518,3 +1518,35 @@ than re-specified per surface.
   (worker in a powered Indoor building), and has PPE / has
   Temperature-Resistant Gear (carried item) replace the overloaded word
   "protected".
+
+### Addressed by the scoring-emission pass (2026-09-18)
+
+Theme 6 (systems don't state what they emit to the SEED formulas, when, or
+normalized how).
+
+- `4-SF9`/`8-SF7` — **resolved.** Income means anything a timed cycle
+  produces during season simulation, tallied per season at Post-Sim;
+  windfalls, Trade income and the run-start loadout are excluded, and
+  `NutritionIncome` counts a cycle's output net of any food it consumed.
+- `4-SF9` (emission points) — **resolved.** A completing cycle's scoring
+  emissions are stated in the Building Schema, and every term's emission
+  point is tabulated in `data/scoring_emission_points.csv`.
+- `7a-A-CS5` — **resolved.** Luxury goods score once via `TechAchievement`;
+  the stale "faction-reward value" phrasing is gone, and repeat copies
+  matter only as Luxury Living Quarters slot items.
+- `11-B2` — **resolved.** Sub-factors normalize individually
+  (`min(ν/m, 1)`, `m` per `data/data_gathering_targets.csv`), then combine
+  at equal weight into `Data(axis)`; `MatchedRisk(axis)` is the mean of its
+  sub-factors, matching how `TrueRisk(axis)` is built.
+- `11-SF13` — **resolved, deliberately.** `Safeguard = 0.3·Data(Weather) +
+  0.3·Data(Bio) + 0.2·MatchedRisk×MatchedPreparedness (each axis)`. Data
+  leading is intended, not an imbalance: the data terms support a decision
+  independent of this expedition's luck, the matched terms read viability
+  as the fit between human capability and the planet.
+- `Confidence` redefined as `min(ν/m, 1)` rather than `ν/(ν+k)`, so one
+  legible number drives scoring, hazard telegraph precision and the
+  Biological Countermeasures gate; `k` is retired in favour of per-
+  sub-factor `m`.
+- **Still open (this theme):** `11-SF14` mid-Mid-Sim destruction ordering;
+  whether `MatchedPreparedness` reads a run-end snapshot or a run-long
+  average (flagged in `scoring_emission_points.csv`).
