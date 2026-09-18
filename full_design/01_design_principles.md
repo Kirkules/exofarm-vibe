@@ -344,9 +344,11 @@
     not folded into the spec for the thing that exists today (e.g. a
     building's eventual, undesigned upgrade tier).
 
-  `DESIGN_TODO.md` is the deliberate exception on both ends — it exists
-  specifically to track what changed, why, and what's still open, and should
-  keep doing exactly that.
+  `DESIGN_TODO.md` is the deliberate exception — it exists to hold what's
+  **still open**, including ideas not yet designed. It is a queue, not an
+  archive: an entry is deleted once its work lands in the design files,
+  rather than being rewritten into a record of what was decided. Git
+  history already holds that record. The aim is a file that empties.
 
   This doesn't forbid rationale for a current design choice — a choice that
   would otherwise look wrong or invite a plausible rewrite gets to keep its
