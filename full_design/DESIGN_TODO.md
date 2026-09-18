@@ -24,6 +24,18 @@ tracks what's needed *underneath* them.
 
 ## Open Items
 
+- [ ] **Rare resources and their high-tech uses are unspecified.** "A rare
+  metal" is currently one undifferentiated input, and the design has no
+  roster of what rare raw resources exist, how they differ, or what they're
+  for. Intended shape: **several** distinct rare resources, each feeding
+  specialized, not-every-run high-tech content rather than the critical
+  path — sci-fi payoffs a run may or may not reach. Ideas floated:
+  PPE-style personal shielding suits for settlers, small-radius
+  time-dilation bubbles. Needs the roster itself, which planets favour
+  which, and the uses each unlocks — deliberately *not* gating anything the
+  ordinary tech spine needs. (Portable High-Powered Scanning Equipment was
+  moved off rare metals to Iron + Copper for exactly this reason — see
+  Buildings & Economy's Tinkerer's Workshop.) Surfaced 2026-09-18.
 - [ ] **The Roadmap's completed-work checklist describes deleted code.**
   `08_roadmap.md`'s Phase 0-2 items are ticked off — polyomino shapes and
   rotation, Energy + Matter with seasonal regeneration and storage
@@ -1580,3 +1592,27 @@ removed by the doc-condensing pass; what remained:
   they survive only as citations in this file's own audit text.
 - **New open item:** `08_roadmap.md`'s ticked Phase 0-2 checklist describes
   the deleted prototype.
+
+### Addressed by the bootstrap pass (2026-09-18)
+
+Theme 8 (turn-one bootstrap can hard-deadlock).
+
+- `A-S2`/`B-S1` — **resolved.** A **landing windfall** of Wood and Stone:
+  a fixed base sized to afford bootstrap-path construction regardless of
+  the site, plus a small non-depleting bonus from surface features in the
+  3x3 around the Settlement Base, shown before the land-at-site
+  confirmation. Neither a Forest-less site nor an Ore-only Surface
+  guarantee can dead-end the opening now.
+- `A-S1` — **deferred to costing.** The bootstrap-path rows in
+  `building_construction_costs.csv` are flagged bootstrap-critical so the
+  balancing pass prices them first and the opening can be verified.
+- `A-CS3`/`B-CS1` — **resolved.** Portable High-Powered Scanning Equipment
+  now costs Iron + Copper, so the rare-metal economy no longer gates its
+  own entry tool; Scanner Station scanning, Mid-depth luck and exploration
+  windfalls are stated as the intended first-rare-metal routes.
+- `A-CS4` — **acknowledged.** Silicon is named in the doc as the catalog's
+  single chokepoint rather than left implicit.
+- `A-P1`/`B-P2` — **closed as moot.** With the windfall, a materials
+  deadlock can't occur, so there is nothing to signal.
+- **New open item:** the rare-resource roster and its specialized
+  high-tech uses.

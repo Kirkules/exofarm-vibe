@@ -64,3 +64,6 @@ Safeguard Coalition,Score term weight - Data(Weather),0.3,Needs Balancing,"the f
 Safeguard Coalition,Score term weight - Data(Bio-hazard),0.3,Needs Balancing,
 Safeguard Coalition,Score term weight - MatchedRisk x MatchedPreparedness (Weather),0.2,Needs Balancing,data deliberately outweighs the matched terms; see the formula rationale in 06
 Safeguard Coalition,Score term weight - MatchedRisk x MatchedPreparedness (Bio-hazard),0.2,Needs Balancing,
+Landing windfall,Fixed base Wood,TBD,TBD,"sized so season 1 can always afford construction on the bootstrap path, independent of site features"
+Landing windfall,Fixed base Stone,TBD,TBD,same sizing rationale; covers a site whose one guaranteed Surface deposit is Ore rather than Stone
+Landing windfall,Per-feature bonus (3x3 around the Settlement Base),TBD,TBD,"small; wooded cells add Wood, Surface deposits add their own material; does not deplete the feature"

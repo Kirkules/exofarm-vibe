@@ -341,6 +341,25 @@ the run begins, the four buildings are independent, ordinary fixed
 buildings, each relocatable by a construction robot like any other (see
 [Construction](03_core_loop_and_grid.md#construction)).
 
+**Landing windfall.** The settlement starts with a stock of **Wood and
+Stone** — material shaken loose by the landing itself, surfaced in a
+Transmission as the settlers gathering what the descent scattered. Two
+parts (amounts: see `data/misc_balancing_values.csv`'s "Landing windfall"
+rows):
+
+- A **fixed base** of both, sized so the first season can always afford
+  construction on the bootstrap path regardless of what the site rolled.
+  This is what makes the opening playable on a site with no Forest tile,
+  or whose one guaranteed Surface deposit turned out to be Ore rather than
+  Stone.
+- A **small placement-dependent bonus**, drawn from the surface features
+  in the **3×3 area around the Settlement Base's cell** — wooded cells add
+  Wood, Surface deposits add their own material. It **does not deplete**
+  those features; it's a one-time bonus for landing near them, not an
+  early harvest. Shown during this step, **before** the land-at-site
+  confirmation, so it's a visible input to where the player puts the
+  settlement rather than a surprise afterward.
+
 **Reversibility.** Freely repositioned and rotated until the land-at-site
 confirmation; that confirmation is the second point of no return (see
 [Run-Start Flow](03_core_loop_and_grid.md#run-start-flow)).

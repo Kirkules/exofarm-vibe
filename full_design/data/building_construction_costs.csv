@@ -15,8 +15,8 @@ Fiber Field,Lumber,TBD,TBD,ratio TBD
 Fiber Field,Concrete,TBD,TBD,ratio TBD
 Fruit Orchard,Lumber,TBD,TBD,ratio TBD
 Fruit Orchard,Concrete,TBD,TBD,ratio TBD
-Timber Grove,Lumber,TBD,TBD,ratio TBD
-Timber Grove,Concrete,TBD,TBD,ratio TBD
+Timber Grove,Lumber,TBD,TBD,"ratio TBD; bootstrap-critical: price these before the general balancing pass, since the playability of the opening depends on them"
+Timber Grove,Concrete,TBD,TBD,"ratio TBD; bootstrap-critical: price these before the general balancing pass, since the playability of the opening depends on them"
 Dairy Pasture,Lumber,TBD,TBD,ratio TBD; slated for removal
 Dairy Pasture,Concrete,TBD,TBD,ratio TBD; slated for removal
 Poultry Coop,Lumber,TBD,TBD,ratio TBD; slated for removal
@@ -27,10 +27,10 @@ Husbandry Site,Lumber,TBD,TBD,ratio TBD
 Husbandry Site,Concrete,TBD,TBD,ratio TBD
 Hydroponic Farm,Lumber,TBD,TBD,"ratio TBD; Indoor alternative to Grain Field/Fiber Field, same base-material shape"
 Hydroponic Farm,Concrete,TBD,TBD,ratio TBD
-Mine,Lumber,TBD,TBD,ratio TBD
-Mine,Concrete,TBD,TBD,ratio TBD
-Mine,Stone,1,Needs Balancing,
-Quarry,Lumber,small amount,TBD,deliberately cheap — bootstrapping building
+Mine,Lumber,TBD,TBD,"ratio TBD; bootstrap-critical: price these before the general balancing pass, since the playability of the opening depends on them"
+Mine,Concrete,TBD,TBD,"ratio TBD; bootstrap-critical: price these before the general balancing pass, since the playability of the opening depends on them"
+Mine,Stone,1,Needs Balancing,"bootstrap-critical: price these before the general balancing pass, since the playability of the opening depends on them"
+Quarry,Lumber,small amount,TBD,"deliberately cheap — bootstrapping building; bootstrap-critical: price these before the general balancing pass, since the playability of the opening depends on them"
 Rare Metal Extractor,Lumber,TBD,TBD,ratio TBD
 Rare Metal Extractor,Concrete,TBD,TBD,ratio TBD
 Rare Metal Extractor,Stone,2,Needs Balancing,
@@ -69,9 +69,9 @@ Robotics Assembly II,Lumber,TBD,TBD,"additional, on top of base cost"
 Robotics Assembly II,Concrete,TBD,TBD,"additional, on top of base cost"
 Stone Processing II,Lumber,TBD,TBD,"additional, on top of base cost; Stone Processing I is a free starting building with no cost row of its own"
 Stone Processing II,Concrete,TBD,TBD,"additional, on top of base cost"
-Smelter,Lumber,TBD,TBD,ratio TBD
-Smelter,Concrete,TBD,TBD,ratio TBD
-Smelter,Stone,TBD,TBD,
+Smelter,Lumber,TBD,TBD,"ratio TBD; bootstrap-critical: price these before the general balancing pass, since the playability of the opening depends on them"
+Smelter,Concrete,TBD,TBD,"ratio TBD; bootstrap-critical: price these before the general balancing pass, since the playability of the opening depends on them"
+Smelter,Stone,TBD,TBD,"bootstrap-critical: price these before the general balancing pass, since the playability of the opening depends on them"
 Textile Workshop,Lumber,TBD,TBD,ratio TBD
 Textile Workshop,Concrete,TBD,TBD,ratio TBD
 Tinkerer's Workshop,Lumber,TBD,TBD,ratio TBD

@@ -1749,7 +1749,9 @@ pair of starting buildings resolves)*
   Resources) — this is why Stone Processing has to be standing from turn
   one rather than something the player builds.
 - Upgrades to **Stone Processing II**, which additionally unlocks:
-  - Silicon ← Stone
+  - Silicon ← Stone — **the catalog's single chokepoint**: High-Tech
+    Components need it, and nearly every advanced building and item needs
+    those, so this one upgrade gates most of the advanced catalog.
   - **Glass ← Stone** — a refined material used by High-Tech Components
     (cameras/screens), PPE, and specialized hazard-resistant gear (see
     Medical Bay and Fabrication below). Broader uses for Glass are an open
@@ -1815,11 +1817,17 @@ pair of starting buildings resolves)*
     one is ever produced. Further copies matter only as Luxury Living
     Quarters slot items (see [Habitation](04_buildings_and_economy.md#habitation)); no faction formula has a
     luxury term, so stockpiling them scores nothing.
-  - Portable High-Powered Scanning Equipment ← Silicon + Copper + a rare metal
-    + High-Tech Components —
+  - Portable High-Powered Scanning Equipment ← Iron + Copper —
     an exploration task initiation cost, likely gating access to higher-tier/
     more-frequent Safeguard or Stewardship data-gathering missions (weather
-    balloon, atmospheric probe, bio-survey, sentience-detection)
+    balloon, atmospheric probe, bio-survey, sentience-detection).
+    Deliberately buildable from the two basic smelted metals: it's the tool
+    Deep Survey needs, and Deep tier is where rare metals concentrate, so
+    requiring a rare metal to build it would make the rare-metal economy
+    gate itself. Scanner Station's Deposit Scanning, a lucky Mid-depth
+    reveal, and exploration windfalls remain the other routes to a first
+    rare metal; Deep Survey is what makes rare metals *systematic* rather
+    than what makes them *possible*.
 - Selectable recipes (**requires further-Upgraded Tinkerer's Workshop**):
   - Temperature-Resistant Gear ← (Fabric **or** Leather, player selects
     which) + a rare metal + High-Tech Components + Glass — **one
