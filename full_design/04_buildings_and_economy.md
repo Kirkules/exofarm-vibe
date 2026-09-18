@@ -1964,11 +1964,17 @@ whichever applies.
   merged) — upgradeable to a larger radius
 - **Energy upkeep**: variable and event-driven, not a flat per-season
   number — see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events) for the full
-  mechanism. Summary: cost scales with the severity of whatever Temperature
-  Extremity event is currently active (idle-but-armed cost normally, more
-  during a mild event, more during an extreme one); paying it in full during
-  an active event is what keeps covered cells at zero effect. Always
-  explicitly displayed, never hidden.
+  mechanism. Summary: cost scales with the severity band of whatever hazard
+  event is currently active — Storm or Temperature Extremity alike
+  (idle-but-armed cost normally, more during a mild event, more during an
+  extreme one; bands in `data/misc_balancing_values.csv`'s "Weather Shield"
+  rows). Paying it in full during an active event is what keeps covered
+  cells at zero effect, which is what turns an accurate telegraph into an
+  Energy-budgeting decision rather than a free warning. Always explicitly
+  displayed, never hidden.
+- **There is no unbreakable tier.** Coverage is funded per season and can
+  simply be insufficient; a shield that always held would flatten the one
+  hazard decision with teeth in it.
 - **Preparedness contribution**: Weather axis, flat amount scaling with
   tier — see `data/misc_balancing_values.csv`'s "Weather Shield" rows
 - Construction cost: see `data/building_construction_costs.csv` —
@@ -2072,6 +2078,13 @@ except an active Energy shield (see [Weather Shield](04_buildings_and_economy.md
   "Medical Bay" rows) — available immediately, no data prerequisite. Also
   hosts the recurring PPE and Emergency Medical Kit recipes and the
   **Biological Lab Materials** recipe (below).
+- **Passive Pathogen data source**: a built, powered Medical Bay produces
+  **Pathogen Threat** evidence each season on its own — no worker, no
+  recipe, no player action (see Planets & Scoring's [Data-Gathering Mechanism (Beta Distribution, Hidden From the Player)](06_planets_and_scoring.md#data-gathering-mechanism-beta-distribution-hidden-from-the-player)
+  and `data/data_gathering_sources.csv`). Rate: see
+  `data/misc_balancing_values.csv`'s "Medical Bay" rows. Running a clinic on
+  an alien world means testing people and samples whether or not anyone set
+  out to survey.
 - **Recovery capacity** (a conditional Building Schema property): the number
   of settlers who can be actively recovering from an injury or a
   parasite/disease infection at once — see

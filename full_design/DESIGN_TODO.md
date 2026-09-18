@@ -133,8 +133,9 @@ rationale.
 - [ ] **Event log lines must carry luck-vs-certainty detail (`2-SF8`)** —
   for retrospective legibility, a log line should distinguish "this was
   always going to happen given your plan" from "this was an unlucky roll".
-  Energy's un-powering lines already do; nothing else does. Pairs with
-  `11-SF12`.
+  Energy's un-powering lines already do; nothing else does — the hazard
+  post-event log is now specified this way (see Planets & Scoring's
+  [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)) and is the pattern to generalize from.
 - [ ] **Per-building production-progress overlay color/icon mapping.** The
   farm-specific overlay variant (see Core Loop & Grid's
   [Season Structure](03_core_loop_and_grid.md#season-structure) and Buildings & Economy's
@@ -158,16 +159,6 @@ rationale.
   grid glyph). Needs a consistent content convention (plain language, no
   formulas, per the existing Site Panel precedent) and a decision on
   touch-equivalent access.
-
----
-
-## Workers, Assignment & Site Panel
-
-- [ ] **Whether a brand-new worker should auto-assign somewhere on the
-  season it appears** — continuation-assignment covers everyone who worked
-  last season, but a freshly built drone or a newly arrived settler has
-  nothing to carry over, and picking a site for them automatically would be
-  a guess rather than a continuation.
 
 ---
 
@@ -479,73 +470,22 @@ rationale.
 
 ## Hazards, Protection & Data-Gathering
 
-- [ ] **Reconcile the fixed per-run hazard schedule with the Safeguard score
-  (`11-B1`, `11-B2`).** Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)
-  now rolls a deterministic per-run schedule at world generation, with data
-  `Confidence` only sharpening the telegraph — but how that interacts with
-  the survey-driven `MatchedRisk`/`Data` machinery is still open, and the
-  doc cites both tags by name as the place that reconciliation is tracked.
-  The deeper survey-vs-fixed-schedule reconciliation is deferred here from
-  the Animal System pass as well.
-- [ ] **The `adequately covered` vs. `under-covered` Storm boundary is
-  undefined (`11-B3`)** — only `severely under-covered → destroyed` is
-  pinned.
-- [ ] **Atmospheric Hazard's exposure trigger is undefined (`11-B5`)** — it
-  is called a continuous check with no event, yet the status effect
-  "triggers on exposure", with no cause, frequency, or weighting given.
-  Planets & Scoring cites this tag directly as the open question of whether
-  Atmospheric Hazard stays a continuous check or joins the scheduled model.
-- [ ] **Event duration within the Mid-Sim window is unmodelled (`11-B6`)** —
-  a scheduled event now hits "one or more random intervals" of its season,
-  but nothing sets how long an interval is, and consequences are scoped
-  "for the event's duration".
-- [ ] **Storm's targeted-site consequence still ignores the severity band
-  (`11-SF1`)** — severity now gates the *collateral* destruction roll on
-  other buildings, but the targeted Farm/Production site's destroyed /
-  paused / unaffected outcome is still driven purely by coverage. Gate
-  "destroyed" on extreme severity.
-- [ ] **The "Medical/Research facility" passive Pathogen data source is
-  unspecified in `04` (`11-SF2`)** — `data/data_gathering_sources.csv`
-  names it as a source, but no building entry defines a
-  data-gathering contribution for it.
-- [ ] **Which channel hazard reports use — Transmissions vs. the simulation
-  log (`11-SF5`)** — telegraphs are settled on Transmissions, but individual
-  data reports are still described as fitting "the Transmissions record or
-  simulation log".
-- [ ] **Atmospheric Hazard preparedness has no scoring representation
-  (`11-SF8`)** — `MatchedPreparedness(Weather)` counts Weather/Row Shields
-  only, so PPE (the one countermeasure for this sub-factor) earns nothing.
-- [ ] **The recurring data-gathering exploration tasks are unauthored
-  (`11-SF9`).** `data/data_gathering_sources.csv` and Planets & Scoring's
-  [Data-Gathering Mechanism (Beta Distribution, Hidden From the Player)](06_planets_and_scoring.md#data-gathering-mechanism-beta-distribution-hidden-from-the-player) name a weather balloon,
+- [ ] **Author the recurring data-gathering exploration tasks (`11-SF9`)** —
+  its own focused pass. `data/data_gathering_sources.csv` and Planets &
+  Scoring's [Data-Gathering Mechanism (Beta Distribution, Hidden From the Player)](06_planets_and_scoring.md#data-gathering-mechanism-beta-distribution-hidden-from-the-player) name a weather balloon,
   atmospheric sampling, a bio-survey, and a dedicated probe as data sources
-  — and for three of the five hazard sub-factors (Atmospheric Hazard,
-  Pathogen Threat, Toxic/Parasitic Organism Threat) they are the **only**
-  source, since no building generates reports for them. None exist in
-  `data/exploration_task_catalog.csv`. Until they're authored,
-  `Confidence` for those three sub-factors can never rise, which in turn
-  gates Medical Bay's Biological Countermeasures tier and leaves the
-  Safeguard score's `Data` term permanently near its floor. Needed: each
-  task's rarity, risk tier, season gate, Ration cost, required item (if
-  any), repeatability, and how much evidence one completion contributes.
-- [ ] **Present shield-coverage UI as a prediction-with-confidence
-  (`11-SF10`)** — mirroring the Site Panel's power indicator, rather than as
-  a flat assertion of coverage.
-- [ ] **A `Confidence` floor / early-season grace for the destructive and
-  lethal tiers (`11-SF11`)** — the run-start SEED summary is now the
-  explicit pre-`Confidence` legibility instrument, but nothing protects a
-  turn-one settlement from a scheduled extreme event it could not have
-  known about in time to answer.
-- [ ] **Post-event log must distinguish deterministic destruction from an
-  unlucky roll, and surface the coverage state (`11-SF12`).** Pairs with
-  `2-SF8`.
-- [ ] **Confirm hazard-caused death routes through the death-acknowledgment
-  line (`11-SF16`)** — starvation deaths get a confirmation dialog; hazard
-  deaths are only described as telegraphed.
-- [ ] **Shield / hazard-events focused revisit** — unbreakable-shield
-  limits, and stronger-event power scaling. Buildings & Economy's
-  [Resources](04_buildings_and_economy.md#resources) defers the shields' exact elevated-draw bands to this item by
-  name.
+  — and for Atmospheric Hazard and Toxic/Parasitic Organism Threat they are
+  the **only** source (Pathogen Threat now also has the Medical Bay's
+  passive contribution). None exist in `data/exploration_task_catalog.csv`.
+  Until they're authored, `Confidence` for those sub-factors can never rise,
+  which in turn gates Medical Bay's Biological Countermeasures tier and
+  leaves the Safeguard score's `Data` term near its floor. Needed per task:
+  rarity, risk tier, season gate, Ration cost, required item (if any),
+  repeatability, and how much evidence one completion contributes.
+- [ ] **Balance the hazard values now sitting at TBD** —
+  `data/misc_balancing_values.csv`'s "Hazard event duration",
+  "Atmospheric Hazard", "Medical Bay" passive-evidence, and "Weather Shield"
+  Energy-draw rows. Shapes are settled; only the numbers are missing.
 
 ---
 

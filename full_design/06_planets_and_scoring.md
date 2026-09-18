@@ -178,9 +178,9 @@ Extremity are the two such hazards here. Bio-hazard's sub-factors —
 **Pathogen Threat** (diseases) and **Toxic/Parasitic Organism Threat**
 (parasites) — are **not exploration-gated**: which disease and parasite
 *types* a run has is fixed at planet generation, and they reach the
-settlement through several routes (see Bio-hazard, below). Whether
-Atmospheric Hazard stays a continuous check or joins the scheduled model is
-still open (see `DESIGN_TODO.md` `11-B5`).
+settlement through several routes (see Bio-hazard, below). Atmospheric
+Hazard stays a **continuous check**, never a scheduled event — see its own
+subsection below.
 
 At **run generation** the game rolls, once and for the rest of the run:
 which seasons carry a Storm and/or a Temperature Extremity event, and each
@@ -221,11 +221,27 @@ not whether the event happens:
 
 All delivered via the existing **Transmissions** mechanic — this section is
 that mechanic's concrete realization, not a new system layered on top of
-it. (See `DESIGN_TODO.md` `11-B1` / `11-B2` for open reconciliation work
-on how this feeds the Safeguard score.)
+it. **Transmissions carries everything predictive or reported** — telegraphs
+and individual data reports alike — while the simulation log carries only
+what actually happened during Mid-Sim.
+
+**Scoring reads `TrueRisk`, never the realized schedule.** A run that
+happened to draw few events doesn't score better for the same decisions;
+`MatchedRisk` asks whether protection matched the planet's risk profile and
+`Data` whether the player found that profile out.
+
+**No extreme-band event is ever scheduled in the opening seasons** (count:
+see `data/misc_balancing_values.csv`'s "Hazard schedule" row) — a
+generation-time constraint rather than a `Confidence` floor, so a turn-one
+settlement can't be handed a catastrophe it had no instrument to see
+coming.
 
 **Event severity — a coarse band, shared by Storm and Temperature
-Extremity.** Each scheduled event carries one of two severity bands,
+Extremity.** A band also sets **how long the event occupies the Mid-Sim
+window** — mild events run one short interval, extreme events longer and
+possibly two (durations in seconds of Mid-Sim: see
+`data/misc_balancing_values.csv`'s "Hazard event duration" rows). Each
+scheduled event carries one of two severity bands,
 **mild** or **extreme** — pre-rolled with the schedule at run generation
 (above), weighted by that hazard's `TrueRisk` (a worse-off planet skews
 toward more extreme events, not just more frequent ones — reusing a value
@@ -254,6 +270,15 @@ between them. The one edge case this implies: if one hazard's consequence
 already destroyed a Farm/Production site, the other hazard's destruction
 check for that same site simply has nothing left to act on — the slot is
 already empty, not destroyed twice.
+
+**Aftermath reporting.** The post-event log states each affected site's
+coverage state at the moment the event hit, and distinguishes a
+**deterministic** loss (unshielded, extreme severity) from an **unlucky
+collateral roll** — the difference between "you left this open" and "this
+one was chance," which is the whole of whether the player has something to
+do differently next time. Any settler death a hazard causes routes through
+the same **death-acknowledgment line** as a starvation death; every death is
+acknowledged, whatever killed them.
 
 **Temperature Extremity** — average temperature and consequence, in full:
 - Every candidate farm site gets its own **Average Temperature**, sampled at
@@ -317,14 +342,18 @@ already empty, not destroyed twice.
 
 **Storm** — preparedness-coverage tiers, same shape as before, plus a new
 top-severity consequence:
-- Adequately **Shielded** (Weather Shield/Row Shield with sufficient
-  `Preparedness` relative to the hazard) → no effect
-- Under-covered → production paused for the event's duration
-- Severely under-covered (`MatchedPreparedness` near zero) → the affected
-  outdoor Farm/Production site is **destroyed** — removed from the grid
-  entirely, not merely paused — requiring an ordinary construction-robot
-  build action to reconstruct from scratch on the now-empty slot, per
-  Platform & Core Loop Redesign's Construction.
+The tiers read off one **coverage ratio**: the site's funded `Preparedness`
+over the event's severity-banded demand.
+- **Shielded** (ratio ≥ 1) → no effect
+- **Under-covered** (a funded shield, but ratio < 1) → production paused for
+  the event's duration
+- **Unshielded** (no funded shield at all) → production paused at mild
+  severity; at **extreme** severity the affected outdoor Farm/Production
+  site is **destroyed** — removed from the grid entirely, not merely paused
+  — requiring an ordinary construction-robot build action to reconstruct
+  from scratch on the now-empty slot, per Platform & Core Loop's
+  Construction. So the worst outcome is reserved for the case the player
+  simply didn't answer, and only when the planet swung hardest.
 - When a storm event is scheduled at **extreme** severity, every *other*
   unprotected building on the grid (any category, not just the
   directly-targeted Farm/Production site — "unprotected" reuses the same
@@ -357,6 +386,12 @@ top-severity consequence:
   send PPE** when initiating the task — this *is* consumed from inventory
   (see [Protection](04_buildings_and_economy.md#protection)'s [Medical Bay](04_buildings_and_economy.md#medical-bay) for PPE production), confirming it as a real
   optional exploration cost, not just a stock check.
+- **Exposure is checked on the quarter-season epidemiology tick** (below),
+  reusing that cadence rather than introducing a second one: each tick,
+  every outdoor settler with no PPE in stock rolls exposure at a probability
+  scaled by `TrueRisk(Atmospheric Hazard)`. This is what makes it a
+  continuous check rather than a scheduled event — there's no telegraph,
+  only a standing condition the player either answers or doesn't.
 - Exposure without PPE (either context) inflicts a **status effect** (see
   [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Settler State](05_settlers_and_exploration.md#settler-state)): triggers on exposure, persists
   for roughly 3 seconds of Mid-Sim time afterward, halves the settler's
@@ -716,13 +751,30 @@ rather than repeated per faction below.
     sub-factors** — the same aggregation `TrueRisk(axis)` itself uses (see
     Hazard Priors), so the estimate and the quantity it estimates are built
     the same way. Being a probability, it's naturally bounded to [0,1].
-  - `MatchedPreparedness(axis)` — built preparedness (Weather Shield for
-    Weather; Medical Bay for Bio-hazards — see Buildings & Economy's
+  - `MatchedPreparedness(axis)` — built preparedness (Weather Shield and PPE
+    for Weather; Medical Bay for Bio-hazards — see Buildings & Economy's
     [Protection](04_buildings_and_economy.md#protection) category) normalized against the *true* risk level, capped at
     1: `min(Preparedness / TrueRisk, 1)`. Read from **what stands at run
     end**, not averaged across the run: a settlement that survived long
     enough to identify a hazard and then answered it has done exactly what
     this faction values, so answering late still counts.
+    - **Weather preparedness is the mean of its three sub-factors**, each
+      counting the countermeasure that actually answers it: shields for
+      **Storm**, shields or Temperature-Resistant Gear for **Temperature
+      Extremity**, and PPE for **Atmospheric Hazard** — so the one
+      countermeasure a sub-factor has always earns something, and no
+      sub-factor can be answered by a countermeasure that doesn't apply to
+      it.
+    - **PPE counts both standing and spent.** Stock on hand at run end
+      covers settlers the same way a shield covers buildings, and a
+      **running tally of PPE consumed to counter an actual threat** across
+      the run counts alongside it — the one deliberate exception to reading
+      preparedness from what stands at run end, since consuming PPE against
+      a real exposure is the clearest possible evidence of a matched
+      response, and it would be perverse for using it to score worse than
+      hoarding it. The sub-factor is still capped at 1 and is still one of
+      three, so PPE alone can never carry more than a third of Weather
+      preparedness however much of it gets spent.
     - **Preparedness counts what's actually addressed, not structures
       owned.** For Weather, a shield contributes for the
       otherwise-unprotected buildings it brings under cover; more shielding

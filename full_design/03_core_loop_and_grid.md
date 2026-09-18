@@ -427,6 +427,21 @@ exception** — they're one-shot and the settler returns unassigned. A worker
 whose carried target no longer exists (destroyed, relocated into an invalid
 state, or a build that completed) starts the phase unassigned.
 
+**New workers and new sites are then matched up**, after every continuation
+has been applied:
+- **A newly arrived settler or newly built drone takes an open slot at a
+  site that needs no input ingredients** — a Mine, Quarry, farm, or
+  Husbandry Site, never a site waiting on a supply chain the player hasn't
+  built yet. A worker with nowhere sensible to go simply starts unassigned;
+  that's an ordinary outcome, not a failure to handle.
+- **A newly built construction robot takes a queued structure**, the same
+  way existing robots do.
+- **A newly constructed production site draws an unassigned worker**, set to
+  the first and most basic output it can produce.
+- **Ties resolve by age**: sites in the order they were constructed, queued
+  structures in the order they were queued. A deterministic rule the player
+  can predict beats a smart one they can't.
+
 - **Production building** — accepts settlers or drones (see Worker types
   below). Every production site needs a worker assigned to produce at all,
   apart from the sites that need no staffing. An unstaffed site produces
@@ -589,9 +604,15 @@ choice to make at that particular site. Contents, always in this order:
   same thing twice. A **Water-sufficiency indicator** sits alongside it for any site that
   draws Water (see Buildings & Economy's [Water](04_buildings_and_economy.md#water)), with the same
   three states, the same shape-plus-color treatment, and the same
-  prediction-not-status framing. Other status-section content is left open
+  prediction-not-status framing. A **shield-coverage indicator** joins them
+  on the same three-state footing (Green = covered at the demand an extreme
+  event would set, Yellow = covered only against a mild one, Red = no funded
+  coverage) — a prediction carrying its own uncertainty, never a flat
+  assertion that the site is safe, since the demand depends on a hazard
+  whose severity the player may only partly know (see Planets & Scoring's
+  [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)). Other status-section content is left open
   for whatever future mechanics turn out to need a per-site status readout.
-- **Both indicators also appear on the building's own grid tile** as a small
+- **These indicators also appear on the building's own grid tile** as a small
   icon, so a shortfall is visible while scanning the farm rather than only
   after selecting each site in turn — same shapes as in the panel, per the
   color-accessibility rule.

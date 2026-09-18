@@ -18,10 +18,14 @@ Medical Bay,"Preparedness(Bio-hazard), Biological Countermeasures tier",0.7,Illu
 Medical Bay,Biological Countermeasures unlock threshold,Confidence(Bio-hazard) >= 0.5,Illustrative,"functional gate, not just a scoring nuance"
 Medical Bay,"Recovery capacity, base",1,Needs Balancing,
 Medical Bay,"Recovery capacity, upgraded",2,Needs Balancing,
+Medical Bay,Passive Pathogen Threat evidence per season,TBD,TBD,built and powered; no worker or recipe required
 Weather Shield,"Preparedness contribution, base",0.3,Illustrative,
 Weather Shield,"Preparedness contribution, upgraded",0.6,Illustrative,
 Weather Shield,"Area of effect radius, base tier (Manhattan-distance)",2,Illustrative,"matches the original design's ""weather bubble"" precedent"
 Weather Shield,"Area of effect radius, upgraded tier (Manhattan-distance)",TBD,TBD,"doc says only ""a larger radius"" than base; exact value TBD"
+Weather Shield,"Energy draw, idle-but-armed",TBD,TBD,no hazard event active
+Weather Shield,"Energy draw, mild event",TBD,TBD,severity-banded; applies to Storm and Temperature Extremity alike
+Weather Shield,"Energy draw, extreme event",TBD,TBD,severity-banded; what turns an accurate telegraph into an Energy-budgeting decision
 Row Shield,Preparedness contribution,same as Weather Shield base,Illustrative,
 Robotics Assembly (drones),Battery recharge duration,~3s,Illustrative,roughly a fifth of a season; varies by drone type
 Kitchen,Gourmet 'moment of brilliance' chance,75%,Illustrative,one roll per distinct available Seasoning; scales with Kitchen skill
@@ -35,6 +39,7 @@ Exploration Tasks,"Pool size, base",3,Needs Balancing,
 Exploration Tasks,"Pool size, max",5,Needs Balancing,"+1 from a Scanner Station upgrade tier, +1 from Research Lab's Expanded Reconnaissance Doctrine"
 Storm,"Severely-under-covered building destruction chance (extreme severity, other buildings)",TBD,TBD,"small chance, per unprotected building"
 Atmospheric Hazard,Status-effect duration after exposure,~3s,Illustrative,"roughly, Mid-Sim time"
+Atmospheric Hazard,Per-tick exposure probability multiplier,TBD,TBD,"applied to TrueRisk(Atmospheric Hazard) on each quarter-season epidemiology tick, per unprotected outdoor settler"
 Run Structure,Run length,15 seasons,Needs Balancing,no diegetic justification yet; flagged for revisit in DESIGN_TODO
 Crew Selection,Starting crew size,5,Needs Balancing,"resolved this session, was 3-4"
 Storied,legend_value threshold,TBD,TBD,explicitly open in DESIGN_TODO
@@ -67,3 +72,6 @@ Safeguard Coalition,Score term weight - MatchedRisk x MatchedPreparedness (Bio-h
 Landing windfall,Fixed base Wood,TBD,TBD,"sized so season 1 can always afford construction on the bootstrap path, independent of site features"
 Landing windfall,Fixed base Stone,TBD,TBD,same sizing rationale; covers a site whose one guaranteed Surface deposit is Ore rather than Stone
 Landing windfall,Per-feature bonus (3x3 around the Settlement Base),TBD,TBD,"small; wooded cells add Wood, Surface deposits add their own material; does not deplete the feature"
+Hazard schedule,Opening seasons barred from extreme-band events,2,Illustrative,generation-time constraint; guarantees a turn-one settlement cannot be handed a catastrophe it had no instrument to foresee
+Hazard event duration,"Mild event, seconds of Mid-Sim",TBD,TBD,one short interval
+Hazard event duration,"Extreme event, seconds of Mid-Sim",TBD,TBD,"longer, and possibly split across two intervals"
