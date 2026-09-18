@@ -625,7 +625,7 @@ Numbers below are a **first-pass illustrative draft**, not balanced — followin
 playtesting later, not over-engineered now. All buildings in this section:
 Repeatable: yes, Upgrade path: yes (higher tiers reduce duration),
 `TechAchievement` 0 at base tier / 2
-upgraded (see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)). **Water**: the four animal-based
+upgraded (see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)). **Water**: the three animal-based
 buildings ([Dairy Pasture](04_buildings_and_economy.md#dairy-pasture), [Poultry Coop](04_buildings_and_economy.md#poultry-coop), [Sheep Pasture](04_buildings_and_economy.md#sheep-pasture)) draw a flat
 amount per cycle (see `data/recipe_ingredients.csv`; insufficient-Water
 behavior still TBD — see `DESIGN_TODO.md`'s Water resource open threads);

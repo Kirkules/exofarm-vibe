@@ -1,6 +1,6 @@
 # Core Loop & Grid
 
-## Platform & Core Loop Redesign (In Progress)
+## Platform & Core Loop
 
 **At a glance:**
 - **Platform** — PC first, landscape; FTL/Into the Breach-style pixel art
@@ -535,6 +535,10 @@ choice to make at that particular site. Contents, always in this order:
   icon, so a shortfall is visible while scanning the farm rather than only
   after selecting each site in turn — same shapes as in the panel, per the
   color-accessibility rule.
+- **Active/inactive toggle** — the control every building carries (see
+  Buildings & Economy's [Resources](04_buildings_and_economy.md#resources)) lives here, as an ordinary
+  reversible planning-phase choice rather than a grid gesture, keeping
+  per-building controls in one place.
 - **Every element has its own hover tooltip** (a separate small box, not a
   single panel-wide tooltip) surfacing that element's key details in
   plain language — this is specifically where the assigned worker's
@@ -857,7 +861,7 @@ badge** per transition (e.g. a plow / seed / sprout / sheaf icon) so it
 reads without relying on color alone. **Open**: the exact color/icon
 mapping needs to be authored per building, since each one has its own
 distinct state count and shape — see `DESIGN_TODO.md`. Every other production
-site — the four animal-based buildings (for now) and all non-farm
+site — the three animal-based buildings (for now) and all non-farm
 infrastructure — keeps the single continuous fill described above,
 unaffected.
 

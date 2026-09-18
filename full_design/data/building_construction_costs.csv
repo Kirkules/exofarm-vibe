@@ -1,5 +1,5 @@
 Building,Item,Quantity,Design status,Notes
-Solar Array,Lumber,TBD,TBD,"doc also lists 'Energy' as a cost input — stale, Energy has no stockpile to spend; see audit 5-SF3"
+Solar Array,Lumber,TBD,TBD,
 Solar Array,Concrete,TBD,TBD,
 Geothermal Generator,Lumber,TBD,TBD,ratio TBD
 Geothermal Generator,Concrete,TBD,TBD,ratio TBD

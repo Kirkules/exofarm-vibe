@@ -716,10 +716,19 @@ rather than repeated per faction below.
     sub-factors** — the same aggregation `TrueRisk(axis)` itself uses (see
     Hazard Priors), so the estimate and the quantity it estimates are built
     the same way. Being a probability, it's naturally bounded to [0,1].
-  - `MatchedPreparedness(hazard)` — built preparedness (Weather Shield for
+  - `MatchedPreparedness(axis)` — built preparedness (Weather Shield for
     Weather; Medical Bay for Bio-hazards — see Buildings & Economy's
     [Protection](04_buildings_and_economy.md#protection) category) normalized against the *true* risk level, capped at
-    1: `min(Preparedness / TrueRisk, 1)`.
+    1: `min(Preparedness / TrueRisk, 1)`. Read from **what stands at run
+    end**, not averaged across the run: a settlement that survived long
+    enough to identify a hazard and then answered it has done exactly what
+    this faction values, so answering late still counts.
+    - **Preparedness counts coverage, not structures.** A shield
+      contributes for the otherwise-unprotected buildings it brings under
+      cover; adding more shielding over already-covered buildings
+      contributes nothing, since that problem was already solved. This is
+      what stops last-season credit from degenerating into stacking
+      redundant shields on one corner of the farm.
   - **The Safeguard score** is one weighted sum across both axes, every term
     already bounded to [0,1], with weights that sum to 1 (see
     `data/misc_balancing_values.csv`'s "Safeguard Coalition" rows):

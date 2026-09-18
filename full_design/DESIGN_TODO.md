@@ -24,6 +24,16 @@ tracks what's needed *underneath* them.
 
 ## Open Items
 
+- [ ] **The Roadmap's completed-work checklist describes deleted code.**
+  `08_roadmap.md`'s Phase 0-2 items are ticked off — polyomino shapes and
+  rotation, Energy + Matter with seasonal regeneration and storage
+  overflow, the broadcast-range power network, greenhouse piece
+  definitions, the double-tap building toggle — all from the pre-redesign
+  prototype that no longer exists (see `CLAUDE.md`). As written, the
+  roadmap claims a foundation the project doesn't have, and several ticked
+  items describe mechanics the current design has since replaced. Needs a
+  rebuild against the current design rather than line-edits. Surfaced
+  2026-09-18 during the stale-reference pass.
 - [ ] **Every game element needs a hover tooltip.** Tooltips are specified
   ad hoc today — the Site Panel gives each of its elements one, food items
   have a nutrient-profile tooltip, the Energy bar has a caveat tooltip —
@@ -1550,3 +1560,23 @@ normalized how).
 - **Still open (this theme):** `11-SF14` mid-Mid-Sim destruction ordering;
   whether `MatchedPreparedness` reads a run-end snapshot or a run-long
   average (flagged in `scoring_emission_points.csv`).
+
+### Addressed by the stale-reference pass (2026-09-18)
+
+Theme 10 (stale references to the deleted mobile design). Most were already
+removed by the doc-condensing pass; what remained:
+
+- `4-SF5` — **resolved.** "The four animal-based buildings" corrected to
+  three, in both Core Loop & Grid and Buildings & Economy.
+- `5-SF3` — **resolved.** Solar Array's stale Energy-as-construction-cost
+  note is gone from `building_construction_costs.csv`; the doc had already
+  dropped it.
+- `5-SF4` — **resolved.** The per-building active/inactive toggle lives in
+  the Site Panel as an ordinary planning choice, not a grid gesture.
+- Audit `1` Nice-to-have — **resolved.** `03`'s "Platform & Core Loop
+  Redesign (In Progress)" heading is now "Platform & Core Loop"; the
+  "What Got Cut" subsection went during the condensing pass.
+- `8-SF3`/`6-SF2` — **already gone**, removed during the condensing pass;
+  they survive only as citations in this file's own audit text.
+- **New open item:** `08_roadmap.md`'s ticked Phase 0-2 checklist describes
+  the deleted prototype.
