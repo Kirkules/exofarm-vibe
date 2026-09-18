@@ -163,32 +163,11 @@ rationale.
 
 ## Workers, Assignment & Site Panel
 
-- [ ] **Site Panel's single "Assigned worker slot" vs. multi-slot buildings
-  (`3-B2`)** — a multi-slot building supports several simultaneous worker
-  assignments (see Buildings & Economy's [Building Schema](04_buildings_and_economy.md#building-schema)), but the panel
-  specifies one slot, and worker-to-building vs. worker-to-slot is
-  unspecified.
-- [ ] **Representation of Exploration-Task and Standing-Assignment workers
-  in the roster (`3-B3`)** — the Worker Roster's hover-highlight and its
-  Mid-Sim per-worker expansion both assume a building target; a settler who
-  is away on a task has no defined depiction.
-- [ ] **Per-building worker-eligibility enforcement + "why rejected"
-  messaging (`3-SF2`)** — eligibility varies by injury, Aptitude, and worker
-  type, but nothing specifies how a disallowed assignment is refused or
-  explained.
-- [ ] **Pre-assigning to a queued, not-yet-built building (`3-SF3`)** — is
-  it allowed, and what is the first-season-idle rule if it isn't?
-- [ ] **Planning-phase signal that a drone recharge may stall output
-  (`3-SF5`)** — a recharging drone is a consumer in the shedding pool and
-  can pause its site; nothing warns the player at planning time.
-- [ ] **Which concrete worker a type-row drag assigns when A > 1
-  (`3-SF6`)** — the roster's drag-to-assign flow doesn't say which of
-  several unassigned workers of that type is the one placed.
-- [ ] **Construction robots — roster row or separate budget indicator
-  (`3-SF7`)?** They are auto-assigned and single-purpose, so they may not
-  belong in a roster built around reassignable workers.
-- [ ] **Define the unassign / send-to-idle gesture (`3-SF9`)** — the idle
-  state itself is defined, but not the action that produces it.
+- [ ] **Whether a brand-new worker should auto-assign somewhere on the
+  season it appears** — continuation-assignment covers everyone who worked
+  last season, but a freshly built drone or a newly arrived settler has
+  nothing to carry over, and picking a site for them automatically would be
+  a guess rather than a continuation.
 
 ---
 

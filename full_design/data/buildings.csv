@@ -1,54 +1,54 @@
-Building,Category,Staffing,Indoor/Outdoor,Grid slots,Repeatable,Upgrade of,Design status,Baseline Energy upkeep,Notes
-Settlement Base,Basic Resource Production / Habitation,Unstaffed,N/A,1,No,,Needs Balancing,TBD,"doc tension: 'Baseline Energy upkeep' says every building including producers carries this flat cost, but 'Eligibility' (Resources) says Energy producers draw no Energy at all -- flagged, not resolved; also houses crew quarters; cannot be rebuilt if destroyed"
-Settlement Base II,Basic Resource Production / Habitation,Unstaffed,N/A,1,No,Settlement Base,Needs Balancing,TBD,"doc tension: 'Baseline Energy upkeep' says every building including producers carries this flat cost, but 'Eligibility' (Resources) says Energy producers draw no Energy at all -- flagged, not resolved; keeps quarters"
-Solar Array,Basic Resource Production,Unstaffed,N/A,1,Yes,,Needs Balancing,TBD,"doc tension: 'Baseline Energy upkeep' says every building including producers carries this flat cost, but 'Eligibility' (Resources) says Energy producers draw no Energy at all -- flagged, not resolved"
-Solar Array II,Basic Resource Production,Unstaffed,N/A,1,Yes,Solar Array,Needs Balancing,TBD,"doc tension: 'Baseline Energy upkeep' says every building including producers carries this flat cost, but 'Eligibility' (Resources) says Energy producers draw no Energy at all -- flagged, not resolved; path toward eventual Fusion Generator"
-Geothermal Generator,Basic Resource Production,Unstaffed,N/A,1,Yes (capped by Thermal Vents),,Needs Balancing,TBD,"doc tension: 'Baseline Energy upkeep' says every building including producers carries this flat cost, but 'Eligibility' (Resources) says Energy producers draw no Energy at all -- flagged, not resolved; Volcanic-exclusive, built on Thermal Vent"
-Geothermal Generator II,Basic Resource Production,Unstaffed,N/A,1,Yes (capped by Thermal Vents),Geothermal Generator,Needs Balancing,TBD,"doc tension: 'Baseline Energy upkeep' says every building including producers carries this flat cost, but 'Eligibility' (Resources) says Energy producers draw no Energy at all -- flagged, not resolved"
-Fuel-based Generator I,Basic Resource Production,Unstaffed,N/A,1,Yes,,Needs Balancing,TBD,"doc tension: 'Baseline Energy upkeep' says every building including producers carries this flat cost, but 'Eligibility' (Resources) says Energy producers draw no Energy at all -- flagged, not resolved; Conditional Energy income; burns Wood"
-Fuel-based Generator II,Basic Resource Production,Unstaffed,N/A,1,Yes,Fuel-based Generator I,Needs Balancing,TBD,"doc tension: 'Baseline Energy upkeep' says every building including producers carries this flat cost, but 'Eligibility' (Resources) says Energy producers draw no Energy at all -- flagged, not resolved; unlocks burning Fossil Fuel; no further upgrade path"
-Grain Field,Farm/Production,Staffed,Outdoor,1,Yes,,Needs Balancing,TBD,"4-state persistent cycle, see plant_crop_transitions.csv"
-Fruit Orchard,Farm/Production,Staffed,Outdoor,1,Yes,,Needs Balancing,TBD,one-time establishment + repeating fruit loop
-Fiber Field,Farm/Production,Staffed,Outdoor,1,Yes,,Needs Balancing,TBD,same shape as Grain Field
-Timber Grove,Farm/Production,Staffed,Outdoor,1,Yes,,Needs Balancing,TBD,one-time establishment + self-loop harvest
-Hydroponic Farm,Farm/Production,Staffed,Indoor,1,Yes,,TBD,TBD,Grain or Fiber recipe; slower than outdoor; no Wooden Plow bonus
-Dairy Pasture,Farm/Production,Staffed,Outdoor,1,Yes,,Needs Balancing,TBD,slated for removal — native-fauna pivot
-Poultry Coop,Farm/Production,Staffed,Outdoor,1,Yes,,Needs Balancing,TBD,slated for removal — native-fauna pivot
-Sheep Pasture,Farm/Production,Staffed,Outdoor,1,Yes,,Needs Balancing,TBD,slated for removal — native-fauna pivot
-Husbandry Site,Farm/Production,Staffed,Outdoor,1,Yes,,Needs Balancing,TBD,species-agnostic; committed to one species per Capture
-Husbandry Site (Titan-tier),Farm/Production,Staffed,Outdoor,2,Yes,Husbandry Site,Needs Balancing,TBD,required for Titan-sized animals only; free relocation on upgrade
-Mine,Deposit Discovery,Staffed,Outdoor,1,Yes,,Needs Balancing,TBD,built on Iron/Copper Ore deposit
-Quarry,Deposit Discovery,Staffed,Outdoor,1,Yes,,Needs Balancing,TBD,built on Stone deposit; deliberately cheap (bootstrap)
-Rare Metal Extractor,Deposit Discovery,Staffed,Outdoor,1,Yes,,Needs Balancing,TBD,built on rare-metal deposit
-Water Processing Plant,Water (Utilities),N/A,N/A,1,No,,Needs Balancing,TBD,starting building; prerequisite for all Water collection
-Water Reclamation Plant,Water (Utilities),N/A,N/A,1,No,Water Processing Plant,Needs Balancing,TBD,settlement-wide Water consumption reduction
-Water Condenser,Water (Utilities),Staffed,Outdoor,1,Yes,,Needs Balancing,TBD,best on Volcanic
-Ice Melter,Water (Utilities),Staffed,Outdoor,1,Yes,,Needs Balancing,TBD,Frozen-exclusive
-Cistern,Water (Utilities),Staffed,Outdoor,1,Yes,,Needs Balancing,TBD,best on Verdant
-Well,Water (Utilities),Staffed,Outdoor,1,Yes,,Needs Balancing,TBD,auto-becomes Deep Well on a detected aquifer tile
-Scanner Station,Utilities,Staffed,Indoor,1,Yes,,Needs Balancing,TBD,multi-recipe: Weather Sensing / Deposit Scanning
-Scanner Station II,Utilities,Unstaffed,N/A,1,Yes,Scanner Station,Needs Balancing,TBD,still one active mode at a time
-Scanner Station III,Utilities,Unstaffed,N/A,1,Yes,Scanner Station II,Needs Balancing,TBD,all modes simultaneously
-Research Lab,Utilities,Staffed,Indoor,1,Yes,,Needs Balancing,TBD,"resource-gated, not research-points-gated"
-Cafeteria,Food/Meal Conversion,Staffed,Indoor,1,Yes,,Needs Balancing,TBD,N simultaneous recipe slots = grid footprint
-Kitchen,Food/Meal Conversion,Staffed,Indoor,2,Yes,Cafeteria,Needs Balancing,TBD,"2 slots, unlocks combo recipes"
-Ration Press,Food/Meal Conversion,Unstaffed,N/A,1,Yes,,Needs Balancing,TBD,"cycle-based, two recipes (Packaged Rations / Stockpile Fill)"
-Robotics Assembly,Fabrication,Staffed,Indoor,1,Yes,,Needs Balancing,TBD,Settler or All-Purpose Drone
-Robotics Assembly II,Fabrication,Staffed,Indoor,1,Yes,Robotics Assembly,Needs Balancing,TBD,gates Advance/Harden upgrade-in-place recipes
-Stone Processing I,Fabrication,Staffed,Indoor,1,Yes,,Needs Balancing,TBD,starting building
-Stone Processing II,Fabrication,Staffed,Indoor,1,Yes,Stone Processing I,Needs Balancing,TBD,"unlocks Silicon, Glass"
-Smelter,Fabrication,Staffed,Indoor,1,Yes,,Needs Balancing,TBD,"Iron Ore -> Iron, Copper Ore -> Copper"
-Textile Workshop,Fabrication,Staffed,Indoor,1,Yes,,Needs Balancing,TBD,
-Tinkerer's Workshop,Fabrication,Staffed,Indoor,1,Yes,,Needs Balancing,TBD,Advanced All-Purpose Drone or Tinkerer's-Specialized Drone eligible
-Inventor's Workshop,Fabrication,Staffed,Indoor,1,Yes,Tinkerer's Workshop,Needs Balancing,TBD,"gates Temperature-Resistant Gear, Diplomatic Gear, kits, packages"
-Sawmill,Fabrication,Staffed,Indoor,1,Yes,,Needs Balancing,TBD,starting building
-Carpenter's Shop,Fabrication,Staffed,Indoor,1,Yes,Sawmill,Needs Balancing,TBD,"unlocks luxury goods, Wooden Plow, Tiny/Small Trap"
-Weather Shield,Protection,Unstaffed,N/A,1,Yes,,Needs Balancing,TBD,"Manhattan-radius AOE, any building type"
-Weather Shield II,Protection,Unstaffed,N/A,1,Yes,Weather Shield,Needs Balancing,TBD,larger radius
-Row Shield,Protection,Unstaffed,N/A,2,Yes,,Needs Balancing,TBD,"2-tile footprint, full-row AOE, no upgrade path"
-Medical Bay,Protection,Staffed,Indoor,1,Yes,,Needs Balancing,TBD,1 worker; recipes chosen via production queue
-Hospital,Protection,Staffed,Indoor,2,Yes,Medical Bay,Needs Balancing,TBD,Confidence(Bio-hazard)-gated; 2-slot footprint; Recovery capacity 2
-Food Storage,Storage,Staffed (extraction only),N/A,1,Yes,,Needs Balancing,TBD,holds only via Ration Press's Stockpile Fill
-Food Storage II,Storage,Staffed (extraction only),N/A,1,Yes,Food Storage,Needs Balancing,TBD,raises capacity
-Crew Quarters,Habitation,Unstaffed,N/A,1,No,,Needs Balancing,TBD,settlement-wide Good Sleep; non-stacking
-Luxury Living Quarters,Habitation,Unstaffed,N/A,1,No,Crew Quarters,Needs Balancing,TBD,Great Sleep + one luxury-item slot per settler
+Building,Category,Staffing,Indoor/Outdoor,Grid slots,Worker slots,Repeatable,Upgrade of,Design status,Baseline Energy upkeep,Notes
+Settlement Base,Basic Resource Production / Habitation,Unstaffed,N/A,1,0,No,,Needs Balancing,TBD,"doc tension: 'Baseline Energy upkeep' says every building including producers carries this flat cost, but 'Eligibility' (Resources) says Energy producers draw no Energy at all -- flagged, not resolved; also houses crew quarters; cannot be rebuilt if destroyed"
+Settlement Base II,Basic Resource Production / Habitation,Unstaffed,N/A,1,0,No,Settlement Base,Needs Balancing,TBD,"doc tension: 'Baseline Energy upkeep' says every building including producers carries this flat cost, but 'Eligibility' (Resources) says Energy producers draw no Energy at all -- flagged, not resolved; keeps quarters"
+Solar Array,Basic Resource Production,Unstaffed,N/A,1,0,Yes,,Needs Balancing,TBD,"doc tension: 'Baseline Energy upkeep' says every building including producers carries this flat cost, but 'Eligibility' (Resources) says Energy producers draw no Energy at all -- flagged, not resolved"
+Solar Array II,Basic Resource Production,Unstaffed,N/A,1,0,Yes,Solar Array,Needs Balancing,TBD,"doc tension: 'Baseline Energy upkeep' says every building including producers carries this flat cost, but 'Eligibility' (Resources) says Energy producers draw no Energy at all -- flagged, not resolved; path toward eventual Fusion Generator"
+Geothermal Generator,Basic Resource Production,Unstaffed,N/A,1,0,Yes (capped by Thermal Vents),,Needs Balancing,TBD,"doc tension: 'Baseline Energy upkeep' says every building including producers carries this flat cost, but 'Eligibility' (Resources) says Energy producers draw no Energy at all -- flagged, not resolved; Volcanic-exclusive, built on Thermal Vent"
+Geothermal Generator II,Basic Resource Production,Unstaffed,N/A,1,0,Yes (capped by Thermal Vents),Geothermal Generator,Needs Balancing,TBD,"doc tension: 'Baseline Energy upkeep' says every building including producers carries this flat cost, but 'Eligibility' (Resources) says Energy producers draw no Energy at all -- flagged, not resolved"
+Fuel-based Generator I,Basic Resource Production,Unstaffed,N/A,1,0,Yes,,Needs Balancing,TBD,"doc tension: 'Baseline Energy upkeep' says every building including producers carries this flat cost, but 'Eligibility' (Resources) says Energy producers draw no Energy at all -- flagged, not resolved; Conditional Energy income; burns Wood"
+Fuel-based Generator II,Basic Resource Production,Unstaffed,N/A,1,0,Yes,Fuel-based Generator I,Needs Balancing,TBD,"doc tension: 'Baseline Energy upkeep' says every building including producers carries this flat cost, but 'Eligibility' (Resources) says Energy producers draw no Energy at all -- flagged, not resolved; unlocks burning Fossil Fuel; no further upgrade path"
+Grain Field,Farm/Production,Staffed,Outdoor,1,1,Yes,,Needs Balancing,TBD,"4-state persistent cycle, see plant_crop_transitions.csv"
+Fruit Orchard,Farm/Production,Staffed,Outdoor,1,1,Yes,,Needs Balancing,TBD,one-time establishment + repeating fruit loop
+Fiber Field,Farm/Production,Staffed,Outdoor,1,1,Yes,,Needs Balancing,TBD,same shape as Grain Field
+Timber Grove,Farm/Production,Staffed,Outdoor,1,1,Yes,,Needs Balancing,TBD,one-time establishment + self-loop harvest
+Hydroponic Farm,Farm/Production,Staffed,Indoor,1,1,Yes,,TBD,TBD,Grain or Fiber recipe; slower than outdoor; no Wooden Plow bonus
+Dairy Pasture,Farm/Production,Staffed,Outdoor,1,1,Yes,,Needs Balancing,TBD,slated for removal — native-fauna pivot
+Poultry Coop,Farm/Production,Staffed,Outdoor,1,1,Yes,,Needs Balancing,TBD,slated for removal — native-fauna pivot
+Sheep Pasture,Farm/Production,Staffed,Outdoor,1,1,Yes,,Needs Balancing,TBD,slated for removal — native-fauna pivot
+Husbandry Site,Farm/Production,Staffed,Outdoor,1,1,Yes,,Needs Balancing,TBD,species-agnostic; committed to one species per Capture
+Husbandry Site (Titan-tier),Farm/Production,Staffed,Outdoor,2,1,Yes,Husbandry Site,Needs Balancing,TBD,required for Titan-sized animals only; free relocation on upgrade
+Mine,Deposit Discovery,Staffed,Outdoor,1,1,Yes,,Needs Balancing,TBD,built on Iron/Copper Ore deposit
+Quarry,Deposit Discovery,Staffed,Outdoor,1,1,Yes,,Needs Balancing,TBD,built on Stone deposit; deliberately cheap (bootstrap)
+Rare Metal Extractor,Deposit Discovery,Staffed,Outdoor,1,1,Yes,,Needs Balancing,TBD,built on rare-metal deposit
+Water Processing Plant,Water (Utilities),N/A,N/A,1,0,No,,Needs Balancing,TBD,starting building; prerequisite for all Water collection
+Water Reclamation Plant,Water (Utilities),N/A,N/A,1,0,No,Water Processing Plant,Needs Balancing,TBD,settlement-wide Water consumption reduction
+Water Condenser,Water (Utilities),Staffed,Outdoor,1,1,Yes,,Needs Balancing,TBD,best on Volcanic
+Ice Melter,Water (Utilities),Staffed,Outdoor,1,1,Yes,,Needs Balancing,TBD,Frozen-exclusive
+Cistern,Water (Utilities),Staffed,Outdoor,1,1,Yes,,Needs Balancing,TBD,best on Verdant
+Well,Water (Utilities),Staffed,Outdoor,1,1,Yes,,Needs Balancing,TBD,auto-becomes Deep Well on a detected aquifer tile
+Scanner Station,Utilities,Staffed,Indoor,1,1,Yes,,Needs Balancing,TBD,multi-recipe: Weather Sensing / Deposit Scanning
+Scanner Station II,Utilities,Unstaffed,N/A,1,0,Yes,Scanner Station,Needs Balancing,TBD,still one active mode at a time
+Scanner Station III,Utilities,Unstaffed,N/A,1,0,Yes,Scanner Station II,Needs Balancing,TBD,all modes simultaneously
+Research Lab,Utilities,Staffed,Indoor,1,1,Yes,,Needs Balancing,TBD,"resource-gated, not research-points-gated"
+Cafeteria,Food/Meal Conversion,Staffed,Indoor,1,1,Yes,,Needs Balancing,TBD,N simultaneous recipe slots = grid footprint
+Kitchen,Food/Meal Conversion,Staffed,Indoor,2,2,Yes,Cafeteria,Needs Balancing,TBD,"2 slots, unlocks combo recipes"
+Ration Press,Food/Meal Conversion,Unstaffed,N/A,1,0,Yes,,Needs Balancing,TBD,"cycle-based, two recipes (Packaged Rations / Stockpile Fill)"
+Robotics Assembly,Fabrication,Staffed,Indoor,1,1,Yes,,Needs Balancing,TBD,Settler or All-Purpose Drone
+Robotics Assembly II,Fabrication,Staffed,Indoor,1,1,Yes,Robotics Assembly,Needs Balancing,TBD,gates Advance/Harden upgrade-in-place recipes
+Stone Processing I,Fabrication,Staffed,Indoor,1,1,Yes,,Needs Balancing,TBD,starting building
+Stone Processing II,Fabrication,Staffed,Indoor,1,1,Yes,Stone Processing I,Needs Balancing,TBD,"unlocks Silicon, Glass"
+Smelter,Fabrication,Staffed,Indoor,1,1,Yes,,Needs Balancing,TBD,"Iron Ore -> Iron, Copper Ore -> Copper"
+Textile Workshop,Fabrication,Staffed,Indoor,1,1,Yes,,Needs Balancing,TBD,
+Tinkerer's Workshop,Fabrication,Staffed,Indoor,1,1,Yes,,Needs Balancing,TBD,Advanced All-Purpose Drone or Tinkerer's-Specialized Drone eligible
+Inventor's Workshop,Fabrication,Staffed,Indoor,1,1,Yes,Tinkerer's Workshop,Needs Balancing,TBD,"gates Temperature-Resistant Gear, Diplomatic Gear, kits, packages"
+Sawmill,Fabrication,Staffed,Indoor,1,1,Yes,,Needs Balancing,TBD,starting building
+Carpenter's Shop,Fabrication,Staffed,Indoor,1,1,Yes,Sawmill,Needs Balancing,TBD,"unlocks luxury goods, Wooden Plow, Tiny/Small Trap"
+Weather Shield,Protection,Unstaffed,N/A,1,0,Yes,,Needs Balancing,TBD,"Manhattan-radius AOE, any building type"
+Weather Shield II,Protection,Unstaffed,N/A,1,0,Yes,Weather Shield,Needs Balancing,TBD,larger radius
+Row Shield,Protection,Unstaffed,N/A,2,0,Yes,,Needs Balancing,TBD,"2-tile footprint, full-row AOE, no upgrade path"
+Medical Bay,Protection,Staffed,Indoor,1,1,Yes,,Needs Balancing,TBD,1 worker; recipes chosen via production queue
+Hospital,Protection,Staffed,Indoor,2,1,Yes,Medical Bay,Needs Balancing,TBD,Confidence(Bio-hazard)-gated; 2-slot footprint; Recovery capacity 2
+Food Storage,Storage,Staffed (extraction only),N/A,1,1,Yes,,Needs Balancing,TBD,holds only via Ration Press's Stockpile Fill
+Food Storage II,Storage,Staffed (extraction only),N/A,1,1,Yes,Food Storage,Needs Balancing,TBD,raises capacity
+Crew Quarters,Habitation,Unstaffed,N/A,1,0,No,,Needs Balancing,TBD,settlement-wide Good Sleep; non-stacking
+Luxury Living Quarters,Habitation,Unstaffed,N/A,1,0,No,Crew Quarters,Needs Balancing,TBD,Great Sleep + one luxury-item slot per settler

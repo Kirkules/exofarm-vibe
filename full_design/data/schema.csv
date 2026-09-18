@@ -12,6 +12,7 @@ buildings.csv,Category,Value,
 buildings.csv,Staffing,Value,
 buildings.csv,Indoor/Outdoor,Value,
 buildings.csv,Grid slots,Value,
+buildings.csv,Worker slots,Value,simultaneous worker assignments; never exceeds Grid slots
 buildings.csv,Repeatable,Value,
 buildings.csv,Upgrade of,FK -> buildings.csv (self-referential),blank for a base tier
 buildings.csv,Baseline Energy upkeep,Value,"flat per-season Energy consumption draw just for existing on the grid, per the Resources section's 'Baseline Energy upkeep' rule; see that row's Notes for a flagged tension with the Eligibility rule for the four Energy-producer buildings"
@@ -78,7 +79,7 @@ injury_outcome_weights.csv,Notes,Value,
 exploration_task_injury_weights.csv,Task,Key + Soft reference -> exploration_task_catalog.csv (Task) or sentience_contact_chain.csv (Step),"per-task effective values, seeded from injury_outcome_weights.csv's base values; First Contact's branches are chain steps rather than catalog tasks"
 exploration_task_injury_weights.csv,Roll type,Value,which base table row set this task draws from
 exploration_task_injury_weights.csv,Outcome,Key,
-exploration_task_injury_weights.csv,Weight,Value,"Notes says whether the row is the category base value or a deliberate per-task override"
+exploration_task_injury_weights.csv,Weight,Value,Notes says whether the row is the category base value or a deliberate per-task override
 exploration_task_injury_weights.csv,Design status,Value,
 exploration_task_injury_weights.csv,Notes,Value,
 hazard_casualty_weights.csv,Hazard,Key,

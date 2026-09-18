@@ -284,13 +284,18 @@ the following properties.
   familiarity/exoticism)
 - **Category** — one of the 8 Building Categories
 - **Grid slot count** — all buildings sit on a single unified grid (see Core
-  Loop & Grid's The Grid). **Slot count equals the number of simultaneous
-  worker assignments a building supports** — most
-  buildings need 1 worker and so occupy 1 slot (the common case, matching the
-  single-cell redesign); a building needing multiple parallel workers (e.g. an
-  Upgraded Kitchen with 2 recipe stations) occupies correspondingly more slots.
+  Loop & Grid's The Grid). Most buildings occupy 1 slot (the common case,
+  matching the single-cell redesign); a building occupies more either because
+  it supports parallel workers (an Upgraded Kitchen with 2 recipe stations)
+  or simply because it's physically large (Hospital, Titan Husbandry).
   Multi-slot footprints are **fixed, non-rotatable shapes**, with no
-  orientation-dependent effects. An upgrade that expands a building's footprint is only
+  orientation-dependent effects.
+- **Worker slot count** — how many workers can be assigned simultaneously,
+  each paired with its own production queue (see Core Loop & Grid's
+  [Assignment](03_core_loop_and_grid.md#assignment)). Declared per building, and **bounded above by the grid
+  slot count** — a building can be bigger than its staffing, but never
+  staffed beyond its footprint, so a glance at the grid puts a ceiling on how
+  much parallel work is happening anywhere. An upgrade that expands a building's footprint is only
   offered/confirmable if the required adjacent cell(s) are free — the same
   placement-validity check used for new construction (see [Construction](03_core_loop_and_grid.md#construction), above,
   for how a construction robot can relocate a blocking building to resolve

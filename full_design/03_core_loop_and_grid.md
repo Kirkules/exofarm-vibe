@@ -26,12 +26,12 @@
 - **Production Model** — continuous-rate cycles plus an ordered
   production queue; plant-crop buildings run a persistent state machine
   instead.
-- **Assignment** — one worker to one of three target kinds (Production
-  building / Exploration Task / Standing Assignment); settlers universal,
-  drones built at Robotics Assembly.
-- **Worker Roster / Site Panel (UI)** — collapsed per-type counts during
-  planning, per-worker icons during Mid-Sim; Site Panel always shows
-  recipe queue, worker slot, rate summary, status.
+- **Assignment** — drag one worker to one of three target kinds (Production
+  building / Exploration Task / Standing Assignment); carried over from last
+  season by default; settlers universal, drones built at Robotics Assembly.
+- **Worker Roster / Site Panel (UI)** — per-type counts that expand to
+  individual workers on demand (always expanded during Mid-Sim); Site Panel
+  shows one recipe queue and worker slot per slot, plus rate and status.
 - **Construction** — one robot = one build/upgrade/relocate action per
   season, plus a separate settlement-wide fence-tile budget.
 - **Small Set of Impactful Actions** — construction, worker assignment,
@@ -411,18 +411,26 @@ dominant one.
 
 ### Assignment
 
-An **Assignment** pairs one worker — settler or drone — with a target. Every
-target is one of three kinds, and what differs between them is purely a
-property of the target, not the assignment mechanism itself, which is
-always the same: pick a worker, pick a target, done — a normal, fully
-reversible planning-phase action until Next Season is confirmed.
+An **Assignment** pairs one worker — settler, drone, or construction robot —
+with a target. Every target is one of three kinds, and what differs between
+them is purely a property of the target, not the assignment mechanism
+itself, which is always the same: **drag one specific worker onto the target
+tile** — a normal, fully reversible planning-phase action until Next Season
+is confirmed. Always a named individual being dragged, never a count drawn
+from a pool (see Worker Roster (UI)).
 
-- **Production building** — sticky by default: a worker stays on their site
-  across seasons until explicitly reassigned, so a stable layout requires no
-  repeated action; can be revisited each planning phase but never must be.
-  Accepts settlers or drones (see Worker types below). Every production site
-  needs a worker assigned to produce at all, apart from the sites that need
-  no staffing. An unstaffed site produces zero output for the season.
+**Continuation-assignment**: at the start of every planning phase each worker
+is already re-assigned to what it was doing last season, so a stable
+settlement needs no repeated action and the phase opens with a working plan
+rather than a pile of idle workers. **Exploration Tasks are the one
+exception** — they're one-shot and the settler returns unassigned. A worker
+whose carried target no longer exists (destroyed, relocated into an invalid
+state, or a build that completed) starts the phase unassigned.
+
+- **Production building** — accepts settlers or drones (see Worker types
+  below). Every production site needs a worker assigned to produce at all,
+  apart from the sites that need no staffing. An unstaffed site produces
+  zero output for the season.
 - **Exploration Task** (see [Settlers](05_settlers_and_exploration.md#settlers) & Exploration) — one-shot: the settler
   is gone for the season and returns with a result. Drawn from a small
   pool, always available (not gated to a periodic window), refreshed on
@@ -458,8 +466,11 @@ and Buildings & Economy's [Robotics Assembly](04_buildings_and_economy.md#roboti
   scales the rate of the site they're assigned to — 1.0 for an unmodified
   settler, varying by tier for drones (see [Robotics Assembly](04_buildings_and_economy.md#robotics-assembly)). Sites take
   one worker per slot; a building wanting genuine parallel work gets
-  multiple slots, each running its own recipe independently (Kitchen is the
-  model — see Buildings & Economy's [Kitchen](04_buildings_and_economy.md#kitchen)).
+  multiple slots, each pairing one worker with one recipe and running it
+  independently (Kitchen is the model — see Buildings & Economy's [Kitchen](04_buildings_and_economy.md#kitchen)).
+  **A building's worker-slot count never exceeds its footprint in tiles**,
+  so parallel work always reads off the grid (see Buildings & Economy's
+  [Building Schema](04_buildings_and_economy.md#building-schema)).
 - **Every worker-speed modifier is a multiplicative factor** on that
   worker's base rate — Aptitude, Experience, Storied, permanent injuries,
   and sleep quality alike (see `data/settler_modifiers.csv`). They combine
@@ -479,14 +490,34 @@ unassigned workers of that type, B = total owned.
 - **Hovering** an avatar outlines it and simultaneously outlines every building/site
   currently serviced by workers of that type — a direct visual answer to "where is
   this worker type deployed right now."
-- **The roster is also an assignment entry point**, not just informational: dragging
-  an avatar with unassigned workers (A > 0) begins the same assign-to-site flow as
-  picking up a worker directly, fusing "notice an idle worker" and "assign it" into
-  one continuous interaction per the minimal-UI-interaction principle.
-- **During Mid-Sim, each type's single row expands into one icon per actual
-  worker** of that type — e.g. 3 settlers means 3 small individual icons,
-  not "A/B" text — each independently showing that worker's current state,
-  worker-centric rather than site-centric:
+- **A row expands into one icon per individual worker** when clicked, for
+  every worker type, not just settlers — a drone or a construction robot is
+  a specific named individual you can point at, not a fungible unit drawn
+  from a count. Deliberately cozy: the player gets to know the whole crew,
+  robots included. The row collapses again on a successful assignment, or
+  when the player clicks elsewhere.
+- **Assignment is dragging one specific worker** out of an expanded row and
+  onto a target tile — never dragging the collapsed row itself. The extra
+  click to expand is the point: it forces the choice of *which* worker, which
+  matters once Aptitude, Experience, and injuries differentiate them.
+- **Hovering an individual worker highlights its current target**, whatever
+  kind: a production site or queued build outlines on the grid, a Standing
+  Assignment outlines the grid tiles it works, and an exploration settler
+  highlights their task in the pool.
+- **Workers away from the farm stay on the roster**, visibly distinct
+  (illustrative: desaturated with a small away glyph) rather than removed —
+  a settler on an Exploration Task is still part of the crew, and vanishing
+  them would make the roster misreport the settlement's size.
+- **Dragging a worker off its target unassigns it**, returning it to the
+  unassigned count; the Site Panel's worker slot carries the same affordance
+  explicitly (see Site Panel (UI)).
+- **Ineligible targets are visibly non-droppable during a drag** — a drone
+  over an Exploration Task, a settler over a slot its injuries bar — so the
+  player learns the rule mid-gesture rather than after a rejected drop. The
+  reason surfaces in plain language on hover or on an attempted drop.
+- **During Mid-Sim, every row is expanded** and each icon independently
+  shows that worker's current state, worker-centric rather than
+  site-centric:
   - **Actively working** — animated (subtle, matching the low-animation-budget
     bias elsewhere in Art Design)
   - **Hazard-affected** — small overlay icon matching the worker's active
@@ -499,8 +530,8 @@ unassigned workers of that type, B = total owned.
     icon, it's just the absence of the working animation
   - **Drones** additionally get a permanent tiny battery-remaining bar on
     their icon, shown regardless of working state
-  - Reverts to the collapsed per-type "A/B" row once the next planning
-    phase opens; this expansion is Mid-Sim-only.
+  - Rows collapse back to "A/B" once the next planning phase opens, where
+    expansion is on demand again.
 
 ### Site Panel (UI)
 
@@ -514,23 +545,24 @@ choice to make at that particular site. Contents, always in this order:
 
 - **Name/icon** — the site's identity, same icon used everywhere else it
   appears (grid tile, Worker Roster highlight, etc.).
-- **Recipe / queue section — always present.** Shows the building's
-  **production queue** (see Buildings & Economy's Building Schema) as an
-  ordered list of `(recipe, limit)` steps. A single-recipe building shows
-  its one recipe with an optional cycle `limit`; a multi-recipe building
-  shows the full editable ordered list — add/remove/reorder steps, set each
-  step's limit or mark it unlimited. An ordinary reversible planning-phase
-  choice, same as any other planning action; a building with a single
-  unlimited step reads as "just runs this," no different from before.
-- **Assigned worker slot — always present**, including for **unstaffed**
-  buildings, where it's shown but **visibly disabled** (greyed out, not
-  simply absent) rather than omitted — so the panel's layout never shifts
-  shape based on staffing type, and "this building can't be staffed" reads
-  as clearly as "this building can be staffed but currently isn't." A
-  valid drop target for assigning a worker: dragging a worker (from the
-  Worker Roster, or picked up directly) **either onto this slot or onto
-  the building's own grid tile** assigns them — two drop targets for the
-  same action, not two different actions.
+- **One section per worker slot — always present.** Each slot pairs one
+  worker with one **production queue** (see Buildings & Economy's Building
+  Schema): an ordered list of `(recipe, limit)` steps, plus that slot's
+  assigned-worker control. A single-slot building shows one such section, so
+  it reads exactly as before; a multi-slot building shows one per slot, each
+  independently edited — add/remove/reorder steps, set each step's limit or
+  mark it unlimited. An ordinary reversible planning-phase choice, same as
+  any other planning action.
+- **The worker control appears even for unstaffed buildings**, where it's
+  shown but **visibly disabled** (greyed out, not simply absent) — so the
+  panel's layout never shifts shape based on staffing type, and "this
+  building can't be staffed" reads as clearly as "this building can be
+  staffed but currently isn't." It's a valid drop target: dragging a worker
+  from the Worker Roster **either onto a slot's control or onto the
+  building's own grid tile** assigns them — two drop targets for the same
+  action, not two different actions. A filled slot carries a plain unassign
+  affordance, so dragging the worker back out to the roster is never the
+  only way to free it.
 - **Production rate summary** — the site's current effective output rate,
   combining every applicable modifier into one readout: base rate, the
   assigned worker's Effort/Experience/Aptitude contribution, and any other
@@ -551,7 +583,10 @@ choice to make at that particular site. Contents, always in this order:
   (illustrative: a filled circle for Green, a half-filled triangle for
   Yellow, an empty/crossed square for Red — exact shapes TBD, just
   confirmed to be shape-distinct, not color-distinct, alongside color).
-  A **Water-sufficiency indicator** sits alongside it for any site that
+  **A drone-staffed site inherits its drone's recharge risk through this
+  same indicator** — a power shortfall that would stall recharging is a
+  power shortfall, and giving it a second dedicated warning would say the
+  same thing twice. A **Water-sufficiency indicator** sits alongside it for any site that
   draws Water (see Buildings & Economy's [Water](04_buildings_and_economy.md#water)), with the same
   three states, the same shape-plus-color treatment, and the same
   prediction-not-status framing. Other status-section content is left open
@@ -617,15 +652,28 @@ deposit frees up its original tile for a different building targeting
 whatever else was found there, without losing the Mine's sunk cost.
 
 Construction robots are **purely single-purpose** — construction/upgrade tasks only,
-never reassignable to production staffing. Assignment is **automatic**: queuing a
-build or upgrade task consumes one robot from the available pool; canceling the task
-(fully possible during the reversible planning phase) returns it to the pool. There's
-no manual "pick which robot" step, and no persistent busy-state to track — since a
-task always completes within the season it's started, every robot is available again
-at the start of the next planning phase. The cap this creates is simply: **at most N
-build/upgrade actions per season**, where N = robots owned — a rate limit on
-infrastructure *growth*, distinct from the grid's own slot-count cap on
-infrastructure *total*.
+never reassignable to production staffing. They still appear on the Worker
+Roster as their own type and are assigned by the same drag as any other
+worker, with a queued build/upgrade/relocate action as the target.
+
+**Assignment is automatic by default**: at planning start, available robots
+take the queued actions in queue order, so the ordinary case needs no
+interaction at all. **Queuing more actions than robots owned is allowed** —
+the surplus simply doesn't get built this season, and **dragging a robot from
+one queued action to another** is how the player says which of them happens
+first, one gesture rather than a separate build-priority control. Canceling
+an action (fully possible during the reversible planning phase) frees its
+robot for whatever's still waiting. There's no persistent busy-state to
+track — since a task always completes within the season it's started, every
+robot is free again at the next planning phase. The cap this creates is
+simply: **at most N build/upgrade actions resolve per season**, where N =
+robots owned — a rate limit on infrastructure *growth*, distinct from the
+grid's own slot-count cap on infrastructure *total*.
+
+**A building can't be staffed before it exists.** Dragging a production
+worker onto a queued-but-unbuilt building isn't a valid drop — the
+assignment simply doesn't happen, and the worker stays where it was rather
+than idling in reserve waiting for a structure that may never finish.
 
 **A second, independent per-season budget covers Fencing** (see Buildings
 & Economy's [Fencing](04_buildings_and_economy.md#fencing)): construction robots together contribute a
@@ -644,11 +692,13 @@ unbuilt fence tile provides zero protection until then.
 
 ### Small Set of Impactful Actions (Current Draft)
 
-1. **Queue a building construction or upgrade** — consumes one available construction
-   robot; targets a slot on the grid (limited slots total, including a revealed
-   mineral deposit for mining buildings).
+1. **Queue a building construction or upgrade** — targets a slot on the grid
+   (limited slots total, including a revealed mineral deposit for mining
+   buildings); a construction robot picks it up automatically, and only as
+   many actions resolve as there are robots.
 2. **Assign/reassign a worker (settler or drone) to a site** — the central recurring
-   decision; sticky by default, so it's an occasional action, not a per-season chore.
+   decision; carried over from last season, so it's an occasional action, not a
+   per-season chore.
 3. **Place/reposition a force-field or weather-protection structure.**
 4. **Assign a settler to an exploration task** (occasional, every 3rd season, per the
    existing Exploration Tasks design).
