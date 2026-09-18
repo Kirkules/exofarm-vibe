@@ -47,6 +47,13 @@ Each settler carries:
   - **Exploration Task, completed** — no longer occupies a pool slot,
     nothing to default from; the settler comes out unassigned.
   - **Standing Assignment** — stays one-shot, no stickiness, unaffected.
+  - **Idle** — a settler with no active assignment, whether unassigned by
+    the player or freed when their site was destroyed. They wait at
+    **Crew Quarters** (or the Settlement Base's quarters), which is where
+    idle settlers are shown and what shelters them; a settler recovering
+    from an injury or infection waits at the **Medical Bay** instead, and
+    returns to quarters once recovered. Idle is a legitimate plan: they
+    eat normally and accrue nothing, with no penalty beyond the lost work.
 - `status_effect` — a list of concurrently-possible entries (not a single
   field): Injury (see below), **Infection** (one entry per parasite or
   disease type carried — see [Infections](05_settlers_and_exploration.md#infections) below), Atmospheric Hazard,

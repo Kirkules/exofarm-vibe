@@ -71,8 +71,8 @@ tinkerers_workshop.htc,High-Tech Components,Output,TBD,TBD,
 tinkerers_workshop.screens,Silicon,Input,TBD,TBD,
 tinkerers_workshop.screens,Copper,Input,TBD,TBD,
 tinkerers_workshop.screens,High-Resolution Screens,Output,TBD,TBD,
-tinkerers_workshop.scanning_equipment,Iron,Input,TBD,TBD,
-tinkerers_workshop.scanning_equipment,Copper,Input,TBD,TBD,
+tinkerers_workshop.scanning_equipment,High-Resolution Screens,Input,TBD,TBD,
+tinkerers_workshop.scanning_equipment,High-Tech Components,Input,TBD,TBD,
 tinkerers_workshop.scanning_equipment,Portable High-Powered Scanning Equipment,Output,TBD,TBD,
 tinkerers_workshop.temp_gear,Fabric,Input,TBD,TBD,player picks Fabric or Leather
 tinkerers_workshop.temp_gear,Leather,Input,TBD,TBD,player picks Fabric or Leather

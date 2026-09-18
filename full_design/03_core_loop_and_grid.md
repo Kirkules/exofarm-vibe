@@ -105,6 +105,12 @@ rather than placeable:
 - Forest tiles (bounded Wood quantity — see Buildings & Economy's [Fuel](04_buildings_and_economy.md#fuel))
 - Set at run start; cannot be moved or removed
 
+**Every tile carries an `untouched` flag**, set at run start and cleared
+the first time the tile is built on or extracted from. It is never restored
+— a building destroyed by a storm leaves the tile altered, not pristine.
+This flag is what Stewardship's `DisruptionFootprint` counts (see Planets &
+Scoring's [SEED Factions](06_planets_and_scoring.md#seed-factions)).
+
 ### Run-Start Flow
 
 The screens between "start a run" and the first Planning Phase, in order.

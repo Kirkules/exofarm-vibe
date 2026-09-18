@@ -331,9 +331,19 @@ the following properties. Working through the catalog category-by-category (see
   free-by-default protection channel alongside Weather/Row Shield, which
   remains how Outdoor sites/crops/workers get protected (funded shield
   coverage protects both the structure/crops *and* any outdoor worker on a
-  shielded tile). If a building is destroyed mid-Mid-Sim, its worker is
-  freed and returns to the roster immediately, losing whatever Indoor
-  protection they had at that instant.
+  shielded tile). **If a building is destroyed mid-Mid-Sim**, the sequence
+  is: the tile's `untouched` flag stays cleared (destruction doesn't
+  restore the land — see Core Loop & Grid's [The Grid (Unified)](03_core_loop_and_grid.md#the-grid-unified)); its
+  in-progress cycle and any held Energy/Water reservations are released
+  with nothing carried over, since there's no building left to resume
+  them; its worker is freed to [Crew Quarters](04_buildings_and_economy.md#crew-quarters) (see Settlers &
+  Exploration's [Settler State](05_settlers_and_exploration.md#settler-state) — the default place for any settler with
+  no active assignment), sheltered there if quarters stand; and that
+  worker takes **one casualty roll** from the event that destroyed the
+  building, representing being exposed by the destruction itself (see
+  `data/hazard_casualty_weights.csv`). A settler injured badly enough to
+  need recovery waits at the [Medical Bay](04_buildings_and_economy.md#medical-bay) instead, returning to quarters
+  once recovered.
 - **Construction cost** — resources required to build. **Lumber and Concrete
   are the two universal base materials every structure draws on**, with the exact ratio varying per building — some
   lean more Lumber, some more Concrete; additional planet-side/advanced
@@ -1817,17 +1827,17 @@ pair of starting buildings resolves)*
     one is ever produced. Further copies matter only as Luxury Living
     Quarters slot items (see [Habitation](04_buildings_and_economy.md#habitation)); no faction formula has a
     luxury term, so stockpiling them scores nothing.
-  - Portable High-Powered Scanning Equipment ← Iron + Copper —
+  - Portable High-Powered Scanning Equipment ← High-Resolution Screens +
+    High-Tech Components —
     an exploration task initiation cost, likely gating access to higher-tier/
     more-frequent Safeguard or Stewardship data-gathering missions (weather
     balloon, atmospheric probe, bio-survey, sentience-detection).
-    Deliberately buildable from the two basic smelted metals: it's the tool
-    Deep Survey needs, and Deep tier is where rare metals concentrate, so
-    requiring a rare metal to build it would make the rare-metal economy
-    gate itself. Scanner Station's Deposit Scanning, a lucky Mid-depth
-    reveal, and exploration windfalls remain the other routes to a first
-    rare metal; Deep Survey is what makes rare metals *systematic* rather
-    than what makes them *possible*.
+    Deliberately requires **no rare metal**: it's the tool Deep Survey
+    needs, and Deep tier is where rare metals concentrate, so pricing it in
+    rare metal would make the rare-metal economy gate its own entry. Scanner
+    Station's Deposit Scanning, a lucky Mid-depth reveal, and exploration
+    windfalls are the routes to a first rare metal; Deep Survey is what
+    makes rare metals *systematic* rather than what makes them *possible*.
 - Selectable recipes (**requires further-Upgraded Tinkerer's Workshop**):
   - Temperature-Resistant Gear ← (Fabric **or** Leather, player selects
     which) + a rare metal + High-Tech Components + Glass — **one

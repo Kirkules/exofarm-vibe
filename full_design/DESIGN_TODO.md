@@ -1616,3 +1616,22 @@ Theme 8 (turn-one bootstrap can hard-deadlock).
   deadlock can't occur, so there is nothing to signal.
 - **New open item:** the rare-resource roster and its specialized
   high-tech uses.
+
+### Addressed alongside themes 6/8 (2026-09-18)
+
+- `11-SF14` — **resolved.** Mid-Mid-Sim destruction resolves in one
+  sequence: the tile's `untouched` flag stays cleared (a new per-tile flag,
+  set at run start, cleared on first build/extraction, never restored); the
+  in-progress cycle and held reservations are released uncarried; the
+  worker is freed to Crew Quarters; and that worker takes one casualty roll
+  from the destroying event.
+- `9-SF3` — **resolved.** Idle is defined: the settler waits at Crew
+  Quarters (Medical Bay while recovering), eats normally, accrues nothing,
+  and it is a legitimate plan.
+- Medical Bay preparedness — **resolved.** Bio-hazard preparedness counts
+  the best countermeasure tier standing plus recovery capacity up to the
+  current settler headcount; a second Medical Bay adds no tier credit, and
+  capacity beyond the crew size addresses nobody.
+- Portable High-Powered Scanning Equipment recipe corrected to
+  High-Resolution Screens + High-Tech Components — no rare metal, with Iron
+  and Copper still in the chain via both inputs.
