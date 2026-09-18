@@ -496,8 +496,8 @@ Four categories of positive result:
   **Wonder** (something beautiful or striking simply witnessed, guaranteed
   if attempted since there's no attempt to fail; No-risk). (Settler-specific
   personal-story-moment outcomes are a natural extension here but left
-  undesigned for now, pending the not-yet-built per-settler tracking system
-  — see `DESIGN_TODO.md`.)
+  undesigned for now, pending the not-yet-built per-settler tracking
+  system.)
 - **Farm-wide Upgrade outcome** — rare, unlocks a permanent settlement-wide
   passive improvement not tied to one specific building, reusing the shape
   already established for Water Processing Plant's Reclamation tier and
@@ -668,9 +668,8 @@ tier count and per-tier rewards otherwise TBD, same as Peaceful Contact's
 base rewards — **establishing a Trade Agreement (below) is one form a
 deepening reward can take, not the only one.**
 
-**Trade Agreements** are the concrete resolution of "how does the player
-actually trade with an ally" (previously an open question — see
-`DESIGN_TODO.md`). Structurally:
+**Trade Agreements** are how the player actually trades with an ally.
+Structurally:
 - A deepening task that resolves into a trade opportunity surfaces its
   offer in the task's own **confirmation dialog** — the same dialog every
   Exploration Task already gets at the start of the next planning phase

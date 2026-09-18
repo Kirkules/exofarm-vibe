@@ -361,7 +361,7 @@ top-severity consequence:
   [Settlers](05_settlers_and_exploration.md#settlers) & Exploration's [Settler State](05_settlers_and_exploration.md#settler-state)): triggers on exposure, persists
   for roughly 3 seconds of Mid-Sim time afterward, halves the settler's
   effectiveness in all tasks (their worker-effort contributes 0.5 instead
-  of 1, per Worker Assignment's effort-stacking mechanic), and locks them
+  of 1, per Worker Assignment's Effort model), and locks them
   out of exploration-task assignment entirely while active. Exposure also
   carries a small **casualty roll** (see
   `data/hazard_casualty_weights.csv`) that can leave an SP or permanent

@@ -411,8 +411,7 @@ that needs balancing:
 - **Relationships** — settlers may form an exclusive-pair romantic
   relationship with each other, arbitrarily/randomly from the player's
   perspective, surfaced via a Transmission noting two settlers have paired
-  up. No gameplay effect (children/pregnancy/family mechanics were
-  considered and explicitly cut — see `DESIGN_TODO.md`).
+  up. No gameplay effect.
 
 **SEED Bulletin (hub, between runs).** A hub panel — not a voiced character — showing
 a periodic state-of-affairs summary: Earth-politics flavor (seed-ship seat allocation

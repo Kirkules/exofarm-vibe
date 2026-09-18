@@ -77,16 +77,23 @@ between them, never a depleting reserve.
     starting/ending, a drone battery recharge starting/ending, a building
     built/destroyed/toggled — not continuously every tick, so the unpowered
     set doesn't flicker without a real cause.
-  - **Consequence is throughput only.** An Energy shortfall can slow or
-    pause production, nothing more — it can never kill a settler or end a
-    run. Buildings with a survival-critical function keep that function in
-    a reduced form when un-powered: a Water collection building still
-    produces a minimal fail-safe trickle (see [Water](04_buildings_and_economy.md#water)); crew quarters
+  - **Consequence is throughput, with one exposure exception.** On its own
+    an Energy shortfall only slows or pauses production, and it can never
+    end a run. Buildings with a survival-critical function keep that
+    function in a reduced form when un-powered: a Water collection building
+    still produces a minimal fail-safe trickle (see [Water](04_buildings_and_economy.md#water)); crew quarters
     still shelter the crew for sleep, just without the sleep bonus (see
-    [Habitation](04_buildings_and_economy.md#habitation)); an Indoor building still shelters its worker from
-    Atmospheric Hazard, though not from temperature (see [Building Schema](04_buildings_and_economy.md#building-schema)'s
-    Indoor/Outdoor). A Weather/Row Shield that cannot be powered simply
-    goes **inactive** (no protection) for that interval.
+    [Habitation](04_buildings_and_economy.md#habitation)). The exception: an un-powered Indoor building still
+    shelters its worker from Atmospheric Hazard but **not** from
+    temperature (see [Building Schema](04_buildings_and_economy.md#building-schema)'s Indoor/Outdoor), so during an
+    extreme Temperature Extremity event that worker faces the same casualty
+    roll as any exposed outdoor settler — a shortfall can cost a life
+    *through* a hazard, though never by itself. That stays principle-
+    compliant because Temperature Extremity seasons are pre-scheduled and
+    telegraphed (see Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)): the
+    death traces to an Energy-budget decision made against a known-inbound
+    event, not an ambush. A Weather/Row Shield that cannot be powered
+    simply goes **inactive** (no protection) for that interval.
   - **Legibility.** Every un-powering surfaces in the simulation log with
     its cause (`"Energy shortfall — [building] offline"`) and counts as a
     noteworthy event, so an unexplained production gap is never mistaken
@@ -270,8 +277,7 @@ keeping the catalog from exploding as more planet types are added:
   contribution, Recovery capacity.
 
 Every building in the catalog (see [Building Categories](04_buildings_and_economy.md#building-categories) in [Resources](04_buildings_and_economy.md#resources)) is defined by
-the following properties. Working through the catalog category-by-category (see
-`DESIGN_TODO.md`) fills in concrete buildings against this shared schema.
+the following properties.
 
 **Universal properties** (every building has these):
 - **Name** — per the naming-convention design principle (tier-appropriate
@@ -550,8 +556,7 @@ grid slot, preserving the grid's limited-slots opportunity cost.
 - Input: none | Output: Energy per season — see
   `data/energy_water_production_rates.csv` (rate varies by planet type)
 - Repeatable: yes | Upgrade path: yes — higher tiers produce more Energy
-  (see `DESIGN_TODO.md`'s Newly Surfaced Ideas for an eventual late-tier
-  Fusion Generator hook)
+  (see `DESIGN_TODO.md`'s Fusion Generator item for an eventual late tier)
 
 ### Settlement Base
 
@@ -583,7 +588,6 @@ building**, present from run start — not something the player constructs.
   for the sleep.
 
 ### Geothermal Generator
-*(Volcanic's Alternative Energy building — see `DESIGN_TODO.md`)*
 - Category: Basic Resource Production | Staffing: **Unstaffed** — no more
   active than Solar Array; a geothermal plant is heat driving a turbine, not
   ongoing labor like tending a field or hauling water. The real tradeoff
@@ -638,7 +642,8 @@ Repeatable: yes, Upgrade path: yes (higher tiers reduce duration),
 upgraded (see [TechAchievement Catalog](04_buildings_and_economy.md#techachievement-catalog)). **Water**: the three animal-based
 buildings ([Dairy Pasture](04_buildings_and_economy.md#dairy-pasture), [Poultry Coop](04_buildings_and_economy.md#poultry-coop), [Sheep Pasture](04_buildings_and_economy.md#sheep-pasture)) draw a flat
 amount per cycle (see `data/recipe_ingredients.csv`; insufficient-Water
-behavior still TBD — see `DESIGN_TODO.md`'s Water resource open threads);
+behavior still TBD — see `DESIGN_TODO.md`'s Animal-building Water draw
+item);
 the four plant-crop
 buildings instead draw Water only during specific transitions of their own
 persistent per-site state (see [Plant-Crop Production Model](04_buildings_and_economy.md#plant-crop-production-model), below) —
@@ -703,7 +708,7 @@ from. When a plant-crop building's passive/biological-wait transition is
 ready to start, it requests a consumption-rate reservation sized for its
 crop, entering one **settlement-wide pool** shared across every
 currently-requesting transition (and, once designed, the animal-based
-buildings' draw — see `DESIGN_TODO.md`'s Water resource open threads).
+buildings' draw — see `DESIGN_TODO.md`'s Animal-building Water draw item).
 When the building's passive/biological-wait transition **ends**, the
 building relinquishes its consumption-rate reservation.
 
@@ -1009,8 +1014,8 @@ archetype value-consistency rule — `DESIGN_TODO.md`).
 - **Titan Domestication.** A husbanded Titan produces at a **much larger**
   scale than smaller size classes of the same archetype/output (the normal
   size-scaling rule, just at its extreme), grants the capturing/domesticating
-  settler **`legend_value`** (see `DESIGN_TODO.md`'s Newly Surfaced Ideas
-  for a possible eventual unique output).
+  settler **`legend_value`** (see `DESIGN_TODO.md`'s Titan Domestication
+  item for a possible eventual unique output).
 
 ### Cull, Release & Neglect
 
@@ -2171,10 +2176,10 @@ quarters building — Settlement Base or dedicated — stands at all.
   Assignments (both performed at or near the settlement, where the settler
   sleeps in their quarters). Exploration Tasks are unaffected — the settler
   is away from the settlement for the season.
-- It is a straight multiplier on the worker's Effort contribution; its
-  exact position relative to Aptitude/Experience/other modifiers folds
-  into the open modifier-combination question (see Worker Assignment audit
-  `3-SF1` in `DESIGN_TODO.md`).
+- It is a straight multiplier on the worker's Effort contribution,
+  combining with Aptitude, Experience and the rest as one product — every
+  worker-speed modifier is multiplicative, so no ordering applies (see
+  Core Loop & Grid's [Assignment](03_core_loop_and_grid.md#assignment)).
 - One qualifying building covers the **whole crew** — there is no
   per-settler capacity. The status flips the moment the settlement's best
   standing quarters changes (a Crew Quarters built, the Settlement Base

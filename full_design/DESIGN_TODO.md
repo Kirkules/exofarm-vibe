@@ -163,13 +163,6 @@ rationale.
 
 ## Workers, Assignment & Site Panel
 
-- [ ] **Does effort-stacking toward a per-site production cap have real
-  homes, or is it cut (`3-B1`)?** Core Loop & Grid's [Assignment](03_core_loop_and_grid.md#assignment) has since
-  settled on "one worker per slot; a building wanting genuine parallel work
-  gets multiple slots" — which reads as a cut — but Planets & Scoring's
-  Atmospheric Hazard consequence still cites "Worker Assignment's
-  effort-stacking mechanic" by name. Confirm the cut and clear the stale
-  reference, or give the mechanic a concrete building.
 - [ ] **Site Panel's single "Assigned worker slot" vs. multi-slot buildings
   (`3-B2`)** — a multi-slot building supports several simultaneous worker
   assignments (see Buildings & Economy's [Building Schema](04_buildings_and_economy.md#building-schema)), but the panel
@@ -179,13 +172,6 @@ rationale.
   in the roster (`3-B3`)** — the Worker Roster's hover-highlight and its
   Mid-Sim per-worker expansion both assume a building target; a settler who
   is away on a task has no defined depiction.
-- [ ] **Modifier-combination rule for the Site Panel's "one combined number"
-  (`3-SF1`)** — Core Loop & Grid's [Assignment](03_core_loop_and_grid.md#assignment) states every worker-speed
-  modifier is a multiplicative factor combining as a single product, but
-  Buildings & Economy's [Habitation](04_buildings_and_economy.md#habitation) still calls the sleep modifier's position
-  relative to Aptitude/Experience an open question citing this tag.
-  Reconcile, and state what a plant-crop building's multi-transition state
-  machine shows in that one number (see also `4-SF10`).
 - [ ] **Per-building worker-eligibility enforcement + "why rejected"
   messaging (`3-SF2`)** — eligibility varies by injury, Aptitude, and worker
   type, but nothing specifies how a disallowed assignment is refused or
@@ -225,7 +211,6 @@ rationale.
 - [ ] **What the Site Panel's combined rate means for a multi-transition
   plant-crop building (`4-SF10`)** — and the expected-yield legibility risk
   of showing one number for a building whose transitions differ in kind.
-  Pairs with `3-SF1`.
 - [ ] **Ration Press's timing model contradicts itself between sections.**
   Buildings & Economy's [Building Schema](04_buildings_and_economy.md#building-schema) (Output property) cites Ration
   Press as *the* example of "instant conversion" (`production_time`-free,
@@ -548,12 +533,6 @@ rationale.
   log (`11-SF5`)** — telegraphs are settled on Transmissions, but individual
   data reports are still described as fitting "the Transmissions record or
   simulation log".
-- [ ] **Random-shed → indoor-worker-exposure → extreme-event death roll
-  (`11-SF7`).** Buildings & Economy's [Resources](04_buildings_and_economy.md#resources) states an Energy shortfall
-  "can never kill a settler", and that an un-powered Indoor building still
-  shelters its worker from Atmospheric Hazard — but explicitly *not* from
-  temperature, which leaves the shed → exposed → casualty-roll chain live.
-  Reconcile the two.
 - [ ] **Atmospheric Hazard preparedness has no scoring representation
   (`11-SF8`)** — `MatchedPreparedness(Weather)` counts Weather/Row Shields
   only, so PPE (the one countermeasure for this sub-factor) earns nothing.
