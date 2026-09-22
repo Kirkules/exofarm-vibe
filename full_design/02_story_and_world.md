@@ -5,6 +5,10 @@
 - Each run is a **fresh start** on a new exoplanet.
 - Runs last a maximum of **15 seasons** (working value; may vary by planet type and will
   be tuned after playtesting).
+- **A run ends when the communication trace finishes collapsing** and Earth
+  loses contact — not when the expedition ends. The settlement carries on;
+  the player, orchestrating from Earth, simply can't see or reach it any
+  more. No in-fiction figure is ever put on how long a trace lasts.
 - A run ends early on **critical failure**: total farm destruction, settler starvation,
   or similar catastrophic events.
 - A successful run ends with a **score** representing quality of life, resource richness,
@@ -75,6 +79,32 @@ you've kept a balance on hand.
 
 A tree made only of Capacity would raise the floor without widening the
 game; the three-way split is there to be authored against.
+
+#### Modes
+
+Two cross-run modes. **Favor and Initiatives work identically in both** —
+the countdown changes how many runs you get, not how progression works.
+
+- **Story mode** — a countdown measured in **runs remaining** until Ren
+  arrives. Scripted cutscenes and **curated planets** (hand-authored
+  candidates appearing in the catalog at set points) carry the story.
+  **A curated planet never has to be "beaten" for the story to move past
+  it** — it's an opportunity, not a gate, so a run that goes badly costs the
+  player that opportunity and nothing else.
+- **Atemporal mode** — no countdown; runs continue indefinitely. The
+  doomsday looms permanently without ever arriving.
+
+Because unlocking is finite in Story mode and eventually exhaustive in
+Atemporal, **the order Initiatives are taken in is a real commitment under
+the countdown** and merely a preference without it. One mechanism, two
+pressures.
+
+**The final run.** When Story mode's countdown reaches zero there is one
+last expedition, and it is played differently: **there are no
+Transmissions.** The player is no longer directing from Earth, because
+Earth is gone — the viewpoint is the expedition's own, the first and only
+time the game is played from the settlement's side rather than from the
+orchestrator's.
 
 ### Earth Hub Contents
 
@@ -212,12 +242,19 @@ discovered.
 
 Communication signals (information/energy, effectively massless) don't count
 meaningfully against the mass threshold, and a collapsed wormhole leaves behind a
-lingering trace that permits ongoing FTL communication between the same two regions —
-lasting exactly as long as the lockout does (permanently, as far as anyone knows). This
-is why a settlement can maintain contact with Earth throughout a run even though the
-physical route that brought them there is spent: the same event that severs the
-possibility of an easy return or reinforcement is what guarantees they're never truly
-cut off from contact.
+lingering trace that permits ongoing FTL communication between the same two regions.
+This is why a settlement can maintain contact with Earth after the physical route
+that brought them there is spent.
+
+**The trace is not permanent — the lockout is.** Without a mass-wormhole
+alongside it to hold it open, a trace carries only electromagnetism and
+destabilizes on its own; it simply takes far longer to finish collapsing
+than the transit wormhole did. When it does, contact ends for good, and the
+lockout rule guarantees nothing can ever be opened along that path again.
+That combination is the cruel one: an expedition can never be returned to,
+and eventually can't even be spoken to. **How long a trace lasts is never
+quantified in-fiction** — it is known to be finite and roughly predictable,
+never to the season.
 
 Together, these rules make SEED's expansion inherently outward-facing: reinforcing or
 returning to an already-reached planet via its original direct route is never possible
@@ -245,12 +282,12 @@ second resource-management layer.
 When SEED commits to an actual crewed expedition, the filament is upgraded into a full
 transit-capable wormhole (subject to the mass threshold described above) — the
 connection that eventually collapses once the expedition passes through. The collapse
-doesn't destroy the filament; it re-stabilizes it permanently, already "paid for" by
+doesn't destroy the filament; it re-stabilizes it, already "paid for" by
 the process of having gone through it once. This re-stabilized filament is the same
 structure that carries the ongoing FTL communication trace described above — one
 object across its whole lifecycle: a pre-expedition scanning tool, briefly upgraded
-into a one-time transit wormhole, then permanently returned to service as a
-communication-only channel.
+into a one-time transit wormhole, then returned to service as a
+communication-only channel until it finishes collapsing.
 
 This gives the Phase 5+ hub scanning minigame a concrete in-fiction basis: it
 dramatizes choosing which limited filament slots are worth the energy to search, with
@@ -275,7 +312,7 @@ ship and captain gone, wormhole collapsed. Then, days later, ordinary FTL
 communications arrived from the direction of the collapsed wormhole's ring
 structure. This is how humanity first discovered that a collapsed wormhole
 leaves behind a lingering, communication-capable trace — the filament,
-re-stabilized in its permanent post-transit form.
+re-stabilized in its post-transit form.
 
 Sol's engineers spent months trying to re-open a direct transit connection
 to reach her, and failed — this is how humanity first learned that a
@@ -365,7 +402,7 @@ The player takes on the role of an AI orchestration intelligence — a distinct 
 from the autonomous drone-intelligences also used in the field (which are individual,
 on-board systems in their own right, not extensions of the player). The player-AI is
 based on/around Earth and directs an expedition remotely, communicating with the
-settlement via the same permanent FTL trace left by the settlement's original wormhole
+settlement via the same FTL trace left by the settlement's original wormhole
 transit. This is why the game's viewpoint is abstract and detached rather than
 first-person, and why entire seasons can play out at a glance: the player is not
 physically present, and operates at the level of planning and direction, not direct
@@ -498,7 +535,7 @@ surfacing later rather than driving the exploration (per design-process preferen
   not developed further for now.
 - C. ~~Communication lag with Earth during a run~~ — **resolved**, see
   "[Faster-Than-Light Travel](02_story_and_world.md#backstory)" above (ongoing FTL comms via the collapsed-wormhole
-  trace, effectively permanent).
+  trace, lasting until the trace itself finishes collapsing).
 - K. ~~Why finding a new world is existentially urgent~~ — **resolved**, see "[Ren, the
   Incoming Star](02_story_and_world.md#backstory)" above: a hypervelocity star, discovered generations before the Crash
   Research Era, on an unmitigable collision-or-near-miss course with the Sun, centuries

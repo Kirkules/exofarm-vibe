@@ -1,6 +1,6 @@
-Faction,Sub-metric,Notes
-Sustenance Bloc,Food Security,can the planet support a large population at all
-Safeguard Coalition,Safeguard,name tentative; safety disjoint from raw resource value
-Stewardship Caucus,Ecological Stewardship,name undecided -- alternative: Non-Intervention Bloc
-Development Bloc,Resource Access,resource access for advanced technology
-Frontier Legends,Legend,story-worthy moments a run produced
+Faction,Score,Core quantity,Notes
+Sustenance Bloc,FoodSecurity,Nutrition,can the planet support a large population at all
+Safeguard Coalition,Safeguard,Hazard data and matched preparedness,name tentative; safety disjoint from raw resource value
+Stewardship Caucus,Stewardship,Ecological data and disruption footprint,name undecided -- alternative: Non-Intervention Bloc
+Development Bloc,Development,Resource income and TechAchievement,resource access for advanced technology
+Frontier Legends,FrontierLegends,Legend Value,"per-settler legend_value, aggregated two ways: HardSiteAchievement (sum across settlers) and StandoutSettlerRecord (max)"

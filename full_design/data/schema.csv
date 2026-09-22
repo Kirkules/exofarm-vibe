@@ -218,7 +218,8 @@ plant_crop_transitions.csv,Water draw amount,Value,"TBD for the passive/biologic
 plant_crop_transitions.csv,Design status,Value,
 plant_crop_transitions.csv,Notes,Value,
 seed_factions.csv,Faction,Key,
-seed_factions.csv,Sub-metric,Value,the scoring sub-metric this faction backs; defined in 06_planets_and_scoring.md
+seed_factions.csv,Score,Value,the faction score formula defined in 06_planets_and_scoring.md
+seed_factions.csv,Core quantity,Value,what that score is fundamentally measuring
 seed_factions.csv,Notes,Value,
 faction_initiatives.csv,Initiative,Key,a meta-progression unlock bought with Favor; see 02_story_and_world.md
 faction_initiatives.csv,Faction,FK -> seed_factions.csv,"the tree it sits in, and the Favor it spends"

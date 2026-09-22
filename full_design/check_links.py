@@ -36,9 +36,9 @@ def find_duplicate_headings(path):
     within the same level (#, ##, or ###) in this file. Cross-level
     collisions (a level-2 and level-3 heading sharing text) are out of
     scope by design — checked one level at a time, top-down."""
-    by_level = {1: [], 2: [], 3: []}
+    by_level = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
     for line in open(path):
-        m = re.match(r"^(#{1,3})\s+(.*)", line)
+        m = re.match(r"^(#{1,6})\s+(.*)", line)
         if m:
             by_level[len(m.group(1))].append(m.group(2).strip())
 
@@ -64,7 +64,7 @@ def main():
             continue
         anchors = set()
         for line in open(path):
-            m = re.match(r"^(#{1,3})\s+(.*)", line)
+            m = re.match(r"^(#{1,6})\s+(.*)", line)
             if m:
                 anchors.add(slugify(m.group(2).strip()))
         anchors_in_file[fname] = anchors

@@ -37,27 +37,18 @@ rationale.
 - [ ] **The unlocked content behind the three seeded Initiatives** — Protein
   Reform's tiny-animal husbandry does not exist in `04` at all; Thin-Film
   Photovoltaics needs a Solar Array variant and its construction costs.
-- [ ] **Run length — definiteness & motivation** — a run is currently
-  **15 seasons**, but this number has no diegetic justification and the
-  length should be revisited: does it want a clearer in-fiction reason
-  (supply windows, the hypervelocity-star timeline, a SEED mandate), and is
-  15 the right value — should some planets/factions/modes shorten or extend
-  it?
-- [ ] **Story mode vs. Atemporal mode** — two cross-run modes in the
-  meta-progression frame:
-  - **Story mode** — a real countdown of years to the **hypervelocity
-    star's arrival** (the doomsday the whole expedition exists to outrun),
-    plus faction-driven story events and special curated planets to target.
-    Runs are finite in number; the countdown ending is the end of the game.
-  - **Atemporal mode** — meta-progression but **no countdown**: the
-    doomsday looms permanently, and the player takes as many runs as they
-    want. The endless/practice framing.
-  Meta-progression itself does **not** differ between them: Favor and
-  Initiatives work identically, and the countdown simply caps how many runs
-  a player gets, which is what makes unlock order a commitment in Story mode
-  and eventually moot in Atemporal. Still needs design: what else the
-  countdown gates or changes, how story events slot in, and what "curated
-  planets" are.
+- [ ] **Author the final run** — Story mode's last expedition, played from
+  the expedition's own side with no Transmissions (see Story & World's
+  [Modes](02_story_and_world.md#modes)). The exposition for it is unwritten, and can be written after
+  the rest of the game is built. Two mechanical consequences need answers
+  first: hazard telegraphs and the run-start SEED summary both travel by
+  Transmissions, so the final run has neither — which removes the counterplay
+  that makes scheduled hazards legible (see Planets & Scoring's
+  [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)) and sits against the design principle that no
+  untelegraphed event should end a run. And with no Earth to report to,
+  whether the final run is scored at all — and what its faction scores would
+  mean — is undecided.
+- [ ] **Author the curated planets and scripted cutscenes** for Story mode.
 - [ ] **Pre-Phase-5 exoplanet selection (`12-SF4`)** — candidate count, how
   candidates are generated, whether a shelf-life / reroll-limit is active,
   and random-vs-choose. The hub's Exoplanet catalog (see Story & World's
