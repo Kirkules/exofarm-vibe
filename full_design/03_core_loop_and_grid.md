@@ -1026,7 +1026,8 @@ the other viable — not to make one path always correct.*
 
 ### Across Runs (Meta-Progression)
 
-Cross-run progression — any permanent change a completed run makes to future
-runs, beyond the run-history record — is **not yet designed**; several avenues
-are intended. See Story & World's [Meta-Progression](02_story_and_world.md#meta-progression)
-and `DESIGN_TODO.md`.
+A completed run pays **Favor** to all five SEED factions in proportion to
+their scores, which is spent on **Initiatives** in those factions' trees.
+Initiatives apply from the next run's start — never partway through a run —
+so nothing here changes the loop above. See Story & World's
+[Meta-Progression](02_story_and_world.md#meta-progression).

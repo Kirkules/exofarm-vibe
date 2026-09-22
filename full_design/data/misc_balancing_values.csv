@@ -75,3 +75,6 @@ Landing windfall,Per-feature bonus (3x3 around the Settlement Base),TBD,TBD,"sma
 Hazard schedule,Opening seasons barred from extreme-band events,2,Illustrative,generation-time constraint; guarantees a turn-one settlement cannot be handed a catastrophe it had no instrument to foresee
 Hazard event duration,"Mild event, seconds of Mid-Sim",TBD,TBD,one short interval
 Hazard event duration,"Extreme event, seconds of Mid-Sim",TBD,TBD,"longer, and possibly split across two intervals"
+Favor,Payout bar at zero accrued Favor,TBD,TBD,the faction score a run must clear before it pays any Favor at all
+Favor,Bar growth per accrued Favor point,TBD,TBD,how fast the bar rises as Favor accrues with that faction
+Favor,Favor per score point above the bar,TBD,TBD,flat yield above the bar; final formula chosen once Initiative costs are set

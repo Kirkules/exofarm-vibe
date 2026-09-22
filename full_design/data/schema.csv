@@ -217,3 +217,20 @@ plant_crop_transitions.csv,Base duration (s),Value,
 plant_crop_transitions.csv,Water draw amount,Value,"TBD for the passive/biological-wait transitions that draw Water; N/A for the short worker-active ones, which never draw Water"
 plant_crop_transitions.csv,Design status,Value,
 plant_crop_transitions.csv,Notes,Value,
+seed_factions.csv,Faction,Key,
+seed_factions.csv,Sub-metric,Value,the scoring sub-metric this faction backs; defined in 06_planets_and_scoring.md
+seed_factions.csv,Notes,Value,
+faction_initiatives.csv,Initiative,Key,a meta-progression unlock bought with Favor; see 02_story_and_world.md
+faction_initiatives.csv,Faction,FK -> seed_factions.csv,"the tree it sits in, and the Favor it spends"
+faction_initiatives.csv,Type,Value,Capability | Capacity | Access
+faction_initiatives.csv,Favor cost,Value,"integer, in the primary faction Favor"
+faction_initiatives.csv,Secondary faction,FK -> seed_factions.csv,blank unless this is a cross-faction Initiative
+faction_initiatives.csv,Secondary Favor required,Value,total Favor ever earned with the secondary faction (spent or not); not consumed
+faction_initiatives.csv,Effect,Value,one terse clause; an Initiative needing more than one is too big and wants splitting
+faction_initiatives.csv,Defined in,Value,where the mechanic itself is defined -- this sheet never restates it
+faction_initiatives.csv,Design status,Value,
+faction_initiatives.csv,Notes,Value,
+faction_initiative_prerequisites.csv,Initiative,Key + FK -> faction_initiatives.csv,
+faction_initiative_prerequisites.csv,Prerequisite initiative,Key + FK -> faction_initiatives.csv,must be unlocked first
+faction_initiative_prerequisites.csv,Design status,Value,
+faction_initiative_prerequisites.csv,Notes,Value,

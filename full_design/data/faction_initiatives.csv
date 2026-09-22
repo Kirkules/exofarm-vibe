@@ -1,0 +1,4 @@
+Initiative,Faction,Type,Favor cost,Secondary faction,Secondary Favor required,Effect,Defined in,Design status,Notes
+Protein Reform,Sustenance Bloc,Capability,TBD,,,Tiny-animal and insect-derived food production becomes available,04_buildings_and_economy.md (Husbandry Site),TBD,the unlocked content itself is unauthored; framed as moving public opinion toward accepting insect-derived food
+Wormhole Stabilization,Development Bloc,Capacity,TBD,,,Raises the Specialization mass budget,misc_balancing_values.csv (Specialization rows),TBD,framed as funding further wormhole-stabilization research
+Thin-Film Photovoltaics,Stewardship Caucus,Capability,TBD,,,"Solar arrays buildable from Copper/Iron-tier metals, on any structure",04_buildings_and_economy.md (Solar Array); building_construction_costs.csv,TBD,"Capability rather than Capacity: per-structure solar changes how a settlement is laid out, not just what it costs"

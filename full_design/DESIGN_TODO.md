@@ -14,30 +14,29 @@ rationale.
 
 ## Run Structure & Meta-Progression
 
-- [ ] **Meta-progression redesign** — cross-run progression is currently only
-  a loose definition ("any cross-run change to the game outside of run
-  history"; see Story & World's [Meta-Progression](02_story_and_world.md#meta-progression) and Core Loop & Grid's
-  [Across Runs (Meta-Progression)](03_core_loop_and_grid.md#across-runs-meta-progression)). The earlier single mechanism — gather enough
-  of a previously-unseen resource type during a run → Earth develops new
-  catalog designs from it, unlocked for future runs — was **dropped as too
-  narrow**: a story-era guess made before the surrounding systems were
-  settled. Needs a real design spanning several intended avenues. Absorbs
-  `12-B2` (the old unlock trigger: the "enough of a previously-unseen
-  resource type" threshold, the cross-run ledger it implies, the authored
-  material→design mapping, and whether the unlock is surfaced to the
-  player) and `12-SF3` (the "stabilization tech" meta-axis — cut as its own
-  axis; the base starting loadout is now a flat "one Settlement Base + three
-  other starting buildings + one construction robot", and any cross-run
-  variation on it belongs to this redesign). Fodder, not yet designed:
-  - Per-faction score thresholds unlock a game-changing element — e.g. once
-    Frontier Legends passes a threshold, its recruitment ramp guarantees
-    every future crew one legendary-tier "hero" settler.
-  - A small chance, on establishing trade with a technologically advanced
-    alien species, to unlock a technology humans do not (and in-fiction never
-    would) invent on their own, via that relationship.
-  - Better wormhole-opening technology raises the Specialization mass budget
-    (see Core Loop & Grid's [Specialization](03_core_loop_and_grid.md#specialization)) and widens/cheapens its pool —
-    e.g. affording an advanced worker, or two directions at once.
+- [ ] **Author the Initiative trees** — the structure is settled (see Story &
+  World's [Meta-Progression](02_story_and_world.md#meta-progression)); the content is not. Five trees in
+  `data/faction_initiatives.csv`, currently holding three Initiatives.
+  Needed per Initiative: name, Type, effect, where its mechanic is defined,
+  prerequisites, and any cross-faction Favor gate. Every tree wants
+  **Capability** entries, not only Capacity — a tree of Capacity raises the
+  floor without widening the game. Absorbs `12-B2` and `12-SF3` (cross-run
+  variation on the starting loadout is an Initiative effect like any other).
+  Fodder, not yet placed in a tree:
+  - Frontier Legends' recruitment ramp guaranteeing every future crew one
+    legendary-tier "hero" settler.
+  - A technology humans do not (and in-fiction never would) invent on their
+    own, reached through trade with an advanced alien species.
+  - Widening or cheapening the Specialization pool — affording an advanced
+    worker, or two directions at once — alongside the mass-budget raise
+    Wormhole Stabilization already covers.
+- [ ] **Settle the Favor payout formula** — a rising bar with flat yield above
+  it is the agreed shape, and `data/misc_balancing_values.csv`'s "Favor" rows
+  hold its three constants at TBD. The final formula waits on Initiative
+  costs, which wait on the trees being authored.
+- [ ] **The unlocked content behind the three seeded Initiatives** — Protein
+  Reform's tiny-animal husbandry does not exist in `04` at all; Thin-Film
+  Photovoltaics needs a Solar Array variant and its construction costs.
 - [ ] **Run length — definiteness & motivation** — a run is currently
   **15 seasons**, but this number has no diegetic justification and the
   length should be revisited: does it want a clearer in-fiction reason
@@ -53,9 +52,12 @@ rationale.
   - **Atemporal mode** — meta-progression but **no countdown**: the
     doomsday looms permanently, and the player takes as many runs as they
     want. The endless/practice framing.
-  Needs design of what the countdown actually gates/changes, how story
-  events slot in, what "curated planets" are, and how meta-progression
-  differs (if at all) between the two.
+  Meta-progression itself does **not** differ between them: Favor and
+  Initiatives work identically, and the countdown simply caps how many runs
+  a player gets, which is what makes unlock order a commitment in Story mode
+  and eventually moot in Atemporal. Still needs design: what else the
+  countdown gates or changes, how story events slot in, and what "curated
+  planets" are.
 - [ ] **Pre-Phase-5 exoplanet selection (`12-SF4`)** — candidate count, how
   candidates are generated, whether a shelf-life / reroll-limit is active,
   and random-vs-choose. The hub's Exoplanet catalog (see Story & World's

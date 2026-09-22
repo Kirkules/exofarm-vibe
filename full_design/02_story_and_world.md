@@ -21,14 +21,60 @@ growing body of knowledge from all completed expeditions.
 ### Meta-Progression
 
 **Meta-progression** is any cross-run change to the game outside of run history
-— a permanent shift to what a future run starts with, contains, or can reach,
-representing humanity's accumulating knowledge and capability from completed
-expeditions. Several distinct avenues are intended; the specific mechanisms are
-**not yet designed** (see `DESIGN_TODO.md`).
+— a permanent shift to what a future run starts with, contains, or can reach.
+It runs on one mechanism: **Favor** earned with the five SEED factions, spent
+on **Initiatives** in those factions' trees.
 
-Earth already knows how to make everything the catalog currently contains —
-settlers arrive with **blueprints for all known designs**, and what limits them
-in a run is access to the required **planet-side materials**, not knowledge.
+**Within a run, nothing about it changes.** Settlers arrive with
+**blueprints for all known designs**, and what limits them is access to the
+required **planet-side materials**, not knowledge — there is no in-run tech
+tree, and an Initiative unlocked between runs applies from the next run's
+start, never partway through one.
+
+#### Favor
+
+**Favor is political power a faction is willing to spend on your behalf.**
+You earn it by raising a faction's standing — an expedition is the whole
+world's focus, so aligning one with a faction's ideology is what puts that
+faction's politics in the ascendant. Having done so, it will expend some of
+that power for you, in proportion to what you've accrued.
+
+**Every completed run pays out to all five factions at once**, each against
+its own score (see Planets & Scoring's [SEED Factions](06_planets_and_scoring.md#seed-factions)) — the player
+never nominates one. A run's payout with a faction is what its score clears
+above a **bar that rises with the Favor already earned from it** (curve: see
+`data/misc_balancing_values.csv`'s "Favor" rows).
+
+That diminishing return does two things, and the second is the interesting
+one. It makes **neglected factions the cheap ones**, so the meta-game keeps
+asking for constituencies you've been ignoring. And it means pulling another
+Initiative out of a faction you've already courted requires scoring *higher
+with that same faction than you ever have* — which usually means importing
+capability from other factions' trees. Breadth is pushed from both ends.
+
+**Favor never decays and never resets.** It accumulates for the life of the
+save.
+
+#### Initiatives
+
+Each faction has a tree of **Initiatives** — see `data/faction_initiatives.csv`
+and `data/faction_initiative_prerequisites.csv`. An Initiative **spends** that
+faction's Favor, permanently. Some additionally require a level of **total
+Favor ever earned** with a *second* faction — spent or not — so a
+cross-faction Initiative asks whether that faction knows you, not whether
+you've kept a balance on hand.
+
+**Initiatives are not all upgrades, by design** — each is one of three kinds:
+- **Capability** — content or a way to play that didn't exist before.
+  *Illustrative*: Sustenance Bloc moving public opinion far enough that
+  insect-derived food is acceptable, opening tiny-animal husbandry.
+- **Capacity** — more of a dial the game already has. *Illustrative*:
+  Development Bloc funding wormhole-stabilization research, raising the
+  Specialization mass budget (see Core Loop & Grid's [Specialization](03_core_loop_and_grid.md#specialization)).
+- **Access** — reaching planets or options previously out of range.
+
+A tree made only of Capacity would raise the floor without widening the
+game; the three-way split is there to be authored against.
 
 ### Earth Hub Contents
 
@@ -39,7 +85,8 @@ first season and initial settlement state:
   selection), and to reroll the candidate pool. "Start run" launches from here
   once a candidate is chosen.
 - **Run history** — summary of past runs: planet visited, score, key outcomes.
-- **Meta-progression** — the cross-run options above.
+- **Initiatives** — the five factions' trees, each Favor balance, and the
+  bar each faction's next payout has to clear.
 - **Settings** — game-wide settings.
 - **Discovered-element codex** — reference detail on game elements the player
   has encountered: how they work, their stats, and so on.

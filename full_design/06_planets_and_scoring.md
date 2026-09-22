@@ -677,6 +677,10 @@ separately-visible sub-metrics" scoring principle real narrative weight instead 
 being an arbitrary abstract dial, and mirrors the "breadth of tradeoffs" difficulty
 principle at the political level.
 
+**Each faction's score does double duty**: it's this run's viability
+judgment, and it's what that faction pays out in **Favor** toward its
+Initiative tree (see Story & World's [Meta-Progression](02_story_and_world.md#meta-progression)).
+
 **Score bounds and units, for all five factions.** Every faction's score is
 displayed as a **percentage, 0–100%**, abstractly representing that faction's
 estimated probability of recommending a seed-ship be sent to this planet.
