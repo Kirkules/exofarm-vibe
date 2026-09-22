@@ -403,6 +403,27 @@ rationale.
 
 ## Exploration Tasks & Standing Assignments
 
+- [ ] **Author catalog entries for the escalation chain's named tasks.**
+  `data/exploration_task_escalations.csv` refers to tasks that have no row in
+  `data/exploration_task_catalog.csv`, which is why `check_data.py` reports
+  them as soft-reference mismatches rather than resolving them. As triggers:
+  "Unknown Radio Signal (rescue succeeded)", "Unknown Radio Signal (rescue
+  failed, 'too late')", "Medical Bay vaccine unlock (per-pathogen)", and
+  "Native-fruit-stockpile find (Verdant, worked example)". As unlocks:
+  the three elevated Sentience Detection tiers, "First Contact (direct
+  entry)", "Region-reveal exploration task", and "Habitat-seeking task ->
+  animal alliance". `data/exploration_task_injury_weights.csv` separately
+  names the three First Contact resolutions (Peaceful / Bluff-Coercive /
+  Military Exploitation). Each needs a real catalog row with its Rarity,
+  Risk, Season gate, Ration cost, `Availability`, and — since most of these
+  will be Leads — a deliberate `Lead expiry`, which is currently unset for
+  nearly everything that will become one.
+- [ ] **`sentience_contact_chain.csv`'s item names carry their requirement
+  inline** — "Diplomatic Gear (Mandatory)" and "Armed Expedition Kit +
+  Overwhelming Force Package (Mandatory)" don't resolve against
+  `items.csv`. The second also names two items in one cell. Wants splitting
+  into real item references with the requirement in its own column, the way
+  `exploration_task_input_items.csv` already does it.
 - [ ] **No pool-population/draw algorithm (`10a-B1`)** — filling the 3 (max
   5) slots from the per-planet eligible set, given Rarity, the Season gate,
   and meta-progression unlocks, is unspecified.
