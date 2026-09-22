@@ -1066,6 +1066,17 @@ after, so its expedition amounts to the same thing as one that died —
 scored as a failed run, not as a low-scoring successful one. It doesn't end
 the run *early*, unlike colony-wide death; it's discovered at the end.
 
+**A failed run is scored, not voided — it's capped.** Every faction's score
+is computed exactly as it would be otherwise, then **capped at that
+faction's current Favor payout bar** (see Story & World's [Favor](02_story_and_world.md#favor)). Two
+things follow, and both are intended: the run **pays no Favor**, since
+paying requires clearing a bar the score can no longer exceed; and the run
+still produces a real score that goes into run history rather than a blank.
+The only cost is a little **feedback precision** — a failed run that would
+have scored above the bar reports the bar instead, so a capped score is
+displayed as a floor ("at least this") rather than a measurement, and is
+not comparable against uncapped runs.
+
 ### Gradual Decline
 - Poor seasons compound: fewer resources, understaffed sites, harder recovery
 - A run can be effectively lost through slow decline without a single critical event

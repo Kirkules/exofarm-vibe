@@ -57,19 +57,22 @@ rationale.
   player *would* have scored well enough on an ordinary run, plus a settler
   headcount — and the exposition itself, which can be written after the rest
   of the game is built.
-- [ ] **Define the run-failure cases and what each scores.** Colony-wide
-  death and a missing Deep Space Beacon (see Buildings & Economy's
-  [Deep Space Beacon](04_buildings_and_economy.md#deep-space-beacon)) both now end a run as a failure, but "scored as a
-  failed run" isn't defined anywhere: whether faction scores are zeroed,
-  computed and then discarded, or partially credited — and therefore what
-  Favor a failed run pays, if any. Needed across every failure path, not
-  just these two.
-- [ ] **Deep Space Beacon's open values** — construction cost tier, Energy
-  draw while broadcasting, and whether it must merely exist at run end or
-  must have broadcast for some number of seasons to count as raised
-  (`data/misc_balancing_values.csv`'s "Deep Space Beacon" rows). Its cost
-  tier decides whether the requirement is a formality or a real mid-run
-  investment competing with everything else.
+- [ ] **Confirm the capped-score rule covers every failure path.** A failed
+  run now scores normally but capped at the faction's Favor bar (see Planets
+  & Scoring's [Critical Failure (Early End)](06_planets_and_scoring.md#critical-failure-early-end)), which pays no Favor and still
+  records a score. Written against colony-wide death and a missing Beacon;
+  wants a pass over any other failure path to confirm nothing needs
+  different treatment.
+- [ ] **Deep Space Beacon's remaining values** — construction-cost
+  quantities at the intended mid tier, Energy draw while broadcasting, and
+  Beacon Site Survey's success chance (`data/misc_balancing_values.csv` and
+  `data/building_construction_costs.csv`). The survey's failure rate decides
+  how early a player must start the chain to be safe.
+- [ ] **Whether the Beacon's destruction is recoverable.** It can be
+  destroyed and cannot be shielded, and the chain is repeatable in
+  principle — but nothing says whether a second Beacon costs the full
+  chain again, nor what happens if it falls with too few seasons left to
+  rebuild. Interacts directly with the end-run-early decision.
 - [ ] **Pre-Phase-5 exoplanet selection (`12-SF4`)** — candidate count, how
   candidates are generated, whether a shelf-life / reroll-limit is active,
   and random-vs-choose. The hub's Exoplanet catalog (see Story & World's

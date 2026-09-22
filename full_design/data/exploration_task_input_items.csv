@@ -16,3 +16,6 @@ Volcanic Profile-shifting,Temperature-Resistant Gear,Mandatory,Needs Balancing,
 Ice Reinforcing,Leather Backpack,Optional,Needs Balancing,guarantees top of range
 Meteorite Fragment,Portable High-Powered Scanning Equipment,Mandatory,Needs Balancing,
 Unknown Radio Signal,Emergency Medical Kit,Optional,Needs Balancing,guarantees rescue if the signal is a genuine distress call
+Beacon Construction,Concrete,Mandatory,TBD,"the Deep Space Beacon construction cost, owned by building_construction_costs.csv -- quantities live there, not here"
+Beacon Construction,High-Tech Components,Mandatory,TBD,"the Deep Space Beacon construction cost, owned by building_construction_costs.csv -- quantities live there, not here"
+Beacon Construction,Copper,Mandatory,TBD,"the Deep Space Beacon construction cost, owned by building_construction_costs.csv -- quantities live there, not here"

@@ -1515,11 +1515,13 @@ exploration finds, same as everything else in the catalog.
 ## Deep Space Beacon
 
 **At a glance:**
-- Unstaffed; broadcasts outward into space, not back to Earth.
+- Unstaffed, **off-grid**; broadcasts outward into space, not back to Earth.
+- Built by a **two-task exploration chain**, not by an ordinary construction
+  action — see Settlers & Exploration's [Exploration Tasks](05_settlers_and_exploration.md#exploration-tasks).
 - **Required to end a run successfully** — a run that ends without one
   scores as a failed expedition.
-- Energy-hungry while broadcasting; see `data/misc_balancing_values.csv`'s
-  "Deep Space Beacon" rows.
+- **Destructible and unshieldable**, which is what makes ending a run early
+  a real choice.
 
 A high-powered omnidirectional transmitter whose signal is aimed at nobody
 in particular: **future seed-ships**, which need to actually find this
@@ -1532,12 +1534,39 @@ thing a settlement can leave that outlives its contact with home.
   Unstaffed
 - Input: Energy while broadcasting | Output: none in the trackable-resource
   sense
-- Construction cost: see `data/building_construction_costs.csv`
+- Construction cost: see `data/building_construction_costs.csv` — a
+  **mid-tier** cost deliberately drawing on ordinary industry (no rare
+  metals), so raising one is a real investment without being a rare-find
+  lottery.
+
+**It is built by exploration, not by a construction robot.** A two-task
+chain (see Settlers & Exploration's [Exploration Tasks](05_settlers_and_exploration.md#exploration-tasks)): **Beacon Site
+Survey** finds a location with a clear enough horizon to broadcast from, and
+can fail and be retried; **Beacon Construction** then raises it, and is
+guaranteed once its requirements are committed — the whole construction
+cost above, plus **one construction robot accompanying the settler**,
+committed for the season and returned afterward rather than consumed.
+Exploration stays settler-only: the robot is equipment the task takes along,
+not a second assigned worker. Between them the two tasks demand a moderate
+resource stockpile *and* a willingness to send people out, so a successful
+expedition can't be run purely as a farm.
+
+**It sits off the settlement grid**, on its own tile in a small dedicated
+corner window — it consumes no grid slot and competes with nothing for
+space, because the site it occupies is somewhere out on the planet rather
+than in the settlement.
+
 - **Its absence ends the run as a failure.** A settlement that survives all
   fifteen seasons but never raised a Beacon was never found, and its data
-  never reached anyone — scored the same as a settlement that died (see
-  Planets & Scoring's [Critical Failure (Early End)](06_planets_and_scoring.md#critical-failure-early-end)). This is the one
-  building that is not optional on any run.
+  never reached anyone — scored as a failed run (see Planets & Scoring's
+  [Critical Failure (Early End)](06_planets_and_scoring.md#critical-failure-early-end)). Merely existing at run end is enough;
+  there's no minimum broadcast duration.
+- **It can be destroyed by weather, and it cannot be shielded** — Weather
+  and Row Shields cover grid cells, and the Beacon is not on the grid. This
+  is deliberate: it's the one structure in the game with no protective
+  answer, and the only counterplay is to stop the run while it still stands
+  (see Core Loop & Grid's [Season Structure](03_core_loop_and_grid.md#season-structure)). Losing it is never an ambush —
+  the storm that takes it is telegraphed like any other.
 - **On the final run it is the whole point.** With Earth gone it is the only
   signal humanity has left, and it carries the settlement's fate outward to
   ships that may or may not be coming.

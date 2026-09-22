@@ -441,6 +441,30 @@ animal-infection-visibility gates — see [Infected Food](05_settlers_and_explor
   its entire duration, per the refresh-exemption rule above.
 - Number and quality of available tasks varies by planet type and meta-progression unlocks
 
+### The Beacon Chain
+
+**Two tasks, always in the pool rather than rolled into it**, because the
+Deep Space Beacon they build is required to end a run successfully (see
+Buildings & Economy's [Deep Space Beacon](04_buildings_and_economy.md#deep-space-beacon)) and a required outcome can't
+depend on a refresh going the player's way.
+
+1. **Beacon Site Survey** — finds a location with a clear enough horizon to
+   broadcast from. **Can fail**, and can be retried; failing costs the
+   Rations and the settler's season, not the run.
+2. **Beacon Construction** — an escalation unlocked only by a successful
+   survey (see [Escalation Chains](05_settlers_and_exploration.md#escalation-chains)), and **guaranteed to succeed** once its
+   requirements are committed: the Beacon's full construction cost (owned by
+   `data/building_construction_costs.csv`), plus **one construction robot
+   accompanying the settler**. The robot is committed for the season and
+   comes back — the requirement is a loan, not a cost, and exploration stays
+   settler-only because the robot travels as equipment rather than as a
+   second assigned worker.
+
+The chain is why a successful expedition can't be run as a pure farm: it
+demands a moderate stockpile *and* a willingness to send someone out, and it
+makes the run's mandatory objective something the player has to actively go
+and get.
+
 ### Assignment
 Exploration Tasks are one of the three Assignment target kinds (see Core
 Loop & Grid's Assignment) — settler-only, one-shot, drawn from the pool

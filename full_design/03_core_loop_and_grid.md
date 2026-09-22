@@ -755,6 +755,15 @@ Each game round = one **season** on the planet.
   manages the small set of impactful actions described in Platform & Core Loop
   Redesign
 - All moves are **fully reversible** until "Proceed to Next Season" is confirmed
+- **Once a Deep Space Beacon stands** (see Buildings & Economy's
+  [Deep Space Beacon](04_buildings_and_economy.md#deep-space-beacon)), a second button sits beside that one: **end the run
+  now** and take the current score. It appears every subsequent planning
+  phase for as long as the Beacon stands, never as a one-time offer. The
+  tradeoff is real in both directions — more seasons generally mean a better
+  score, but the Beacon can't be shielded, so a telegraphed storm turns
+  "keep going" into a genuine gamble against losing the run outright. Ending
+  early carries the same implication the run's natural end does: the
+  settlers go on, tending the Beacon themselves, out of contact.
 - **Moveable pieces** can be picked up (freeing their slots) and placed elsewhere or
   returned to the **inventory** (no separate workspace area — the inventory serves as
   the off-grid holding area)
