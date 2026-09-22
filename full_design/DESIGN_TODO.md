@@ -65,14 +65,10 @@ rationale.
   different treatment.
 - [ ] **Deep Space Beacon's remaining values** — construction-cost
   quantities at the intended mid tier, Energy draw while broadcasting, and
-  Beacon Site Survey's success chance (`data/misc_balancing_values.csv` and
-  `data/building_construction_costs.csv`). The survey's failure rate decides
-  how early a player must start the chain to be safe.
-- [ ] **Whether the Beacon's destruction is recoverable.** It can be
-  destroyed and cannot be shielded, and the chain is repeatable in
-  principle — but nothing says whether a second Beacon costs the full
-  chain again, nor what happens if it falls with too few seasons left to
-  rebuild. Interacts directly with the end-run-early decision.
+  quantities (`data/building_construction_costs.csv`). The survey's base
+  chance is set at 0.5; what remains is whether its tail needs bounding —
+  an unboosted explorer still fails four straight attempts 6% of the time,
+  against a hard run requirement.
 - [ ] **Pre-Phase-5 exoplanet selection (`12-SF4`)** — candidate count, how
   candidates are generated, whether a shelf-life / reroll-limit is active,
   and random-vs-choose. The hub's Exoplanet catalog (see Story & World's

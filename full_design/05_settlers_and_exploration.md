@@ -450,7 +450,10 @@ depend on a refresh going the player's way.
 
 1. **Beacon Site Survey** — finds a location with a clear enough horizon to
    broadcast from. **Can fail**, and can be retried; failing costs the
-   Rations and the settler's season, not the run.
+   Rations and the settler's season, not the run. Base success chance: see
+   `data/misc_balancing_values.csv`'s "Deep Space Beacon" rows. A capable
+   explorer finds the site faster, but nobody is guaranteed it on the first
+   try, so starting the chain late is its own risk.
 2. **Beacon Construction** — an escalation unlocked only by a successful
    survey (see [Escalation Chains](05_settlers_and_exploration.md#escalation-chains)), and **guaranteed to succeed** once its
    requirements are committed: the Beacon's full construction cost (owned by
@@ -459,6 +462,11 @@ depend on a refresh going the player's way.
    comes back — the requirement is a loan, not a cost, and exploration stays
    settler-only because the robot travels as equipment rather than as a
    second assigned worker.
+
+**If the Beacon is destroyed, only the second task repeats.** The site is
+already known, so Beacon Construction simply becomes available again —
+paying its materials and a robot's season over, but never re-running the
+survey or re-rolling its chance.
 
 The chain is why a successful expedition can't be run as a pure farm: it
 demands a moderate stockpile *and* a willingness to send someone out, and it
