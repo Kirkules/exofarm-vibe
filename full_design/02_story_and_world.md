@@ -86,8 +86,9 @@ Two cross-run modes. **Favor and Initiatives work identically in both** —
 the countdown changes how many runs you get, not how progression works.
 
 - **Story mode** — a countdown measured in **runs remaining** until Ren
-  arrives. Scripted cutscenes and **curated planets** (hand-authored
-  candidates appearing in the catalog at set points) carry the story.
+  arrives. Scripted cutscenes and **curated planets** (hand-authored worlds
+  pegged to set points, and the only runs whose world isn't the player's to
+  choose — see [Choosing a Planet](02_story_and_world.md#choosing-a-planet)) carry the story.
   **A curated planet never has to be "beaten" for the story to move past
   it** — it's an opportunity, not a gate, so a run that goes badly costs the
   player that opportunity and nothing else.
@@ -125,10 +126,8 @@ three things follow:
 
 The hub landing routes to five screens; it is otherwise independent of a run's
 first season and initial settlement state:
-- **Exoplanet catalog** — the available candidate planets with their known
-  conditions and features; used to choose the next run (or opt into random
-  selection), and to reroll the candidate pool. "Start run" launches from here
-  once a candidate is chosen.
+- **Exoplanet catalog** — where the next run's world is chosen (see
+  [Choosing a Planet](02_story_and_world.md#choosing-a-planet)). "Start run" launches from here.
 - **Run history** — summary of past runs: planet visited, score, key outcomes.
 - **Initiatives** — the five factions' trees, each Favor balance, and the
   bar each faction's next payout has to clear.
@@ -138,9 +137,42 @@ first season and initial settlement state:
 
 *Backstory and lore moved to [Background Story & Gameplay-Story Integration](02_story_and_world.md#background-story--gameplay-story-integration) below.*
 
-**Phase 5+ addition:** A hub mini-game for scanning/searching for exoplanets with
-specific property combinations. More favorable target = harder mini-game, sometimes
-impossible.
+### Choosing a Planet
+
+**A planet archetype is a playstyle, chosen the way a class is chosen** — not
+a hand the player is dealt. Each of the four (see Planets & Scoring's
+[Initial Planet Types](06_planets_and_scoring.md#initial-planet-types)) carries its own strategic pressure, and picking one
+is an expression of what the player wants to play this run.
+
+- **Pick an archetype, then reroll for the specifics** — deposits, hazard
+  priors, terrain. Rerolling is free and unlimited: it re-aims a filament,
+  which costs SEED and not the player (see [Backstory](02_story_and_world.md#backstory)'s Filaments and
+  Exoplanet Discovery). Advance whenever a candidate appeals.
+- **Archetype filtering can be turned off entirely**, in which case a reroll
+  re-rolls everything including the archetype. For a player who wants the
+  pleasure of being dealt a hand, that's the way to take it.
+- **No candidate pool, no shelf life, no reroll budget.** Scarcity at this
+  layer would duplicate work the meta-progression already does better: a
+  faction's payout bar rises with the Favor already earned from it (see
+  [Favor](02_story_and_world.md#favor)), so playing one archetype repeatedly makes its factions the
+  expensive ones and the neglected factions the cheap ones. Breadth is
+  pushed from inside a system the player can see and reason about, rather
+  than by rationing what they're allowed to choose.
+- **New archetypes arrive as Access Initiatives** (see [Initiatives](02_story_and_world.md#initiatives)) — the
+  clearest use of that node type, since a new class is content rather than
+  capacity.
+
+**Story mode chooses for the player only at curated worlds.** Ordinary runs
+under the countdown pick an archetype as freely as Atemporal ones; the
+event- and countdown-pegged curated worlds are fixed, unrerollable, and
+authored — intended to cover each archetype about once across a playthrough,
+so a player is taken somewhere they might not have chosen without ever being
+stuck in one place.
+
+**Phase 5+ addition:** a hub mini-game for **targeted** rolling — not
+finding a planet at all (free rerolling already does that), but demanding
+specific property combinations within an archetype. The more particular the
+demand, the harder the mini-game, sometimes impossible.
 
 ---
 
@@ -284,15 +316,13 @@ detection of a system's contents (planets, composition, and other properties) fr
 Sol, well beyond what ordinary telescopy alone could resolve.
 
 Maintaining a stabilized filament costs energy on an ongoing basis, so only a limited
-number can be kept active at once. This is why only a handful of candidate expeditions
-are ever available to choose from at a time in the Earth hub's exoplanet catalog, and
-why an unclaimed candidate has a shelf life — if a filament isn't committed to an
-actual expedition within some window, it's dropped to free capacity for a new
-candidate elsewhere (nothing is lost at this stage; no expedition has happened yet).
-This cost has no direct effect on the player's own in-run resource economy — its only
-gameplay effect is to gate the number of currently-available planet choices and put a
-soft time limit on rerolling them, keeping this mechanic simple rather than adding a
-second resource-management layer.
+number can be kept active at once — but **re-aiming one is routine**. SEED drops a
+filament it isn't going to use and stabilizes a new one toward a different candidate
+as a matter of course; nothing is lost in doing so, since no expedition has happened
+yet. That cost is SEED's, never the player's: it touches no in-run resource economy
+and imposes no budget to manage, which is why surveying candidate after candidate
+until one appeals is simply what the organization does between expeditions (see
+[Choosing a Planet](02_story_and_world.md#choosing-a-planet)).
 
 When SEED commits to an actual crewed expedition, the filament is upgraded into a full
 transit-capable wormhole (subject to the mass threshold described above) — the

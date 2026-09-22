@@ -69,11 +69,18 @@ rationale.
   chance is set at 0.5; what remains is whether its tail needs bounding —
   an unboosted explorer still fails four straight attempts 6% of the time,
   against a hard run requirement.
-- [ ] **Pre-Phase-5 exoplanet selection (`12-SF4`)** — candidate count, how
-  candidates are generated, whether a shelf-life / reroll-limit is active,
-  and random-vs-choose. The hub's Exoplanet catalog (see Story & World's
-  [Earth Hub Contents](02_story_and_world.md#earth-hub-contents)) names the screen but not the selection mechanic
-  behind it.
+- [ ] **Author a fifth planet archetype as the worked Access Initiative.**
+  Planet types are now picked like classes and extended by Access
+  Initiatives (see Story & World's [Choosing a Planet](02_story_and_world.md#choosing-a-planet)), but `Access` still
+  has no entry in `data/faction_initiatives.csv` and no fifth type exists.
+  Needs the archetype itself — identity, strategy-dimension pressure, hazard
+  priors, resource profile — plus which faction's tree it belongs to.
+- [ ] **What a rerolled candidate actually varies.** Rerolling within an
+  archetype re-rolls "the specifics" — deposits, hazard priors, terrain —
+  but the generation ranges are undefined, and `06`'s per-planet pressure
+  distribution and terrain layout are open threads feeding the same
+  question. Determines whether two Frozen worlds feel meaningfully
+  different or interchangeable.
 - [ ] **Run History's role and presentation (`12-SF7`)** — record only, or
   does it seed the next run; is there a cross-run score; and it must not
   imply a timeline. Currently only enumerated as a hub destination.

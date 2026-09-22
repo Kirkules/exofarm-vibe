@@ -63,6 +63,11 @@ Four to start, each with a qualitative identity below; the exact pressure
 distribution per planet across the four strategy dimensions is still to be
 worked out (open thread — see below).
 
+**A type is a playstyle the player picks**, the way a class is picked in
+another genre — each one's strategic pressure is the reason to want it (see
+Story & World's [Choosing a Planet](02_story_and_world.md#choosing-a-planet)). Further types are added as Access
+Initiatives rather than being fixed at four forever.
+
 - **Volcanic** — hostile atmosphere, extreme heat, harsh weather. Forces the Advanced
   Greenhouse path (Biosphere Integration is low). High Protection/Enclosure
   (constant protection needed) and, via the temperature coupling, high Energy
