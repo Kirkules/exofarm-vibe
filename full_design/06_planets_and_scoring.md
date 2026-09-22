@@ -681,7 +681,10 @@ and open the same panel.
 - The *fictional meaning* is defined (see "Seed-Ships" in Background Story &
   [Gameplay-Story Integration](02_story_and_world.md#gameplay-story-integration)) — it's an estimate of the likelihood that a full-scale,
   long-term human civilization could be established on that planet, used to decide
-  whether/who a future seed-ship gets sent there.
+  whether/who a future seed-ship gets sent there. **Story mode cashes this
+  in**: its closing decision is the player choosing, from among their
+  successful runs, which planet the last seed-ship goes to (see Story &
+  World's [Run History](02_story_and_world.md#run-history)).
 - **Content scope**: the viability report explains each SEED Faction's score plus a
   broad-strokes summary across all five — it does not carry per-encounter narrative
   flourishes (e.g. no special write-up keyed to which alien civilization class was

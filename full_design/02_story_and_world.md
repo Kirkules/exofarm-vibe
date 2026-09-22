@@ -128,7 +128,7 @@ The hub landing routes to five screens; it is otherwise independent of a run's
 first season and initial settlement state:
 - **Exoplanet catalog** — where the next run's world is chosen (see
   [Choosing a Planet](02_story_and_world.md#choosing-a-planet)). "Start run" launches from here.
-- **Run history** — summary of past runs: planet visited, score, key outcomes.
+- **Run history** — the record of past expeditions (see [Run History](02_story_and_world.md#run-history)).
 - **Initiatives** — the five factions' trees, each Favor balance, and the
   bar each faction's next payout has to clear.
 - **Settings** — game-wide settings.
@@ -173,6 +173,60 @@ stuck in one place.
 finding a planet at all (free rerolling already does that), but demanding
 specific property combinations within an archetype. The more particular the
 demand, the harder the mini-game, sometimes impossible.
+
+### Run History
+
+**A record, and only a record.** It seeds nothing mechanically — Favor,
+Initiatives and story progress are the things a run changes about the next
+one, and a second carry-forward would split that job. What it seeds is the
+*player's* thinking, which is what a good record is for.
+
+**There is no cross-run score.** Favor is already the number that
+accumulates and drives something; a second aggregate would invite optimizing
+a figure that changes nothing.
+
+Each entry carries:
+- The planet's **catalog designation** and **archetype**.
+- **All five faction scores**, never collapsed into one — the "several
+  separately visible sub-metrics, not a single opaque summed number"
+  principle applies to the record as much as to the run's own end.
+- **Favor earned per faction**, and the run's key outcomes.
+- **The run's standout settler by name** (Frontier Legends'
+  `StandoutSettlerRecord` — see Planets & Scoring's [SEED Factions](06_planets_and_scoring.md#seed-factions)), with
+  their detail on hover. The faction's whole premise is that the crew want
+  to see *themselves* among the legends; this is where that lands
+  permanently.
+
+**A capped score is marked as capped** — a bar across the numbers, with a
+tooltip saying a cap was in play (see Planets & Scoring's
+[Critical Failure (Early End)](06_planets_and_scoring.md#critical-failure-early-end)). Without the marking the record would mislead
+twice over: a capped figure is a floor rather than a measurement, and
+because the cap is the faction's Favor bar, which rises over a playthrough,
+two identically-failed runs recorded at different points show different
+numbers.
+
+**Ordered, but never dated.** No elapsed years, no "Year 3" — the game keeps
+no account of in-fiction time across a player's runs. Sequence is honest and
+unavoidable; elapsed time is not. Story-mode entries may carry their
+**countdown position** ("14 runs remaining"), which is measured in runs
+rather than time.
+
+**Nothing in this list can be returned to.** A collapsed pair can never be
+reconnected (see [Backstory](02_story_and_world.md#backstory)'s Faster-Than-Light Travel), so run history is a
+record of places humanity cannot go back to. Mechanically this asks for one
+rule only: **a catalog designation already in run history is never issued
+again.** Two planets being near-identical by chance is fine and expected;
+two carrying the same name is not.
+
+**Story mode's last decision is made here.** When the story ends, the player
+chooses from among their **successful** runs the one planet to send
+humanity's last undedicated seed-ship to. It has no further mechanical
+consequence — the game is over afterwards, to be restarted or continued in
+Atemporal mode — but it is the payoff the viability reports were always for
+(see Planets & Scoring's [Success](06_planets_and_scoring.md#success)), and the one moment a planet stops being a
+catalog designation: a dispatched-to world is named by the community aboard
+the ship, the people who will actually live there (see [Backstory](02_story_and_world.md#backstory)'s Planet
+Naming). The closing exposition uses that name.
 
 ---
 

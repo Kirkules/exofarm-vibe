@@ -81,9 +81,13 @@ rationale.
   distribution and terrain layout are open threads feeding the same
   question. Determines whether two Frozen worlds feel meaningfully
   different or interchangeable.
-- [ ] **Run History's role and presentation (`12-SF7`)** — record only, or
-  does it seed the next run; is there a cross-run score; and it must not
-  imply a timeline. Currently only enumerated as a hub destination.
+- [ ] **Where the seed-ship decision sits relative to the final run.** Story
+  mode's closing beat has the player choose which successful-run planet gets
+  humanity's last seed-ship (see Story & World's [Run History](02_story_and_world.md#run-history)), but the
+  final run is played with Earth already destroyed — so who dispatches the
+  ship, and whether the choice comes before that run, after it as an
+  epilogue, or in flashback, is unwritten. Part of the final run's
+  exposition pass.
 - [ ] **Settings screen(s) (`12-SF5`)** — not designed anywhere. Wanted: one
   consolidated spec covering °F/°C, a global dexterity/gesture-timing scale,
   volume, an optional larger-font tier, drag-offset, and whether settings
