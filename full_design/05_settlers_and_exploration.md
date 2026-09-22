@@ -396,6 +396,8 @@ animal-infection-visibility gates — see [Infected Food](05_settlers_and_explor
 - **Strategy Dimensions** — every outcome is Profile-shifting, Reinforcing,
   or Neutral; each planet has a Reinforcing and a Profile-shifting
   exclusive (`data/strategy_dimension_exclusives.csv`).
+- **Leads** — earned and permanently-available tasks are held outside the
+  pool, with per-task expiry; the Beacon chain lives here.
 - **Escalation Chains** — an outcome can guarantee a follow-up task next
   refresh; sentience-contact chain and Trade Agreements are the worked
   examples.
@@ -407,6 +409,8 @@ animal-infection-visibility gates — see [Infected Food](05_settlers_and_explor
 - **Always available, every season** — not gated to a periodic window, since
   the player never has to commit to anything in the pool anyway. A pool of
   up to **3 tasks** is presented at all times during planning.
+- **Leads sit outside the pool** (below) — anything earned or permanently
+  available is held separately, so it never occupies a pool slot.
 - **Refresh**: the entire pool refreshes on two triggers — automatically at
   the start of each season, and manually via reroll (below) — except any
   task the player has explicitly **locked**, or any task **in progress**
@@ -441,6 +445,31 @@ animal-infection-visibility gates — see [Infected Food](05_settlers_and_explor
   its entire duration, per the refresh-exemption rule above.
 - Number and quality of available tasks varies by planet type and meta-progression unlocks
 
+### Leads
+
+**A task the player has *earned* never competes with the tasks they're
+*offered*.** Leads are held in their own short list beside the pool, not in
+it: escalation follow-ups (see [Escalation Chains](05_settlers_and_exploration.md#escalation-chains)) and permanently-available
+tasks like the Beacon chain (below). Each task's `Availability` in
+`data/exploration_task_catalog.csv` says which it is.
+
+This exists because the pool is small — 3 slots at base — and locking was
+otherwise the only way to keep something. Two held continuations would have
+left a single rerollable slot while the reroll still charged its full Ration
+cost, which punishes exactly the behaviour escalation chains are meant to
+produce. Keeping leads separate leaves the pool doing one job, offering
+variety, and returns **locking** to its intended purpose: holding a *rolled*
+task the player can't yet afford.
+
+**Expiry is set per task, not by a global rule** (`Lead expiry` in the same
+sheet). The right answer depends entirely on the fiction: an alien
+civilization offering to talk trade may withdraw the offer after a single
+season, while a lead on *finding* a civilization needn't expire at all,
+since they'll still be there whenever the settlement gets around to it.
+**There is no cap on how many leads can be held** — few are concurrently
+available in practice, and an arbitrary limit would cost more in
+explanation than it saves.
+
 ### The Beacon Chain
 
 **Two tasks, always in the pool rather than rolled into it**, because the
@@ -450,10 +479,13 @@ depend on a refresh going the player's way.
 
 1. **Beacon Site Survey** — finds a location with a clear enough horizon to
    broadcast from. **Can fail**, and can be retried; failing costs the
-   Rations and the settler's season, not the run. Base success chance: see
-   `data/misc_balancing_values.csv`'s "Deep Space Beacon" rows. A capable
-   explorer finds the site faster, but nobody is guaranteed it on the first
-   try, so starting the chain late is its own risk.
+   Rations and the settler's season, not the run. **Every failed attempt
+   raises the next attempt's chance** by a flat amount that accumulates
+   across the run (base chance and increment: see
+   `data/misc_balancing_values.csv`'s "Deep Space Beacon" rows), so a bad
+   streak is self-correcting and the search is guaranteed to conclude. The
+   first attempt is unchanged by this — it only bounds the tail, which
+   matters because this is the one task whose failure can cost the run.
 2. **Beacon Construction** — an escalation unlocked only by a successful
    survey (see [Escalation Chains](05_settlers_and_exploration.md#escalation-chains)), and **guaranteed to succeed** once its
    requirements are committed: the Beacon's full construction cost (owned by

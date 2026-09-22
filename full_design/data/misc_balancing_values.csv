@@ -81,3 +81,4 @@ Favor,Favor per score point above the bar,TBD,TBD,flat yield above the bar; fina
 Deep Space Beacon,Energy draw while broadcasting,TBD,TBD,unstaffed; the run cannot end successfully without one
 Deep Space Beacon,Seasons of broadcasting required to count as raised,TBD,TBD,whether it must simply exist at run end or must have broadcast for some time is undecided
 Deep Space Beacon,Beacon Site Survey base success chance,0.5,Needs Balancing,ceiling is 0.75 with Exploration Aptitude +2 and Storied both active (they stack additively: p + 0.50(1-p)); Experience never applies to exploration tasks
+Deep Space Beacon,Beacon Site Survey chance added per failed attempt,0.1,Needs Balancing,"absolute, cumulative across the run; leaves the first attempt feeling unchanged while bounding the tail (1.2% still failing after four) and guaranteeing it by the sixth"

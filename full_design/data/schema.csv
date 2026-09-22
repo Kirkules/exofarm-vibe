@@ -104,6 +104,8 @@ aptitude_exploration_effect_table.csv,Design status,Value,
 aptitude_exploration_effect_table.csv,Notes,Value,
 exploration_task_catalog.csv,Task,Key,
 exploration_task_catalog.csv,Category,Value,
+exploration_task_catalog.csv,Availability,Value,"Pool (rolled into the refreshing pool) or Lead (earned or permanently available, sitting outside the pool)"
+exploration_task_catalog.csv,Lead expiry,Value,"blank for Pool tasks; None, or a season count, for Leads -- set case by case per task, not by a global rule"
 exploration_task_catalog.csv,Rarity,Value,
 exploration_task_catalog.csv,Risk,Value,
 exploration_task_catalog.csv,Season gate,Value,
