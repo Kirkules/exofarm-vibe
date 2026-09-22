@@ -253,7 +253,11 @@ Rations stock, the starting buildings, and one construction robot).
     Extremity instead of possibly nothing, and at higher `Confidence` it
     sharpens the lead-time window and severity readout by one step (capped at
     the exact-lead-time tier). It adds no separate channel — it advances the
-    player along the existing `Confidence`-scaled telegraph.
+    player along the existing `Confidence`-scaled telegraph. **On the final
+    run it keeps working while Earth's forecast does not**, making it the
+    only remaining source of foresight; its messages take Earth's place in
+    the channel, prefixed `Orbital probe:` and considerably terser (see
+    Story & World's [Modes](02_story_and_world.md#modes)).
   - **Civilization scan.** Once, early in the run, the probe rolls a chance
     (see `data/misc_balancing_values.csv`'s "Specialization" row) to detect
     organized life on the planet. On success the player

@@ -97,3 +97,6 @@ Crew Quarters,Lumber,modest,TBD,ratio TBD
 Crew Quarters,Concrete,modest,TBD,ratio TBD
 Luxury Living Quarters,Lumber,"Crew Quarters cost, plus refined goods",TBD,exact refined-goods set TBD
 Luxury Living Quarters,Concrete,"Crew Quarters cost, plus refined goods",TBD,exact refined-goods set TBD
+Deep Space Beacon,Concrete,TBD,TBD,
+Deep Space Beacon,High-Tech Components,TBD,TBD,
+Deep Space Beacon,Copper,TBD,TBD,

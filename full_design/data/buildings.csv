@@ -52,3 +52,4 @@ Food Storage,Storage,Staffed (extraction only),N/A,1,1,Yes,,Needs Balancing,TBD,
 Food Storage II,Storage,Staffed (extraction only),N/A,1,1,Yes,Food Storage,Needs Balancing,TBD,raises capacity
 Crew Quarters,Habitation,Unstaffed,N/A,1,0,No,,Needs Balancing,TBD,settlement-wide Good Sleep; non-stacking
 Luxury Living Quarters,Habitation,Unstaffed,N/A,1,0,No,Crew Quarters,Needs Balancing,TBD,Great Sleep + one luxury-item slot per settler
+Deep Space Beacon,Utilities,Unstaffed,Outdoor,1,0,No,,TBD,TBD,"required to end a run successfully; broadcasts outward to future seed-ships, not to Earth; Energy-hungry while broadcasting"

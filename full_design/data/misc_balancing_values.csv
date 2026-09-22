@@ -78,3 +78,5 @@ Hazard event duration,"Extreme event, seconds of Mid-Sim",TBD,TBD,"longer, and p
 Favor,Payout bar at zero accrued Favor,TBD,TBD,the faction score a run must clear before it pays any Favor at all
 Favor,Bar growth per accrued Favor point,TBD,TBD,how fast the bar rises as Favor accrues with that faction
 Favor,Favor per score point above the bar,TBD,TBD,flat yield above the bar; final formula chosen once Initiative costs are set
+Deep Space Beacon,Energy draw while broadcasting,TBD,TBD,unstaffed; the run cannot end successfully without one
+Deep Space Beacon,Seasons of broadcasting required to count as raised,TBD,TBD,whether it must simply exist at run end or must have broadcast for some time is undecided

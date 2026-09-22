@@ -100,11 +100,26 @@ the countdown** and merely a preference without it. One mechanism, two
 pressures.
 
 **The final run.** When Story mode's countdown reaches zero there is one
-last expedition, and it is played differently: **there are no
-Transmissions.** The player is no longer directing from Earth, because
-Earth is gone — the viewpoint is the expedition's own, the first and only
-time the game is played from the settlement's side rather than from the
-orchestrator's.
+last expedition, played from the expedition's own side — the first and only
+time the game is not played from the orchestrator's. Earth is gone, and
+three things follow:
+
+- **Earth's half of the conversation stops.** Planet-origin messages still
+  arrive, now unprefixed; the run-start SEED summary and the multi-season
+  hazard forecast, both Earth-made, do not (see [Gameplay-Story Integration](02_story_and_world.md#gameplay-story-integration)
+  and Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events)). The settlement
+  still knows what this season looks like; it no longer knows what's coming.
+  Nothing becomes an ambush — it becomes impossible to plan far ahead
+  against, which asks the player to build resilient rather than reactive.
+- **The orbital probe keeps working**, and becomes the only source of
+  foresight left — its messages stand in for Earth's, prefixed `Orbital
+  probe:` and far terser than SEED's readings were.
+- **There is no run-length clock.** The trace is what bounded every other
+  run, and there is no trace and no Earth to lose contact with. The run ends
+  on a story beat instead: once the settlement is stable enough and enough
+  settlers remain, an exposition sequence closes it out — the colony holding,
+  children born on the planet, the ultimate fate of the settlement and of
+  humanity left to the player.
 
 ### Earth Hub Contents
 
@@ -470,17 +485,34 @@ mostly optional, consistent with the minimal-UI-interaction principle. Each
 entry leads with a **category glyph** (per the shared status-cue vocabulary
 — see Production & Technical's [Art Design](07_production_and_technical.md#art-design)), since a run's worth of
 accumulated transmissions is otherwise too much to re-parse each season to
-find the one that matters. Content is
-mixed: Earth/SEED political and world-state flavor, exploration task outcomes and
-Mission Report content framed in the Herald's own voice (a report the player-character
-is filing, not neutral narrator text), and — importantly — diegetically-framed game
-hints and advance warnings of planet-side hazards (e.g. incoming weather). This last
-point resolves the still-open "no purely ambient, untriggered randomness should end a
-run" design principle for any future weather/disaster mechanic: a transmission
-telegraphs the hazard in advance, turning what would otherwise be an ambush into a
-legible, prepare-or-don't risk. **Now concretely realized** — see Planets & Scoring's
-[In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events) for the full mechanism (the one-time SEED summary
-transmission, and per-season telegraphing that scales with `Confidence(hazard)`).
+find the one that matters.
+
+**It reads as a conversation, not a feed.** Every entry is **prefixed by its
+sender** — the settlement's messages by the planet's name, Earth's by
+`SEED:` — so the channel reads as an ongoing back-and-forth between two
+correspondents rather than a list of notifications. That prefix is the only
+thing marking direction, and it does real work: most traffic originates
+planet-side (the settlement reporting what happened to it), while a smaller
+share is Earth answering.
+
+**The channel is never enumerated here.** Anything either correspondent
+would actually say arrives on it — what happened on the planet, what Earth
+makes of it, and what is coming — and the systems that generate those
+messages are the authorities on their own content. Nothing is listed in this
+section, because any list would go stale the moment a system starts
+reporting something new.
+
+Its load-bearing use is **advance warning of planet-side hazards**, which is
+what satisfies the "no purely ambient, untriggered randomness should end a
+run" design principle: a hazard is telegraphed before it lands, turning what
+would otherwise be an ambush into a legible, prepare-or-don't risk. See
+Planets & Scoring's [In-Simulation Hazard Events](06_planets_and_scoring.md#in-simulation-hazard-events) for that mechanism.
+
+**On the final run the prefixes simply stop.** The settlement's own messages
+still arrive, unprefixed — they're no longer transmitted to anyone, just
+observed — and Earth's side of the conversation is gone (see [Modes](02_story_and_world.md#modes)). The
+channel keeps its name: the settlement is still transmitting, outward, into
+empty space (see Buildings & Economy's [Deep Space Beacon](04_buildings_and_economy.md#deep-space-beacon)).
 
 **Settler story presence.** Kept deliberately minimal for now: a short personnel-file
 style blurb when a settler first appears (consistent with the prestigious/competitive

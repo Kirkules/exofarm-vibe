@@ -49,6 +49,27 @@ rationale.
   whether the final run is scored at all — and what its faction scores would
   mean — is undecided.
 - [ ] **Author the curated planets and scripted cutscenes** for Story mode.
+- [ ] **Author the final run's ending** — it has no run-length clock (see
+  Story & World's [Modes](02_story_and_world.md#modes)), so a story beat has to end it: the settlement
+  stable enough and enough settlers remaining, resolving into exposition
+  about the colony holding and children born on the planet. Needs the
+  concrete trigger — the working idea is a behind-the-scenes check that the
+  player *would* have scored well enough on an ordinary run, plus a settler
+  headcount — and the exposition itself, which can be written after the rest
+  of the game is built.
+- [ ] **Define the run-failure cases and what each scores.** Colony-wide
+  death and a missing Deep Space Beacon (see Buildings & Economy's
+  [Deep Space Beacon](04_buildings_and_economy.md#deep-space-beacon)) both now end a run as a failure, but "scored as a
+  failed run" isn't defined anywhere: whether faction scores are zeroed,
+  computed and then discarded, or partially credited — and therefore what
+  Favor a failed run pays, if any. Needed across every failure path, not
+  just these two.
+- [ ] **Deep Space Beacon's open values** — construction cost tier, Energy
+  draw while broadcasting, and whether it must merely exist at run end or
+  must have broadcast for some number of seasons to count as raised
+  (`data/misc_balancing_values.csv`'s "Deep Space Beacon" rows). Its cost
+  tier decides whether the requirement is a formality or a real mid-run
+  investment competing with everything else.
 - [ ] **Pre-Phase-5 exoplanet selection (`12-SF4`)** — candidate count, how
   candidates are generated, whether a shelf-life / reroll-limit is active,
   and random-vs-choose. The hub's Exoplanet catalog (see Story & World's

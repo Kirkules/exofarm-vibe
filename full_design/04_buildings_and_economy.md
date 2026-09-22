@@ -159,8 +159,8 @@ upkeep column.
 6. **Storage** — contributes inventory capacity.
 7. **Utilities** — staffed settlement-support infrastructure that isn't
    itself farming, fabrication, storage, or protection: Water collection
-   (see [Water](04_buildings_and_economy.md#water)), Scanner Station (see [Scanner Station](04_buildings_and_economy.md#scanner-station)), and Research Lab (see
-   [Research Lab](04_buildings_and_economy.md#research-lab)). The thing these share isn't output type, it's role —
+   (see [Water](04_buildings_and_economy.md#water)), Scanner Station (see [Scanner Station](04_buildings_and_economy.md#scanner-station)), Research Lab (see
+   [Research Lab](04_buildings_and_economy.md#research-lab)), and Deep Space Beacon (see [Deep Space Beacon](04_buildings_and_economy.md#deep-space-beacon)). The thing these share isn't output type, it's role —
    keeping the place running rather than producing, protecting, or storing
    anything directly.
 8. **Habitation** — crew sleeping quarters (see [Habitation](04_buildings_and_economy.md#habitation)). Unstaffed;
@@ -1509,6 +1509,38 @@ exploration finds, same as everything else in the catalog.
   project permanently adding +1 to the Exploration Tasks pool size (see
   [Settlers](05_settlers_and_exploration.md#settlers) & Exploration), always available to research (not
   discovery-gated like Hybridization projects are).
+
+---
+
+## Deep Space Beacon
+
+**At a glance:**
+- Unstaffed; broadcasts outward into space, not back to Earth.
+- **Required to end a run successfully** — a run that ends without one
+  scores as a failed expedition.
+- Energy-hungry while broadcasting; see `data/misc_balancing_values.csv`'s
+  "Deep Space Beacon" rows.
+
+A high-powered omnidirectional transmitter whose signal is aimed at nobody
+in particular: **future seed-ships**, which need to actually find this
+planet, and which have no other way to learn what became of the expedition
+that came first. The communication trace only ever reached Earth, and it
+dies with the run (see Story & World's [Backstory](02_story_and_world.md#backstory)); the Beacon is the only
+thing a settlement can leave that outlives its contact with home.
+
+- Category: Utilities (see [Building Categories](04_buildings_and_economy.md#building-categories) in [Resources](04_buildings_and_economy.md#resources)) | Staffing:
+  Unstaffed
+- Input: Energy while broadcasting | Output: none in the trackable-resource
+  sense
+- Construction cost: see `data/building_construction_costs.csv`
+- **Its absence ends the run as a failure.** A settlement that survives all
+  fifteen seasons but never raised a Beacon was never found, and its data
+  never reached anyone — scored the same as a settlement that died (see
+  Planets & Scoring's [Critical Failure (Early End)](06_planets_and_scoring.md#critical-failure-early-end)). This is the one
+  building that is not optional on any run.
+- **On the final run it is the whole point.** With Earth gone it is the only
+  signal humanity has left, and it carries the settlement's fate outward to
+  ships that may or may not be coming.
 
 ---
 

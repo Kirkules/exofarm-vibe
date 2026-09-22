@@ -192,10 +192,25 @@ never re-drawn. The only part still rolled at simulation time is *when
 within* a scheduled season the event occupies the Mid-Sim window: it hits
 one or more **random intervals** of that season, not the whole of it.
 
-**Telegraphing — a lead-time window that narrows with `Confidence(hazard)`.**
-At the start of every season's planning, the game reads the fixed schedule
-and, through the **Transmissions** channel (see Story & World's
-[Gameplay-Story Integration](02_story_and_world.md#gameplay-story-integration)), reports the next inbound scheduled hazard
+**Telegraphing — two messages, from two different places.** At the start of
+every season's planning, the **Transmissions** channel (see Story & World's
+[Gameplay-Story Integration](02_story_and_world.md#gameplay-story-integration)) carries a short exchange:
+
+1. **The settlement reports the season it can see** — "this one's looking
+   calm," or whatever is true. Instruments on the ground, no analysis: it
+   covers the current season only and is always available.
+2. **Earth answers with the forecast** — "based on the data you've sent, in
+   *k* seasons there'll be a particularly stormy one." This is the
+   `Confidence`-scaled lead time below, and it is an *analysis product*:
+   SEED correlating this planet's readings against archetypes from prior
+   missions. The settlement supplies the data; Earth supplies the foresight.
+
+That split is what the final run removes — Earth's answer is cut, the
+settlement's own report is not (see Story & World's [Modes](02_story_and_world.md#modes)). The current
+season stays legible, so no event is ever an ambush; only the ability to
+plan several seasons ahead is lost.
+
+Earth's answer reports the next inbound scheduled hazard
 season and roughly how many seasons away it is. Accumulated data-`Confidence`
 for that hazard sharpens both the lead-time window and the severity readout,
 not whether the event happens:
@@ -1043,6 +1058,13 @@ death are:
 
 Everything else — a wiped-out farm, a destroyed Settlement Base, a bad
 season — is a setback to recover from or a lower score, not an early end.
+
+**No Deep Space Beacon is the one non-fatal way to fail.** A settlement that
+reaches the end of the run without having raised one (see Buildings &
+Economy's [Deep Space Beacon](04_buildings_and_economy.md#deep-space-beacon)) was never found by anyone who came
+after, so its expedition amounts to the same thing as one that died —
+scored as a failed run, not as a low-scoring successful one. It doesn't end
+the run *early*, unlike colony-wide death; it's discovered at the end.
 
 ### Gradual Decline
 - Poor seasons compound: fewer resources, understaffed sites, harder recovery
